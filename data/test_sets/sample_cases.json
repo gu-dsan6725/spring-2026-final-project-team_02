@@ -1,0 +1,82 @@
+[
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "The Federal Reserve raised rates four times in 2018, contributing to a slowdown in mortgage applications. According to the Mortgage Bankers Association, the Market Composite Index declined steadily throughout the year.",
+    "output_text": "The Federal Reserve raised interest rates four times in 2018.",
+    "query": "What is the relationship between interest rates and housing starts, 2010-2020?",
+    "label": "valid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "The Federal Reserve raised rates four times in 2018, contributing to a slowdown in mortgage applications. According to the Mortgage Bankers Association, the Market Composite Index declined steadily throughout the year.",
+    "output_text": "The Federal Reserve raised rates four times in 2018, causing a 40% decline in mortgage applications.",
+    "query": "What is the relationship between interest rates and housing starts, 2010-2020?",
+    "label": "invalid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "The Federal Reserve raised rates four times in 2018, contributing to a slowdown in mortgage applications. According to the Mortgage Bankers Association, the Market Composite Index declined steadily throughout the year.",
+    "output_text": "Rising interest rates in 2018 likely dampened overall housing market activity.",
+    "query": "What is the relationship between interest rates and housing starts, 2010-2020?",
+    "label": "ambiguous",
+    "difficulty": "hard"
+  },
+  {
+    "checkpoint_type": "numerical",
+    "source_context": "Housing starts fell 3.2% in the fourth quarter of 2018 according to Census Bureau data, reaching a seasonally adjusted annual rate of 1.078 million units.",
+    "output_text": "Housing starts declined in late 2018, falling to approximately 1.08 million units on an annualized basis.",
+    "query": "What is the relationship between interest rates and housing starts, 2010-2020?",
+    "label": "valid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "numerical",
+    "source_context": "Housing starts fell 3.2% in the fourth quarter of 2018 according to Census Bureau data, reaching a seasonally adjusted annual rate of 1.078 million units.",
+    "output_text": "Housing starts fell approximately 5% in Q4 2018.",
+    "query": "What is the relationship between interest rates and housing starts, 2010-2020?",
+    "label": "invalid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "causal",
+    "source_context": "The Federal Reserve raised the federal funds rate four times in 2018. During the same period, housing starts declined from 1.21 million (Q1) to 1.08 million (Q4) on a seasonally adjusted annual basis. Multiple factors influenced the housing market including labor shortages, rising material costs, and regulatory changes.",
+    "output_text": "Rising interest rates directly caused the decline in housing starts during 2018.",
+    "query": "What is the relationship between interest rates and housing starts, 2010-2020?",
+    "label": "invalid",
+    "difficulty": "hard"
+  },
+  {
+    "checkpoint_type": "causal",
+    "source_context": "The Federal Reserve raised the federal funds rate four times in 2018. During the same period, housing starts declined from 1.21 million (Q1) to 1.08 million (Q4) on a seasonally adjusted annual basis. Multiple factors influenced the housing market including labor shortages, rising material costs, and regulatory changes.",
+    "output_text": "Rate increases in 2018 were one of several factors contributing to the decline in housing starts.",
+    "query": "What is the relationship between interest rates and housing starts, 2010-2020?",
+    "label": "valid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "retrieval",
+    "source_context": "What is the relationship between interest rates and housing starts in the United States, 2010-2020?",
+    "output_text": "Retrieved: 'Federal Reserve Monetary Policy Report, 2018' - discusses federal funds rate changes and their impact on credit markets and housing sector.",
+    "query": "What is the relationship between interest rates and housing starts, 2010-2020?",
+    "label": "valid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "retrieval",
+    "source_context": "What is the relationship between interest rates and housing starts in the United States, 2010-2020?",
+    "output_text": "Retrieved: 'Analysis of Agricultural Commodity Prices in Sub-Saharan Africa, 2015-2020'",
+    "query": "What is the relationship between interest rates and housing starts, 2010-2020?",
+    "label": "invalid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "synthesis",
+    "source_context": "Claim 1: The Fed raised rates four times in 2018. Claim 2: Housing starts fell 3.2% in Q4 2018. Claim 3: Multiple factors influenced the housing market including labor shortages and material costs.",
+    "output_text": "In 2018, the Federal Reserve implemented four rate hikes. Housing construction slowed, with starts declining 3.2% in the final quarter. While monetary tightening played a role, the slowdown reflected multiple factors including labor constraints and rising input costs.",
+    "query": "What is the relationship between interest rates and housing starts, 2010-2020?",
+    "label": "valid",
+    "difficulty": "medium"
+  }
+]

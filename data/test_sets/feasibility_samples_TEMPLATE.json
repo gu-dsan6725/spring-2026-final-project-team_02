@@ -1,0 +1,21 @@
+[
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "The Federal Reserve raised rates four times in 2018, contributing to a slowdown in mortgage applications.",
+    "output_text": "The Federal Reserve raised rates four times in 2018.",
+    "label": "valid"
+  },
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "The Federal Reserve raised rates four times in 2018, contributing to a slowdown in mortgage applications.",
+    "output_text": "The Federal Reserve raised rates five times in 2018.",
+    "label": "invalid"
+  },
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "The Federal Reserve raised rates four times in 2018, contributing to a slowdown in mortgage applications.",
+    "output_text": "Rising rates in 2018 likely dampened housing activity.",
+    "label": "ambiguous"
+  }
+  // ... Add 30-50 cases per checkpoint type (retrieval, synthesis, numerical, causal)
+]

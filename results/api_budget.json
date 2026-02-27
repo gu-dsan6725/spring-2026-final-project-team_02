@@ -1,0 +1,66 @@
+{
+  "parameters": {
+    "n_cases": 50,
+    "t1_escalation": 0.4,
+    "t2_escalation": 0.5,
+    "t3_escalation": 0.3,
+    "sweep": null,
+    "output": "results/api_budget.json"
+  },
+  "estimates": [
+    {
+      "model": "Groq Llama-3.3-70B (free tier)",
+      "n_cases": 50,
+      "n_t2": 20.0,
+      "n_t3": 10.0,
+      "n_t4_human": 3.0,
+      "t2_calls": 20.0,
+      "t3_calls": 30.0,
+      "total_api_calls": 50.0,
+      "total_input_tokens": 67000.0,
+      "total_output_tokens": 21000.0,
+      "api_cost_usd": 0.0,
+      "human_cost_usd": 15.0,
+      "total_cost_usd": 15.0,
+      "llm_judge_all_cost_usd": 0.0,
+      "cost_per_case_usd": 0.3,
+      "time_estimate_minutes": 1.6666666666666667
+    },
+    {
+      "model": "Groq Llama-3.3-70B (paid)",
+      "n_cases": 50,
+      "n_t2": 20.0,
+      "n_t3": 10.0,
+      "n_t4_human": 3.0,
+      "t2_calls": 20.0,
+      "t3_calls": 30.0,
+      "total_api_calls": 50.0,
+      "total_input_tokens": 67000.0,
+      "total_output_tokens": 21000.0,
+      "api_cost_usd": 0.05612,
+      "human_cost_usd": 15.0,
+      "total_cost_usd": 15.05612,
+      "llm_judge_all_cost_usd": 0.0443,
+      "cost_per_case_usd": 0.3011224,
+      "time_estimate_minutes": 0.8333333333333334
+    },
+    {
+      "model": "GPT-4o (OpenAI, proposal reference)",
+      "n_cases": 50,
+      "n_t2": 20.0,
+      "n_t3": 10.0,
+      "n_t4_human": 3.0,
+      "t2_calls": 20.0,
+      "t3_calls": 30.0,
+      "total_api_calls": 50.0,
+      "total_input_tokens": 67000.0,
+      "total_output_tokens": 21000.0,
+      "api_cost_usd": 0.3775,
+      "human_cost_usd": 15.0,
+      "total_cost_usd": 15.3775,
+      "llm_judge_all_cost_usd": 0.2875,
+      "cost_per_case_usd": 0.30755,
+      "time_estimate_minutes": 0.8333333333333334
+    }
+  ]
+}

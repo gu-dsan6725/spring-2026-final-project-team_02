@@ -1,0 +1,322 @@
+[
+  {
+    "checkpoint_type": "retrieval",
+    "source_context": "What caused U.S. inflation to rise sharply in 2021-2022?",
+    "output_text": "Retrieved: 'Federal Reserve Monetary Policy Report, February 2022' — discusses the FOMC's assessment of inflation drivers including supply-chain disruptions, energy prices, and elevated demand following pandemic-era fiscal stimulus.",
+    "query": "What caused U.S. inflation to rise sharply in 2021-2022?",
+    "label": "valid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "retrieval",
+    "source_context": "What caused U.S. inflation to rise sharply in 2021-2022?",
+    "output_text": "Retrieved: 'EU Agricultural Subsidy Reform and Rural Employment in France, 2019' — examines the effect of CAP reforms on farm income and labor allocation in the French countryside.",
+    "query": "What caused U.S. inflation to rise sharply in 2021-2022?",
+    "label": "invalid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "retrieval",
+    "source_context": "How did U.S. unemployment evolve during the COVID-19 recession?",
+    "output_text": "Retrieved: 'Bureau of Labor Statistics Monthly Employment Situation Report, April 2020' — reports that the U.S. unemployment rate surged to 14.7% in April 2020, the highest since data collection began in 1948.",
+    "query": "How did U.S. unemployment evolve during the COVID-19 recession?",
+    "label": "valid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "retrieval",
+    "source_context": "How did U.S. unemployment evolve during the COVID-19 recession?",
+    "output_text": "Retrieved: 'OECD Taxing Wages Report, 2021' — compares average effective income tax wedges across 38 member countries including marginal rates on labor income.",
+    "query": "How did U.S. unemployment evolve during the COVID-19 recession?",
+    "label": "invalid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "retrieval",
+    "source_context": "What is the relationship between the federal funds rate and long-term Treasury yields?",
+    "output_text": "Retrieved: 'NBER Working Paper 29865 — The Transmission of Monetary Policy Shocks' (Bauer & Swanson, 2022) — examines how FOMC announcements move short and long ends of the yield curve using event-study identification.",
+    "query": "What is the relationship between the federal funds rate and long-term Treasury yields?",
+    "label": "valid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "retrieval",
+    "source_context": "What is the relationship between the federal funds rate and long-term Treasury yields?",
+    "output_text": "Retrieved: 'International Monetary Fund World Economic Outlook, April 2015' — analyzes global growth prospects and risks during the period when oil prices were falling sharply.",
+    "query": "What is the relationship between the federal funds rate and long-term Treasury yields?",
+    "label": "ambiguous",
+    "difficulty": "hard"
+  },
+  {
+    "checkpoint_type": "retrieval",
+    "source_context": "How does the U.S. trade deficit respond to dollar appreciation?",
+    "output_text": "Retrieved: 'Federal Reserve Staff Working Paper — Exchange Rate Pass-Through to Import Prices in the United States, 2019' — uses high-frequency data to estimate how a stronger dollar reduces U.S. import costs.",
+    "query": "How does the U.S. trade deficit respond to dollar appreciation?",
+    "label": "valid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "retrieval",
+    "source_context": "How does the U.S. trade deficit respond to dollar appreciation?",
+    "output_text": "Retrieved: 'CBO Report: The Distribution of Household Income, 2018' — presents estimates of before- and after-tax income by income quintile for American households.",
+    "query": "How does the U.S. trade deficit respond to dollar appreciation?",
+    "label": "invalid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "The Consumer Price Index for All Urban Consumers (CPI-U) rose 7.0 percent over the 12 months ending December 2021, the largest 12-month increase since the period ending June 1982.",
+    "output_text": "The CPI-U increased 7.0% in the twelve months through December 2021, the largest annual gain since June 1982.",
+    "query": "What was CPI growth in 2021?",
+    "label": "valid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "The Consumer Price Index for All Urban Consumers (CPI-U) rose 7.0 percent over the 12 months ending December 2021, the largest 12-month increase since the period ending June 1982.",
+    "output_text": "The CPI-U increased 7.5% in 2021, the largest 12-month gain since 1990.",
+    "query": "What was CPI growth in 2021?",
+    "label": "invalid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "The Consumer Price Index for All Urban Consumers (CPI-U) rose 7.0 percent over the 12 months ending December 2021, the largest 12-month increase since the period ending June 1982.",
+    "output_text": "Inflation in the United States reached multi-decade highs in 2021, raising concerns about the Federal Reserve's inflation-fighting credibility.",
+    "query": "What was CPI growth in 2021?",
+    "label": "ambiguous",
+    "difficulty": "hard"
+  },
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "In the third quarter of 2022, real GDP declined at an annual rate of 0.6 percent. GDP fell 1.6 percent in the first quarter of 2022. These two consecutive quarters of decline met the informal definition of a technical recession used by some analysts.",
+    "output_text": "U.S. real GDP contracted in both Q1 and Q2 of 2022, with declines of 1.6% and 0.6% respectively on an annualized basis.",
+    "query": "Did the U.S. enter a recession in 2022?",
+    "label": "valid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "In the third quarter of 2022, real GDP declined at an annual rate of 0.6 percent. GDP fell 1.6 percent in the first quarter of 2022. These two consecutive quarters of decline met the informal definition of a technical recession used by some analysts.",
+    "output_text": "The U.S. officially entered a recession in 2022 after GDP contracted in the first two quarters of the year.",
+    "query": "Did the U.S. enter a recession in 2022?",
+    "label": "invalid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "U.S. payroll employment expanded by 4.5 million jobs in 2021, the fastest single-year gain on record, as the economy rebounded from pandemic-era lockdowns. The unemployment rate fell from 6.7% in January 2021 to 3.9% by December 2021.",
+    "output_text": "In 2021, U.S. employers added 4.5 million payroll positions, and the unemployment rate dropped by 2.8 percentage points over the year.",
+    "query": "How did the labor market recover in 2021?",
+    "label": "valid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "U.S. payroll employment expanded by 4.5 million jobs in 2021, the fastest single-year gain on record, as the economy rebounded from pandemic-era lockdowns. The unemployment rate fell from 6.7% in January 2021 to 3.9% by December 2021.",
+    "output_text": "The U.S. added more than 4.5 million jobs in 2021, fully recovering all pandemic job losses by year-end.",
+    "query": "How did the labor market recover in 2021?",
+    "label": "invalid",
+    "difficulty": "hard"
+  },
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "U.S. payroll employment expanded by 4.5 million jobs in 2021, the fastest single-year gain on record, as the economy rebounded from pandemic-era lockdowns. The unemployment rate fell from 6.7% in January 2021 to 3.9% by December 2021.",
+    "output_text": "The 2021 labor market recovery was unusually rapid, suggesting pent-up demand and successful fiscal support contributed to rehiring across sectors.",
+    "query": "How did the labor market recover in 2021?",
+    "label": "ambiguous",
+    "difficulty": "hard"
+  },
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "The Federal Open Market Committee voted at its March 2022 meeting to raise the target range for the federal funds rate by 25 basis points to 0.25-0.50 percent, the first increase since December 2018.",
+    "output_text": "At its March 2022 meeting the FOMC raised the federal funds rate target by 25 basis points, marking the first rate hike since 2018.",
+    "query": "When did the Fed begin tightening in 2022?",
+    "label": "valid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "claim_extraction",
+    "source_context": "The Federal Open Market Committee voted at its March 2022 meeting to raise the target range for the federal funds rate by 25 basis points to 0.25-0.50 percent, the first increase since December 2018.",
+    "output_text": "The Fed raised rates by 50 basis points at its March 2022 meeting, signaling an aggressive tightening campaign.",
+    "query": "When did the Fed begin tightening in 2022?",
+    "label": "invalid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "synthesis",
+    "source_context": "Claim 1: CPI-U rose 7.0% in the 12 months through December 2021. Claim 2: Energy prices rose 29.3% over the same period. Claim 3: Supply-chain disruptions contributed to elevated goods inflation throughout 2021.",
+    "output_text": "U.S. consumer prices rose 7.0% in 2021. A significant portion of this increase was driven by a 29.3% jump in energy prices, alongside broad goods inflation stemming from supply-chain pressures.",
+    "query": "Summarize inflation drivers in 2021.",
+    "label": "valid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "synthesis",
+    "source_context": "Claim 1: CPI-U rose 7.0% in the 12 months through December 2021. Claim 2: Energy prices rose 29.3% over the same period. Claim 3: Supply-chain disruptions contributed to elevated goods inflation throughout 2021.",
+    "output_text": "Inflation reached 7.0% in 2021 driven primarily by wage pressures and energy prices. Services inflation was especially problematic.",
+    "query": "Summarize inflation drivers in 2021.",
+    "label": "invalid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "synthesis",
+    "source_context": "Claim 1: CPI-U rose 7.0% in the 12 months through December 2021. Claim 2: Energy prices rose 29.3% over the same period. Claim 3: Supply-chain disruptions contributed to elevated goods inflation throughout 2021.",
+    "output_text": "The 2021 inflation surge reflected extraordinary circumstances — both supply-side disruptions and demand-side stimulus — suggesting the Fed may have been slow to respond.",
+    "query": "Summarize inflation drivers in 2021.",
+    "label": "ambiguous",
+    "difficulty": "hard"
+  },
+  {
+    "checkpoint_type": "synthesis",
+    "source_context": "Claim 1: U.S. GDP declined in Q1 and Q2 of 2022. Claim 2: The unemployment rate remained below 4% throughout 2022. Claim 3: The NBER did not declare a recession in 2022.",
+    "output_text": "Despite two consecutive quarters of GDP contraction in 2022, a formal recession was not declared by the NBER, as unemployment stayed below 4% throughout the year.",
+    "query": "Was 2022 a recession year?",
+    "label": "valid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "synthesis",
+    "source_context": "Claim 1: U.S. GDP declined in Q1 and Q2 of 2022. Claim 2: The unemployment rate remained below 4% throughout 2022. Claim 3: The NBER did not declare a recession in 2022.",
+    "output_text": "In 2022 the U.S. entered a technical recession with GDP falling in Q1 and Q2. High unemployment validated the NBER's eventual recession designation.",
+    "query": "Was 2022 a recession year?",
+    "label": "invalid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "synthesis",
+    "source_context": "Claim 1: The FOMC raised the federal funds rate seven times in 2022. Claim 2: The fed funds rate target range ended 2022 at 4.25-4.50%. Claim 3: Inflation as measured by CPI-U remained above 7% for most of 2022.",
+    "output_text": "The Federal Reserve implemented seven rate increases in 2022, bringing the federal funds rate from near-zero to 4.25-4.50%. Despite this aggressive tightening, inflation stayed above 7% for much of the year.",
+    "query": "Describe Fed policy and inflation in 2022.",
+    "label": "valid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "synthesis",
+    "source_context": "Claim 1: The FOMC raised the federal funds rate seven times in 2022. Claim 2: The fed funds rate target range ended 2022 at 4.25-4.50%. Claim 3: Inflation as measured by CPI-U remained above 7% for most of 2022.",
+    "output_text": "Despite seven rate hikes in 2022 that pushed the fed funds rate to 4.25-4.50%, inflation stubbornly persisted, suggesting that fiscal policy rather than monetary policy would be required to restore price stability.",
+    "query": "Describe Fed policy and inflation in 2022.",
+    "label": "ambiguous",
+    "difficulty": "hard"
+  },
+  {
+    "checkpoint_type": "numerical",
+    "source_context": "The U.S. unemployment rate peaked at 14.7% in April 2020, the highest level since comparable data collection began in 1948. By the end of 2020 it had fallen back to 6.7%.",
+    "output_text": "U.S. unemployment peaked at roughly 14.7% in April 2020 before declining to 6.7% by December.",
+    "query": "What was U.S. peak unemployment during COVID-19?",
+    "label": "valid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "numerical",
+    "source_context": "The U.S. unemployment rate peaked at 14.7% in April 2020, the highest level since comparable data collection began in 1948. By the end of 2020 it had fallen back to 6.7%.",
+    "output_text": "Unemployment peaked near 20% in April 2020 during the COVID-19 recession.",
+    "query": "What was U.S. peak unemployment during COVID-19?",
+    "label": "invalid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "numerical",
+    "source_context": "The FOMC raised its policy rate by 75 basis points at each of its meetings in June, July, September, and November 2022, the fastest pace of tightening since the early 1980s.",
+    "output_text": "The Fed raised rates by 0.75 percentage points four times between June and November 2022, totaling 300 basis points in that stretch alone.",
+    "query": "How fast did the Fed raise rates in 2022?",
+    "label": "valid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "numerical",
+    "source_context": "The FOMC raised its policy rate by 75 basis points at each of its meetings in June, July, September, and November 2022, the fastest pace of tightening since the early 1980s.",
+    "output_text": "The Federal Reserve raised rates by 50 basis points at each of four consecutive meetings in 2022.",
+    "query": "How fast did the Fed raise rates in 2022?",
+    "label": "invalid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "numerical",
+    "source_context": "Real GDP grew 5.9% in 2021 on an annual basis, the strongest full-year expansion since 1984. Consumer spending rose 7.9% in real terms, the sharpest increase in decades.",
+    "output_text": "The U.S. economy expanded approximately 6% in real terms in 2021, with consumer spending growth of nearly 8%.",
+    "query": "How fast did the U.S. economy grow in 2021?",
+    "label": "valid",
+    "difficulty": "easy"
+  },
+  {
+    "checkpoint_type": "numerical",
+    "source_context": "Real GDP grew 5.9% in 2021 on an annual basis, the strongest full-year expansion since 1984. Consumer spending rose 7.9% in real terms, the sharpest increase in decades.",
+    "output_text": "U.S. real GDP grew 5.9% in 2021; personal consumption expenditures rose 10.5%, the highest since World War II.",
+    "query": "How fast did the U.S. economy grow in 2021?",
+    "label": "invalid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "numerical",
+    "source_context": "Real GDP grew 5.9% in 2021 on an annual basis, the strongest full-year expansion since 1984. Consumer spending rose 7.9% in real terms, the sharpest increase in decades.",
+    "output_text": "The 2021 economic recovery was among the strongest in recent American history, with annualized growth approaching 6%.",
+    "query": "How fast did the U.S. economy grow in 2021?",
+    "label": "ambiguous",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "causal",
+    "source_context": "The Federal Reserve raised the federal funds rate from near-zero to 4.25-4.50% between March and December 2022. During the same period, 30-year fixed mortgage rates rose from 3.2% to over 6.4%. Housing permits fell 30% from January to December 2022. Analysts also cited declining consumer confidence and recession fears as factors reducing demand for new homes.",
+    "output_text": "Rising interest rates were one contributor to the slowdown in housing permits in 2022, alongside declining consumer confidence and economic uncertainty.",
+    "query": "What drove the housing market slowdown in 2022?",
+    "label": "valid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "causal",
+    "source_context": "The Federal Reserve raised the federal funds rate from near-zero to 4.25-4.50% between March and December 2022. During the same period, 30-year fixed mortgage rates rose from 3.2% to over 6.4%. Housing permits fell 30% from January to December 2022. Analysts also cited declining consumer confidence and recession fears as factors reducing demand for new homes.",
+    "output_text": "The Federal Reserve's rate hikes directly caused the 30% collapse in housing permits during 2022.",
+    "query": "What drove the housing market slowdown in 2022?",
+    "label": "invalid",
+    "difficulty": "hard"
+  },
+  {
+    "checkpoint_type": "causal",
+    "source_context": "The Federal Reserve raised the federal funds rate from near-zero to 4.25-4.50% between March and December 2022. During the same period, 30-year fixed mortgage rates rose from 3.2% to over 6.4%. Housing permits fell 30% from January to December 2022. Analysts also cited declining consumer confidence and recession fears as factors reducing demand for new homes.",
+    "output_text": "The sharp rise in mortgage rates, largely a result of Fed tightening, was likely the dominant driver of the 2022 housing permit decline.",
+    "query": "What drove the housing market slowdown in 2022?",
+    "label": "ambiguous",
+    "difficulty": "hard"
+  },
+  {
+    "checkpoint_type": "causal",
+    "source_context": "Supply-chain disruptions associated with the pandemic caused semiconductor shortages that idled U.S. auto plants, reducing production by an estimated 1.5 million vehicles in 2021. Inventories at dealerships fell to record lows. Used car prices rose 29% over the year, contributing approximately 1.5 percentage points to overall CPI inflation.",
+    "output_text": "Semiconductor shortages contributed approximately 1.5 percentage points to 2021 CPI inflation through their impact on vehicle production and used car prices.",
+    "query": "How did supply-chain issues affect 2021 inflation?",
+    "label": "valid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "causal",
+    "source_context": "Supply-chain disruptions associated with the pandemic caused semiconductor shortages that idled U.S. auto plants, reducing production by an estimated 1.5 million vehicles in 2021. Inventories at dealerships fell to record lows. Used car prices rose 29% over the year, contributing approximately 1.5 percentage points to overall CPI inflation.",
+    "output_text": "Semiconductor shortages caused U.S. inflation to rise 7% in 2021.",
+    "query": "How did supply-chain issues affect 2021 inflation?",
+    "label": "invalid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "causal",
+    "source_context": "Studies using event-study methods find that a 1 percentage point surprise increase in the federal funds rate is associated with a decline of roughly 0.5 to 1.5% in real GDP over the subsequent 12-18 months. Estimates vary widely depending on the identification strategy used.",
+    "output_text": "A 1 percentage point unexpected rate increase is associated with a GDP decline of roughly 0.5 to 1.5% over the following year or so, based on event-study evidence, though estimates vary.",
+    "query": "What is the macroeconomic effect of an unexpected Fed rate hike?",
+    "label": "valid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "causal",
+    "source_context": "Studies using event-study methods find that a 1 percentage point surprise increase in the federal funds rate is associated with a decline of roughly 0.5 to 1.5% in real GDP over the subsequent 12-18 months. Estimates vary widely depending on the identification strategy used.",
+    "output_text": "Every 1 percentage point Fed rate hike causes real GDP to fall by approximately 1% within 12 months.",
+    "query": "What is the macroeconomic effect of an unexpected Fed rate hike?",
+    "label": "invalid",
+    "difficulty": "medium"
+  },
+  {
+    "checkpoint_type": "causal",
+    "source_context": "Studies using event-study methods find that a 1 percentage point surprise increase in the federal funds rate is associated with a decline of roughly 0.5 to 1.5% in real GDP over the subsequent 12-18 months. Estimates vary widely depending on the identification strategy used.",
+    "output_text": "The evidence suggests meaningful monetary policy transmission to real output, though the wide range of estimates makes precise quantification difficult.",
+    "query": "What is the macroeconomic effect of an unexpected Fed rate hike?",
+    "label": "ambiguous",
+    "difficulty": "hard"
+  }
+]

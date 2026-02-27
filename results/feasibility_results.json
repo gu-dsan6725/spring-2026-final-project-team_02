@@ -1,0 +1,21 @@
+{
+  "samples_count": 40,
+  "model": "cross-encoder/nli-deberta-v3-large",
+  "by_label": {
+    "valid": {
+      "count": 17,
+      "mean_entailment": 0.680017477244666,
+      "mean_contradiction": 0.0006286470273634597
+    },
+    "invalid": {
+      "count": 15,
+      "mean_entailment": 0.13498906427024243,
+      "mean_contradiction": 0.3690674993445403
+    },
+    "ambiguous": {
+      "count": 8,
+      "mean_entailment": 0.12360681502696025,
+      "mean_contradiction": 0.014738645804641237
+    }
+  }
+}

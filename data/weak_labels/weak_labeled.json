@@ -1,0 +1,182 @@
+[
+  {
+    "source": "The Federal Reserve raised the federal funds rate target range to 5.25-5.50% in July 2023, the highest level in 22 years, following 11 rate increases totaling 525 basis points since March 2022.",
+    "claim": "By July 2023, the Fed had raised rates by a total of 525 basis points over 11 moves since March 2022, reaching the highest fed funds rate in over two decades.",
+    "label": "VALID",
+    "reasoning": "The claim accurately reflects the source's information about the total basis points and number of rate increases since March 2022, with only trivial paraphrasing."
+  },
+  {
+    "source": "The Federal Reserve raised the federal funds rate target range to 5.25-5.50% in July 2023, the highest level in 22 years, following 11 rate increases totaling 525 basis points since March 2022.",
+    "claim": "The Federal Reserve raised rates to 6.00% in 2023, a level not seen since the 1990s.",
+    "label": "invalid",
+    "reasoning": "The claim contains an incorrect number, stating the rate was raised to 6.00% in 2023, which does not match the source's information of a rate range of 5.25-5.50%."
+  },
+  {
+    "source": "The Federal Reserve raised the federal funds rate target range to 5.25-5.50% in July 2023, the highest level in 22 years, following 11 rate increases totaling 525 basis points since March 2022.",
+    "claim": "The aggressive Fed tightening cycle of 2022-2023 likely represented the fastest rate increase in modern monetary policy history.",
+    "label": "ambiguous",
+    "reasoning": "The claim adds the fact that the rate increase was the fastest in modern monetary policy history, which is not explicitly stated in the source."
+  },
+  {
+    "source": "U.S. personal consumption expenditures (PCE) inflation \u2014 the Fed's preferred measure \u2014 peaked at 7.0% in June 2022 before declining to 2.6% by December 2023 as supply-chain pressures eased and monetary policy tightened.",
+    "claim": "PCE inflation peaked at 7.0% in mid-2022 and fell to 2.6% by end-2023 as supply chains normalized and Fed tightening took effect.",
+    "label": "VALID",
+    "reasoning": "The claim is a trivially correct paraphrase of the source, with matching numbers and equivalent language."
+  },
+  {
+    "source": "U.S. personal consumption expenditures (PCE) inflation \u2014 the Fed's preferred measure \u2014 peaked at 7.0% in June 2022 before declining to 2.6% by December 2023 as supply-chain pressures eased and monetary policy tightened.",
+    "claim": "PCE inflation peaked near 9% in 2022, driven primarily by energy prices, before the Fed's intervention brought it back toward target.",
+    "label": "invalid",
+    "reasoning": "The claim contains an incorrect number, stating PCE inflation peaked near 9% in 2022, whereas the source states it peaked at 7.0%."
+  },
+  {
+    "source": "U.S. personal consumption expenditures (PCE) inflation \u2014 the Fed's preferred measure \u2014 peaked at 7.0% in June 2022 before declining to 2.6% by December 2023 as supply-chain pressures eased and monetary policy tightened.",
+    "claim": "The decline in PCE inflation from peak to near-target over 18 months suggests that the Fed achieved a soft landing, guiding inflation down without triggering a severe recession.",
+    "label": "ambiguous",
+    "reasoning": "The claim adds the interpretation that the decline in PCE inflation suggests the Fed achieved a soft landing, which is not explicitly stated in the source."
+  },
+  {
+    "source": "According to the BLS, nonfarm payroll employment increased by 216,000 jobs in December 2023, and the unemployment rate held steady at 3.7%. Over the full year 2023, monthly job gains averaged 225,000.",
+    "claim": "U.S. employers added 216,000 jobs in December 2023, holding the unemployment rate at 3.7%. Across 2023, the monthly average was 225,000 jobs.",
+    "label": "VALID",
+    "reasoning": "The claim directly matches the source passage in terms of numbers and assertions, with no added or altered facts."
+  },
+  {
+    "source": "According to the BLS, nonfarm payroll employment increased by 216,000 jobs in December 2023, and the unemployment rate held steady at 3.7%. Over the full year 2023, monthly job gains averaged 225,000.",
+    "claim": "The U.S. labor market created over 300,000 jobs per month on average in 2023, indicating an economy well above full employment.",
+    "label": "invalid",
+    "reasoning": "The claim states the labor market created over 300,000 jobs per month on average in 2023, which contradicts the source stating an average of 225,000 jobs per month."
+  },
+  {
+    "source": "According to the BLS, nonfarm payroll employment increased by 216,000 jobs in December 2023, and the unemployment rate held steady at 3.7%. Over the full year 2023, monthly job gains averaged 225,000.",
+    "claim": "The continued strength of the 2023 labor market despite significant monetary tightening suggests that interest rate increases had limited pass-through to employment.",
+    "label": "ambiguous",
+    "reasoning": "The claim adds an interpretation of the labor market's strength and the effect of interest rate increases, which is not explicitly stated in the source."
+  },
+  {
+    "source": "Real GDP grew at an annual rate of 4.9% in the third quarter of 2023, well above expectations, driven by strong consumer spending and inventory accumulation.",
+    "claim": "U.S. real GDP expanded at a 4.9% annualized pace in Q3 2023, fueled by consumer spending and inventory buildups.",
+    "label": "VALID",
+    "reasoning": "The claim is a trivially correct paraphrase of the source, with matching numbers and equivalent assertions about the drivers of GDP growth."
+  },
+  {
+    "source": "Real GDP grew at an annual rate of 4.9% in the third quarter of 2023, well above expectations, driven by strong consumer spending and inventory accumulation.",
+    "claim": "U.S. real GDP grew 4.9% on a full-year basis in 2023, the strongest annual growth since the pandemic recovery.",
+    "label": "invalid",
+    "reasoning": "The claim incorrectly states full-year growth, whereas the source passage only mentions the annual rate of growth in the third quarter of 2023."
+  },
+  {
+    "source": "Real GDP grew at an annual rate of 4.9% in the third quarter of 2023, well above expectations, driven by strong consumer spending and inventory accumulation.",
+    "claim": "The 4.9% Q3 2023 GDP growth rate, while impressive, may partly reflect temporary inventory effects that could reverse in subsequent quarters.",
+    "label": "ambiguous",
+    "reasoning": "The claim is a reasonable inference from the source but goes slightly beyond what is explicitly stated by suggesting the growth rate may partly reflect temporary effects."
+  },
+  {
+    "source": "The 10-year Treasury yield reached 5.0% in October 2023 for the first time since 2007, driven by expectations of higher-for-longer Fed policy rates and rising term premium as the government's borrowing needs expanded.",
+    "claim": "The 10-year Treasury yield crossed 5.0% in October 2023, a level not seen since 2007, reflecting both elevated policy rate expectations and higher term premia.",
+    "label": "VALID",
+    "reasoning": "The claim is a trivially correct paraphrase of the source, with matching numbers and assertions."
+  },
+  {
+    "source": "The 10-year Treasury yield reached 5.0% in October 2023 for the first time since 2007, driven by expectations of higher-for-longer Fed policy rates and rising term premium as the government's borrowing needs expanded.",
+    "claim": "Treasury yields hit 6% in late 2023, causing significant disruption to mortgage markets and corporate borrowing.",
+    "label": "invalid",
+    "reasoning": "The claim contains an incorrect number, as the source states the 10-year Treasury yield reached 5.0%, not 6%, and also adds unsubstantiated facts about disruption to mortgage markets and corporate borrowing."
+  },
+  {
+    "source": "The 10-year Treasury yield reached 5.0% in October 2023 for the first time since 2007, driven by expectations of higher-for-longer Fed policy rates and rising term premium as the government's borrowing needs expanded.",
+    "claim": "The rise in long-term Treasury yields in 2023 was directly caused by the Federal Reserve's quantitative tightening program reducing demand for government bonds.",
+    "label": "invalid",
+    "reasoning": "The source passage does not mention the Federal Reserve's quantitative tightening program as the cause of the rise in long-term Treasury yields, instead citing expectations of higher-for-longer Fed policy rates and rising term premium."
+  },
+  {
+    "source": "The U.S. current account deficit narrowed to $905 billion in 2023 from $971 billion in 2022, as import growth slowed amid weaker domestic demand while export performance remained relatively stable.",
+    "claim": "The U.S. current account deficit declined from $971 billion in 2022 to $905 billion in 2023, as slower import growth offset stable export performance.",
+    "label": "VALID",
+    "reasoning": "The claim directly matches the source passage, with the same numbers and a paraphrased explanation that stays within the original meaning."
+  },
+  {
+    "source": "The U.S. current account deficit narrowed to $905 billion in 2023 from $971 billion in 2022, as import growth slowed amid weaker domestic demand while export performance remained relatively stable.",
+    "claim": "The U.S. trade deficit expanded sharply in 2023 to over $1 trillion, reflecting the strong dollar making imports cheaper relative to exports.",
+    "label": "invalid",
+    "reasoning": "The claim states the trade deficit expanded to over $1 trillion, but the source passage states the current account deficit narrowed to $905 billion."
+  },
+  {
+    "source": "The U.S. current account deficit narrowed to $905 billion in 2023 from $971 billion in 2022, as import growth slowed amid weaker domestic demand while export performance remained relatively stable.",
+    "claim": "The modest improvement in the U.S. current account in 2023 likely reflects the lagged effects of dollar appreciation on import volumes rather than a fundamental shift in trade competitiveness.",
+    "label": "ambiguous",
+    "reasoning": "The claim adds an interpretation of the cause of the improvement in the U.S. current account that is not explicitly stated in the source passage."
+  },
+  {
+    "source": "U.S. housing starts fell 4.3% in 2023 to an annual rate of 1.41 million units. The 30-year fixed mortgage rate averaged 6.8% over the year, the highest annual average since 2001. Homebuilder confidence improved in the second half of the year as new home supply rose amid weak existing home supply.",
+    "claim": "Housing starts declined 4.3% in 2023 to 1.41 million units. Mortgage rates averaged 6.8% for the year, the highest since 2001, though builder confidence recovered in H2 as new supply filled the gap left by scarce existing homes.",
+    "label": "VALID",
+    "reasoning": "The claim accurately reflects the information in the source passage, including the percentage decline in housing starts, the average mortgage rate, and the recovery in builder confidence."
+  },
+  {
+    "source": "U.S. housing starts fell 4.3% in 2023 to an annual rate of 1.41 million units. The 30-year fixed mortgage rate averaged 6.8% over the year, the highest annual average since 2001. Homebuilder confidence improved in the second half of the year as new home supply rose amid weak existing home supply.",
+    "claim": "U.S. housing starts collapsed by more than 20% in 2023 as the highest mortgage rates in decades made homebuying unaffordable for most buyers.",
+    "label": "invalid",
+    "reasoning": "The claim contains a factual error, stating that U.S. housing starts collapsed by more than 20% in 2023, when the source states they fell by 4.3%."
+  },
+  {
+    "source": "U.S. housing starts fell 4.3% in 2023 to an annual rate of 1.41 million units. The 30-year fixed mortgage rate averaged 6.8% over the year, the highest annual average since 2001. Homebuilder confidence improved in the second half of the year as new home supply rose amid weak existing home supply.",
+    "claim": "The relative resilience of housing starts in 2023, despite near-record mortgage rates, suggests that strong underlying demand and low existing home inventory provided a floor for new construction.",
+    "label": "ambiguous",
+    "reasoning": "The claim adds an interpretation of the data, suggesting that strong underlying demand and low existing home inventory provided a floor for new construction, which is not explicitly stated in the source."
+  },
+  {
+    "source": "The Supplemental Poverty Measure fell to a record low of 7.8% in 2021, largely due to expanded pandemic-era transfer payments including the Child Tax Credit expansion and direct stimulus checks. By 2022, after these programs lapsed, the SPM rose to 12.4%.",
+    "claim": "The Supplemental Poverty Measure dropped to a record 7.8% in 2021 due to expanded pandemic transfers, then reversed sharply to 12.4% in 2022 when those programs ended.",
+    "label": "VALID",
+    "reasoning": "The claim accurately reflects the information in the source, including the specific percentages and the cause of the changes in the Supplemental Poverty Measure."
+  },
+  {
+    "source": "The Supplemental Poverty Measure fell to a record low of 7.8% in 2021, largely due to expanded pandemic-era transfer payments including the Child Tax Credit expansion and direct stimulus checks. By 2022, after these programs lapsed, the SPM rose to 12.4%.",
+    "claim": "The Child Tax Credit expansion alone eliminated poverty for 5 million American children in 2021.",
+    "label": "invalid",
+    "reasoning": "The claim adds a fact not present in the source, specifically the number of American children for whom the Child Tax Credit expansion alone eliminated poverty."
+  },
+  {
+    "source": "The Supplemental Poverty Measure fell to a record low of 7.8% in 2021, largely due to expanded pandemic-era transfer payments including the Child Tax Credit expansion and direct stimulus checks. By 2022, after these programs lapsed, the SPM rose to 12.4%.",
+    "claim": "The dramatic 2021-2022 swing in the Supplemental Poverty Measure demonstrates the powerful but temporary impact of targeted fiscal transfers on poverty rates.",
+    "label": "ambiguous",
+    "reasoning": "The claim is a reasonable inference from the source but adds the interpretation of the swing as demonstrating the 'powerful but temporary impact' which is not explicitly stated."
+  },
+  {
+    "source": "Bank failures in 2023 included Silicon Valley Bank ($209 billion in assets), Signature Bank ($110 billion), and First Republic Bank ($229 billion), the three largest bank failures in U.S. history outside of the 2008 financial crisis.",
+    "claim": "Silicon Valley Bank, Signature Bank, and First Republic Bank \u2014 the three largest bank failures since 2008 \u2014 all collapsed in 2023, with assets totaling $209, $110, and $229 billion respectively.",
+    "label": "VALID",
+    "reasoning": "The claim directly matches the source passage in terms of bank names, year of collapse, and asset values."
+  },
+  {
+    "source": "Bank failures in 2023 included Silicon Valley Bank ($209 billion in assets), Signature Bank ($110 billion), and First Republic Bank ($229 billion), the three largest bank failures in U.S. history outside of the 2008 financial crisis.",
+    "claim": "The 2023 banking crisis was comparable in scale to the 2008 financial crisis, with total failed bank assets exceeding $1 trillion.",
+    "label": "invalid",
+    "reasoning": "The claim asserts total failed bank assets exceeded $1 trillion, but the source only mentions the assets of three banks, totaling $548 billion, which does not support the claim."
+  },
+  {
+    "source": "Bank failures in 2023 included Silicon Valley Bank ($209 billion in assets), Signature Bank ($110 billion), and First Republic Bank ($229 billion), the three largest bank failures in U.S. history outside of the 2008 financial crisis.",
+    "claim": "The 2023 regional bank failures were primarily caused by the Federal Reserve's rapid interest rate increases, which eroded the value of long-duration bond portfolios held by these institutions.",
+    "label": "invalid",
+    "reasoning": "The source passage does not mention the Federal Reserve's interest rate increases or their impact on bond portfolios as a cause of the bank failures."
+  },
+  {
+    "source": "The Congressional Budget Office projected in May 2023 that the federal debt held by the public would reach 98% of GDP by 2033, up from 98% in 2023, with interest costs projected to exceed defense spending by 2029.",
+    "claim": "According to the May 2023 CBO projection, public debt would remain at roughly 98% of GDP through 2033, while interest payments were on track to surpass defense spending by 2029.",
+    "label": "VALID",
+    "reasoning": "The claim accurately reflects the source's projection of public debt and interest costs, with numbers and assertions matching the source within standard rounding."
+  },
+  {
+    "source": "The Congressional Budget Office projected in May 2023 that the federal debt held by the public would reach 98% of GDP by 2033, up from 98% in 2023, with interest costs projected to exceed defense spending by 2029.",
+    "claim": "The CBO projected in 2023 that federal debt would reach 150% of GDP within a decade, triggering a sovereign debt crisis.",
+    "label": "invalid",
+    "reasoning": "The claim contains a factual error, as the source states the debt will reach 98% of GDP by 2033, not 150%, and does not mention a sovereign debt crisis."
+  },
+  {
+    "source": "The Congressional Budget Office projected in May 2023 that the federal debt held by the public would reach 98% of GDP by 2033, up from 98% in 2023, with interest costs projected to exceed defense spending by 2029.",
+    "claim": "The CBO's debt projections imply that fiscal consolidation \u2014 either through spending cuts or revenue increases \u2014 will be necessary to stabilize the debt-to-GDP ratio over the medium term.",
+    "label": "ambiguous",
+    "reasoning": "The claim is a reasonable inference from the source but goes slightly beyond what is explicitly stated, as the source does not explicitly mention the need for fiscal consolidation."
+  }
+]

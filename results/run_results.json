@@ -1,0 +1,402 @@
+[
+  {
+    "case_index": 0,
+    "checkpoint_type": "retrieval",
+    "output_text": "Retrieved: 'Federal Reserve Monetary Policy Report, February 2022' \u2014 discusses t...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.92,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 1,
+    "checkpoint_type": "retrieval",
+    "output_text": "Retrieved: 'EU Agricultural Subsidy Reform and Rural Employment in France, 2019'...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.982,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 2,
+    "checkpoint_type": "retrieval",
+    "output_text": "Retrieved: 'Bureau of Labor Statistics Monthly Employment Situation Report, Apri...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 3,
+    "checkpoint_type": "retrieval",
+    "output_text": "Retrieved: 'OECD Taxing Wages Report, 2021' \u2014 compares average effective income ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.991,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 4,
+    "checkpoint_type": "retrieval",
+    "output_text": "Retrieved: 'NBER Working Paper 29865 \u2014 The Transmission of Monetary Policy Shock...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.6,
+    "tier3_confidence": 0.8
+  },
+  {
+    "case_index": 5,
+    "checkpoint_type": "retrieval",
+    "output_text": "Retrieved: 'International Monetary Fund World Economic Outlook, April 2015' \u2014 an...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.882,
+    "tier2_confidence": 0.95,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 6,
+    "checkpoint_type": "retrieval",
+    "output_text": "Retrieved: 'Federal Reserve Staff Working Paper \u2014 Exchange Rate Pass-Through to ...",
+    "resolved_at_tier": 3,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.6,
+    "tier3_confidence": 0.7
+  },
+  {
+    "case_index": 7,
+    "checkpoint_type": "retrieval",
+    "output_text": "Retrieved: 'CBO Report: The Distribution of Household Income, 2018' \u2014 presents e...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.832,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 8,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The CPI-U increased 7.0% in the twelve months through December 2021, the largest...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 9,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The CPI-U increased 7.5% in 2021, the largest 12-month gain since 1990....",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 10,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Inflation in the United States reached multi-decade highs in 2021, raising conce...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.92,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 11,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "U.S. real GDP contracted in both Q1 and Q2 of 2022, with declines of 1.6% and 0....",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.992,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 12,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The U.S. officially entered a recession in 2022 after GDP contracted in the firs...",
+    "resolved_at_tier": 3,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.7
+  },
+  {
+    "case_index": 13,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "In 2021, U.S. employers added 4.5 million payroll positions, and the unemploymen...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 14,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The U.S. added more than 4.5 million jobs in 2021, fully recovering all pandemic...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.92,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 15,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The 2021 labor market recovery was unusually rapid, suggesting pent-up demand an...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.92,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 16,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "At its March 2022 meeting the FOMC raised the federal funds rate target by 25 ba...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 17,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Fed raised rates by 50 basis points at its March 2022 meeting, signaling an ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.992,
+    "tier2_confidence": 0.95,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 18,
+    "checkpoint_type": "synthesis",
+    "output_text": "U.S. consumer prices rose 7.0% in 2021. A significant portion of this increase w...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.803,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 19,
+    "checkpoint_type": "synthesis",
+    "output_text": "Inflation reached 7.0% in 2021 driven primarily by wage pressures and energy pri...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 20,
+    "checkpoint_type": "synthesis",
+    "output_text": "The 2021 inflation surge reflected extraordinary circumstances \u2014 both supply-sid...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 21,
+    "checkpoint_type": "synthesis",
+    "output_text": "Despite two consecutive quarters of GDP contraction in 2022, a formal recession ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 22,
+    "checkpoint_type": "synthesis",
+    "output_text": "In 2022 the U.S. entered a technical recession with GDP falling in Q1 and Q2. Hi...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 23,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Federal Reserve implemented seven rate increases in 2022, bringing the feder...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.99,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 24,
+    "checkpoint_type": "synthesis",
+    "output_text": "Despite seven rate hikes in 2022 that pushed the fed funds rate to 4.25-4.50%, i...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.6,
+    "tier3_confidence": 0.8
+  },
+  {
+    "case_index": 25,
+    "checkpoint_type": "numerical",
+    "output_text": "U.S. unemployment peaked at roughly 14.7% in April 2020 before declining to 6.7%...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.855,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 26,
+    "checkpoint_type": "numerical",
+    "output_text": "Unemployment peaked near 20% in April 2020 during the COVID-19 recession....",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.992,
+    "tier2_confidence": 0.95,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 27,
+    "checkpoint_type": "numerical",
+    "output_text": "The Fed raised rates by 0.75 percentage points four times between June and Novem...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.933,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 28,
+    "checkpoint_type": "numerical",
+    "output_text": "The Federal Reserve raised rates by 50 basis points at each of four consecutive ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 29,
+    "checkpoint_type": "numerical",
+    "output_text": "The U.S. economy expanded approximately 6% in real terms in 2021, with consumer ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.985,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 30,
+    "checkpoint_type": "numerical",
+    "output_text": "U.S. real GDP grew 5.9% in 2021; personal consumption expenditures rose 10.5%, t...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 31,
+    "checkpoint_type": "numerical",
+    "output_text": "The 2021 economic recovery was among the strongest in recent American history, w...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.987,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 32,
+    "checkpoint_type": "causal",
+    "output_text": "Rising interest rates were one contributor to the slowdown in housing permits in...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 33,
+    "checkpoint_type": "causal",
+    "output_text": "The Federal Reserve's rate hikes directly caused the 30% collapse in housing per...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 34,
+    "checkpoint_type": "causal",
+    "output_text": "The sharp rise in mortgage rates, largely a result of Fed tightening, was likely...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.92,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 35,
+    "checkpoint_type": "causal",
+    "output_text": "Semiconductor shortages contributed approximately 1.5 percentage points to 2021 ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 36,
+    "checkpoint_type": "causal",
+    "output_text": "Semiconductor shortages caused U.S. inflation to rise 7% in 2021....",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.697,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 37,
+    "checkpoint_type": "causal",
+    "output_text": "A 1 percentage point unexpected rate increase is associated with a GDP decline o...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 38,
+    "checkpoint_type": "causal",
+    "output_text": "Every 1 percentage point Fed rate hike causes real GDP to fall by approximately ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.993,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 39,
+    "checkpoint_type": "causal",
+    "output_text": "The evidence suggests meaningful monetary policy transmission to real output, th...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.92,
+    "tier3_confidence": null
+  }
+]

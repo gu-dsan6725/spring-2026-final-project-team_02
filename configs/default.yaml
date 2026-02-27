@@ -1,0 +1,18 @@
+# HERALD Configuration
+# Thresholds and model settings
+
+tier1:
+  model_name: "cross-encoder/nli-deberta-v3-large"  # Public, no HF auth required
+  # model_name: "microsoft/deberta-v3-large-mnli"   # Requires HF login (hf auth login)
+  # model_name: "models/deberta-finetuned"           # Phase 2: after fine-tuning
+  device: "cpu"  # "cuda" if you have a GPU, "mps" for Apple Silicon
+
+tier2:
+  model: "llama-3.3-70b-versatile"  # Groq free tier
+
+tier3:
+  model: "llama-3.3-70b-versatile"  # Same model, 3 calls (advocate/critic/judge)
+
+thresholds:
+  T1: 0.70  # Tier 1 → Tier 2 escalation (start here, tune later)
+  T2: 0.80  # Tier 2 → Tier 3 escalation
