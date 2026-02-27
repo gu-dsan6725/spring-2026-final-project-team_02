@@ -142,26 +142,6 @@ Shows how cases are resolved/escalated at each tier for the sample data.
 ![Confusion Analysis](results/plots/plot4_confusion_analysis.png)
 Highlights where HERALD disagrees with human ground truth labels.
 
-**Sample run output:**
-```
-============================================================
-HERALD — Generating Analysis Plots
-Output: results/plots
-============================================================
-
-SKIP Plot 1: results/threshold_sweep.json not found. Run notebooks/threshold_sweep.py first.
-Plot 2: Escalation Profile by Checkpoint Type
-Saved: results/plots/plot2_escalation_profile.png
-Plot 4: Confusion Analysis
-Saved: results/plots/plot4_confusion_analysis.png
-SKIP Plot 3: results/baseline_comparison.json not found. Run notebooks/baseline_comparison.py first.
-
-============================================================
-Plots saved to results/plots/
-Files:
-	plot2_escalation_profile.png
-	plot4_confusion_analysis.png
-```
 
 To generate all plots, ensure you have run `notebooks/threshold_sweep.py` and `notebooks/baseline_comparison.py` to produce the required JSON files. If interrupted by rate limits, resume after quota resets.
 
