@@ -28,4 +28,7 @@ def load_config(config_path: str = "configs/default.yaml") -> dict:
     # Optional — only required when running herald-agent
     config["anthropic_api_key"] = os.environ.get("ANTHROPIC_API_KEY", "")
 
+    # Optional — only required when running herald-agent
+    config["anthropic_api_key"] = os.environ.get("ANTHROPIC_API_KEY", "")
+
     return config
