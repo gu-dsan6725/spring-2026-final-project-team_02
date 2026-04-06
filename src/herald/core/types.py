@@ -17,6 +17,7 @@ class CheckpointType(Enum):
     SYNTHESIS = "synthesis"
     NUMERICAL = "numerical"
     CAUSAL = "causal"
+    EPISTEMIC = "epistemic"
 
 
 @dataclass
@@ -27,6 +28,16 @@ class TierResult:
     confidence: float
     reasoning: str = ""
     raw_scores: dict = field(default_factory=dict)
+
+
+@dataclass
+class CounterfactualResult:
+    """Result from Tier 2.5 counterfactual probe."""
+    disconfirming_condition: str   # What the model says would change its verdict
+    evidence_found: bool           # Whether that condition actually exists in the source
+    evidence_quote: str            # The relevant quote, or empty string if not found
+    verdict_overridden: bool       # True if a confident Tier 2 verdict was flipped to UNCERTAIN
+    reasoning: str                 # Probe's explanation
 
 
 @dataclass
@@ -55,6 +66,7 @@ class EscalationPacket:
     checkpoint: CheckpointOutput
     tier1_result: Optional[TierResult] = None
     tier2_result: Optional[TierResult] = None
+    tier2_5_result: Optional[CounterfactualResult] = None
     tier3_result: Optional[DebateResult] = None
     resolved_at_tier: Optional[int] = None
     final_verdict: Optional[Verdict] = None

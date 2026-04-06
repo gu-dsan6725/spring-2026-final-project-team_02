@@ -134,6 +134,37 @@ Labels:
 
 ---
 
+### CP6 — Epistemic
+
+**Motivation:** LLMs systematically remove uncertainty that was present in source material. A research agent that states a finding confidently when the source hedges it, or that claims consensus when the source acknowledges debate, is introducing a specific and common failure mode that no other checkpoint type catches. The epistemic checkpoint validates whether the agent's *confidence level* matches the source's *evidence strength*.
+
+**Valid means:** The agent's claim accurately reflects the epistemic status of the finding in the source:
+- Source hedges with "may," "suggests," "is consistent with" → output preserves those hedges
+- Source acknowledges competing explanations → output does not present one as settled
+- Source notes a gap in evidence → output does not assert a conclusion that fills the gap
+- Source presents a finding as preliminary or contested → output does not present it as established
+
+**Invalid means:** The agent's output removes or weakens epistemic hedges present in the source:
+- Source says "results suggest X may contribute" → output says "X contributes"
+- Source says "evidence is mixed" → output says "evidence shows"
+- Source identifies an open question → output asserts an answer
+- Source says "no study has examined" → output implies the answer is known
+- Source presents a debate → output presents one side as the consensus
+
+**Ambiguous means:** The agent slightly strengthens confidence in a way that is defensible given the overall weight of evidence in the source — e.g., calling a "strongly suggested" finding "likely" — but does not fully assert certainty.
+
+**Examples:**
+- Source: "These findings suggest interest rates *may* have dampened investment" — Claim: "Rates may have dampened investment" → **valid**
+- Same source — Claim: "Rates dampened investment" → **invalid** (hedge removed)
+- Source: "Economists debate whether the effect is supply- or demand-driven" — Claim: "The effect appears supply-driven" → **invalid** (debate resolved)
+- Source: "Evidence strongly suggests X" — Claim: "X is likely true" → **ambiguous**
+
+**Key rule:** This checkpoint evaluates *calibration*, not factual accuracy. An output can be economically correct but still INVALID on this checkpoint if it expresses more certainty than the source warrants. The question is: would a careful reader of both the output and the source conclude that the output misrepresents the strength of evidence?
+
+**Relationship to Causal (CP5):** Causal overreach is a subset of epistemic overreach. CP5 specifically targets causal language; CP6 catches the broader class of confidence inflation across all claim types — including empirical findings, correlational evidence, and contested interpretations.
+
+---
+
 ## Inter-Annotator Agreement
 
 Before finalizing labels, have at least two independent annotators label the same 20+ cases. Compute Cohen's Kappa:
@@ -156,5 +187,10 @@ Common disagreement patterns and resolutions:
 
 - Tier 1 (NLI): Maps entailment → valid, contradiction → invalid, neutral → uncertain/ambiguous
 - Tier 2 (LLM Judge): Must follow these definitions explicitly in its system prompt
+- Tier 2.5 (Counterfactual Probe): After a confident Tier 2 verdict, asks what disconfirming
+  evidence would look like and checks for it in the source. Overrides to UNCERTAIN if found.
+  Addresses correlated model bias. Especially valuable for CP5 (causal) and CP6 (epistemic).
 - Tier 3 (Debate): Advocate argues valid; Critic argues invalid; Judge applies these definitions
 - When in doubt, flag for human review (Tier 4)
+- CP6 (epistemic) is NLI-hostile: hedging language is subtle and DeBERTa will frequently
+  return neutral. Expect most CP6 cases to escalate to Tier 2 or beyond.

@@ -16,3 +16,12 @@ tier3:
 thresholds:
   T1: 0.70  # Tier 1 → Tier 2 escalation (start here, tune later)
   T2: 0.80  # Tier 2 → Tier 3 escalation
+
+# Tier 2.5: Counterfactual probe
+# Addresses correlated model bias: after a confident Tier 2 verdict, asks the
+# model what disconfirming evidence would look like, then checks for it in source.
+# If found, overrides verdict to UNCERTAIN and escalates to Tier 3.
+# Set enabled: false when running large batches to conserve Groq rate limit quota.
+counterfactual_probe:
+  enabled: true
+  model: "llama-3.3-70b-versatile"  # Can use a different model to reduce correlation
