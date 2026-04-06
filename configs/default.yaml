@@ -25,3 +25,26 @@ thresholds:
 counterfactual_probe:
   enabled: true
   model: "llama-3.3-70b-versatile"  # Can use a different model to reduce correlation
+
+# Phase 0: Task analysis settings
+# Uses a lighter Claude model to analyze the task before execution.
+task_analysis:
+  enabled: true
+  model: "claude-sonnet-4-20250514"  # Cheaper than Opus; sufficient for structural analysis
+
+# Phase 2: Batch validation settings
+batch_validation:
+  max_concurrent_tier1: 50           # How many NLI calls to run (currently sequential)
+  escalation_sample_rate: 1.0        # Validate all escalated cases (set <1.0 to sample)
+  tier1_confidence_threshold: 0.70   # Mirrors thresholds.T1; override here for batch mode
+
+# Checkpoint routing rules
+# These govern how the BatchValidator routes outputs to different pipeline paths.
+checkpoint_routing:
+  # Checkpoint types where Tier 1 NLI is unreliable — route directly to Tier 2
+  # NLI cannot assess causal attribution strength or epistemic hedge preservation
+  skip_nli: ["causal", "epistemic"]
+  # Checkpoint types that benefit from multi-agent debate (adversarial framing helps)
+  prefer_debate: ["causal", "synthesis"]
+  # Checkpoint types where NLI alone is sufficient if confident
+  nli_sufficient: ["retrieval", "claim_extraction", "numerical"]

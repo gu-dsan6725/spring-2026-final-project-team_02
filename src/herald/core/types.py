@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import Literal, Optional
 
 
 class Verdict(Enum):
@@ -70,3 +70,44 @@ class EscalationPacket:
     tier3_result: Optional[DebateResult] = None
     resolved_at_tier: Optional[int] = None
     final_verdict: Optional[Verdict] = None
+
+
+# ── Phase 0: Task Analysis types ────────────────────────────────────────────
+
+@dataclass
+class TaskPlan:
+    """Output of Phase 0 task analysis."""
+    expected_output_count: int | str  # exact number or "multiple", "single"
+    output_unit: str                  # e.g., "comment", "claim", "paragraph", "bullet point"
+    primary_checkpoint_types: list[CheckpointType]
+    requires_source_mapping: bool
+    task_nature: Literal["empirical", "subjective", "mixed"]
+    evaluation_mode: Literal["exhaustive", "sampled", "adaptive"]
+    sample_size: Optional[int]        # If sampled, how many to validate
+    skip_nli_for: list[CheckpointType]          # Route straight to Tier 2 (NLI weak here)
+    debate_recommended_for: list[CheckpointType]  # Benefit from multi-agent debate
+    source_type: Literal["single_document", "multiple_documents", "conversation"]
+    source_chunking: Literal["by_section", "by_page", "whole_document", "per_output"]
+
+
+@dataclass
+class GeneratedOutput:
+    """A single output from the research agent, ready for validation."""
+    id: str
+    text: str
+    output_type: str                          # e.g., "comment", "claim", "paragraph"
+    references_section: Optional[str]         # Which part of source this references
+    suggested_checkpoint_type: Optional[CheckpointType]
+    metadata: dict = field(default_factory=dict)
+
+
+@dataclass
+class BatchValidationResult:
+    """Results from batch validation of multiple outputs."""
+    task_plan: TaskPlan
+    total_outputs: int
+    tier1_valid: list[tuple["GeneratedOutput", TierResult]]
+    tier1_invalid: list[tuple["GeneratedOutput", TierResult]]
+    escalated: list[tuple["GeneratedOutput", EscalationPacket]]
+    tier4_pending: list[tuple["GeneratedOutput", EscalationPacket]]
+    summary: dict  # aggregate statistics

@@ -25,6 +25,7 @@ herald-run = "herald.pipeline.run:main"
 herald-eval = "herald.evaluation.evaluate:main"
 herald-feasibility = "herald.notebooks.feasibility_check:main"
 herald-agent = "herald.agent.agent:main"
+herald-research = "herald.agent.research_agent:main"
 
 [build-system]
 requires = ["hatchling"]

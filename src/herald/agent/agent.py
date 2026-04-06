@@ -6,13 +6,19 @@ enabling natural-language interaction with the 4-tier validation system.
 Architecture:
   - Claude (claude-opus-4-6) acts as the reasoning/conversational layer
   - HERALD pipeline (Groq + local NLI) handles the actual evaluation tiers
-  - Three tools: validate_checkpoint, explain_verdict, request_human_review
+  - Six tools: validate_checkpoint, explain_verdict, request_human_review,
+    analyze_task, validate_batch, generate_and_validate
   - Manual agentic loop for full control (human-in-the-loop at Tier 4)
+
+Modes:
+  uv run herald-agent            — interactive validation mode (default)
+  uv run herald-agent --research — research agent mode (generate + validate)
 
 Usage:
   uv run herald-agent
   uv run herald-agent --config configs/default.yaml
   uv run herald-agent --verbose
+  uv run herald-agent --research
 """
 
 import argparse
@@ -30,11 +36,11 @@ from herald.agent.tools import TOOL_DEFINITIONS, execute_tool
 SYSTEM_PROMPT = """You are HERALD, an interactive LLM evaluation assistant specializing in \
 validating economics research agent outputs for faithfulness to their source material.
 
-You have three tools:
+You have six tools:
 
-1. **validate_checkpoint** — Run the full 4-tier HERALD validation pipeline on an output.
+1. **validate_checkpoint** — Run the full 4-tier HERALD validation pipeline on a single output.
    Tiers: NLI classifier (local) → LLM judge → multi-agent debate → human review.
-   Use this whenever the user submits something to validate.
+   Use this whenever the user submits a single output to validate.
 
 2. **explain_verdict** — Unpack a prior result in plain language.
    Use this when the user asks "why?" or wants to understand a verdict.
@@ -43,15 +49,30 @@ You have three tools:
    First call presents the evidence; second call (with human_verdict) records the decision.
    Use this when validate_checkpoint returns UNCERTAIN at Tier 4.
 
+4. **analyze_task** — Phase 0: analyze a research task and return a TaskPlan.
+   Returns structured metadata: output count, checkpoint types, evaluation mode, NLI routing.
+   Use this before validate_batch to understand the task structure.
+
+5. **validate_batch** — Phase 2: batch-validate multiple outputs at once.
+   Takes a list of outputs and runs them through HERALD per the TaskPlan routing rules.
+   Returns aggregate statistics and flags any outputs needing human review.
+
+6. **generate_and_validate** — Full pipeline: analyze → generate outputs → validate.
+   Given a query + source documents, generates the requested outputs AND validates them.
+   Use this for end-to-end research tasks.
+
 Checkpoint types and what they mean:
 - retrieval: Was the retrieved document topically relevant to the query?
 - claim_extraction: Is every assertion directly entailed by the source (no added inference)?
 - synthesis: Does the summary faithfully represent the source without introducing new claims?
 - numerical: Do reported numbers match the source within reasonable rounding?
 - causal: Does causal language stay within the strength of evidence the source provides?
+- epistemic: Does the output preserve the uncertainty hedges present in the source?
 
 Interaction guidelines:
-- When a user pastes an output + source, identify the checkpoint type and call validate_checkpoint.
+- When a user pastes a single output + source, use validate_checkpoint.
+- When a user submits multiple outputs or asks for full research task execution, use
+  generate_and_validate (which runs Phase 0→1→2) or validate_batch (Phase 2 only).
 - Always surface the verdict, tier, confidence, and key reasoning in plain language.
 - For UNCERTAIN Tier 4 results, proactively call request_human_review to present evidence,
   then wait for the user's verdict before recording it.
@@ -172,7 +193,9 @@ def run_agent(config_path: str = "configs/default.yaml", verbose: bool = False) 
                     print(f"\n[Running {tool_name}...]", flush=True)
 
                 try:
-                    result_str = execute_tool(tool_name, tool_input, pipeline)
+                    result_str = execute_tool(
+                        tool_name, tool_input, pipeline, anthropic_client=client
+                    )
                 except Exception as exc:
                     result_str = json.dumps({"error": str(exc)})
 
@@ -200,6 +223,7 @@ Examples:
   uv run herald-agent
   uv run herald-agent --config configs/default.yaml
   uv run herald-agent --verbose
+  uv run herald-agent --research          # full research agent mode
         """,
     )
     parser.add_argument(
@@ -212,8 +236,21 @@ Examples:
         action="store_true",
         help="Show tool call inputs/outputs for debugging",
     )
+    parser.add_argument(
+        "--research",
+        action="store_true",
+        help=(
+            "Run in research agent mode: provide a query + source documents, "
+            "and HERALD will generate and validate outputs end-to-end."
+        ),
+    )
     args = parser.parse_args()
-    run_agent(config_path=args.config, verbose=args.verbose)
+
+    if args.research:
+        from herald.agent.research_agent import run_research_agent
+        run_research_agent(config_path=args.config, verbose=args.verbose)
+    else:
+        run_agent(config_path=args.config, verbose=args.verbose)
 
 
 if __name__ == "__main__":
