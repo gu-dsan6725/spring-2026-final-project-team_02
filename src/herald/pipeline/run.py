@@ -4,6 +4,7 @@ import argparse
 import json
 import logging
 from pathlib import Path
+from herald.core.cli import add_llm_override_args
 from herald.core.config import load_config
 from herald.core.types import CheckpointOutput, CheckpointType
 from herald.pipeline.escalation import build_pipeline
@@ -16,6 +17,7 @@ def main():
     parser.add_argument("--output", default="results/run_results.json")
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument("--resume", action="store_true", help="Resume from existing output file (skip already-processed cases)")
+    add_llm_override_args(parser, include_tier2=True, include_tier3=True)
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -23,7 +25,12 @@ def main():
         format="%(asctime)s [herald] %(message)s",
     )
 
-    config = load_config(args.config)
+    config = load_config(
+        args.config,
+        provider=args.provider,
+        tier2_model=args.tier2_model,
+        tier3_model=args.tier3_model,
+    )
     pipeline = build_pipeline(config)
 
     with open(args.input) as f:

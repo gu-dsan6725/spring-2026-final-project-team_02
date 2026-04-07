@@ -1,7 +1,7 @@
 """Phase 4, Step 12: Compare HERALD against four baselines.
 
 Baselines (from walkthrough Step 12):
-  1. LLM-as-judge:      Send every case directly to Groq, skip Tier 1 entirely
+  1. LLM-as-judge:      Send every case directly to the configured LLM, skip Tier 1 entirely
   2. NLI-only:          Use only Tier 1 (DeBERTa), no escalation
   3. 3-tier (no debate): Skip Tier 3, go Tier 2 → Tier 4 directly
   4. Random escalation: Randomly escalate the same % of cases HERALD escalates
@@ -18,18 +18,17 @@ NOTE: --results must be a previously saved HERALD full-pipeline run
 
 import argparse
 import json
-import os
 import random
 import time
 from pathlib import Path
 
 from dotenv import load_dotenv
-from groq import Groq
 
+from herald.core.cli import add_llm_override_args
 from herald.core.config import load_config
+from herald.core.llm import get_llm_client
 from herald.core.types import CheckpointOutput, CheckpointType, TierResult, Verdict
 from herald.tier1.classifier import NLIClassifier
-from herald.tier2.judge import LLMJudge
 from herald.pipeline.escalation import HeraldPipeline, build_pipeline
 
 load_dotenv()
@@ -56,22 +55,21 @@ def accuracy(results: list[dict], ground_truth: list[dict]) -> float:
     return correct / len(results)
 
 
-def run_llm_judge_baseline(cases: list[dict], client: Groq, model: str, sleep: float) -> list[dict]:
+def run_llm_judge_baseline(cases: list[dict], client, sleep: float) -> list[dict]:
     """Baseline 1: LLM-as-judge for every case, no Tier 1."""
     results = []
     for i, case in enumerate(cases):
         print(f"  [{i+1}/{len(cases)}] LLM-judge ...", end=" ", flush=True)
         try:
-            resp = client.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": LLM_JUDGE_PROMPT.format(
+            resp = client.complete(
+                prompt=LLM_JUDGE_PROMPT.format(
                     source=case["source_context"],
                     claim=case["output_text"],
-                )}],
+                ),
                 temperature=0.1,
-                response_format={"type": "json_object"},
+                json_mode=True,
             )
-            data = json.loads(resp.choices[0].message.content)
+            data = json.loads(resp.content)
             results.append({
                 "final_verdict": data.get("verdict", "uncertain"),
                 "confidence": data.get("confidence", 0.5),
@@ -173,16 +171,18 @@ def main():
     parser.add_argument("--results", default="results/run_results.json", help="Prior HERALD run results")
     parser.add_argument("--config", default="configs/default.yaml")
     parser.add_argument("--output", default="results/baseline_comparison.json")
-    parser.add_argument("--model", default="llama-3.3-70b-versatile")
+    parser.add_argument("--model", default=None, help="Override the direct LLM baseline model for this run.")
     parser.add_argument("--sleep", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=42)
+    add_llm_override_args(parser, include_tier2=True, include_tier3=True)
     args = parser.parse_args()
 
-    api_key = os.environ.get("GROQ_API_KEY")
-    if not api_key:
-        raise ValueError("GROQ_API_KEY not set. Add it to .env.")
-
-    config = load_config(args.config)
+    config = load_config(
+        args.config,
+        provider=args.provider,
+        tier2_model=args.tier2_model or args.model,
+        tier3_model=args.tier3_model,
+    )
 
     with open(args.input) as f:
         ground_truth = json.load(f)
@@ -204,9 +204,10 @@ def main():
     print(f"\n{'='*70}")
     print("HERALD Baseline Comparison")
     print(f"Cases: {len(ground_truth)} | HERALD escalation rate: {herald_escalation_rate:.0%}")
+    print(f"Provider: {config['provider']} | Tier2: {config['tier2']['model']} | Tier3: {config['tier3']['model']}")
     print(f"{'='*70}\n")
 
-    client = Groq(api_key=api_key)
+    client = get_llm_client(config)
     classifier = NLIClassifier(
         model_name=config["tier1"]["model_name"],
         device=config["tier1"].get("device", "cpu"),
@@ -216,8 +217,8 @@ def main():
     all_results = {}
 
     # Baseline 1: LLM-as-judge
-    print("Running Baseline 1: LLM-as-judge (all cases direct to Groq)...")
-    b1 = run_llm_judge_baseline(ground_truth, client, args.model, args.sleep)
+    print("Running Baseline 1: LLM-as-judge (all cases direct to configured provider)...")
+    b1 = run_llm_judge_baseline(ground_truth, client, args.sleep)
     all_results["llm_judge_all"] = b1
 
     # Baseline 2: NLI-only

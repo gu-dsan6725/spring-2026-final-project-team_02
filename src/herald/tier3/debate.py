@@ -1,8 +1,8 @@
-"""Tier 3: Multi-Agent Debate (Groq or Gemini).
+"""Tier 3: Multi-Agent Debate (Groq, Gemini, or OpenAI).
 
 Three agents — Advocate, Critic, Judge — debate whether output is valid.
 3 sequential API calls per case. Only fires for hard cases.
-Switch providers via config: provider: "groq" | "gemini"
+Switch providers via config: provider: "groq" | "gemini" | "openai"
 """
 
 import json

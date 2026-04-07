@@ -1,7 +1,7 @@
 """LLM provider abstraction for HERALD.
 
-Supports Groq and Google Gemini behind a unified interface.
-Switch providers via config: provider: "groq" | "gemini"
+Supports Groq, Google Gemini, and OpenAI behind a unified interface.
+Switch providers via config: provider: "groq" | "gemini" | "openai"
 
 Usage:
     client = get_llm_client(config)
@@ -124,8 +124,46 @@ class GeminiClient:
         return LLMResponse(content=content, model=self.model, provider="gemini")
 
 
+class OpenAIClient:
+    """Thin wrapper around OpenAI chat completions."""
+
+    def __init__(self, api_key: str, model: str):
+        from openai import OpenAI
+        self.client = OpenAI(api_key=api_key)
+        self.model = model
+        self.provider = "openai"
+
+    def complete(
+        self,
+        prompt: str,
+        system: str = "",
+        json_mode: bool = False,
+        temperature: float = 0.1,
+    ) -> LLMResponse:
+        messages = []
+        if system:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
+
+        kwargs = {}
+        if json_mode:
+            kwargs["response_format"] = {"type": "json_object"}
+
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            temperature=temperature,
+            **kwargs,
+        )
+        return LLMResponse(
+            content=response.choices[0].message.content,
+            model=self.model,
+            provider="openai",
+        )
+
+
 def get_llm_client(config: dict):
-    """Build the right LLM client from config. Returns GroqClient or GeminiClient."""
+    """Build the right LLM client from config."""
     provider = config.get("provider", "groq").lower()
 
     if provider == "gemini":
@@ -145,5 +183,12 @@ def get_llm_client(config: dict):
         model = config.get("tier2", {}).get("model", "llama-3.3-70b-versatile")
         return GroqClient(api_key=api_key, model=model)
 
+    elif provider == "openai":
+        api_key = config.get("openai_api_key") or os.environ.get("OPENAI_API_KEY", "")
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY not set. Add it to your .env file.")
+        model = config.get("tier2", {}).get("model", "gpt-4o-mini")
+        return OpenAIClient(api_key=api_key, model=model)
+
     else:
-        raise ValueError(f"Unknown provider: {provider!r}. Use 'groq' or 'gemini'.")
+        raise ValueError(f"Unknown provider: {provider!r}. Use 'groq', 'gemini', or 'openai'.")

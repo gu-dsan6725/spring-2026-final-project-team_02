@@ -1,4 +1,4 @@
-"""Tier 2: Single LLM Judge (Groq or Gemini).
+"""Tier 2: Single LLM Judge (Groq, Gemini, or OpenAI).
 
 Uses the provider abstraction in core.llm — switch providers via config.
 Receives cases Tier 1 couldn't resolve with confidence.
@@ -64,7 +64,7 @@ def _calibrate_confidence(confidence: float) -> float:
 
 
 class LLMJudge:
-    """Tier 2: Single LLM judge (Groq or Gemini)."""
+    """Tier 2: Single LLM judge (Groq, Gemini, or OpenAI)."""
 
     def __init__(self, config: dict):
         self.client = get_llm_client(config)
