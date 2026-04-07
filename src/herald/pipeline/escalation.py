@@ -89,14 +89,8 @@ def build_pipeline(config: dict) -> HeraldPipeline:
         model_name=config["tier1"]["model_name"],
         device=config["tier1"].get("device", "cpu"),
     )
-    tier2 = LLMJudge(
-        api_key=config["groq_api_key"],
-        model=config["tier2"]["model"],
-    )
-    tier3 = MultiAgentDebate(
-        api_key=config["groq_api_key"],
-        model=config["tier3"]["model"],
-    )
+    tier2 = LLMJudge(config=config)
+    tier3 = MultiAgentDebate(config=config)
     return HeraldPipeline(
         tier1=tier1,
         tier2=tier2,

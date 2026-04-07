@@ -1,31 +1,41 @@
-"""Tier 2: Single LLM Judge via Groq.
+"""Tier 2: Single LLM Judge (Groq or Gemini).
 
-Uses Groq's free API (OpenAI-compatible) with Llama 3.3 70B.
+Uses the provider abstraction in core.llm — switch providers via config.
 Receives cases Tier 1 couldn't resolve with confidence.
 """
 
 import json
-from groq import Groq
+import math
 from herald.core.types import TierResult, Verdict, CheckpointOutput
+from herald.core.llm import get_llm_client
 
 
-JUDGE_SYSTEM = """You are a validation judge. Determine whether an agent's output is faithful to its source context.
+JUDGE_SYSTEM = """You are a strict validation judge for policy research outputs. \
+Your job is to catch errors, hallucinations, and unsupported claims — not to confirm them.
 
 You will receive:
 - The agent's output (claim to validate)
-- The source context (reference material)
-- Tier 1 NLI scores (for context)
+- The source context (the ONLY ground truth — do not use outside knowledge)
+- Tier 1 NLI scores (context on where the model was uncertain)
 
-Instructions:
-1. Compare the output against source context carefully
-2. Identify specific points of agreement or disagreement
-3. Return your verdict as JSON
+Verdict rules (apply in order):
+1. INVALID  — if the output contains ANY wrong number, fabricated statistic, detail \
+not present in the source, or causal claim the source does not make. One error = INVALID.
+2. UNCERTAIN — if the output is a plausible inference from the source but goes beyond \
+what is explicitly stated. Defensible but not directly entailed.
+3. VALID    — only if every factual claim in the output is directly and explicitly \
+supported by the source. No assumptions, no extensions.
 
-You MUST respond with ONLY valid JSON in this exact format, no other text:
-{"reasoning": "your analysis", "verdict": "VALID", "confidence": 0.85, "key_issues": ["issue 1"]}
+Confidence rules:
+- Use the FULL range 0.0–1.0. Do not default to 0.8 or 0.9.
+- High confidence (>0.90): you can point to specific text that proves your verdict.
+- Medium confidence (0.70–0.90): verdict is likely but some ambiguity exists.
+- Low confidence (<0.70): escalate — use UNCERTAIN verdict.
+- If Tier 1 shows high neutral score (>0.95), the claim likely goes beyond the source → lean UNCERTAIN or INVALID.
 
-verdict must be one of: VALID, INVALID, UNCERTAIN
-confidence must be a number between 0.0 and 1.0"""
+You MUST respond with ONLY valid JSON, no other text:
+{"reasoning": "cite specific evidence or error", "verdict": "VALID|INVALID|UNCERTAIN", \
+"confidence": 0.0-1.0, "key_issues": ["specific issue or empty list"]}"""
 
 
 JUDGE_TEMPLATE = """## Agent Output
@@ -37,16 +47,28 @@ JUDGE_TEMPLATE = """## Agent Output
 ## Tier 1 NLI Scores
 {tier1_scores}
 
-Analyze whether the agent's output is faithfully supported by the source context.
+Check carefully for: wrong numbers, fabricated details, false causality, \
+unsupported inferences. Default to INVALID if unsure between VALID and INVALID.
 Respond with ONLY valid JSON."""
 
 
-class LLMJudge:
-    """Tier 2: Single LLM judge via Groq."""
+def _calibrate_confidence(confidence: float) -> float:
+    """Spread compressed model confidences across the full 0-1 range.
 
-    def __init__(self, api_key: str, model: str = "llama-3.3-70b-versatile"):
-        self.client = Groq(api_key=api_key)
-        self.model = model
+    Small models cluster around 0.80-0.90 regardless of true certainty.
+    Applies a sigmoid stretch centered at 0.80 for better escalation routing.
+    """
+    center, k = 0.80, 8.0
+    calibrated = 1.0 / (1.0 + math.exp(-k * (confidence - center)))
+    return round(0.7 * calibrated + 0.3 * confidence, 4)
+
+
+class LLMJudge:
+    """Tier 2: Single LLM judge (Groq or Gemini)."""
+
+    def __init__(self, config: dict):
+        self.client = get_llm_client(config)
+        self.model = config.get("tier2", {}).get("model", "")
 
     def judge(
         self,
@@ -56,29 +78,25 @@ class LLMJudge:
         max_retries: int = 3,
         retry_delay: float = 2.0,
     ) -> TierResult:
-        """Run LLM judge on escalated case, with retry logic for API errors."""
         import time
-        user_msg = JUDGE_TEMPLATE.format(
+        prompt = JUDGE_TEMPLATE.format(
             output_text=checkpoint.output_text,
             source_context=checkpoint.source_context,
             tier1_scores=json.dumps(tier1_result.raw_scores, indent=2),
         )
-        last_err = None
+
         for attempt in range(max_retries):
             try:
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=[
-                        {"role": "system", "content": JUDGE_SYSTEM},
-                        {"role": "user", "content": user_msg},
-                    ],
+                response = self.client.complete(
+                    prompt=prompt,
+                    system=JUDGE_SYSTEM,
+                    json_mode=True,
                     temperature=0.1,
-                    response_format={"type": "json_object"},
                 )
-                raw = response.choices[0].message.content
-                result = json.loads(raw)
+                result = json.loads(response.content)
                 verdict = Verdict(result["verdict"].lower())
-                confidence = float(result["confidence"])
+                raw_confidence = float(result["confidence"])
+                confidence = _calibrate_confidence(raw_confidence)
                 if verdict != Verdict.UNCERTAIN and confidence < threshold:
                     verdict = Verdict.UNCERTAIN
                 return TierResult(
@@ -88,13 +106,14 @@ class LLMJudge:
                     reasoning=result["reasoning"],
                     raw_scores={
                         "verdict": result["verdict"],
-                        "confidence": confidence,
+                        "raw_confidence": raw_confidence,
+                        "calibrated_confidence": confidence,
                         "key_issues": result.get("key_issues", []),
+                        "provider": response.provider,
                     },
                 )
             except Exception as e:
-                last_err = e
                 if attempt < max_retries - 1:
                     time.sleep(retry_delay)
                 else:
-                    raise RuntimeError(f"Groq API failed after {max_retries} attempts: {e}")
+                    raise RuntimeError(f"LLM API failed after {max_retries} attempts: {e}")

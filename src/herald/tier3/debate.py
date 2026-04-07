@@ -1,12 +1,13 @@
-"""Tier 3: Multi-Agent Debate via Groq.
+"""Tier 3: Multi-Agent Debate (Groq or Gemini).
 
 Three agents — Advocate, Critic, Judge — debate whether output is valid.
 3 sequential API calls per case. Only fires for hard cases.
+Switch providers via config: provider: "groq" | "gemini"
 """
 
 import json
-from groq import Groq
 from herald.core.types import TierResult, Verdict, CheckpointOutput, DebateResult
+from herald.core.llm import get_llm_client
 
 
 ADVOCATE_PROMPT = """You are the ADVOCATE in a validation debate. Argue that the agent's output IS valid and faithful to the source.
@@ -68,9 +69,9 @@ verdict must be VALID, INVALID, or UNCERTAIN. Respond with ONLY JSON."""
 class MultiAgentDebate:
     """Tier 3: Structured Advocate/Critic/Judge debate."""
 
-    def __init__(self, api_key: str, model: str = "llama-3.3-70b-versatile"):
-        self.client = Groq(api_key=api_key)
-        self.model = model
+    def __init__(self, config: dict):
+        self.client = get_llm_client(config)
+        self.model = config.get("tier3", {}).get("model", "")
 
     def debate(
         self,
@@ -80,7 +81,6 @@ class MultiAgentDebate:
         max_retries: int = 3,
         retry_delay: float = 2.0,
     ) -> DebateResult:
-        """Run 3-agent debate. Returns DebateResult. Adds retry logic for API errors."""
         import time
         ctx = {
             "output_text": checkpoint.output_text,
@@ -88,20 +88,25 @@ class MultiAgentDebate:
             "tier1_scores": json.dumps(tier1_result.raw_scores, indent=2),
             "tier2_reasoning": tier2_result.reasoning,
         }
-        last_err = None
+
         for attempt in range(max_retries):
             try:
-                advocate = self._call(ADVOCATE_PROMPT.format(**ctx))
-                critic = self._call(CRITIC_PROMPT.format(**ctx))
-                judge_raw = self._call(
+                advocate = self.client.complete(
+                    ADVOCATE_PROMPT.format(**ctx), temperature=0.3
+                ).content
+                critic = self.client.complete(
+                    CRITIC_PROMPT.format(**ctx), temperature=0.3
+                ).content
+                judge_resp = self.client.complete(
                     DEBATE_JUDGE_PROMPT.format(
                         **ctx,
                         advocate_argument=advocate,
                         critic_argument=critic,
                     ),
                     json_mode=True,
+                    temperature=0.1,
                 )
-                result = json.loads(judge_raw)
+                result = json.loads(judge_resp.content)
                 return DebateResult(
                     advocate_argument=advocate,
                     critic_argument=critic,
@@ -110,22 +115,7 @@ class MultiAgentDebate:
                     judge_reasoning=result["reasoning"],
                 )
             except Exception as e:
-                last_err = e
                 if attempt < max_retries - 1:
                     time.sleep(retry_delay)
                 else:
-                    raise RuntimeError(f"Groq API failed after {max_retries} attempts: {e}")
-
-    def _call(self, prompt: str, json_mode: bool = False) -> str:
-        """Single Groq API call."""
-        kwargs = {}
-        if json_mode:
-            kwargs["response_format"] = {"type": "json_object"}
-
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
-            **kwargs,
-        )
-        return response.choices[0].message.content
+                    raise RuntimeError(f"LLM API failed after {max_retries} attempts: {e}")
