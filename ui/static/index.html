@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HERALD — Validation Pipeline</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: {
+        slate: { 850: '#0f1729' },
+      }}}
+    };
+  </script>
+</head>
+
+<body class="bg-slate-900 text-slate-200 min-h-screen font-sans antialiased"
+      x-data="heraldApp()" x-init="init()">
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- HEADER                                                                -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<header class="border-b border-slate-800 bg-slate-900/95 sticky top-0 z-40 backdrop-blur">
+  <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-14">
+
+    <!-- Logo -->
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">H</div>
+      <div>
+        <span class="font-bold text-white tracking-tight">HERALD</span>
+        <span class="ml-2 text-slate-500 text-xs hidden sm:inline">Hierarchical Escalation for Reliable Agentic LLM Decision-making</span>
+      </div>
+    </div>
+
+    <!-- Nav tabs -->
+    <nav class="flex items-center gap-1 text-sm">
+      <template x-for="[id, label, icon] in [['validate','Validate','▶'], ['results','Results','📋'], ['queue','Review Queue','👤'], ['metrics','Metrics','📊'], ['settings','Settings','⚙']]" :key="id">
+        <button @click="switchTab(id)"
+          :class="tab === id ? 'tab-active text-indigo-400' : 'text-slate-400 hover:text-slate-200'"
+          class="px-3 py-4 font-medium transition-colors border-b-2 border-transparent flex items-center gap-1.5">
+          <span class="text-xs" x-text="icon"></span>
+          <span x-text="label"></span>
+          <!-- Queue badge -->
+          <span x-show="id === 'queue' && pendingQueue.length > 0"
+                class="ml-1 bg-rose-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center"
+                x-text="pendingQueue.length"></span>
+        </button>
+      </template>
+    </nav>
+
+    <!-- Model status indicator -->
+    <div class="flex items-center gap-2 text-xs">
+      <template x-if="modelStatus === 'ready'">
+        <span class="flex items-center gap-1.5 text-green-400">
+          <span class="w-2 h-2 bg-green-400 rounded-full"></span> Model ready
+        </span>
+      </template>
+      <template x-if="modelStatus === 'loading'">
+        <span class="flex items-center gap-1.5 text-indigo-400">
+          <span class="spinner"></span> Loading…
+        </span>
+      </template>
+      <template x-if="modelStatus === 'unloaded'">
+        <button @click="warmup()" class="flex items-center gap-1.5 text-amber-400 hover:text-amber-300 transition-colors">
+          <span class="w-2 h-2 bg-amber-400 rounded-full"></span> Load model
+        </button>
+      </template>
+      <template x-if="modelStatus === 'error'">
+        <span class="flex items-center gap-1.5 text-red-400" :title="modelError">
+          <span class="w-2 h-2 bg-red-400 rounded-full"></span> Error
+        </span>
+      </template>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-6 py-6">
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- TAB: VALIDATE                                                          -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div x-show="tab === 'validate'">
+
+  <!-- ── Model warmup banner ─────────────────────────────────────────── -->
+  <div x-show="modelStatus === 'loading'" class="mb-4 p-3 rounded-lg bg-indigo-900/40 border border-indigo-700/50 flex items-center gap-3 text-sm text-indigo-300">
+    <span class="spinner flex-shrink-0"></span>
+    <span x-text="warmupLog || 'Loading DeBERTa NLI model…'"></span>
+  </div>
+
+  <!-- ── Pipeline Diagram ────────────────────────────────────────────── -->
+  <div class="mb-6 p-4 rounded-xl bg-slate-800/60 border border-slate-700/50">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-widest">Validation Pipeline</h2>
+      <span class="text-xs text-slate-600">Each tier only runs if the previous one is uncertain</span>
+    </div>
+
+    <!-- Tier boxes + arrows -->
+    <div class="flex items-center gap-0">
+      <template x-for="(tier, idx) in TIER_META" :key="tier.n">
+        <div class="flex items-center gap-0 flex-1">
+
+          <!-- Tier box -->
+          <div class="flex-1 min-w-0 rounded-lg border-2 p-3 transition-all duration-300"
+               :class="tierClass(tier.n)">
+
+            <!-- Header row -->
+            <div class="flex items-center justify-between mb-1.5">
+              <div class="flex items-center gap-1.5">
+                <span x-text="tier.icon" class="text-base leading-none"></span>
+                <div>
+                  <div class="text-xs font-bold text-slate-300 leading-tight" x-text="`Tier ${tier.n}`"></div>
+                  <div class="text-[10px] text-slate-500 leading-tight" x-text="tier.shortName"></div>
+                </div>
+              </div>
+
+              <!-- Status icon -->
+              <div>
+                <template x-if="pipeline && pipeline.tiers[tier.n].status === 'running'">
+                  <span class="spinner"></span>
+                </template>
+                <template x-if="pipeline && pipeline.tiers[tier.n].status === 'done' && pipeline.tiers[tier.n].verdict === 'valid'">
+                  <span class="text-green-400 text-base">✓</span>
+                </template>
+                <template x-if="pipeline && pipeline.tiers[tier.n].status === 'done' && pipeline.tiers[tier.n].verdict === 'invalid'">
+                  <span class="text-red-400 text-base">✗</span>
+                </template>
+                <template x-if="pipeline && pipeline.tiers[tier.n].status === 'done' && pipeline.tiers[tier.n].verdict === 'uncertain'">
+                  <span class="text-amber-400 text-base">?</span>
+                </template>
+              </div>
+            </div>
+
+            <!-- Cost/provider -->
+            <div class="text-[10px] text-slate-600" x-text="tier.cost"></div>
+
+            <!-- Confidence bar (when done) -->
+            <template x-if="pipeline && pipeline.tiers[tier.n].status === 'done' && pipeline.tiers[tier.n].confidence !== null">
+              <div class="mt-2">
+                <div class="flex justify-between text-[9px] text-slate-500 mb-0.5">
+                  <span>confidence</span>
+                  <span x-text="`${pct(pipeline.tiers[tier.n].confidence)}%`"></span>
+                </div>
+                <div class="h-1 bg-slate-700 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full conf-bar transition-all duration-700"
+                       :class="confBarClass(pipeline.tiers[tier.n].confidence)"
+                       :style="`width: ${pct(pipeline.tiers[tier.n].confidence)}%`"></div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Resolved badge -->
+            <template x-if="pipeline && pipeline.resolved_at === tier.n">
+              <div class="mt-2">
+                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide"
+                      :class="verdictBadgeClass(pipeline.final_verdict)"
+                      x-text="pipeline.final_verdict || 'resolved'"></span>
+              </div>
+            </template>
+          </div>
+
+          <!-- Arrow connector (except after last tier) -->
+          <template x-if="idx < 3">
+            <div class="flex flex-col items-center mx-1 flex-shrink-0" style="width: 32px;">
+              <div class="connector rounded-full h-0.5"
+                   :class="arrowClass(`${tier.n}->${tier.n+1}`)"></div>
+              <div class="text-slate-700 text-[8px] mt-0.5">▶</div>
+            </div>
+          </template>
+
+        </div>
+      </template>
+    </div>
+
+    <!-- Tier tooltips row -->
+    <div class="flex gap-0 mt-2">
+      <template x-for="(tier, idx) in TIER_META" :key="'tip'+tier.n">
+        <div class="flex-1 px-1">
+          <p class="text-[9px] text-slate-600 leading-tight" x-text="tier.tip"></p>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- ── Main 2-column layout ────────────────────────────────────────── -->
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+    <!-- LEFT: Input form -->
+    <div class="lg:col-span-2 space-y-4">
+      <div class="rounded-xl bg-slate-800/60 border border-slate-700/50 p-5">
+        <h3 class="text-sm font-semibold text-slate-300 mb-4">Case Input</h3>
+
+        <!-- Checkpoint type -->
+        <div class="mb-4">
+          <label class="block text-xs text-slate-400 mb-1.5 font-medium">Checkpoint Type</label>
+          <select x-model="form.checkpoint_type">
+            <template x-for="ct in CHECKPOINT_TYPES" :key="ct.value">
+              <option :value="ct.value" x-text="`${ct.icon} ${ct.label}`"></option>
+            </template>
+          </select>
+          <!-- Dynamic description -->
+          <div class="mt-2 p-2.5 rounded-lg bg-slate-900/60 border border-slate-700/40 text-[11px] text-slate-400 leading-relaxed">
+            <p x-text="currentCpType.desc"></p>
+            <div class="mt-1.5 grid grid-cols-2 gap-1.5">
+              <div class="p-1.5 rounded bg-green-900/20 border border-green-800/30">
+                <span class="text-green-500 font-semibold block text-[10px] mb-0.5">✓ Valid if</span>
+                <span class="text-slate-400" x-text="currentCpType.valid_ex"></span>
+              </div>
+              <div class="p-1.5 rounded bg-red-900/20 border border-red-800/30">
+                <span class="text-red-500 font-semibold block text-[10px] mb-0.5">✗ Invalid if</span>
+                <span class="text-slate-400" x-text="currentCpType.invalid_ex"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Query -->
+        <div class="mb-3">
+          <label class="block text-xs text-slate-400 mb-1 font-medium">
+            Research Query
+            <span class="text-slate-600 font-normal ml-1">(what the agent was answering)</span>
+          </label>
+          <input type="text" x-model="form.query" placeholder="e.g. What happened to housing starts in 2018?" />
+        </div>
+
+        <!-- Source context -->
+        <div class="mb-3">
+          <label class="block text-xs text-slate-400 mb-1 font-medium">
+            Source Context
+            <span class="text-slate-600 font-normal ml-1">(the only ground truth — paste verbatim source text)</span>
+          </label>
+          <textarea x-model="form.source_context" rows="5"
+                    placeholder="Paste the original source document or passage here. This is the ground truth the agent's output will be validated against."></textarea>
+        </div>
+
+        <!-- Agent output -->
+        <div class="mb-4">
+          <label class="block text-xs text-slate-400 mb-1 font-medium">
+            Agent Output
+            <span class="text-slate-600 font-normal ml-1">(what you want to validate)</span>
+          </label>
+          <textarea x-model="form.output_text" rows="4"
+                    placeholder="Paste the agent's output — the claim, extraction, or synthesis you want to validate."></textarea>
+        </div>
+
+        <!-- Ground-truth label (optional) -->
+        <div class="mb-5">
+          <label class="block text-xs text-slate-400 mb-1 font-medium">
+            Ground Truth Label
+            <span class="text-slate-600 font-normal ml-1">(optional — for accuracy tracking)</span>
+          </label>
+          <select x-model="form.label">
+            <option value="">— not provided —</option>
+            <option value="valid">valid</option>
+            <option value="invalid">invalid</option>
+            <option value="ambiguous">ambiguous</option>
+          </select>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="flex items-center gap-2">
+          <button @click="validate()"
+                  :disabled="isValidating || !form.output_text.trim() || !form.source_context.trim()"
+                  class="btn-primary flex items-center gap-2 flex-1 justify-center">
+            <template x-if="isValidating">
+              <span class="spinner w-4 h-4 border-white border-t-transparent"></span>
+            </template>
+            <template x-if="!isValidating">
+              <span>▶</span>
+            </template>
+            <span x-text="isValidating ? 'Validating…' : 'Validate'"></span>
+          </button>
+
+          <button @click="loadExample()" class="btn-ghost flex-shrink-0">
+            Load example
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Live results -->
+    <div class="lg:col-span-3 space-y-3">
+
+      <!-- Empty state -->
+      <template x-if="!pipeline">
+        <div class="rounded-xl bg-slate-800/30 border border-slate-700/30 border-dashed p-10 text-center">
+          <div class="text-4xl mb-3">🔬</div>
+          <p class="text-slate-500 text-sm">Results will appear here as the pipeline runs.</p>
+          <p class="text-slate-600 text-xs mt-1">Fill in a case and click Validate, or use "Load example" to try a pre-built case.</p>
+        </div>
+      </template>
+
+      <!-- Pipeline results -->
+      <template x-if="pipeline">
+        <div class="space-y-3">
+
+          <!-- Final verdict banner (shown once resolved) -->
+          <template x-if="pipeline.final_verdict">
+            <div class="rounded-xl p-4 border-2 result-card"
+                 :class="pipeline.final_verdict === 'valid' ? 'bg-green-950/50 border-green-700/60' :
+                         pipeline.final_verdict === 'invalid' ? 'bg-red-950/50 border-red-700/60' :
+                         'bg-amber-950/50 border-amber-700/60'">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xs text-slate-400 mb-1">Final Verdict</div>
+                  <div class="text-2xl font-bold uppercase tracking-wide"
+                       :class="verdictTextClass(pipeline.final_verdict)"
+                       x-text="pipeline.final_verdict"></div>
+                  <div class="text-xs text-slate-500 mt-0.5"
+                       x-text="`Resolved at Tier ${pipeline.resolved_at}`"></div>
+                </div>
+                <div class="text-5xl opacity-30"
+                     x-text="pipeline.final_verdict === 'valid' ? '✓' : pipeline.final_verdict === 'invalid' ? '✗' : '?'">
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- Tier 1 result -->
+          <template x-if="pipeline.tiers[1].status !== 'waiting'">
+            <div class="rounded-xl bg-slate-800/70 border border-slate-700/50 overflow-hidden result-card">
+              <!-- Header -->
+              <div class="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-700/20 transition-colors"
+                   @click="pipeline.tiers[1].expanded = !pipeline.tiers[1].expanded">
+                <div class="flex items-center gap-3">
+                  <span class="text-lg">🤖</span>
+                  <div>
+                    <div class="text-sm font-semibold text-slate-200">Tier 1 — DeBERTa NLI</div>
+                    <div class="text-xs text-slate-500">Local classifier · Free · No API</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <template x-if="pipeline.tiers[1].status === 'running'">
+                    <div class="flex items-center gap-2 text-indigo-400 text-xs">
+                      <span class="spinner"></span>
+                      <span x-text="pipeline.tiers[1].message || 'Running…'"></span>
+                    </div>
+                  </template>
+                  <template x-if="pipeline.tiers[1].verdict">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase"
+                          :class="verdictBadgeClass(pipeline.tiers[1].verdict)"
+                          x-text="pipeline.tiers[1].verdict"></span>
+                  </template>
+                  <span class="text-slate-600 text-xs" x-text="pipeline.tiers[1].expanded ? '▲' : '▼'"></span>
+                </div>
+              </div>
+
+              <!-- Expanded detail -->
+              <template x-if="pipeline.tiers[1].expanded && pipeline.tiers[1].verdict">
+                <div class="px-4 pb-4 border-t border-slate-700/40 pt-3 space-y-3 collapsible-enter">
+
+                  <!-- Confidence -->
+                  <div>
+                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                      <span>Confidence</span>
+                      <span x-text="`${pct(pipeline.tiers[1].confidence)}%`"></span>
+                    </div>
+                    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                      <div class="h-full rounded-full conf-bar"
+                           :class="confBarClass(pipeline.tiers[1].confidence)"
+                           :style="`width: ${pct(pipeline.tiers[1].confidence)}%`"></div>
+                    </div>
+                  </div>
+
+                  <!-- NLI scores -->
+                  <template x-if="pipeline.tiers[1].scores">
+                    <div class="grid grid-cols-3 gap-2">
+                      <template x-for="[label, cls, key] in [['Entailment','score-ent','entailment'],['Contradiction','score-con','contradiction'],['Neutral','score-neu','neutral']]">
+                        <div class="bg-slate-900/60 rounded-lg p-2 text-center">
+                          <div class="text-[10px] text-slate-500 mb-1" x-text="label"></div>
+                          <div class="text-base font-bold"
+                               :class="key === 'entailment' ? 'text-green-400' : key === 'contradiction' ? 'text-red-400' : 'text-slate-400'"
+                               x-text="`${pct(pipeline.tiers[1].scores[key])}%`"></div>
+                          <div class="h-1 mt-1 rounded-full overflow-hidden bg-slate-700">
+                            <div class="h-full rounded-full" :class="cls"
+                                 :style="`width: ${pct(pipeline.tiers[1].scores[key])}%`"></div>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </template>
+
+                  <!-- Reasoning -->
+                  <div class="text-xs text-slate-400 bg-slate-900/40 rounded-lg p-2.5 font-mono"
+                       x-text="pipeline.tiers[1].reasoning"></div>
+                </div>
+              </template>
+            </div>
+          </template>
+
+          <!-- Escalation note 1→2 -->
+          <template x-if="pipeline.arrows['1->2'] !== 'idle'">
+            <div class="flex items-center gap-2 px-2 result-card">
+              <div class="flex-1 h-px" :class="pipeline.arrows['1->2'] === 'flowing' ? 'arrow-flowing' : 'bg-indigo-800/40'"></div>
+              <span class="text-xs text-slate-500 whitespace-nowrap">escalating to Tier 2</span>
+              <div class="flex-1 h-px" :class="pipeline.arrows['1->2'] === 'flowing' ? 'arrow-flowing' : 'bg-indigo-800/40'"></div>
+            </div>
+          </template>
+
+          <!-- Tier 2 result -->
+          <template x-if="pipeline.tiers[2].status !== 'waiting'">
+            <div class="rounded-xl bg-slate-800/70 border border-slate-700/50 overflow-hidden result-card">
+              <div class="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-700/20 transition-colors"
+                   @click="pipeline.tiers[2].expanded = !pipeline.tiers[2].expanded">
+                <div class="flex items-center gap-3">
+                  <span class="text-lg">⚖️</span>
+                  <div>
+                    <div class="text-sm font-semibold text-slate-200">Tier 2 — LLM Judge</div>
+                    <div class="text-xs text-slate-500" x-text="config.provider ? `${config.provider} · ${config.tier2_model}` : 'LLM API'"></div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <template x-if="pipeline.tiers[2].status === 'running'">
+                    <div class="flex items-center gap-2 text-indigo-400 text-xs">
+                      <span class="spinner"></span> <span>Judging…</span>
+                    </div>
+                  </template>
+                  <template x-if="pipeline.tiers[2].verdict">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase"
+                          :class="verdictBadgeClass(pipeline.tiers[2].verdict)"
+                          x-text="pipeline.tiers[2].verdict"></span>
+                  </template>
+                  <span class="text-slate-600 text-xs" x-text="pipeline.tiers[2].expanded ? '▲' : '▼'"></span>
+                </div>
+              </div>
+
+              <template x-if="pipeline.tiers[2].expanded && pipeline.tiers[2].verdict">
+                <div class="px-4 pb-4 border-t border-slate-700/40 pt-3 space-y-3 collapsible-enter">
+                  <div>
+                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                      <span>Confidence</span>
+                      <span x-text="`${pct(pipeline.tiers[2].confidence)}%`"></span>
+                    </div>
+                    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                      <div class="h-full rounded-full conf-bar" :class="confBarClass(pipeline.tiers[2].confidence)"
+                           :style="`width: ${pct(pipeline.tiers[2].confidence)}%`"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-xs text-slate-500 mb-1">Judge reasoning</div>
+                    <div class="text-xs text-slate-300 bg-slate-900/40 rounded-lg p-2.5 leading-relaxed"
+                         x-text="pipeline.tiers[2].reasoning"></div>
+                  </div>
+                  <template x-if="pipeline.tiers[2].scores && pipeline.tiers[2].scores.key_issues && pipeline.tiers[2].scores.key_issues.length">
+                    <div>
+                      <div class="text-xs text-slate-500 mb-1">Key issues identified</div>
+                      <ul class="space-y-1">
+                        <template x-for="issue in pipeline.tiers[2].scores.key_issues">
+                          <li class="text-xs text-slate-400 flex gap-1.5">
+                            <span class="text-amber-400 flex-shrink-0">•</span>
+                            <span x-text="issue"></span>
+                          </li>
+                        </template>
+                      </ul>
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </div>
+          </template>
+
+          <!-- Escalation note 2→3 -->
+          <template x-if="pipeline.arrows['2->3'] !== 'idle'">
+            <div class="flex items-center gap-2 px-2 result-card">
+              <div class="flex-1 h-px" :class="pipeline.arrows['2->3'] === 'flowing' ? 'arrow-flowing' : 'bg-violet-800/40'"></div>
+              <span class="text-xs text-slate-500 whitespace-nowrap">escalating to Tier 3 (debate)</span>
+              <div class="flex-1 h-px" :class="pipeline.arrows['2->3'] === 'flowing' ? 'arrow-flowing' : 'bg-violet-800/40'"></div>
+            </div>
+          </template>
+
+          <!-- Tier 3 result -->
+          <template x-if="pipeline.tiers[3].status !== 'waiting'">
+            <div class="rounded-xl bg-slate-800/70 border border-slate-700/50 overflow-hidden result-card">
+              <div class="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-700/20 transition-colors"
+                   @click="pipeline.tiers[3].expanded = !pipeline.tiers[3].expanded">
+                <div class="flex items-center gap-3">
+                  <span class="text-lg">🗣️</span>
+                  <div>
+                    <div class="text-sm font-semibold text-slate-200">Tier 3 — Multi-Agent Debate</div>
+                    <div class="text-xs text-slate-500">Advocate + Critic + Judge · 3 API calls</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <template x-if="pipeline.tiers[3].status === 'running'">
+                    <div class="flex items-center gap-2 text-indigo-400 text-xs">
+                      <span class="spinner"></span> <span>Debating…</span>
+                    </div>
+                  </template>
+                  <template x-if="pipeline.tiers[3].verdict">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase"
+                          :class="verdictBadgeClass(pipeline.tiers[3].verdict)"
+                          x-text="pipeline.tiers[3].verdict"></span>
+                  </template>
+                  <span class="text-slate-600 text-xs" x-text="pipeline.tiers[3].expanded ? '▲' : '▼'"></span>
+                </div>
+              </div>
+
+              <template x-if="pipeline.tiers[3].expanded && pipeline.tiers[3].verdict">
+                <div class="px-4 pb-4 border-t border-slate-700/40 pt-3 space-y-3 collapsible-enter">
+
+                  <div>
+                    <div class="flex justify-between text-xs text-slate-400 mb-1">
+                      <span>Judge confidence</span>
+                      <span x-text="`${pct(pipeline.tiers[3].confidence)}%`"></span>
+                    </div>
+                    <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                      <div class="h-full rounded-full conf-bar" :class="confBarClass(pipeline.tiers[3].confidence)"
+                           :style="`width: ${pct(pipeline.tiers[3].confidence)}%`"></div>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <div class="text-xs text-green-500 font-semibold mb-1">🟢 Advocate (argues valid)</div>
+                      <div class="debate-prose bg-slate-900/60 rounded-lg p-2.5 text-[11px]" x-text="pipeline.tiers[3].advocate"></div>
+                    </div>
+                    <div>
+                      <div class="text-xs text-red-500 font-semibold mb-1">🔴 Critic (argues invalid)</div>
+                      <div class="debate-prose bg-slate-900/60 rounded-lg p-2.5 text-[11px]" x-text="pipeline.tiers[3].critic"></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="text-xs text-amber-400 font-semibold mb-1">⚖️ Judge ruling</div>
+                    <div class="text-xs text-slate-300 bg-slate-900/40 rounded-lg p-2.5 leading-relaxed"
+                         x-text="pipeline.tiers[3].reasoning"></div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </template>
+
+          <!-- Escalation note 3→4 -->
+          <template x-if="pipeline.arrows['3->4'] !== 'idle'">
+            <div class="flex items-center gap-2 px-2 result-card">
+              <div class="flex-1 h-px" :class="pipeline.arrows['3->4'] === 'flowing' ? 'arrow-flowing' : 'bg-rose-800/40'"></div>
+              <span class="text-xs text-slate-500 whitespace-nowrap">escalating to human review</span>
+              <div class="flex-1 h-px" :class="pipeline.arrows['3->4'] === 'flowing' ? 'arrow-flowing' : 'bg-rose-800/40'"></div>
+            </div>
+          </template>
+
+          <!-- Tier 4: Human review prompt -->
+          <template x-if="pipeline.tiers[4].status !== 'waiting' && pipeline.tiers[4].packet">
+            <div class="rounded-xl bg-rose-950/40 border border-rose-700/50 overflow-hidden result-card">
+              <div class="px-4 py-3">
+                <div class="flex items-center gap-3 mb-3">
+                  <span class="text-lg">👤</span>
+                  <div>
+                    <div class="text-sm font-semibold text-rose-300">Tier 4 — Human Review Required</div>
+                    <div class="text-xs text-slate-500">All automated tiers are uncertain. Your judgment is needed.</div>
+                  </div>
+                </div>
+
+                <div class="bg-slate-900/60 rounded-lg p-3 mb-3">
+                  <div class="text-xs text-slate-400 mb-1 font-semibold">Question for reviewer</div>
+                  <p class="text-sm text-slate-200" x-text="pipeline.tiers[4].packet.question_for_reviewer"></p>
+                </div>
+
+                <p class="text-xs text-slate-500 mb-3">
+                  Review packet saved to queue.
+                  <button @click="switchTab('queue')" class="text-indigo-400 hover:text-indigo-300 underline ml-1">Go to Review Queue →</button>
+                </p>
+              </div>
+            </div>
+          </template>
+
+        </div>
+      </template>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- TAB: RESULTS                                                           -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div x-show="tab === 'results'" x-cloak>
+
+  <!-- Stats bar -->
+  <div class="flex items-center justify-between mb-5">
+    <div class="flex gap-4 text-sm">
+      <span class="text-slate-400"><span class="text-white font-semibold" x-text="results.length"></span> total</span>
+      <span class="text-green-400"><span class="font-semibold" x-text="results.filter(r=>r.final_verdict==='valid').length"></span> valid</span>
+      <span class="text-red-400"><span class="font-semibold" x-text="results.filter(r=>r.final_verdict==='invalid').length"></span> invalid</span>
+      <span class="text-amber-400"><span class="font-semibold" x-text="results.filter(r=>r.final_verdict==='uncertain').length"></span> uncertain</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <select x-model="resultsFilter" class="text-xs" style="width: auto; padding: 5px 8px;">
+        <option value="">All types</option>
+        <template x-for="ct in CHECKPOINT_TYPES" :key="ct.value">
+          <option :value="ct.value" x-text="ct.label"></option>
+        </template>
+      </select>
+      <button @click="clearResults()" class="btn-ghost text-xs text-red-400 border-red-800/40 hover:border-red-600">Clear all</button>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <template x-if="!results.length">
+    <div class="text-center py-16 text-slate-600">
+      <div class="text-4xl mb-3">📋</div>
+      <p>No results yet. Validate some cases first.</p>
+    </div>
+  </template>
+
+  <!-- Results table -->
+  <div class="space-y-2">
+    <template x-for="(r, idx) in filteredResults()" :key="r.id">
+      <div class="rounded-xl bg-slate-800/60 border border-slate-700/40 overflow-hidden">
+
+        <!-- Row -->
+        <div class="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-slate-700/20 transition-colors"
+             @click="toggleResult(idx)">
+
+          <!-- Verdict badge -->
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase w-20 text-center flex-shrink-0"
+                :class="verdictBadgeClass(r.final_verdict)"
+                x-text="r.final_verdict || '—'"></span>
+
+          <!-- Type badge -->
+          <span class="text-xs text-slate-500 bg-slate-700/40 px-2 py-0.5 rounded flex-shrink-0"
+                x-text="r.checkpoint_type.replace('_',' ')"></span>
+
+          <!-- Output preview -->
+          <span class="text-xs text-slate-400 flex-1 truncate" x-text="truncate(r.output_text, 100)"></span>
+
+          <!-- Tier badge -->
+          <span class="text-xs text-slate-600 flex-shrink-0" x-text="`T${r.resolved_at_tier}`"></span>
+
+          <!-- Timestamp -->
+          <span class="text-xs text-slate-600 flex-shrink-0 hidden lg:block" x-text="fmt(r.timestamp)"></span>
+
+          <span class="text-slate-600 text-xs flex-shrink-0" x-text="expandedResult === idx ? '▲' : '▼'"></span>
+        </div>
+
+        <!-- Expanded detail -->
+        <template x-if="expandedResult === idx">
+          <div class="px-4 pb-4 border-t border-slate-700/30 pt-3 space-y-3 collapsible-enter text-xs">
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <div class="text-slate-500 mb-1 font-medium">Source Context</div>
+                <div class="text-slate-300 bg-slate-900/50 rounded p-2 leading-relaxed" x-text="r.source_context"></div>
+              </div>
+              <div>
+                <div class="text-slate-500 mb-1 font-medium">Agent Output</div>
+                <div class="text-slate-300 bg-slate-900/50 rounded p-2 leading-relaxed" x-text="r.output_text"></div>
+              </div>
+            </div>
+
+            <!-- Tier trail -->
+            <div class="flex gap-2 flex-wrap">
+              <template x-if="r.tier1">
+                <div class="bg-slate-900/60 rounded-lg p-2 flex-1 min-w-36">
+                  <div class="text-slate-500 text-[10px] mb-1">Tier 1 · NLI</div>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase" :class="verdictBadgeClass(r.tier1.verdict)" x-text="r.tier1.verdict"></span>
+                  <div class="text-slate-500 text-[10px] mt-1" x-text="`${pct(r.tier1.confidence)}% confidence`"></div>
+                </div>
+              </template>
+              <template x-if="r.tier2">
+                <div class="bg-slate-900/60 rounded-lg p-2 flex-1 min-w-36">
+                  <div class="text-slate-500 text-[10px] mb-1">Tier 2 · Judge</div>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase" :class="verdictBadgeClass(r.tier2.verdict)" x-text="r.tier2.verdict"></span>
+                  <div class="text-slate-500 text-[10px] mt-1" x-text="`${pct(r.tier2.confidence)}% confidence`"></div>
+                </div>
+              </template>
+              <template x-if="r.tier3">
+                <div class="bg-slate-900/60 rounded-lg p-2 flex-1 min-w-36">
+                  <div class="text-slate-500 text-[10px] mb-1">Tier 3 · Debate</div>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase" :class="verdictBadgeClass(r.tier3.verdict)" x-text="r.tier3.verdict"></span>
+                  <div class="text-slate-500 text-[10px] mt-1" x-text="`${pct(r.tier3.confidence)}% confidence`"></div>
+                </div>
+              </template>
+            </div>
+
+            <!-- Label vs verdict -->
+            <template x-if="r.label">
+              <div class="flex items-center gap-2">
+                <span class="text-slate-500">Ground truth:</span>
+                <span class="font-semibold" :class="r.label === r.final_verdict ? 'text-green-400' : 'text-red-400'" x-text="r.label"></span>
+                <span class="text-slate-600" x-text="r.label === r.final_verdict ? '✓ correct' : '✗ mismatch'"></span>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+    </template>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- TAB: REVIEW QUEUE                                                      -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div x-show="tab === 'queue'" x-cloak>
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-5">
+    <div>
+      <h2 class="text-lg font-semibold text-white">Human Review Queue</h2>
+      <p class="text-sm text-slate-500 mt-0.5">Cases where all three automated tiers returned uncertain. Your judgment resolves them.</p>
+    </div>
+    <div class="text-sm text-slate-400">
+      <span class="text-rose-400 font-semibold" x-text="pendingQueue.length"></span> pending ·
+      <span class="text-green-400 font-semibold" x-text="decidedQueue.length"></span> decided
+    </div>
+  </div>
+
+  <!-- Empty -->
+  <template x-if="!queue.length">
+    <div class="text-center py-16 text-slate-600">
+      <div class="text-4xl mb-3">👤</div>
+      <p>No cases in the review queue yet.</p>
+      <p class="text-xs mt-1">Cases only reach Tier 4 when all three automated tiers return uncertain.</p>
+    </div>
+  </template>
+
+  <!-- Pending reviews -->
+  <template x-if="pendingQueue.length > 0">
+    <div class="mb-6">
+      <h3 class="text-xs text-slate-500 uppercase tracking-widest mb-3">Pending</h3>
+      <div class="space-y-3">
+        <template x-for="item in pendingQueue" :key="item.filename">
+          <div class="rounded-xl bg-slate-800/60 border border-rose-700/30 overflow-hidden">
+            <!-- Item header -->
+            <div class="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-700/20"
+                 @click="toggleReview(item.filename)">
+              <div class="flex items-center gap-3">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-900/50 text-rose-300 border border-rose-700/40 uppercase"
+                      x-text="item.checkpoint_type?.replace('_',' ') || '—'"></span>
+                <span class="text-sm text-slate-300 truncate max-w-md" x-text="truncate(item.agent_output, 80)"></span>
+              </div>
+              <span class="text-slate-600 text-xs ml-3 flex-shrink-0" x-text="expandedReview === item.filename ? '▲' : '▼'"></span>
+            </div>
+
+            <!-- Expanded review packet -->
+            <template x-if="expandedReview === item.filename">
+              <div class="px-4 pb-5 border-t border-slate-700/40 pt-4 space-y-4 collapsible-enter">
+
+                <!-- Question for reviewer -->
+                <div class="p-3 rounded-lg bg-indigo-900/30 border border-indigo-700/40">
+                  <div class="text-xs text-indigo-400 font-semibold mb-1">Your question to answer</div>
+                  <p class="text-sm text-slate-200" x-text="item.question_for_reviewer"></p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <div class="text-slate-500 font-medium mb-1">Source Context (ground truth)</div>
+                    <div class="text-slate-300 bg-slate-900/50 rounded-lg p-2.5 leading-relaxed max-h-40 overflow-y-auto" x-text="item.source_context"></div>
+                  </div>
+                  <div>
+                    <div class="text-slate-500 font-medium mb-1">Agent Output (to validate)</div>
+                    <div class="text-slate-300 bg-slate-900/50 rounded-lg p-2.5 leading-relaxed max-h-40 overflow-y-auto" x-text="item.agent_output"></div>
+                  </div>
+                </div>
+
+                <!-- Automated analysis trail -->
+                <div>
+                  <div class="text-xs text-slate-500 font-medium mb-2">Automated analysis trail</div>
+                  <div class="space-y-2">
+                    <template x-if="item.automated_analysis?.tier1">
+                      <div class="bg-slate-900/50 rounded-lg p-2.5 text-xs">
+                        <span class="text-slate-500">Tier 1 (DeBERTa): </span>
+                        <span :class="verdictTextClass(item.automated_analysis.tier1.verdict)" x-text="item.automated_analysis.tier1.verdict"></span>
+                        <span class="text-slate-600" x-text="`· ${pct(item.automated_analysis.tier1.confidence)}% confidence`"></span>
+                      </div>
+                    </template>
+                    <template x-if="item.automated_analysis?.tier2">
+                      <div class="bg-slate-900/50 rounded-lg p-2.5 text-xs">
+                        <span class="text-slate-500">Tier 2 (Judge): </span>
+                        <span :class="verdictTextClass(item.automated_analysis.tier2.verdict)" x-text="item.automated_analysis.tier2.verdict"></span>
+                        <span class="text-slate-600" x-text="`· ${pct(item.automated_analysis.tier2.confidence)}% confidence`"></span>
+                        <p class="text-slate-400 mt-1 leading-relaxed" x-text="item.automated_analysis.tier2.reasoning"></p>
+                      </div>
+                    </template>
+                    <template x-if="item.automated_analysis?.tier3_debate">
+                      <div class="bg-slate-900/50 rounded-lg p-2.5 text-xs">
+                        <span class="text-slate-500">Tier 3 (Debate judge): </span>
+                        <span :class="verdictTextClass(item.automated_analysis.tier3_debate.judge_verdict)" x-text="item.automated_analysis.tier3_debate.judge_verdict"></span>
+                        <span class="text-slate-600" x-text="`· ${pct(item.automated_analysis.tier3_debate.judge_confidence)}% confidence`"></span>
+                        <p class="text-slate-400 mt-1 leading-relaxed" x-text="item.automated_analysis.tier3_debate.judge_reasoning"></p>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- Decision notes -->
+                <div>
+                  <label class="text-xs text-slate-400 block mb-1">Notes (optional)</label>
+                  <textarea x-model="reviewNotes" rows="2" placeholder="Explain your reasoning…"></textarea>
+                </div>
+
+                <!-- Verdict buttons -->
+                <div class="flex items-center gap-3">
+                  <span class="text-xs text-slate-500">Your verdict:</span>
+                  <button @click="submitDecision(item.filename, 'valid')" class="btn-valid"
+                          :disabled="submittingDecision === item.filename + 'valid'">✓ Valid</button>
+                  <button @click="submitDecision(item.filename, 'invalid')" class="btn-invalid"
+                          :disabled="submittingDecision === item.filename + 'invalid'">✗ Invalid</button>
+                  <button @click="submitDecision(item.filename, 'uncertain')" class="btn-uncertain"
+                          :disabled="submittingDecision === item.filename + 'uncertain'">? Uncertain</button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+    </div>
+  </template>
+
+  <!-- Decided reviews -->
+  <template x-if="decidedQueue.length > 0">
+    <div>
+      <h3 class="text-xs text-slate-500 uppercase tracking-widest mb-3">Decided</h3>
+      <div class="space-y-2">
+        <template x-for="item in decidedQueue" :key="'d'+item.filename">
+          <div class="rounded-xl bg-slate-800/30 border border-slate-700/30 px-4 py-3 flex items-center gap-3 text-xs opacity-70">
+            <span class="px-2 py-0.5 rounded font-bold uppercase"
+                  :class="verdictBadgeClass(item.decision?.verdict)"
+                  x-text="item.decision?.verdict || '—'"></span>
+            <span class="text-slate-500" x-text="item.checkpoint_type?.replace('_',' ')"></span>
+            <span class="text-slate-500 flex-1 truncate" x-text="truncate(item.agent_output, 80)"></span>
+            <span class="text-slate-600" x-text="fmt(item.decision?.decided_at)"></span>
+          </div>
+        </template>
+      </div>
+    </div>
+  </template>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- TAB: METRICS                                                           -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div x-show="tab === 'metrics'" x-cloak>
+
+  <template x-if="!metrics || metrics.total === 0">
+    <div class="text-center py-16 text-slate-600">
+      <div class="text-4xl mb-3">📊</div>
+      <p>No data yet. Validate some cases first.</p>
+    </div>
+  </template>
+
+  <template x-if="metrics && metrics.total > 0">
+    <div class="space-y-6">
+
+      <!-- Summary cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-slate-800/60 border border-slate-700/40 rounded-xl p-4 text-center">
+          <div class="text-3xl font-bold text-white" x-text="metrics.total"></div>
+          <div class="text-xs text-slate-500 mt-1">Total cases</div>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700/40 rounded-xl p-4 text-center">
+          <div class="text-3xl font-bold text-green-400" x-text="metrics.verdicts.valid || 0"></div>
+          <div class="text-xs text-slate-500 mt-1">Valid</div>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700/40 rounded-xl p-4 text-center">
+          <div class="text-3xl font-bold text-red-400" x-text="metrics.verdicts.invalid || 0"></div>
+          <div class="text-xs text-slate-500 mt-1">Invalid</div>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700/40 rounded-xl p-4 text-center">
+          <template x-if="metrics.accuracy !== null">
+            <div class="text-3xl font-bold text-indigo-400" x-text="`${Math.round(metrics.accuracy * 100)}%`"></div>
+          </template>
+          <template x-if="metrics.accuracy === null">
+            <div class="text-3xl font-bold text-slate-600">—</div>
+          </template>
+          <div class="text-xs text-slate-500 mt-1">Accuracy <span class="text-slate-700">(labeled only)</span></div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-slate-800/60 border border-slate-700/40 rounded-xl p-4">
+          <h3 class="text-xs text-slate-500 uppercase tracking-widest mb-3">Verdict Distribution</h3>
+          <canvas id="verdictChart" height="180"></canvas>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700/40 rounded-xl p-4">
+          <h3 class="text-xs text-slate-500 uppercase tracking-widest mb-3">Resolved at Tier</h3>
+          <canvas id="tierChart" height="180"></canvas>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-700/40 rounded-xl p-4 md:col-span-1">
+          <h3 class="text-xs text-slate-500 uppercase tracking-widest mb-3">Verdicts by Checkpoint Type</h3>
+          <canvas id="typeChart" height="180"></canvas>
+        </div>
+      </div>
+
+      <!-- Escalation funnel text -->
+      <div class="bg-slate-800/60 border border-slate-700/40 rounded-xl p-4">
+        <h3 class="text-xs text-slate-500 uppercase tracking-widest mb-3">Escalation Funnel</h3>
+        <div class="space-y-2">
+          <template x-for="(n, label) in {'1':'Tier 1 (NLI)', '2':'Tier 2 (Judge)', '3':'Tier 3 (Debate)', '4':'Tier 4 (Human)'}">
+            <div class="flex items-center gap-3 text-sm">
+              <span class="text-slate-400 w-40 flex-shrink-0" x-text="label"></span>
+              <div class="flex-1 h-4 bg-slate-700/40 rounded-full overflow-hidden">
+                <div class="h-full rounded-full bg-indigo-500 transition-all"
+                     :style="`width: ${metrics.total ? Math.round(((metrics.tiers[n] || 0) / metrics.total) * 100) : 0}%`"></div>
+              </div>
+              <span class="text-slate-400 w-20 text-right text-xs"
+                    x-text="`${metrics.tiers[n] || 0} (${metrics.total ? Math.round(((metrics.tiers[n]||0)/metrics.total)*100) : 0}%)`"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </template>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- TAB: SETTINGS                                                          -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div x-show="tab === 'settings'" x-cloak>
+  <div class="max-w-xl space-y-6">
+
+    <div class="bg-slate-800/60 border border-slate-700/40 rounded-xl p-5">
+      <h3 class="text-sm font-semibold text-slate-300 mb-4">LLM Provider</h3>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <button @click="config.provider = 'gemini'"
+                :class="config.provider === 'gemini' ? 'border-indigo-500 bg-indigo-900/30 text-white' : 'border-slate-600 text-slate-400'"
+                class="border-2 rounded-lg p-3 text-left transition-all">
+          <div class="font-semibold text-sm mb-1">Gemini</div>
+          <div class="text-xs text-slate-500">1M tokens/day free · Recommended</div>
+        </button>
+        <button @click="config.provider = 'groq'"
+                :class="config.provider === 'groq' ? 'border-indigo-500 bg-indigo-900/30 text-white' : 'border-slate-600 text-slate-400'"
+                class="border-2 rounded-lg p-3 text-left transition-all">
+          <div class="font-semibold text-sm mb-1">Groq</div>
+          <div class="text-xs text-slate-500">100k tokens/day · May hit rate limits</div>
+        </button>
+      </div>
+
+      <div class="text-xs text-slate-500 mb-1">Tier 2 model: <span class="text-slate-300" x-text="config.tier2_model || '—'"></span></div>
+      <div class="text-xs text-slate-500">Tier 3 model: <span class="text-slate-300" x-text="config.tier3_model || '—'"></span></div>
+    </div>
+
+    <div class="bg-slate-800/60 border border-slate-700/40 rounded-xl p-5">
+      <h3 class="text-sm font-semibold text-slate-300 mb-1">Escalation Thresholds</h3>
+      <p class="text-xs text-slate-500 mb-4">Cases below the threshold escalate to the next tier. Higher = more escalation (more API calls, more accurate). Lower = faster, cheaper.</p>
+
+      <!-- T1 slider -->
+      <div class="mb-5">
+        <div class="flex justify-between text-xs text-slate-400 mb-2">
+          <span>Tier 1 threshold (T1)</span>
+          <span class="text-indigo-400 font-semibold" x-text="parseFloat(config.t1_threshold).toFixed(2)"></span>
+        </div>
+        <input type="range" min="0.50" max="0.95" step="0.05" x-model="config.t1_threshold"
+               class="w-full accent-indigo-500" />
+        <div class="flex justify-between text-[10px] text-slate-600 mt-1">
+          <span>0.50 (more escalation)</span><span>0.95 (less escalation)</span>
+        </div>
+        <p class="text-xs text-slate-600 mt-1">If DeBERTa confidence &lt; T1, escalate to LLM Judge.</p>
+      </div>
+
+      <!-- T2 slider -->
+      <div>
+        <div class="flex justify-between text-xs text-slate-400 mb-2">
+          <span>Tier 2 threshold (T2)</span>
+          <span class="text-indigo-400 font-semibold" x-text="parseFloat(config.t2_threshold).toFixed(2)"></span>
+        </div>
+        <input type="range" min="0.50" max="0.95" step="0.05" x-model="config.t2_threshold"
+               class="w-full accent-indigo-500" />
+        <div class="flex justify-between text-[10px] text-slate-600 mt-1">
+          <span>0.50 (more escalation)</span><span>0.95 (less escalation)</span>
+        </div>
+        <p class="text-xs text-slate-600 mt-1">If LLM Judge confidence &lt; T2, escalate to multi-agent debate.</p>
+      </div>
+    </div>
+
+    <!-- Save button -->
+    <button @click="saveConfig()" class="btn-primary w-full" :disabled="configSaving">
+      <span x-text="configSaving ? 'Saving…' : configSaved ? '✓ Saved' : 'Save Settings'"></span>
+    </button>
+
+    <!-- API key note -->
+    <div class="bg-slate-800/40 border border-slate-700/30 rounded-xl p-4 text-xs text-slate-500">
+      <p class="font-semibold text-slate-400 mb-1">API Keys</p>
+      <p>Set your API keys in the <code class="bg-slate-700 px-1 rounded text-slate-300">.env</code> file in the project root:</p>
+      <pre class="mt-2 text-slate-400 bg-slate-900/60 rounded p-2">GEMINI_API_KEY=your-key-here
+GROQ_API_KEY=your-key-here</pre>
+      <p class="mt-2">Get a free Gemini key at <span class="text-indigo-400">aistudio.google.com/apikey</span></p>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
