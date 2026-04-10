@@ -1,0 +1,62 @@
+[
+  {
+    "case_index": 0,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The GSA's Multiple Award Schedule (MAS) program simplifies the acquisition of co...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 1,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The GSA's Multiple Award Schedule (MAS) program simplifies the acquisition of co...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 2,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "By utilizing the MAS program, federal agencies can potentially reduce costs and ...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 3,
+    "checkpoint_type": "numerical",
+    "output_text": "Negotiators at four acquisition centers reported using various tools to ensure c...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 4,
+    "checkpoint_type": "numerical",
+    "output_text": "Negotiators at four acquisition centers reported using various tools to ensure c...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.882,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 5,
+    "checkpoint_type": "numerical",
+    "output_text": "The decline in the use of pre-award and postaward audits suggests GSA may be at ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.981,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  }
+]

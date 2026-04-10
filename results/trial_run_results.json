@@ -1,0 +1,4382 @@
+[
+  {
+    "case_index": 0,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Gatekeeping involves determining whether postsecondary educational and training ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 1,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Gatekeeping is primarily responsible for accrediting postsecondary educational a...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 2,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Gatekeeping primarily focuses on ensuring postsecondary educational and training...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 3,
+    "checkpoint_type": "numerical",
+    "output_text": "Our analysis found that an estimated 87 percent of SAA staff time overlapped wit...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 4,
+    "checkpoint_type": "numerical",
+    "output_text": "We determined that about 92 percent of SAA staff time overlapped with other enti...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.984,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 5,
+    "checkpoint_type": "numerical",
+    "output_text": "Our findings suggest that the majority of SAA staff time likely overlapped with ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 6,
+    "checkpoint_type": "synthesis",
+    "output_text": "The gatekeeping activities of VA, Education, and Labor aim to ensure that postse...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.991,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 7,
+    "checkpoint_type": "synthesis",
+    "output_text": "The primary goal of gatekeeping is to approve 95% of programs that meet Educatio...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 8,
+    "checkpoint_type": "synthesis",
+    "output_text": "Gatekeeping efforts by the three agencies likely involve assessing program accre...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.873,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 9,
+    "checkpoint_type": "numerical",
+    "output_text": "Our assessment found that VA's fiscal year 2000 budget for Hepatitis C activitie...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 10,
+    "checkpoint_type": "numerical",
+    "output_text": "Our assessment identified a $150 million difference between VA's original fiscal...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.92,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 11,
+    "checkpoint_type": "numerical",
+    "output_text": "We found that VA's fiscal year 2000 budget for Hepatitis C activities was $145 m...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 12,
+    "checkpoint_type": "numerical",
+    "output_text": "According to our assessment, the 22 VA networks should be able to provide Hepati...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.925,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 13,
+    "checkpoint_type": "numerical",
+    "output_text": "Our analysis suggests that the 22 VA networks would screen for Hepatitis C in fi...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 14,
+    "checkpoint_type": "numerical",
+    "output_text": "Given the funding levels, it is possible that the 22 VA networks may be able to ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.991,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 15,
+    "checkpoint_type": "synthesis",
+    "output_text": "According to VA's briefing paper, the difference in Hepatitis C activities budge...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 16,
+    "checkpoint_type": "synthesis",
+    "output_text": "VA's briefing paper showed a $150 million difference in Hepatitis C activities b...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.842,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 17,
+    "checkpoint_type": "synthesis",
+    "output_text": "VA's fiscal year 2000 budget for Hepatitis C activities was underutilized, with ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.942,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 18,
+    "checkpoint_type": "numerical",
+    "output_text": "The 2013 DOD report to Congress included a cost-benefit analysis and a risk-base...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.989,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 19,
+    "checkpoint_type": "numerical",
+    "output_text": "The 2013 DOD report to Congress included a cost-benefit analysis and a risk-base...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 20,
+    "checkpoint_type": "numerical",
+    "output_text": "The DOD's 2013 report to Congress provided an updated assessment of the Aerospac...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.978,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 21,
+    "checkpoint_type": "numerical",
+    "output_text": "To make informed decisions, Air Force program managers need comprehensive cost i...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 22,
+    "checkpoint_type": "numerical",
+    "output_text": "Without comprehensive cost information, decision-makers may not know what resour...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 23,
+    "checkpoint_type": "numerical",
+    "output_text": "Program managers may use comprehensive cost information to determine whether the...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.6,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 24,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Air Force has reported cost information for the Aerospace Control Alert miss...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.967,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 25,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Air Force has reported a cost of $1 billion for the Aerospace Control Alert ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 26,
+    "checkpoint_type": "synthesis",
+    "output_text": "While the Air Force has reported cost information for the Aerospace Control Aler...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.987,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 27,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The proposed NSPS regulations would cover basic pay, staffing, classification, p...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 28,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The proposed NSPS regulations would cover basic pay, staffing, classification, p...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 29,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The proposed NSPS regulations would primarily focus on pay and performance manag...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 30,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The department will face challenges such as ensuring sustained leadership, estab...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 31,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The department will face challenges such as ensuring sustained leadership, estab...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 32,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The department will face challenges such as ensuring sustained leadership, estab...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 33,
+    "checkpoint_type": "synthesis",
+    "output_text": "According to the source, the department will face implementation challenges such...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.942,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 34,
+    "checkpoint_type": "synthesis",
+    "output_text": "The source states that DOD will face multiple challenges when implementing its n...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 35,
+    "checkpoint_type": "synthesis",
+    "output_text": "While the source notes that DOD will face several challenges in implementing its...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 36,
+    "checkpoint_type": "numerical",
+    "output_text": "The KMCC project is experiencing significant cost, schedule, and performance pro...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.763,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 37,
+    "checkpoint_type": "numerical",
+    "output_text": "The KMCC project has cost $100 million, is 200% over schedule, and is expected t...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.9,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 38,
+    "checkpoint_type": "numerical",
+    "output_text": "The KMCC project's ongoing construction management problems have led to a substa...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 39,
+    "checkpoint_type": "causal",
+    "output_text": "The KMCC's problems were caused by overseas construction risks, project manageme...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 40,
+    "checkpoint_type": "causal",
+    "output_text": "The KMCC's problems were caused by overseas construction risks, and project mana...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.804,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 41,
+    "checkpoint_type": "causal",
+    "output_text": "The KMCC's problems were likely caused by overseas construction risks, project m...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 42,
+    "checkpoint_type": "synthesis",
+    "output_text": "The KMCC construction project is plagued by widespread construction management p...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.911,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 43,
+    "checkpoint_type": "synthesis",
+    "output_text": "The KMCC construction project is experiencing significant delays and cost overru...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 44,
+    "checkpoint_type": "synthesis",
+    "output_text": "The KMCC construction project's significant delays and cost overruns can be attr...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.94,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 45,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The United States has operated two separate polar-orbiting meteorological satell...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 46,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The US has operated three separate polar-orbiting meteorological satellite syste...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 47,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The two polar-orbiting meteorological satellite systems operated by the US also ...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 48,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The National Oceanic and Atmospheric Administration (NOAA) has overall responsib...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.991,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 49,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "NOAA has overall responsibility for the converged system, in addition to leading...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 50,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "NOAA is primarily responsible for the NPOESS program, overseeing the entire syst...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.664,
+    "tier2_confidence": 0.55,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 51,
+    "checkpoint_type": "synthesis",
+    "output_text": "The convergence of the POES and DMSP satellite programs aimed to reduce duplicat...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.952,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 52,
+    "checkpoint_type": "synthesis",
+    "output_text": "The converged NPOESS program was expected to save around $1 billion annually and...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 53,
+    "checkpoint_type": "synthesis",
+    "output_text": "The NPOESS program's success relies heavily on its ability to maintain the conti...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.75,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 54,
+    "checkpoint_type": "numerical",
+    "output_text": "Social Security's progressive formula helps women replace a larger proportion of...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 55,
+    "checkpoint_type": "numerical",
+    "output_text": "Social Security's benefit calculation increases women's monthly payments by 100%...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.9,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 56,
+    "checkpoint_type": "numerical",
+    "output_text": "Social Security's benefits are designed to be more generous for women due to the...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 57,
+    "checkpoint_type": "numerical",
+    "output_text": "Many Social Security reform proposals would reduce benefit levels, including cos...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 58,
+    "checkpoint_type": "numerical",
+    "output_text": "Proposed Social Security reforms would reduce benefit levels by 15 percent, affe...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.991,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 59,
+    "checkpoint_type": "numerical",
+    "output_text": "Women are likely to be disproportionately affected by Social Security reform pro...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 60,
+    "checkpoint_type": "synthesis",
+    "output_text": "Social Security reform proposals, such as reducing cost-of-living adjustments an...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 61,
+    "checkpoint_type": "synthesis",
+    "output_text": "Social Security reform proposals would likely have a disproportionate effect on ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.992,
+    "tier2_confidence": 0.9,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 62,
+    "checkpoint_type": "synthesis",
+    "output_text": "While Social Security reform proposals aim to reduce the program's financial bur...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 63,
+    "checkpoint_type": "numerical",
+    "output_text": "The reauthorization period poses several challenges to increasing the national a...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 64,
+    "checkpoint_type": "numerical",
+    "output_text": "The reauthorization period poses several challenges to increasing the national a...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 65,
+    "checkpoint_type": "numerical",
+    "output_text": "To address the challenges, the Congress and the administration may consider adop...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 66,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The FAA is working to implement acquisition management and human capital reforms...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 67,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The FAA aims to improve the efficiency of the air traffic control system by impl...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 68,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "To improve the efficiency of the air traffic control system, the FAA is focusing...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 69,
+    "checkpoint_type": "synthesis",
+    "output_text": "The FAA faces several challenges in increasing the capacity of the national airs...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.793,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 70,
+    "checkpoint_type": "synthesis",
+    "output_text": "The FAA faces several challenges in increasing the capacity of the national airs...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 71,
+    "checkpoint_type": "synthesis",
+    "output_text": "In addition to expanding service to small communities, the FAA will need to impr...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.955,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 72,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "According to the GAO's Standards for Internal Control, management should ensure ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.993,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 73,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The GAO's Standards for Internal Control mandate that DOD implement a mandatory ...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 74,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The GAO's Standards for Internal Control emphasize the importance of proactive w...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 75,
+    "checkpoint_type": "numerical",
+    "output_text": "Between fiscal years 1989 and 2002, DOD's civilian workforce shrank from 1,075,4...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.992,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 76,
+    "checkpoint_type": "numerical",
+    "output_text": "Between fiscal years 1989 and 2002, DOD's civilian workforce shrank from 1,075,4...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.963,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 77,
+    "checkpoint_type": "numerical",
+    "output_text": "Between fiscal years 1989 and 2002, DOD's civilian workforce underwent a signifi...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 78,
+    "checkpoint_type": "synthesis",
+    "output_text": "Strategic workforce planning, which considers costs and continually assesses ski...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.984,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 79,
+    "checkpoint_type": "synthesis",
+    "output_text": "Strategic workforce planning is essential for DOD to ensure a 90% capable workfo...",
+    "resolved_at_tier": 3,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.823,
+    "tier2_confidence": 0.75,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 80,
+    "checkpoint_type": "synthesis",
+    "output_text": "DOD's strategic human capital planning should prioritize retaining existing empl...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.974,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 81,
+    "checkpoint_type": "numerical",
+    "output_text": "The Surface Transportation Board is responsible for the economic regulation of r...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.989,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 82,
+    "checkpoint_type": "numerical",
+    "output_text": "The Surface Transportation Board oversees the economic regulation of railroads, ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.988,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 83,
+    "checkpoint_type": "numerical",
+    "output_text": "The Surface Transportation Board primarily regulates railroads, pipelines, and c...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.659,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 84,
+    "checkpoint_type": "causal",
+    "output_text": "Pipelines have inherent cost advantages due to their high upfront construction c...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 85,
+    "checkpoint_type": "causal",
+    "output_text": "Pipelines are 30% more expensive to build but only 10% cheaper to operate, allow...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.9,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 86,
+    "checkpoint_type": "causal",
+    "output_text": "The efficiencies gained from building large pipelines can provide a significant ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 87,
+    "checkpoint_type": "synthesis",
+    "output_text": "The ability of alternatives to pipelines to compete within local market areas in...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.964,
+    "tier2_confidence": 0.92,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 88,
+    "checkpoint_type": "synthesis",
+    "output_text": "The ability of alternatives to pipelines to compete within local market areas in...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.844,
+    "tier2_confidence": 0.6,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 89,
+    "checkpoint_type": "synthesis",
+    "output_text": "The ability of alternatives to pipelines to compete within local market areas in...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 90,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Employers in American Samoa and the CNMI attributed past actions such as layoffs...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.927,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 91,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Employers in American Samoa and the CNMI attributed all past actions such as lay...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 92,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Employers in American Samoa and the CNMI reported that minimum wage increases we...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.989,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 93,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The American Samoa government generally agreed with our findings, but stated tha...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.975,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 94,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The American Samoa government generally agreed with our findings, but stated tha...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.95,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 95,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The American Samoa government agreed with our findings, and expressed concerns a...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 96,
+    "checkpoint_type": "synthesis",
+    "output_text": "Both American Samoa and the CNMI have experienced substantial decreases in emplo...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 97,
+    "checkpoint_type": "synthesis",
+    "output_text": "Both American Samoa and the CNMI have experienced a 75% decrease in employment s...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 98,
+    "checkpoint_type": "synthesis",
+    "output_text": "The minimum wage increases in American Samoa and the CNMI have led to a signific...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 99,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The proposed regulations by DHS and OPM do not apply to nearly half of all DHS c...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.983,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 100,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The proposed regulations by DHS and OPM do not apply to over 60,000 DHS civilian...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.983,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 101,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "While the proposed regulations primarily target DHS civilian employees, they do ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.871,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 102,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "According to the proposed regulations, implementing the human capital system usi...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 103,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The human capital system implementation will be completed within 6 months after ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 104,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "A phased implementation of the human capital system will enable DHS to assess th...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.795,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 105,
+    "checkpoint_type": "synthesis",
+    "output_text": "The proposed regulations for DHS's human resources management system do not appl...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.981,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 106,
+    "checkpoint_type": "synthesis",
+    "output_text": "The proposed regulations for DHS's human resources management system do not appl...",
+    "resolved_at_tier": 3,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.95
+  },
+  {
+    "case_index": 107,
+    "checkpoint_type": "synthesis",
+    "output_text": "The proposed regulations for DHS's human resources management system do not appl...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 108,
+    "checkpoint_type": "numerical",
+    "output_text": "Our review of surveys and academic studies indicates that many people approachin...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 109,
+    "checkpoint_type": "numerical",
+    "output_text": "Our review of surveys and academic studies suggests that most individuals do not...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 110,
+    "checkpoint_type": "numerical",
+    "output_text": "The surveys also showed that many people do not understand the implications of t...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 111,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "SSA's website offers a wealth of information on key rules and considerations for...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.89,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 112,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "SSA's website provides information on claiming retirement benefits, including ho...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 113,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "SSA's website offers a comprehensive resource for understanding retirement benef...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 114,
+    "checkpoint_type": "synthesis",
+    "output_text": "Our review of surveys and academic studies, and interviews with people with Soci...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.977,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 115,
+    "checkpoint_type": "synthesis",
+    "output_text": "Our analysis of Social Security claims data suggests that most individuals appro...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 116,
+    "checkpoint_type": "synthesis",
+    "output_text": "In our research, we found that individuals nearing retirement age may not fully ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 117,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The review found that FHFB's annual safety and soundness examinations of the Fed...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 118,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The review found that FHFB's annual safety and soundness examinations of the Fed...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.95,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 119,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The review found that FHFB's oversight of the Federal Home Loan Bank System had ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.993,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 120,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Domestic Preparedness Program involves agencies such as FEMA, the FBI, the P...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 121,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Domestic Preparedness Program involves agencies such as FEMA, the FBI, the P...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 122,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Domestic Preparedness Program is a joint effort between multiple government ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 123,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Domestic Preparedness Program has trained about 40 cities, one-third of the ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.6,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 124,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Domestic Preparedness Program has trained nearly 40 cities, a third of the 1...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.874,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 125,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Domestic Preparedness Program has made significant progress in training citi...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.672,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 126,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Department of Defense (DOD) is the lead agency for the Domestic Preparedness...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.987,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 127,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Department of Defense (DOD) is the lead agency for the Domestic Preparedness...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 128,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Department of Defense (DOD) is the lead agency for the Domestic Preparedness...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.991,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 129,
+    "checkpoint_type": "numerical",
+    "output_text": "The Navy's optimistic business case for the Ford-class aircraft carrier led to c...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 130,
+    "checkpoint_type": "numerical",
+    "output_text": "The Navy's optimistic business case for the Ford-class aircraft carrier led to a...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 131,
+    "checkpoint_type": "numerical",
+    "output_text": "The Navy's optimistic business case for the Ford-class aircraft carrier resulted...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.75,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 132,
+    "checkpoint_type": "numerical",
+    "output_text": "The Navy's decision to delay the delivery of CVN 79 by 4 years and extend its de...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.939,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 133,
+    "checkpoint_type": "numerical",
+    "output_text": "The Navy's decision to delay the delivery of CVN 79 by 5 years and extend its de...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.921,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 134,
+    "checkpoint_type": "numerical",
+    "output_text": "The Navy's delay in delivering CVN 79 has resulted in a longer deployment period...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.9,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 135,
+    "checkpoint_type": "synthesis",
+    "output_text": "The CVN 78's experience highlights the typical outcomes of the U.S. Navy's weapo...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.948,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 136,
+    "checkpoint_type": "synthesis",
+    "output_text": "The CVN 78's experience underscores the U.S. Navy's weapon system acquisition pr...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 137,
+    "checkpoint_type": "synthesis",
+    "output_text": "The CVN 78's experience suggests that the U.S. Navy's weapon system acquisition ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 138,
+    "checkpoint_type": "numerical",
+    "output_text": "According to the report, for the past 6 fiscal years, the federal government has...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 139,
+    "checkpoint_type": "numerical",
+    "output_text": "The federal government has had material weaknesses in financial systems for only...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.9,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 140,
+    "checkpoint_type": "numerical",
+    "output_text": "While the report indicates a history of material weaknesses, it also mentions po...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 141,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The federal government faces challenges in managing day-to-day operations due to...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 142,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The federal government's financial management systems are plagued by inefficient...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 143,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "While the federal government has made progress in accounting standards, most CFO...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 144,
+    "checkpoint_type": "synthesis",
+    "output_text": "The federal government has had material weaknesses in financial systems, recordk...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 145,
+    "checkpoint_type": "synthesis",
+    "output_text": "The federal government has had material weaknesses in financial systems, recordk...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.75,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 146,
+    "checkpoint_type": "synthesis",
+    "output_text": "The federal government's financial systems have had long-standing material weakn...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.6,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 147,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Our long-term fiscal imbalance is primarily driven by known demographic trends a...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.992,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 148,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Our long-term fiscal imbalance is primarily driven by known demographic trends a...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.984,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 149,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "While various factors contribute to our long-term fiscal imbalance, demographic ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 150,
+    "checkpoint_type": "numerical",
+    "output_text": "The Social Security system is affected by the ratio of covered workers to benefi...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.988,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 151,
+    "checkpoint_type": "numerical",
+    "output_text": "The Social Security system is facing financial issues because the number of elde...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 152,
+    "checkpoint_type": "numerical",
+    "output_text": "The Social Security program's financial condition is closely tied to the relativ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.981,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 153,
+    "checkpoint_type": "synthesis",
+    "output_text": "According to the report, the U.S. government's long-term fiscal imbalance worsen...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 154,
+    "checkpoint_type": "synthesis",
+    "output_text": "The report suggests that the long-term fiscal imbalance was exacerbated by a sha...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.9,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 155,
+    "checkpoint_type": "synthesis",
+    "output_text": "The growing population of beneficiaries and escalating health care costs are key...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 156,
+    "checkpoint_type": "numerical",
+    "output_text": "The unified budget deficit reported by the Department of the Treasury was $163 b...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.95,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 157,
+    "checkpoint_type": "numerical",
+    "output_text": "The unified budget deficit reported by the Department of the Treasury was $153 b...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 158,
+    "checkpoint_type": "numerical",
+    "output_text": "The on-budget deficit is typically larger than the unified budget deficit due to...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.978,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 159,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Spending on Medicare and Medicaid represents a more significant and rapidly grow...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 160,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Spending on Medicare and Medicaid accounts for 60% of the U.S. government's tota...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.95,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 161,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "While Social Security is a notable fiscal concern, the unsustainable growth of M...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 162,
+    "checkpoint_type": "synthesis",
+    "output_text": "The federal government's long-term fiscal challenge is primarily driven by risin...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 163,
+    "checkpoint_type": "synthesis",
+    "output_text": "The long-term fiscal challenge is mainly caused by the increasing costs of Socia...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 164,
+    "checkpoint_type": "synthesis",
+    "output_text": "Rising healthcare costs, particularly for Medicare and Medicaid, are contributin...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 165,
+    "checkpoint_type": "numerical",
+    "output_text": "According to GAO analysis, the 2007 portfolio of major DOD programs experienced ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.993,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 166,
+    "checkpoint_type": "numerical",
+    "output_text": "The DOD's 2007 portfolio of major programs saw a 35% increase in total acquisiti...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.53,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 167,
+    "checkpoint_type": "numerical",
+    "output_text": "Our analysis indicates that DOD's 2007 portfolio of major programs has experienc...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 168,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "At the strategic level, DOD's weapon system investment strategy is fragmented an...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 169,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "At the strategic level, DOD's weapon system investment strategy is highly effect...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 170,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "DOD's fragmented process for identifying warfighter needs contributes to cost gr...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 171,
+    "checkpoint_type": "synthesis",
+    "output_text": "According to the GAO, DOD's processes for identifying warfighter needs, allocati...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 172,
+    "checkpoint_type": "synthesis",
+    "output_text": "The GAO has found that DOD's weapon systems acquisition issues are primarily cau...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 173,
+    "checkpoint_type": "synthesis",
+    "output_text": "The GAO's analysis suggests that DOD's strategic level processes, including iden...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 174,
+    "checkpoint_type": "numerical",
+    "output_text": "Our audits of IRS' financial statements have resulted in a disclaimer of opinion...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.823,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 175,
+    "checkpoint_type": "numerical",
+    "output_text": "Our audits of IRS' financial statements have resulted in a disclaimer of opinion...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 176,
+    "checkpoint_type": "numerical",
+    "output_text": "Our audits of IRS' financial statements have resulted in a disclaimer of opinion...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 177,
+    "checkpoint_type": "numerical",
+    "output_text": "The GAO issued disclaimers of opinion on the IRS' financial statements from 1992...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 178,
+    "checkpoint_type": "numerical",
+    "output_text": "The GAO issued disclaimers of opinion on the IRS' financial statements from 1992...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.92,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 179,
+    "checkpoint_type": "numerical",
+    "output_text": "The GAO's disclaimers of opinion on the IRS' financial statements from 1992 to 1...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.9,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 180,
+    "checkpoint_type": "synthesis",
+    "output_text": "Our audit efforts led to notable improvement across IRS as a result of the Gover...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.939,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 181,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Government Management Reform Act has led to a 15% increase in IRS' financial...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 182,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Government Management Reform Act has been instrumental in shifting IRS' focu...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 183,
+    "checkpoint_type": "numerical",
+    "output_text": "The federal debt held by the public accounts for the amounts borrowed from a wid...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.98,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 184,
+    "checkpoint_type": "numerical",
+    "output_text": "The federal debt held by the public accounts for the amounts borrowed from mostl...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.947,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 185,
+    "checkpoint_type": "numerical",
+    "output_text": "The federal debt held by the public is the measure used to reflect how much weal...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 186,
+    "checkpoint_type": "numerical",
+    "output_text": "At the beginning of the current fiscal year, debt held by the public was about 4...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 187,
+    "checkpoint_type": "numerical",
+    "output_text": "At the beginning of the current fiscal year, debt held by the public was about 7...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.932,
+    "tier2_confidence": 0.95,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 188,
+    "checkpoint_type": "numerical",
+    "output_text": "Since the early days of the Republic, the only events prompting debt held by the...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 189,
+    "checkpoint_type": "synthesis",
+    "output_text": "The federal gross debt is composed of debt held by the public and debt held by g...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 190,
+    "checkpoint_type": "synthesis",
+    "output_text": "The federal gross debt is composed of debt held by the public and debt held by g...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 191,
+    "checkpoint_type": "synthesis",
+    "output_text": "The federal gross debt is composed of debt held by the public and debt held by g...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 192,
+    "checkpoint_type": "numerical",
+    "output_text": "HUD's programs provide rental assistance to over 4 million low-income tenants an...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.964,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 193,
+    "checkpoint_type": "numerical",
+    "output_text": "HUD provides rental assistance to over 5 million low-income tenants and insures ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 194,
+    "checkpoint_type": "numerical",
+    "output_text": "HUD's public and assisted housing programs account for a significant majority of...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.9,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 195,
+    "checkpoint_type": "numerical",
+    "output_text": "HUD's $9.2 billion estimate for Section 8 contract renewals in fiscal year 1998 ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.923,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 196,
+    "checkpoint_type": "numerical",
+    "output_text": "HUD's $9.2 billion estimate for Section 8 contract renewals in fiscal year 1998 ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.987,
+    "tier2_confidence": 0.92,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 197,
+    "checkpoint_type": "numerical",
+    "output_text": "HUD's estimate for Section 8 contract renewals in fiscal year 1998 may include a...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.75,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 198,
+    "checkpoint_type": "synthesis",
+    "output_text": "According to recent years, approximately three-quarters of HUD\u2019s budget outlays ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.746,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 199,
+    "checkpoint_type": "synthesis",
+    "output_text": "In recent years, about 80% of HUD\u2019s budget outlays have been for public and assi...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.991,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 200,
+    "checkpoint_type": "synthesis",
+    "output_text": "HUD's budget primarily focuses on public and assisted housing programs, accounti...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.976,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 201,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "DOL targets industries for enforcement based on their likelihood of FLSA violati...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 202,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "DOL targets industries with a 75% chance of FLSA violations and other factors, a...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 203,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "DOL's enforcement strategy considers factors beyond recent enforcement data to t...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.978,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 204,
+    "checkpoint_type": "causal",
+    "output_text": "The GAO staff who made key contributions to this testimony include Betty Ward-Zu...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.959,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 205,
+    "checkpoint_type": "causal",
+    "output_text": "The GAO staff who made key contributions to this testimony include Betty Ward-Zu...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 206,
+    "checkpoint_type": "causal",
+    "output_text": "This testimony involved a team of GAO staff members led by Betty Ward-Zukerman a...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 207,
+    "checkpoint_type": "synthesis",
+    "output_text": "DOL targets industries for enforcement that have a higher likelihood of FLSA vio...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.979,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 208,
+    "checkpoint_type": "synthesis",
+    "output_text": "DOL targets industries for enforcement that have a higher likelihood of FLSA vio...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 209,
+    "checkpoint_type": "synthesis",
+    "output_text": "DOL targets industries with a high risk of wage and hour violations, which may i...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 210,
+    "checkpoint_type": "numerical",
+    "output_text": "The IRS' financial statement amounts for revenue were not derived from its reven...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.982,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 211,
+    "checkpoint_type": "numerical",
+    "output_text": "The IRS' financial statement amounts for revenue were not derived from its reven...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.991,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 212,
+    "checkpoint_type": "numerical",
+    "output_text": "The IRS' financial statement amounts for revenue may not be accurately represent...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.961,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 213,
+    "checkpoint_type": "numerical",
+    "output_text": "The IRS's financial statements for fiscal year 1995 are unreliable due to unveri...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.992,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 214,
+    "checkpoint_type": "numerical",
+    "output_text": "The IRS's financial statements for fiscal year 1995 are unreliable due to accoun...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.991,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 215,
+    "checkpoint_type": "numerical",
+    "output_text": "The IRS's financial statements for fiscal year 1995 may be unreliable due to iss...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.633,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 216,
+    "checkpoint_type": "synthesis",
+    "output_text": "Our financial audits found that IRS' fiscal year 1995 financial statements lacke...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 217,
+    "checkpoint_type": "synthesis",
+    "output_text": "Our financial audits revealed that IRS' fiscal year 1995 financial statements co...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.951,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 218,
+    "checkpoint_type": "synthesis",
+    "output_text": "We identified issues with IRS' fiscal year 1995 financial statements, including ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.993,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 219,
+    "checkpoint_type": "causal",
+    "output_text": "The Personal Responsibility and Work Opportunity Reconciliation Act of 1996 repl...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 220,
+    "checkpoint_type": "causal",
+    "output_text": "The Personal Responsibility and Work Opportunity Reconciliation Act of 1996 repl...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 221,
+    "checkpoint_type": "causal",
+    "output_text": "The shift to the TANF block grant under PRWORA eliminated the automatic increase...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 222,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "States face disincentives to save for future welfare costs due to concerns that ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.993,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 223,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "States face significant disincentives to save for future welfare costs due to co...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 224,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "States have reported concerns that accumulating unspent TANF balances may lead t...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.989,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 225,
+    "checkpoint_type": "synthesis",
+    "output_text": "States have two options to set aside reserves for future welfare costs: saving f...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.962,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 226,
+    "checkpoint_type": "synthesis",
+    "output_text": "States can set aside 5% of federal TANF funds to prepare for a rainy day....",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 227,
+    "checkpoint_type": "synthesis",
+    "output_text": "The TANF block grant allows states to save excess funds for future welfare costs...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 228,
+    "checkpoint_type": "numerical",
+    "output_text": "The DDG 1000 program incorporates 11 cutting-edge technologies, including a revo...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 229,
+    "checkpoint_type": "numerical",
+    "output_text": "The DDG 1000 program uses 15 cutting-edge technologies, including a revolutionar...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 230,
+    "checkpoint_type": "numerical",
+    "output_text": "The DDG 1000 program's use of a revolutionary hull form and 11 cutting-edge tech...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 231,
+    "checkpoint_type": "causal",
+    "output_text": "The Navy's execution of shipbuilding programs has been plagued by cost and sched...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 232,
+    "checkpoint_type": "causal",
+    "output_text": "The Navy's shipbuilding programs have consistently exceeded both cost and schedu...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.592,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 233,
+    "checkpoint_type": "causal",
+    "output_text": "Navy shipbuilding programs often suffer from cost and schedule overruns, which m...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.993,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 234,
+    "checkpoint_type": "synthesis",
+    "output_text": "The DDG 1000 program plans to use a revolutionary hull form and 11 cutting-edge ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.976,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 235,
+    "checkpoint_type": "synthesis",
+    "output_text": "The DDG 1000 program plans to use a revolutionary hull form and 12 cutting-edge ...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.548,
+    "tier2_confidence": 0.75,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 236,
+    "checkpoint_type": "synthesis",
+    "output_text": "The DDG 1000 program's use of a revolutionary hull form and 11 cutting-edge tech...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 237,
+    "checkpoint_type": "numerical",
+    "output_text": "The GAO was unable to provide an opinion on the U.S. government's financial stat...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.989,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 238,
+    "checkpoint_type": "numerical",
+    "output_text": "The GAO was unable to provide an opinion on the U.S. government's financial stat...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 239,
+    "checkpoint_type": "numerical",
+    "output_text": "The GAO's inability to provide an opinion on the U.S. government's financial sta...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.641,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 240,
+    "checkpoint_type": "numerical",
+    "output_text": "The federal government reported a net operating cost of $1.3 trillion and a unif...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.989,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 241,
+    "checkpoint_type": "numerical",
+    "output_text": "The federal government reported a net operating cost of $1.4 trillion and a unif...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.856,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 242,
+    "checkpoint_type": "numerical",
+    "output_text": "The federal government's financial condition was significantly affected by the e...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 243,
+    "checkpoint_type": "synthesis",
+    "output_text": "The federal government's ability to demonstrate the reliability of its financial...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 244,
+    "checkpoint_type": "synthesis",
+    "output_text": "The federal government's financial statements for fiscal years 2011 and 2010 wer...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 245,
+    "checkpoint_type": "synthesis",
+    "output_text": "The unreliability of the U.S. government's financial statements for fiscal years...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 246,
+    "checkpoint_type": "numerical",
+    "output_text": "The draft strategic plans of the five federal regulators of depository instituti...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 247,
+    "checkpoint_type": "numerical",
+    "output_text": "The five federal regulators of depository institutions' draft strategic plans ad...",
+    "resolved_at_tier": 4,
+    "final_verdict": "uncertain",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.6,
+    "tier3_confidence": 0.7
+  },
+  {
+    "case_index": 248,
+    "checkpoint_type": "numerical",
+    "output_text": "The draft strategic plans of the five federal regulators of depository instituti...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 249,
+    "checkpoint_type": "numerical",
+    "output_text": "A well-designed budget process should provide information about the long-term im...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.986,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 250,
+    "checkpoint_type": "numerical",
+    "output_text": "A budget process should provide information about the long-term impact of decisi...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.936,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 251,
+    "checkpoint_type": "numerical",
+    "output_text": "A successful budget process should provide long-term projections and be structur...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.993,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 252,
+    "checkpoint_type": "causal",
+    "output_text": "The nation's economic future depends in large part upon today's budget and inves...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 253,
+    "checkpoint_type": "causal",
+    "output_text": "The nation's economic future depends in large part upon today's budget and inves...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 254,
+    "checkpoint_type": "causal",
+    "output_text": "In order to ensure the nation's economic health, the budget should incorporate a...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 255,
+    "checkpoint_type": "synthesis",
+    "output_text": "The budget process should provide a long-term framework grounded in fiscal polic...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.671,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 256,
+    "checkpoint_type": "synthesis",
+    "output_text": "The budget process should provide a 30-year framework grounded in fiscal policy ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 257,
+    "checkpoint_type": "synthesis",
+    "output_text": "The budget process should provide a framework that considers the potential econo...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 258,
+    "checkpoint_type": "causal",
+    "output_text": "The new human capital system for DHS aims to attract, retain, and reward a skill...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.992,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 259,
+    "checkpoint_type": "causal",
+    "output_text": "The new human capital system for DHS aims to attract, retain, and reward a skill...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 260,
+    "checkpoint_type": "causal",
+    "output_text": "The new human capital system for DHS aims to attract, retain, and reward a skill...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 261,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Department of Homeland Security (DHS) is facing several challenges in implem...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.991,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 262,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "DHS is facing eight challenges in implementing its new human capital system, inc...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 263,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Department of Homeland Security's (DHS) new human capital system is likely t...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 264,
+    "checkpoint_type": "synthesis",
+    "output_text": "The final regulations for DHS's new human capital system establish a framework f...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 265,
+    "checkpoint_type": "synthesis",
+    "output_text": "DHS's new human capital system is expected to reduce employee turnover by 30% an...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 266,
+    "checkpoint_type": "synthesis",
+    "output_text": "The implementation of DHS's new human capital system is likely to result in sign...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 267,
+    "checkpoint_type": "numerical",
+    "output_text": "The long-term funding for the Gulf Coast's recovery from the 2005 hurricanes dep...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 268,
+    "checkpoint_type": "numerical",
+    "output_text": "The total long-term funding for the Gulf Coast's recovery from the 2005 hurrican...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.983,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 269,
+    "checkpoint_type": "numerical",
+    "output_text": "To understand the long-term financial implications of the Gulf Coast's recovery,...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 270,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "FEMA's Public Assistance program provides funding for infrastructure restoration...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.988,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 271,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "FEMA's Public Assistance program provides funding for infrastructure restoration...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.967,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 272,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "FEMA's Public Assistance program primarily focuses on infrastructure restoration...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 273,
+    "checkpoint_type": "synthesis",
+    "output_text": "The two primary federal funding programs for Gulf Coast rebuilding are FEMA's Pu...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 274,
+    "checkpoint_type": "synthesis",
+    "output_text": "The two primary federal funding programs for Gulf Coast rebuilding are FEMA's Pu...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 275,
+    "checkpoint_type": "synthesis",
+    "output_text": "The two primary federal funding programs for Gulf Coast rebuilding efforts are F...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.793,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 276,
+    "checkpoint_type": "numerical",
+    "output_text": "The 2008 budget request proposes to increase spending by $608.8 million, or almo...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.977,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 277,
+    "checkpoint_type": "numerical",
+    "output_text": "The 2008 budget request proposes to increase spending by $708.8 million, or almo...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.879,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 278,
+    "checkpoint_type": "numerical",
+    "output_text": "The 2008 budget request proposes to increase spending, which is likely due to th...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.773,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 279,
+    "checkpoint_type": "causal",
+    "output_text": "The IRS has seen improvements in its enforcement efforts, including higher reven...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 280,
+    "checkpoint_type": "causal",
+    "output_text": "The IRS's enforcement efforts have led to a 25% increase in tax revenue collecte...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 281,
+    "checkpoint_type": "causal",
+    "output_text": "The IRS's enforcement progress suggests that a data-driven approach is crucial f...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 282,
+    "checkpoint_type": "synthesis",
+    "output_text": "The IRS's 2008 budget request proposes a 5 percent increase in spending, from $1...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.745,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 283,
+    "checkpoint_type": "synthesis",
+    "output_text": "The IRS's 2008 budget request proposes a 7 percent increase in spending, from $1...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.67,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 284,
+    "checkpoint_type": "synthesis",
+    "output_text": "The IRS's 2008 budget request marks a significant shift in spending priorities, ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.992,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 285,
+    "checkpoint_type": "numerical",
+    "output_text": "Our analysis found that approximately 65,000 Medicaid beneficiaries in the five ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 286,
+    "checkpoint_type": "numerical",
+    "output_text": "Our analysis found that around 70,000 Medicaid beneficiaries in the five states ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.987,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 287,
+    "checkpoint_type": "numerical",
+    "output_text": "Our analysis suggests that the high number of doctor visits for Medicaid benefic...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.982,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 288,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "We performed in-depth investigations for 25 cases of fraudulent or abusive actio...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 289,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "We investigated 35 cases of fraudulent or abusive actions related to the prescri...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 290,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Our in-depth investigations for 25 cases of fraudulent or abusive actions relate...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.992,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 291,
+    "checkpoint_type": "synthesis",
+    "output_text": "Our analysis found that approximately 65,000 Medicaid beneficiaries in the five ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.575,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 292,
+    "checkpoint_type": "synthesis",
+    "output_text": "Our analysis estimated that more than 70,000 Medicaid beneficiaries in the five ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.969,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 293,
+    "checkpoint_type": "synthesis",
+    "output_text": "In addition to the aggregate-level analysis, our investigation revealed that man...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": 0.6,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 294,
+    "checkpoint_type": "numerical",
+    "output_text": "Medicare's expenditures are expected to double as a share of the economy, from 2...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.99,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 295,
+    "checkpoint_type": "numerical",
+    "output_text": "Medicare's expenditures are expected to triple as a share of the economy, from 2...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 296,
+    "checkpoint_type": "numerical",
+    "output_text": "Medicare's expenditures are expected to significantly increase as a share of the...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 297,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Medicare beneficiaries have two broad choices: traditional fee-for-service and M...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 298,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Medicare beneficiaries have three broad choices: traditional fee-for-service, Me...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 299,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Medicare beneficiaries often choose between traditional fee-for-service and Medi...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 300,
+    "checkpoint_type": "synthesis",
+    "output_text": "According to the report, Medicare expenditures are expected to double as a share...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.973,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 301,
+    "checkpoint_type": "synthesis",
+    "output_text": "The report forecasts Medicare expenditures to increase to 7.5% of the economy by...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.911,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 302,
+    "checkpoint_type": "synthesis",
+    "output_text": "The report indicates that Medicare's absorption of national resources for health...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.837,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 303,
+    "checkpoint_type": "numerical",
+    "output_text": "Between fiscal years 1998 and 2002, the annual funding for all of HUD\u2019s technica...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.787,
+    "tier2_confidence": 0.95,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 304,
+    "checkpoint_type": "numerical",
+    "output_text": "Between fiscal years 1998 and 2002, the annual funding for all of HUD\u2019s technica...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.955,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 305,
+    "checkpoint_type": "numerical",
+    "output_text": "The budget for HUD's technical assistance programs from 1998 to 2002 averaged ar...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 306,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Each HUD program office determines its own approach to administering technical a...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.993,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 307,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Each HUD program office determines its own approach to administering technical a...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.6,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 308,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "While each HUD program office determines its approach, technical assistance is o...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 309,
+    "checkpoint_type": "synthesis",
+    "output_text": "HUD program offices select and administer technical assistance providers through...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 310,
+    "checkpoint_type": "synthesis",
+    "output_text": "HUD program offices select and administer technical assistance providers through...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.973,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 311,
+    "checkpoint_type": "synthesis",
+    "output_text": "While HUD program offices generally use competitive and noncompetitive processes...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 312,
+    "checkpoint_type": "numerical",
+    "output_text": "Since the May 2001 hearing, USAID has made progress in its financial management,...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 313,
+    "checkpoint_type": "numerical",
+    "output_text": "Since the May 2001 hearing, USAID has made significant progress in resolving fin...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 314,
+    "checkpoint_type": "numerical",
+    "output_text": "While USAID has made some progress in its financial management since the May 200...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.943,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 315,
+    "checkpoint_type": "numerical",
+    "output_text": "USAID is in the process of implementing an agencywide financial management syste...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.992,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 316,
+    "checkpoint_type": "numerical",
+    "output_text": "USAID has completed the implementation of its new financial management system in...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.976,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 317,
+    "checkpoint_type": "numerical",
+    "output_text": "To effectively manage its finances, USAID is developing a comprehensive financia...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 318,
+    "checkpoint_type": "synthesis",
+    "output_text": "In the past 2 years, USAID has made notable progress in improving its financial ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.975,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 319,
+    "checkpoint_type": "synthesis",
+    "output_text": "In the past 2 years, USAID has made notable progress in improving its financial ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 320,
+    "checkpoint_type": "synthesis",
+    "output_text": "USAID's efforts to reform its financial management have led to improved financia...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 321,
+    "checkpoint_type": "causal",
+    "output_text": "According to GAO reports, CMS has implemented steps to address weaknesses in ver...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.692,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 322,
+    "checkpoint_type": "causal",
+    "output_text": "The GAO found that CMS has taken significant action to address weaknesses in ver...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 323,
+    "checkpoint_type": "causal",
+    "output_text": "As a result of GAO's referrals, CMS has taken steps to recover overpayments from...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 324,
+    "checkpoint_type": "causal",
+    "output_text": "The primary contributors to this testimony were Latesha Love, Assistant Director...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 325,
+    "checkpoint_type": "causal",
+    "output_text": "The primary contributors to this testimony were Latesha Love, Assistant Director...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 326,
+    "checkpoint_type": "causal",
+    "output_text": "The key contributors to this testimony include individuals from the Offices of C...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 327,
+    "checkpoint_type": "synthesis",
+    "output_text": "We previously identified weaknesses in CMS's verification of provider practice l...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 328,
+    "checkpoint_type": "synthesis",
+    "output_text": "We found that CMS's screening procedures failed to verify the licensure status o...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 329,
+    "checkpoint_type": "synthesis",
+    "output_text": "Our previous reports highlighted concerns about CMS's screening procedures, whic...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.75,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 330,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The tax gap can be reduced through multiple approaches, as it is a complex issue...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 331,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The tax gap can be reduced by implementing a single tax reform package, which wo...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 332,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Implementing multiple approaches to reduce the tax gap could require significant...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 333,
+    "checkpoint_type": "causal",
+    "output_text": "IRS faced various challenges in resolving, detecting, and preventing identity th...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 334,
+    "checkpoint_type": "causal",
+    "output_text": "In our June 2011 testimony, we reported that IRS faced various challenges in res...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 335,
+    "checkpoint_type": "causal",
+    "output_text": "IRS has reported challenges in resolving identity theft cases due to limitations...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.6,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 336,
+    "checkpoint_type": "synthesis",
+    "output_text": "Several approaches can help reduce the tax gap, including requiring actions by C...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.982,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 337,
+    "checkpoint_type": "synthesis",
+    "output_text": "Implementing a single, comprehensive tax reform could effectively eliminate the ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.935,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 338,
+    "checkpoint_type": "synthesis",
+    "output_text": "The tax gap may be reduced by implementing strategies that require Congress or t...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 339,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The agency has not fully implemented recommendations related to the Medicare fee...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 340,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The agency has not fully implemented recommendations related to the Medicare fee...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 341,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The agency's failure to implement recommendations for the Medicare program has h...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 342,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Our work has found that gaps in oversight remain for non-DSH supplemental paymen...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 343,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "While our work has found some gaps in oversight, it's worth noting that from 201...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 344,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "In an effort to address gaps in oversight, we recommend that CMS consider implem...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.95,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 345,
+    "checkpoint_type": "synthesis",
+    "output_text": "We previously made recommendations to CMS to address missed opportunities for sa...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 346,
+    "checkpoint_type": "synthesis",
+    "output_text": "We previously made recommendations to CMS to address missed opportunities for sa...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.637,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 347,
+    "checkpoint_type": "synthesis",
+    "output_text": "Our previous work on Medicaid program management has also contributed to our und...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": 0.6,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 348,
+    "checkpoint_type": "numerical",
+    "output_text": "The IRS does not have adequate internal controls over its financial reporting pr...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 349,
+    "checkpoint_type": "numerical",
+    "output_text": "The IRS does not have internal controls over its financial reporting process, re...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 350,
+    "checkpoint_type": "numerical",
+    "output_text": "The IRS's lack of internal controls over its financial reporting process makes i...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.975,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 351,
+    "checkpoint_type": "causal",
+    "output_text": "IRS runs computer programs to identify unpaid assessments, but this approach is ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.993,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 352,
+    "checkpoint_type": "causal",
+    "output_text": "IRS uses a subsidiary ledger to track unpaid assessments, but this process is ti...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.862,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 353,
+    "checkpoint_type": "causal",
+    "output_text": "While the IRS's current approach to managing unpaid assessments is not ideal, it...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 354,
+    "checkpoint_type": "synthesis",
+    "output_text": "The IRS does not have sufficient internal controls to ensure the reliability of ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.888,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 355,
+    "checkpoint_type": "synthesis",
+    "output_text": "The IRS lacks adequate internal controls to guarantee the accuracy of its financ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 356,
+    "checkpoint_type": "synthesis",
+    "output_text": "Although the IRS has made improvements, its internal controls may not be robust ...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.75,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 357,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "FEMA has documented complete misconduct policies and procedures for Title 5 and ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.939,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 358,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "FEMA has documented complete misconduct policies and procedures for all personne...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 359,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "While FEMA has not documented complete misconduct policies and procedures for Su...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 360,
+    "checkpoint_type": "causal",
+    "output_text": "A GAO report can be reproduced and distributed in its entirety without further p...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 361,
+    "checkpoint_type": "causal",
+    "output_text": "A GAO report can be freely distributed and printed for personal use without seek...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.554,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 362,
+    "checkpoint_type": "causal",
+    "output_text": "While GAO reports can often be reproduced and distributed without issue, it is s...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.99,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 363,
+    "checkpoint_type": "synthesis",
+    "output_text": "FEMA has developed policies and procedures for misconduct investigations that ap...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 364,
+    "checkpoint_type": "synthesis",
+    "output_text": "FEMA has developed policies and procedures for misconduct investigations that ap...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.928,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 365,
+    "checkpoint_type": "synthesis",
+    "output_text": "FEMA's policies and procedures for misconduct investigations, which apply to all...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.743,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 366,
+    "checkpoint_type": "numerical",
+    "output_text": "Large and medium hub airports in the US had more than $5.5 billion in funding in...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.928,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 367,
+    "checkpoint_type": "numerical",
+    "output_text": "Large and medium hub airports in the US had more than $6.2 billion in funding in...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.989,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 368,
+    "checkpoint_type": "numerical",
+    "output_text": "Large and medium hub airports in the US relied heavily on airport bonds, which a...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.982,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 369,
+    "checkpoint_type": "numerical",
+    "output_text": "The planned capital development for airports over the next 5 years may total as ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 370,
+    "checkpoint_type": "numerical",
+    "output_text": "The planned capital development for airports over the next 5 years may total as ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.964,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 371,
+    "checkpoint_type": "numerical",
+    "output_text": "The planned capital development for airports over the next 5 years may total ove...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.963,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 372,
+    "checkpoint_type": "synthesis",
+    "output_text": "The nation's 71 largest airports, which accounted for almost 90 percent of all p...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 373,
+    "checkpoint_type": "synthesis",
+    "output_text": "The nation's 71 largest airports, which accounted for almost 90 percent of all p...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": 0.95,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 374,
+    "checkpoint_type": "synthesis",
+    "output_text": "Airports also received a significant portion of their funding from state grants,...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.6,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 375,
+    "checkpoint_type": "numerical",
+    "output_text": "The U.S. government produces three financial measures: the unified budget defici...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.51,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 376,
+    "checkpoint_type": "numerical",
+    "output_text": "The U.S. government produces four financial measures: the unified budget deficit...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 377,
+    "checkpoint_type": "numerical",
+    "output_text": "The U.S. government's financial measures include the unified budget deficit and ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 378,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "GAO simulations show that rising health care costs and demographic trends are pr...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 379,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "GAO simulations indicate that rising health care costs and an aging population a...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 380,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The GAO's long-term fiscal simulations suggest that health care costs and demogr...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 381,
+    "checkpoint_type": "synthesis",
+    "output_text": "The unified budget deficit is the most commonly reported measure, which represen...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 382,
+    "checkpoint_type": "synthesis",
+    "output_text": "The unified budget deficit is a measure that only accounts for revenues and outl...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 383,
+    "checkpoint_type": "synthesis",
+    "output_text": "The budget process can also help address the long-term fiscal challenge by ident...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 384,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Key contributors to this statement include Kirk Kiester, Stephanie Heiken, David...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 385,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Key contributors to this statement include Kirk Kiester, Stephanie Heiken, David...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.99,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 386,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The key individuals contributing to this statement are part of the offices of Co...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.98,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 387,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "According to the GAO report, additional actions are needed to assess the effecti...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.992,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 388,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The GAO report states that fencing has contributed 90% to border security operat...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 389,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "While the GAO report highlights the need for more effective border security meas...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.977,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 390,
+    "checkpoint_type": "synthesis",
+    "output_text": "GAO identified actions needed to improve oversight of post-apprehension conseque...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.963,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 391,
+    "checkpoint_type": "synthesis",
+    "output_text": "GAO found that by implementing additional surveillance technology, post-apprehen...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 392,
+    "checkpoint_type": "synthesis",
+    "output_text": "While not explicitly stated, the report suggests that improving oversight of pos...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 393,
+    "checkpoint_type": "numerical",
+    "output_text": "According to the IFCAP database, nearly $6.9 billion in miscellaneous obligation...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 394,
+    "checkpoint_type": "numerical",
+    "output_text": "According to the IFCAP database, nearly $6.9 billion in miscellaneous obligation...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.828,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 395,
+    "checkpoint_type": "numerical",
+    "output_text": "The $6.9 billion in miscellaneous obligations used by VHA's 129 stations in fisc...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 396,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "We found control design flaws in the oversight areas of monitoring by management...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 397,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The control design flaws were found in monitoring by management, segregation of ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 398,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The three locations where we conducted case studies had insufficient segregation...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.962,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 399,
+    "checkpoint_type": "synthesis",
+    "output_text": "Our review found that VHA's 129 stations held $6.9 billion in miscellaneous obli...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 400,
+    "checkpoint_type": "synthesis",
+    "output_text": "The 129 VHA stations used $6.8 billion in miscellaneous obligations for fiscal y...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 401,
+    "checkpoint_type": "synthesis",
+    "output_text": "The $6.9 billion in miscellaneous obligations by VHA's 129 stations likely excee...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 402,
+    "checkpoint_type": "numerical",
+    "output_text": "Based on our analysis, more than 1,280 CFC charities had federal tax debts total...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 403,
+    "checkpoint_type": "numerical",
+    "output_text": "Our analysis found that over 1,500 CFC charities had federal tax debts totaling ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 404,
+    "checkpoint_type": "numerical",
+    "output_text": "We identified a significant number of CFC charities that had federal tax debts a...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.99,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 405,
+    "checkpoint_type": "numerical",
+    "output_text": "The IRS can assess a trust fund recovery penalty (TFRP) equal to the total amoun...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.972,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 406,
+    "checkpoint_type": "numerical",
+    "output_text": "The IRS can assess a trust fund recovery penalty (TFRP) equal to the total amoun...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.979,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 407,
+    "checkpoint_type": "numerical",
+    "output_text": "The IRS may also consider other factors when determining penalties for executive...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 408,
+    "checkpoint_type": "synthesis",
+    "output_text": "According to the analysis, over 6% of the charities participating in the 2005 ca...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.852,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 409,
+    "checkpoint_type": "synthesis",
+    "output_text": "More than 12.8% of CFC charities had federal tax debts totaling $35.6 million as...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.473,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 410,
+    "checkpoint_type": "synthesis",
+    "output_text": "The analysis suggests that nearly one in ten CFC charities had significant feder...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.988,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 411,
+    "checkpoint_type": "causal",
+    "output_text": "According to GAO, the long-term fiscal challenge is largely a health care challe...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.881,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 412,
+    "checkpoint_type": "causal",
+    "output_text": "The main causes of the long-term deficit are increasing health care costs and po...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 413,
+    "checkpoint_type": "causal",
+    "output_text": "While health care spending is a significant contributor to the long-term deficit...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 414,
+    "checkpoint_type": "numerical",
+    "output_text": "According to the Budget Enforcement Act, one-third of the US budget is discretio...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 415,
+    "checkpoint_type": "numerical",
+    "output_text": "The Budget Enforcement Act states that approximately 40% of the US budget is dis...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.967,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 416,
+    "checkpoint_type": "numerical",
+    "output_text": "A significant portion of the US budget, roughly a third, is discretionary and su...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 417,
+    "checkpoint_type": "synthesis",
+    "output_text": "The long-term fiscal challenge in the US is primarily driven by rising health ca...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.98,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 418,
+    "checkpoint_type": "synthesis",
+    "output_text": "The long-term fiscal challenge in the US is primarily driven by rising health ca...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.991,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 419,
+    "checkpoint_type": "synthesis",
+    "output_text": "While health care costs and demographic trends are significant contributors to t...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 420,
+    "checkpoint_type": "numerical",
+    "output_text": "Between 1996 and 2009, the number of CFO Act agencies receiving unqualified audi...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.976,
+    "tier2_confidence": 0.95,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 421,
+    "checkpoint_type": "numerical",
+    "output_text": "Between 1996 and 2009, the number of CFO Act agencies receiving unqualified audi...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.993,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 422,
+    "checkpoint_type": "numerical",
+    "output_text": "By 2009, the majority of CFO Act agencies had achieved unqualified audit opinion...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 423,
+    "checkpoint_type": "numerical",
+    "output_text": "The federal government's unified budget deficit for fiscal year 2009 was $1.4 tr...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 424,
+    "checkpoint_type": "numerical",
+    "output_text": "The unified budget deficit for fiscal year 2009 was $1.5 trillion, mainly caused...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 425,
+    "checkpoint_type": "numerical",
+    "output_text": "The federal government's actions to stabilize the financial markets and support ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 426,
+    "checkpoint_type": "synthesis",
+    "output_text": "The federal government has made significant progress in improving financial mana...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 427,
+    "checkpoint_type": "synthesis",
+    "output_text": "The federal government has made substantial progress in improving financial mana...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 428,
+    "checkpoint_type": "synthesis",
+    "output_text": "The federal government has made significant progress in improving financial mana...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.8,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 429,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Before 2006, companies submitted an ACRP to CMS annually for review and approval...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.901,
+    "tier2_confidence": 0.7,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 430,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Before 2006, companies submitted an ACRP to CMS quarterly for review and approva...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.987,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 431,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The ACRP submission process allowed companies to offer multiple plans to Medicar...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.9,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 432,
+    "checkpoint_type": "numerical",
+    "output_text": "According to our analysis, CMS did not meet the requirement to audit at least on...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 433,
+    "checkpoint_type": "numerical",
+    "output_text": "CMS met the statutory requirement to audit between 18.6 and 23.6 percent of part...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 434,
+    "checkpoint_type": "numerical",
+    "output_text": "Our analysis found that CMS audited a significant percentage of MA organizations...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.946,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 435,
+    "checkpoint_type": "synthesis",
+    "output_text": "CMS has not consistently met the statutory requirement to audit the financial re...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.938,
+    "tier2_confidence": 0.85,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 436,
+    "checkpoint_type": "synthesis",
+    "output_text": "CMS has consistently met the requirement to audit the financial records of at le...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 437,
+    "checkpoint_type": "synthesis",
+    "output_text": "While CMS has not consistently met the one-third requirement in the past, our an...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.6,
+    "tier3_confidence": 0.85
+  }
+]

@@ -1,60 +1,179 @@
-# DSAN 6725 Final Project
 
-This repository contains information about deliverables, project ideas, and all things related to the final project.
+# HERALD: Hierarchical Escalation for Reliable Agentic LLM Decision-making
 
-## Overview
+A four-tier validation framework for LLM outputs in agentic pipelines.
 
-DSAN 6725 is an applied AI course. The focus is on building production-quality AI agent systems that solve real problems. All projects must implement AI agents unless an alternative approach is explicitly approved by the professor.
+## Pipeline Overview
 
-This repo provides project ideas but you are not limited to these. You can explore other ideas but it is incumbent upon you (your team) to discuss these ideas and get approval before proceeding. The ideas suggested here are practically useful and have been selected because they have a reasonable chance of success in a 6-week timeframe.
+```
+Checkpoint Output → Tier 1 (NLI) → Tier 2 (LLM Judge) → Tier 3 (Debate) → Tier 4 (Human)
+```
 
-This repo is organized into the following parts:
+| Tier | Method | Cost |
+|------|--------|------|
+| 1 | DeBERTa-v3-large NLI classifier (local) | Free |
+| 2 | LLM Judge via Groq (Llama 3.3 70B) | Free |
+| 3 | Multi-agent debate via Groq | Free |
+| 4 | Human review with structured packet | Your time |
 
-- [Project Ideas](#project-ideas)
-- [Deliverables](#deliverables)
-- [FAQ](#faq)
-- [Resources](#resources)
+**LLM Provider:** [Groq](https://console.groq.com) (free tier, OpenAI-compatible API)  
+**Package Manager:** [uv](https://docs.astral.sh/uv/)  
+**Domain:** Economics research
 
-## Project Ideas
+---
 
-These project ideas have well-defined problem statements, but the implementation details are flexible and open to creative solutions. Use the descriptions provided as springboards for your own approaches to solving these problems.
+## File-by-File Implementation Map
 
-### Spring 2026 Projects
+### Core Pipeline
+- **src/herald/pipeline/run.py**: Main pipeline entry point. Runs all tiers on input data.
+- **src/herald/pipeline/escalation.py**: Orchestrates escalation logic between tiers.
+- **src/herald/core/types.py**: Shared data types and structures.
+- **src/herald/core/config.py**: Loads and manages config files (thresholds, etc).
 
-- [AI Tech Debt Forge](./spring-2026/ai-tech-debt-forge.md) - Multi-agent system for codebase modernization with persona-based validation
-- [AI Trading Strategist](./spring-2026/ai-trading-strategist.md) - Paper trading system using Alpaca API for strategy development and backtesting
-- [AI Spark Optimizer](./spring-2026/ai-spark-optimizer.md) - Intelligent Spark job analysis with interpretable performance recommendations
-- [Cloud Cost Refinery](./spring-2026/cloud-cost-refinery.md) - AWS cost optimization agent that generates executable cleanup commands
-- [AI Schema Harmonizer](./spring-2026/ai-schema-harmonizer.md) - Normalize schemas across SaaS tools with observability data focus
-- [AI Data Prep Pipeline](./spring-2026/ai-data-prep-pipeline.md) - Universal document processing for RAG and vector search
+### Tiers
+- **src/herald/tier1/classifier.py**: DeBERTa NLI classifier for initial validity screening.
+- **src/herald/tier2/judge.py**: Groq LLM judge for ambiguous/uncertain cases.
+- **src/herald/tier3/debate.py**: Multi-agent debate for high-stakes or unclear cases.
+- **src/herald/tier4/human_review.py**: Human review packet generator for final escalation.
 
-### Archived Projects
 
-Previous semester project ideas are available in [spring-2025/](./spring-2025/).
+### Notebooks (Analysis, Validation, and Utilities)
+- **notebooks/api_budget.py**: Estimates API usage and cost for Tiers 2 and 3, using test set size and escalation rates. Tracks Groq usage and provides cost projections.
+- **notebooks/baseline_comparison.py**: Compares HERALD against four baselines (LLM-as-judge, NLI-only, 3-tier, random escalation). Produces baseline_comparison.json for tradeoff analysis.
+- **notebooks/calibration_analysis.py**: Computes calibration metrics (ECE, reliability diagrams) and correlates HERALD uncertainty with human disagreement. Outputs calibration plots and summary tables.
+- **notebooks/generate_plots.py**: Generates all key deliverable plots (cost-accuracy tradeoff, escalation profile, baseline comparison, confusion analysis). Saves PNGs to results/plots/.
+- **notebooks/phase_gates.py**: Checks explicit GO/NO-GO gates for each project phase (NLI separation, Tier 1 accuracy, system vs baseline). Ensures readiness before advancing phases.
+- **notebooks/feasibility_check.py**: Runs DeBERTa NLI on test set, prints entailment/contradiction/neutral scores, and validates separation of valid/invalid/ambiguous cases.
+- **notebooks/generate_weak_labels.py**: Uses Groq to generate weak labels for claim/source pairs, enabling fine-tuning of Tier 1. Spot-checks label quality against human judgment.
+- **notebooks/test_tier2.py**: Runs Tier 2 (LLM Judge) in isolation on all test cases, reporting verdicts and reasoning for threshold tuning.
+- **notebooks/test_tier3.py**: Runs Tier 3 (Multi-Agent Debate) in isolation, useful for inspecting debate quality on hard/ambiguous cases.
+- **notebooks/threshold_sweep.py**: Sweeps Tier 1 and Tier 2 thresholds to generate cost-accuracy tradeoff data. Saves results to threshold_sweep.json for plotting.
 
-## Deliverables
 
-All deliverables are described in [deliverables.md](./deliverables.md).
+### Data & Configs
+- **data/test_sets/feasibility_samples.json**: Main test set for pipeline evaluation.
+- **data/test_sets/sample_cases.json**: Starter test cases.
+- **data/weak_labels/weak_labeled.json**: Weak labels for fine-tuning.
+- **data/weak_labels/unlabeled_pairs.json**: Unlabeled claim/source pairs.
+- **configs/default.yaml**: Default threshold and config values.
 
-Summary of what you will produce:
-- Project paper (8-12 pages, conference format)
-- Code repository (production quality)
-- Working demo
-- Presentation slides
-- Conference-style poster
+### Results
+- **results/run_results.json**: Full pipeline run results (verdicts, confidence, escalation tier).
+- **results/feasibility_results.json**: Feasibility check results.
+- **results/api_budget.json**: API usage and cost tracking.
 
-## FAQ
+### Documentation & Templates
+- **README.md**: Project overview, setup, and instructions.
+- **WALKTHROUGH.md**: Step-by-step guide for building, running, and expanding the pipeline.
+- **docs/validity_definitions.md**: Detailed definitions for validity at each checkpoint type.
 
-**Can I do this project alone or with more than 4 people?**
-No. Teams must have 2-4 members.
+### Tests
+- **tests/**: Unit tests for all major modules (classifier, judge, debate, pipeline, config, evaluation, types).
+- **tests/conftest.py**: Ensures src/ is importable for tests.
 
-**Can I use any model provider (OpenAI, Anthropic, Google, etc.)?**
-Yes. Use whatever works best for your project.
+---
 
-**What if I want to propose a different project idea?**
-Discuss with the professor before Milestone 1. Your proposal should have a clear problem statement, feasible scope for 6 weeks, and an AI agent architecture.
+## To-Do List & Next Steps
 
-## Resources
+### 1. Data Expansion & Annotation
+- Expand `data/test_sets/feasibility_samples.json` to 150–250 cases, covering all checkpoint types.
+- Ensure at least 2 annotators label each case independently; resolve disagreements and refine definitions.
+- Generate additional weak labels using Groq (see `notebooks/generate_weak_labels.py`).
 
-- Course [bookmarks](https://github.com/gu-dsan6725/bookmarks/tree/main) repository
-- [LangChain](https://python.langchain.com/), [LlamaIndex](https://docs.llamaindex.ai/), [Claude Agent SDK](https://github.com/anthropics/anthropic-cookbook)
+### 2. Model Fine-Tuning & Validation
+- Fine-tune DeBERTa NLI on expanded/weak-labeled data.
+- Validate separation of valid/invalid/ambiguous cases (see `notebooks/feasibility_check.py` and `results/feasibility_results.json`).
+
+### 3. Pipeline Robustness
+- Review and adjust escalation thresholds in `configs/default.yaml` based on run results.
+- Add more granular logging and error handling for API calls (Groq rate limits observed in sample run).
+- Consider caching or batching Groq requests to avoid 429 errors.
+
+### 4. Human Review Protocol
+- Finalize and document human review packet format in `src/herald/tier4/human_review.py`.
+- Create a protocol/checklist for human reviewers (see `docs/validity_definitions.md`).
+
+### 5. Evaluation & Analysis
+- Run full evaluation using `src/herald/evaluation/evaluate.py` and analysis notebooks.
+- Generate tradeoff curves, calibration plots, and escalation statistics.
+
+### 6. Documentation & Usability
+- Update `README.md` and `WALKTHROUGH.md` with any new steps, troubleshooting, and best practices.
+- Add example outputs and usage instructions for each notebook/script.
+
+### 7. Testing & CI
+- Ensure all tests in `tests/` pass in the target environment.
+- Expand test coverage for edge cases and error handling.
+- Monitor CI status and resolve any environment-specific issues.
+
+---
+
+## Adjustments Needed Based on Sample Run Results
+
+- **API Rate Limits:** Groq API returned 429 errors during batch runs. Increase retry backoff, add request batching, and monitor usage.
+- **Tier Resolution:** Most cases resolved at Tier 1 or 2; only a few escalated to Tier 3. Review threshold settings to ensure proper escalation for ambiguous cases.
+- **Confidence Calibration:** Some valid/invalid cases have borderline confidence scores. Consider fine-tuning or adjusting thresholds for better separation.
+- **Human Review:** No cases escalated to Tier 4 in the sample run. Test human review escalation with edge cases.
+- **Logging:** Improve logging for verdicts, confidence scores, and escalation paths for easier debugging and analysis.
+- **Data Diversity:** Expand test set to include more diverse and challenging cases, especially for synthesis, numerical, and causal checkpoints.
+
+---
+
+
+
+## Plots & Feasibility Analysis
+
+The notebook `notebooks/generate_plots.py` generates four key deliverable plots:
+	1. Cost-accuracy tradeoff curve (from threshold sweep results)
+	2. Escalation profile by checkpoint type (from pipeline run results)
+	3. 3-tier vs 4-tier comparison (from baseline comparison results)
+	4. Confusion analysis — where HERALD disagrees with humans
+
+**Groq API Rate Limit Issue:**
+Due to Groq API token/day limits, you may encounter error 429 ("rate limit reached for model ... on tokens per day"). If this happens, wait for your quota to reset (usually 24 hours) and re-run the plotting commands. This may interrupt threshold sweeps and baseline comparisons, preventing generation of all plots in a single session.
+
+**Available Plots from Sample Run:**
+
+### Escalation Profile by Checkpoint Type
+![Escalation Profile](results/plots/plot2_escalation_profile.png)
+Shows how cases are resolved/escalated at each tier for the sample data.
+
+### Confusion Analysis
+![Confusion Analysis](results/plots/plot4_confusion_analysis.png)
+Highlights where HERALD disagrees with human ground truth labels.
+
+
+To generate all plots, ensure you have run `notebooks/threshold_sweep.py` and `notebooks/baseline_comparison.py` to produce the required JSON files. If interrupted by rate limits, resume after quota resets.
+
+**Feasibility check results:**
+	- 40 samples processed
+	- Model: cross-encoder/nli-deberta-v3-large
+	- Valid cases: 17 (mean entailment: 0.68)
+	- Invalid cases: 15 (mean entailment: 0.13)
+	- Ambiguous cases: 8 (mean entailment: 0.12)
+	- See [results/feasibility_results.json](results/feasibility_results.json) for details
+
+---
+
+## Setup
+
+### Prerequisites
+- Python 3.11+
+- A free Groq API key from https://console.groq.com
+- GPU recommended for Tier 1 (DeBERTa), but CPU works for small test sets
+
+### Install uv (if you don't have it)
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+### Clone and setup
+```bash
+git clone <your-repo-url>
+cd herald
+uv sync
+cp .env.example .env
+# Edit .env and add your Groq API key
+```
+
+---

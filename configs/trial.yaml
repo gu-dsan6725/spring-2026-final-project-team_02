@@ -1,0 +1,16 @@
+# HERALD Trial Run Configuration — Gemini 2.0 Flash
+provider: "gemini"
+
+tier1:
+  model_name: "cross-encoder/nli-deberta-v3-large"
+  device: "cpu"
+
+tier2:
+  model: "gemma-3-27b-it"
+
+tier3:
+  model: "gemma-3-27b-it"
+
+thresholds:
+  T1: 0.70
+  T2: 0.80

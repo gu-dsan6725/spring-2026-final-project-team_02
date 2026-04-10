@@ -1,0 +1,22 @@
+# HERALD Configuration
+
+# Provider: "gemini" (recommended) or "groq"
+# gemini-2.0-flash: 1M tokens/day free, strong reasoning, no rate limit issues
+# groq llama-3.3-70b-versatile: 100k tokens/day, decommissioned models reduced options
+provider: "gemini"
+
+tier1:
+  model_name: "cross-encoder/nli-deberta-v3-large"
+  device: "cpu"  # "cuda" if you have a GPU, "mps" for Apple Silicon
+
+tier2:
+  model: "gemma-3-27b-it"   # used when provider: gemini (14,400 RPD free tier)
+  # model: "llama-3.3-70b-versatile"  # used when provider: groq
+
+tier3:
+  model: "gemma-3-27b-it"   # 3 calls per debate (advocate/critic/judge)
+  # model: "llama-3.3-70b-versatile"
+
+thresholds:
+  T1: 0.70
+  T2: 0.80
