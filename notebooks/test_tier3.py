@@ -10,10 +10,11 @@ Usage:
 
 import argparse
 import json
-import os
 
 from dotenv import load_dotenv
 
+from herald.core.cli import add_llm_override_args
+from herald.core.config import load_config
 from herald.core.types import CheckpointOutput, CheckpointType, TierResult, Verdict
 from herald.tier3.debate import MultiAgentDebate
 
@@ -91,18 +92,24 @@ def main():
     parser = argparse.ArgumentParser(description="Test Tier 3 Multi-Agent Debate in isolation")
     parser.add_argument("--input", default=None, help="Optional JSON test file")
     parser.add_argument("--case", type=int, default=None, help="0-indexed case number from --input")
-    parser.add_argument("--model", default="llama-3.3-70b-versatile")
+    parser.add_argument("--config", default="configs/default.yaml")
+    add_llm_override_args(
+        parser,
+        include_single_model=True,
+        single_model_help="Override the Tier 3 LLM model for this run.",
+    )
     args = parser.parse_args()
 
-    api_key = os.environ.get("GROQ_API_KEY")
-    if not api_key:
-        raise ValueError("GROQ_API_KEY not set. Add it to .env.")
-
-    debate = MultiAgentDebate(api_key=api_key, model=args.model)
+    config = load_config(
+        args.config,
+        provider=args.provider,
+        tier3_model=args.model,
+    )
+    debate = MultiAgentDebate(config=config)
 
     print(f"\n{'='*70}")
     print("HERALD Tier 3 — Multi-Agent Debate (Isolated Test)")
-    print(f"Model: {args.model}")
+    print(f"Provider: {config['provider']} | Model: {config['tier3']['model']}")
     print(f"{'='*70}")
 
     if args.input and args.case is not None:
@@ -119,7 +126,7 @@ def main():
     print(f"\n{'='*70}")
     print("Tier 3 test complete.")
     print("NOTE: Tier 3 uses 3 API calls per case (advocate, critic, judge).")
-    print("      Budget ~6 Groq calls per full-pipeline case that reaches Tier 3.")
+    print("      Budget scales with your selected provider/model.")
 
 
 if __name__ == "__main__":

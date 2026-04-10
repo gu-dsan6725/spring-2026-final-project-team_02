@@ -27,6 +27,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from herald.core.cli import add_llm_override_args
 from herald.core.config import load_config
 from herald.core.types import CheckpointOutput, CheckpointType, Verdict
 from herald.pipeline.escalation import build_pipeline
@@ -240,9 +241,15 @@ def main():
     parser.add_argument("--config", default="configs/default.yaml")
     parser.add_argument("--output", default="results/demo_agent.json")
     parser.add_argument("-v", "--verbose", action="store_true")
+    add_llm_override_args(parser, include_tier2=True, include_tier3=True)
     args = parser.parse_args()
 
-    config = load_config(args.config)
+    config = load_config(
+        args.config,
+        provider=args.provider,
+        tier2_model=args.tier2_model,
+        tier3_model=args.tier3_model,
+    )
     pipeline = build_pipeline(config)
 
     result = run_agent(pipeline, args.inject_error, args.verbose, Path(args.output).parent)

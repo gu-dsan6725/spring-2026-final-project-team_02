@@ -16,7 +16,6 @@ Usage:
 
 import argparse
 import json
-import os
 import random
 import re
 import time
@@ -24,6 +23,9 @@ from pathlib import Path
 
 from datasets import load_dataset
 from dotenv import load_dotenv
+from herald.core.cli import add_llm_override_args
+from herald.core.config import load_config
+from herald.core.llm import get_llm_client
 
 load_dotenv()
 
@@ -376,23 +378,24 @@ def main():
     parser.add_argument("--output", default="data/test_sets/gov_report_cases.json")
     parser.add_argument("--n-docs", type=int, default=50)
     parser.add_argument("--sections-per-doc", type=int, default=2)
-    parser.add_argument("--provider", default="gemini", choices=["gemini", "groq"])
-    parser.add_argument("--model", default="gemini-2.0-flash")
+    parser.add_argument("--config", default="configs/default.yaml")
     parser.add_argument("--sleep", type=float, default=0.5, help="Seconds between API calls (gemini needs less)")
     parser.add_argument("--min-section-length", type=int, default=200)
     parser.add_argument("--max-section-length", type=int, default=1000)
     parser.add_argument("--split", default="train", choices=["train", "validation", "test"])
     parser.add_argument("--yes", action="store_true", help="Skip confirmation prompt")
+    add_llm_override_args(
+        parser,
+        include_single_model=True,
+        single_model_help="Override the generation model for this run.",
+    )
     args = parser.parse_args()
 
-    if args.provider == "gemini":
-        api_key = os.environ.get("GEMINI_API_KEY", "")
-        if not api_key:
-            raise ValueError("GEMINI_API_KEY not set. Add it to your .env file.\nGet a free key at https://aistudio.google.com/apikey")
-    else:
-        api_key = os.environ.get("GROQ_API_KEY", "")
-        if not api_key:
-            raise ValueError("GROQ_API_KEY not set. Add it to your .env file.")
+    config = load_config(
+        args.config,
+        provider=args.provider,
+        tier2_model=args.model,
+    )
 
     # ------------------------------------------------------------------
     # CHECKPOINT 1: Load dataset
@@ -461,26 +464,23 @@ def main():
     print(f"Estimated cases output: ~{estimated_cases}  (3 labels per call)")
     print(f"Sleep between calls:    {args.sleep}s")
     print(f"Estimated runtime:      ~{estimated_secs/60:.1f} min  ({estimated_secs:.0f}s)")
-    print(f"Model:                  {args.model}")
+    print(f"Provider:               {config['provider']}")
+    print(f"Model:                  {config['tier2']['model']}")
     print(f"Output file:            {args.output}")
 
     if args.yes:
         print("\nProceeding (--yes flag set).")
     else:
         try:
-            confirm = input("\nProceed with Groq API calls? [y/N] ").strip().lower()
+            confirm = input("\nProceed with LLM API calls? [y/N] ").strip().lower()
         except EOFError:
             confirm = ""
         if confirm != "y":
             print("Aborted. Re-run with --yes to skip this prompt.")
             return
 
-    from herald.core.llm import GroqClient, GeminiClient
-    if args.provider == "gemini":
-        client = GeminiClient(api_key=api_key, model=args.model)
-    else:
-        client = GroqClient(api_key=api_key, model=args.model)
-    print(f"Provider: {args.provider} / Model: {args.model}\n")
+    client = get_llm_client(config)
+    print(f"Provider: {config['provider']} / Model: {config['tier2']['model']}\n")
 
     results = []
     errors = 0

@@ -1,8 +1,9 @@
 # HERALD Configuration
 
-# Provider: "gemini" (recommended) or "groq"
+# Provider: "gemini", "groq", or "openai"
 # gemini-2.0-flash: 1M tokens/day free, strong reasoning, no rate limit issues
 # groq llama-3.3-70b-versatile: 100k tokens/day, decommissioned models reduced options
+# openai gpt-4o-mini: reliable JSON output, uses OPENAI_API_KEY
 provider: "gemini"
 
 tier1:
@@ -12,10 +13,12 @@ tier1:
 tier2:
   model: "gemma-3-27b-it"   # used when provider: gemini (14,400 RPD free tier)
   # model: "llama-3.3-70b-versatile"  # used when provider: groq
+  # model: "gpt-4o-mini"  # used when provider: openai
 
 tier3:
   model: "gemma-3-27b-it"   # 3 calls per debate (advocate/critic/judge)
   # model: "llama-3.3-70b-versatile"
+  # model: "gpt-4o-mini"
 
 thresholds:
   T1: 0.70

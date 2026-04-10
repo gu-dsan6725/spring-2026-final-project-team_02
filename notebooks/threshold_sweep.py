@@ -14,12 +14,12 @@ Usage:
 
 import argparse
 import json
-import os
 import time
 from pathlib import Path
 
 from dotenv import load_dotenv
 
+from herald.core.cli import add_llm_override_args
 from herald.core.config import load_config
 from herald.core.types import CheckpointOutput, CheckpointType
 from herald.pipeline.escalation import HeraldPipeline
@@ -28,6 +28,39 @@ from herald.tier2.judge import LLMJudge
 from herald.tier3.debate import MultiAgentDebate
 
 load_dotenv()
+
+
+def write_json_atomic(path: Path, data: object) -> None:
+    """Write JSON atomically to avoid corrupting resume files on interruption."""
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    with open(tmp_path, "w") as f:
+        json.dump(data, f, indent=2)
+    tmp_path.replace(path)
+
+
+def save_partial_checkpoint(
+    checkpoint_path: Path,
+    t1: float,
+    t2: float,
+    case_results: list[dict],
+) -> None:
+    """Persist in-progress work for the current threshold pair."""
+    write_json_atomic(
+        checkpoint_path,
+        {
+            "T1": t1,
+            "T2": t2,
+            "case_results": case_results,
+        },
+    )
+
+
+def load_partial_checkpoint(checkpoint_path: Path) -> dict | None:
+    """Load the in-progress threshold pair checkpoint if it exists."""
+    if not checkpoint_path.exists():
+        return None
+    with open(checkpoint_path) as f:
+        return json.load(f)
 
 
 def build_pipeline_reuse_tier1(
@@ -46,15 +79,23 @@ def run_pipeline_on_cases(
     pipeline: HeraldPipeline,
     cases: list[CheckpointOutput],
     ground_truth: list[dict],
+    *,
+    start_index: int = 0,
+    prior_results: list[dict] | None = None,
+    checkpoint_path: Path | None = None,
+    t1: float | None = None,
+    t2: float | None = None,
 ) -> dict:
-    results = []
-    for cp, gt in zip(cases, ground_truth):
+    results = list(prior_results or [])
+    for cp, gt in zip(cases[start_index:], ground_truth[start_index:]):
         packet = pipeline.validate(cp)
         results.append({
             "resolved_at_tier": packet.resolved_at_tier,
             "final_verdict": packet.final_verdict.value if packet.final_verdict else "uncertain",
             "ground_truth": gt["label"],
         })
+        if checkpoint_path is not None and t1 is not None and t2 is not None:
+            save_partial_checkpoint(checkpoint_path, t1, t2, results)
 
     n = len(results)
     correct = sum(
@@ -88,10 +129,17 @@ def main():
     parser.add_argument("--t2-values", nargs="+", type=float, default=[0.50, 0.60, 0.70, 0.80, 0.90])
     parser.add_argument("--sleep", type=float, default=1.0)
     parser.add_argument("--resume", action="store_true", help="Skip already-completed configs (R8)")
+    add_llm_override_args(parser, include_tier2=True, include_tier3=True)
     args = parser.parse_args()
 
-    config = load_config(args.config)
+    config = load_config(
+        args.config,
+        provider=args.provider,
+        tier2_model=args.tier2_model,
+        tier3_model=args.tier3_model,
+    )
     output_path = Path(args.output)
+    checkpoint_path = output_path.with_suffix(output_path.suffix + ".checkpoint.json")
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(args.input) as f:
@@ -115,6 +163,11 @@ def main():
             sweep_results = json.load(f)
         completed = {(r["T1"], r["T2"]) for r in sweep_results}
         print(f"Resuming: {len(completed)} configs already done, skipping them.")
+
+    partial = load_partial_checkpoint(checkpoint_path) if args.resume else None
+    if partial and (partial["T1"], partial["T2"]) in completed:
+        checkpoint_path.unlink(missing_ok=True)
+        partial = None
 
     total_configs = len(args.t1_values) * len(args.t2_values)
     remaining = total_configs - len(completed)
@@ -147,7 +200,23 @@ def main():
             print(f"[{run_idx:3d}/{total_configs}] T1={t1:.2f}, T2={t2:.2f} ... ", end="", flush=True)
 
             pipeline = build_pipeline_reuse_tier1(config, tier1, t1, t2)
-            metrics = run_pipeline_on_cases(pipeline, cases, raw_cases)
+            start_index = 0
+            prior_results = None
+            if partial and partial["T1"] == t1 and partial["T2"] == t2:
+                prior_results = partial.get("case_results", [])
+                start_index = len(prior_results)
+                print(f"RESUMING case {start_index + 1}/{len(cases)} ... ", end="", flush=True)
+
+            metrics = run_pipeline_on_cases(
+                pipeline,
+                cases,
+                raw_cases,
+                start_index=start_index,
+                prior_results=prior_results,
+                checkpoint_path=checkpoint_path,
+                t1=t1,
+                t2=t2,
+            )
             row = {"T1": t1, "T2": t2, **metrics}
             sweep_results.append(row)
 
@@ -160,8 +229,9 @@ def main():
             )
 
             # R8: Save after every config
-            with open(output_path, "w") as f:
-                json.dump(sweep_results, f, indent=2)
+            write_json_atomic(output_path, sweep_results)
+            checkpoint_path.unlink(missing_ok=True)
+            partial = None
 
             time.sleep(args.sleep)
 

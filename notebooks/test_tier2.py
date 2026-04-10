@@ -11,10 +11,11 @@ Usage:
 
 import argparse
 import json
-import os
 
 from dotenv import load_dotenv
 
+from herald.core.cli import add_llm_override_args
+from herald.core.config import load_config
 from herald.core.types import CheckpointOutput, CheckpointType, TierResult, Verdict
 from herald.tier2.judge import LLMJudge
 
@@ -35,21 +36,27 @@ def main():
     parser = argparse.ArgumentParser(description="Test Tier 2 LLM Judge in isolation")
     parser.add_argument("--input", default="data/test_sets/sample_cases.json")
     parser.add_argument("--threshold", type=float, default=0.80)
-    parser.add_argument("--model", default="llama-3.3-70b-versatile")
+    parser.add_argument("--config", default="configs/default.yaml")
+    add_llm_override_args(
+        parser,
+        include_single_model=True,
+        single_model_help="Override the Tier 2 LLM model for this run.",
+    )
     args = parser.parse_args()
 
-    api_key = os.environ.get("GROQ_API_KEY")
-    if not api_key:
-        raise ValueError("GROQ_API_KEY not set. Add it to .env.")
-
-    judge = LLMJudge(api_key=api_key, model=args.model)
+    config = load_config(
+        args.config,
+        provider=args.provider,
+        tier2_model=args.model,
+    )
+    judge = LLMJudge(config=config)
 
     with open(args.input) as f:
         raw_cases = json.load(f)
 
     print(f"\n{'='*70}")
     print(f"HERALD Tier 2 (LLM Judge) — Isolated Test")
-    print(f"Model: {args.model} | Threshold: {args.threshold}")
+    print(f"Provider: {config['provider']} | Model: {config['tier2']['model']} | Threshold: {args.threshold}")
     print(f"Cases: {len(raw_cases)}")
     print(f"{'='*70}\n")
 
