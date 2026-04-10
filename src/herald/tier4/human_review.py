@@ -36,8 +36,8 @@ def generate_packet(packet: EscalationPacket) -> dict:
         }
     if packet.tier3_result:
         review["automated_analysis"]["tier3_debate"] = {
-            "advocate": packet.tier3_result.advocate_argument,
-            "critic": packet.tier3_result.critic_argument,
+            "advocate": packet.tier3_result.analyst1_argument,
+            "critic": packet.tier3_result.analyst2_argument,
             "judge_verdict": packet.tier3_result.judge_verdict.value,
             "judge_confidence": packet.tier3_result.judge_confidence,
             "judge_reasoning": packet.tier3_result.judge_reasoning,

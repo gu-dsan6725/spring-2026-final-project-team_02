@@ -32,11 +32,16 @@ class TierResult:
 @dataclass
 class DebateResult:
     """Result from Tier 3 multi-agent debate."""
-    advocate_argument: str
-    critic_argument: str
+    analyst1_argument: str
+    analyst2_argument: str
     judge_verdict: Verdict
     judge_confidence: float
     judge_reasoning: str
+    dimension_verdicts: dict = field(default_factory = dict)
+    key_issues: list = field(default_factory=list)
+    evidence: dict = field(default_factory=dict)
+    
+
 
 
 @dataclass

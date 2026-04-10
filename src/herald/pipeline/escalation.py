@@ -11,6 +11,7 @@ from herald.core.types import (
 from herald.tier1.classifier import NLIClassifier
 from herald.tier2.judge import LLMJudge
 from herald.tier3.debate import MultiAgentDebate
+from herald.tier3.debate_skills import SkillsDebate
 from herald.tier4.human_review import save_packet
 
 logger = logging.getLogger("herald")
@@ -37,7 +38,7 @@ class HeraldPipeline:
         """Run full escalation on a single checkpoint output."""
         packet = EscalationPacket(checkpoint=checkpoint)
 
-        # ── TIER 1: NLI Classifier ──
+        # TIER 1: NLI Classifier
         logger.info(f"[Tier 1] {checkpoint.checkpoint_type.value}")
         t1 = self.tier1.classify(checkpoint, threshold=self.t1)
         packet.tier1_result = t1
@@ -50,7 +51,7 @@ class HeraldPipeline:
 
         logger.info(f"[Tier 1] Uncertain ({t1.confidence:.3f}) → escalating")
 
-        # ── TIER 2: LLM Judge ──
+        # TIER 2: LLM Judge
         t2 = self.tier2.judge(checkpoint, t1, threshold=self.t2)
         packet.tier2_result = t2
 
@@ -62,7 +63,7 @@ class HeraldPipeline:
 
         logger.info(f"[Tier 2] Uncertain ({t2.confidence:.3f}) → escalating")
 
-        # ── TIER 3: Multi-Agent Debate ──
+        # TIER 3: Multi-Agent Debate or Skills
         t3 = self.tier3.debate(checkpoint, t1, t2)
         packet.tier3_result = t3
 
@@ -74,7 +75,7 @@ class HeraldPipeline:
 
         logger.info("[Tier 3] Uncertain → escalating to human review")
 
-        # ── TIER 4: Human Review ──
+        # TIER 4: Human Review
         packet.resolved_at_tier = 4
         packet.final_verdict = Verdict.UNCERTAIN
         filepath = save_packet(packet)
@@ -90,7 +91,13 @@ def build_pipeline(config: dict) -> HeraldPipeline:
         device=config["tier1"].get("device", "cpu"),
     )
     tier2 = LLMJudge(config=config)
-    tier3 = MultiAgentDebate(config=config)
+
+    tier3_mode = config.get("tier3", {}).get("mode", "debate")
+    if tier3_mode == "skills":
+        tier3 = SkillsDebate(config=config)
+    else:
+        tier3 = MultiAgentDebate(config=config)
+
     return HeraldPipeline(
         tier1=tier1,
         tier2=tier2,

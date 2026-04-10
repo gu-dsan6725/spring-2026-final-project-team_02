@@ -6,6 +6,7 @@ Switch providers via config: provider: "groq" | "gemini"
 Usage:
     client = get_llm_client(config)
     response = client.complete(prompt, json_mode=True, system=JUDGE_SYSTEM)
+    response = client.complete_with_tools(prompt, tools=TOOLS, system=SYSTEM)
 """
 
 import json
@@ -18,6 +19,18 @@ from dataclasses import dataclass
 class LLMResponse:
     content: str
     model: str
+    provider: str
+
+
+@dataclass
+class ToolCall:
+    name: str
+    input: dict
+
+
+@dataclass
+class ToolResponse:
+    tool_calls: list  # list[ToolCall]
     provider: str
 
 
@@ -57,6 +70,47 @@ class GroqClient:
             model=self.model,
             provider="groq",
         )
+
+    def complete_with_tools(
+        self,
+        prompt: str,
+        system: str = "",
+        tools: list = None,
+        temperature: float = 0.1,
+    ) -> ToolResponse:
+        messages = []
+        if system:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
+
+        groq_tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": t["name"],
+                    "description": t["description"],
+                    "parameters": t["input_schema"],
+                }
+            }
+            for t in (tools or [])
+        ]
+
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            temperature=temperature,
+            tools=groq_tools,
+            tool_choice="required",
+        )
+
+        tool_calls = []
+        for tc in response.choices[0].message.tool_calls or []:
+            tool_calls.append(ToolCall(
+                name=tc.function.name,
+                input=json.loads(tc.function.arguments),
+            ))
+
+        return ToolResponse(tool_calls=tool_calls, provider="groq")
 
 
 class GeminiClient:
@@ -123,6 +177,62 @@ class GeminiClient:
         content = self._extract_json_from_text(response.text) if json_mode else response.text
         return LLMResponse(content=content, model=self.model, provider="gemini")
 
+    def complete_with_tools(
+        self,
+        prompt: str,
+        system: str = "",
+        tools: list = None,
+        temperature: float = 0.1,
+    ) -> ToolResponse:
+        from google.genai import types as genai_types
+
+        gemini_tools = []
+        for t in (tools or []):
+            gemini_tools.append(
+                genai_types.Tool(function_declarations=[
+                    genai_types.FunctionDeclaration(
+                        name=t["name"],
+                        description=t["description"],
+                        parameters=t["input_schema"],
+                    )
+                ])
+            )
+
+        config_kwargs = {
+            "temperature": temperature,
+            "tools": gemini_tools,
+            "tool_config": genai_types.ToolConfig(
+                function_calling_config=genai_types.FunctionCallingConfig(
+                    mode="ANY"
+                )
+            )
+        }
+        if system and self._supports_system:
+            config_kwargs["system_instruction"] = system
+
+        effective_prompt = (
+            f"{system}\n\n{prompt}"
+            if (system and not self._supports_system)
+            else prompt
+        )
+
+        config = genai_types.GenerateContentConfig(**config_kwargs)
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=effective_prompt,
+            config=config,
+        )
+
+        tool_calls = []
+        for part in response.candidates[0].content.parts:
+            if part.function_call:
+                tool_calls.append(ToolCall(
+                    name=part.function_call.name,
+                    input=dict(part.function_call.args),
+                ))
+
+        return ToolResponse(tool_calls=tool_calls, provider="gemini")
+
 
 def get_llm_client(config: dict):
     """Build the right LLM client from config. Returns GroqClient or GeminiClient."""
@@ -147,3 +257,4 @@ def get_llm_client(config: dict):
 
     else:
         raise ValueError(f"Unknown provider: {provider!r}. Use 'groq' or 'gemini'.")
+    
