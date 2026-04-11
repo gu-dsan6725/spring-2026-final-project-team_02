@@ -1,7 +1,7 @@
 """Phase 4, Step 12: Compare HERALD against four baselines.
 
 Baselines (from walkthrough Step 12):
-  1. LLM-as-judge:      Send every case directly to Groq, skip Tier 1 entirely
+  1. LLM-as-judge:      Send every case directly to the configured LLM, skip Tier 1 entirely
   2. NLI-only:          Use only Tier 1 (DeBERTa), no escalation
   3. 3-tier (no debate): Skip Tier 3, go Tier 2 → Tier 4 directly
   4. Random escalation: Randomly escalate the same % of cases HERALD escalates
@@ -12,24 +12,29 @@ Usage:
         --results results/run_results.json \
         --output results/baseline_comparison.json
 
+    # Resume after interruption:
+    uv run python notebooks/baseline_comparison.py ... --resume
+
+    # Verbose per-case output:
+    uv run python notebooks/baseline_comparison.py ... --verbose
+
 NOTE: --results must be a previously saved HERALD full-pipeline run
       (used to compute HERALD's escalation rate for the random baseline).
 """
 
 import argparse
 import json
-import os
 import random
 import time
 from pathlib import Path
 
 from dotenv import load_dotenv
-from groq import Groq
 
+from herald.core.cli import add_llm_override_args
 from herald.core.config import load_config
+from herald.core.llm import get_llm_client
 from herald.core.types import CheckpointOutput, CheckpointType, TierResult, Verdict
 from herald.tier1.classifier import NLIClassifier
-from herald.tier2.judge import LLMJudge
 from herald.pipeline.escalation import HeraldPipeline, build_pipeline
 
 load_dotenv()
@@ -45,6 +50,8 @@ Respond with ONLY JSON:
 SOURCE: {source}
 CLAIM: {claim}"""
 
+BASELINE_KEYS = ["llm_judge_all", "nli_only", "three_tier_no_debate", "random_escalation"]
+
 
 def accuracy(results: list[dict], ground_truth: list[dict]) -> float:
     correct = 0
@@ -56,40 +63,88 @@ def accuracy(results: list[dict], ground_truth: list[dict]) -> float:
     return correct / len(results)
 
 
-def run_llm_judge_baseline(cases: list[dict], client: Groq, model: str, sleep: float) -> list[dict]:
+def load_checkpoint(output_path: Path) -> dict:
+    """Load partial results from a previous run, if present."""
+    if output_path.exists():
+        with open(output_path) as f:
+            data = json.load(f)
+        raw = data.get("raw_results", {})
+        print(f"[resume] Loaded checkpoint from {output_path}")
+        for key in BASELINE_KEYS:
+            if key in raw:
+                print(f"  {key}: {len(raw[key])} cases already done")
+        return raw
+    return {}
+
+
+def save_checkpoint(output_path: Path, all_results: dict, ground_truth: list[dict]) -> None:
+    """Incrementally save current state so runs are resumable."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output = {
+        "raw_results": all_results,
+        "ground_truth_labels": [c["label"] for c in ground_truth],
+    }
+    with open(output_path, "w") as f:
+        json.dump(output, f, indent=2)
+
+
+def run_llm_judge_baseline(
+    cases: list[dict],
+    client,
+    sleep: float,
+    prior: list[dict] | None = None,
+    verbose: bool = False,
+) -> list[dict]:
     """Baseline 1: LLM-as-judge for every case, no Tier 1."""
-    results = []
-    for i, case in enumerate(cases):
-        print(f"  [{i+1}/{len(cases)}] LLM-judge ...", end=" ", flush=True)
+    results = list(prior) if prior else []
+    start = len(results)
+    if start > 0:
+        print(f"  [resume] skipping {start} already-completed cases")
+    for i, case in enumerate(cases[start:], start=start):
+        if verbose:
+            print(f"  [{i+1}/{len(cases)}] LLM-judge ...", end=" ", flush=True)
         try:
-            resp = client.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": LLM_JUDGE_PROMPT.format(
+            resp = client.complete(
+                prompt=LLM_JUDGE_PROMPT.format(
                     source=case["source_context"],
                     claim=case["output_text"],
-                )}],
+                ),
                 temperature=0.1,
-                response_format={"type": "json_object"},
+                json_mode=True,
             )
-            data = json.loads(resp.choices[0].message.content)
+            data = json.loads(resp.content)
+            verdict = data.get("verdict", "uncertain")
             results.append({
-                "final_verdict": data.get("verdict", "uncertain"),
+                "final_verdict": verdict,
                 "confidence": data.get("confidence", 0.5),
                 "resolved_at_tier": 2,
             })
-            print(data.get("verdict", "?"))
+            if verbose:
+                print(verdict)
         except Exception as e:
-            print(f"ERROR: {e}")
+            if verbose:
+                print(f"ERROR: {e}")
+            else:
+                print(f"  [{i+1}/{len(cases)}] LLM-judge ERROR: {e}")
             results.append({"final_verdict": "uncertain", "confidence": 0.5, "resolved_at_tier": 2})
         time.sleep(sleep)
     return results
 
 
-def run_nli_only_baseline(cases: list[dict], classifier: NLIClassifier) -> list[dict]:
+def run_nli_only_baseline(
+    cases: list[dict],
+    classifier: NLIClassifier,
+    prior: list[dict] | None = None,
+    verbose: bool = False,
+) -> list[dict]:
     """Baseline 2: NLI-only, no escalation. Uncertain = stays uncertain."""
-    results = []
-    for i, case in enumerate(cases):
-        print(f"  [{i+1}/{len(cases)}] NLI-only ...", end=" ", flush=True)
+    results = list(prior) if prior else []
+    start = len(results)
+    if start > 0:
+        print(f"  [resume] skipping {start} already-completed cases")
+    for i, case in enumerate(cases[start:], start=start):
+        if verbose:
+            print(f"  [{i+1}/{len(cases)}] NLI-only ...", end=" ", flush=True)
         cp = CheckpointOutput(
             checkpoint_type=CheckpointType(case["checkpoint_type"]),
             output_text=case["output_text"],
@@ -98,36 +153,45 @@ def run_nli_only_baseline(cases: list[dict], classifier: NLIClassifier) -> list[
         t1 = classifier.classify(cp, threshold=0.70)
         verdict = t1.verdict.value
         results.append({"final_verdict": verdict, "confidence": t1.confidence, "resolved_at_tier": 1})
-        print(verdict)
+        if verbose:
+            print(verdict)
     return results
 
 
-def run_three_tier_baseline(cases: list[dict], pipeline: HeraldPipeline) -> list[dict]:
+def run_three_tier_baseline(
+    cases: list[dict],
+    pipeline: HeraldPipeline,
+    prior: list[dict] | None = None,
+    verbose: bool = False,
+) -> list[dict]:
     """Baseline 3: 3-tier (skip Tier 3 debate, go Tier 2 → Tier 4 directly).
     We simulate by running the normal pipeline but treating Tier 3 outcomes
     that would have been uncertain as Tier 4.
     """
-    results = []
-    for i, case in enumerate(cases):
-        print(f"  [{i+1}/{len(cases)}] 3-tier ...", end=" ", flush=True)
+    results = list(prior) if prior else []
+    start = len(results)
+    if start > 0:
+        print(f"  [resume] skipping {start} already-completed cases")
+    for i, case in enumerate(cases[start:], start=start):
+        if verbose:
+            print(f"  [{i+1}/{len(cases)}] 3-tier ...", end=" ", flush=True)
         cp = CheckpointOutput(
             checkpoint_type=CheckpointType(case["checkpoint_type"]),
             output_text=case["output_text"],
             source_context=case["source_context"],
         )
         packet = pipeline.validate(cp)
-        # Remap: if resolved at Tier 3, count as Tier 2 (no debate step)
-        # If it went to Tier 4 (already uncertain at T2), keep as T4
         tier = packet.resolved_at_tier
         if tier == 3:
-            # Debate resolved it; without debate, T2 would have escalated directly to T4
             tier = 4
+        verdict = packet.final_verdict.value if packet.final_verdict else "uncertain"
         results.append({
-            "final_verdict": packet.final_verdict.value if packet.final_verdict else "uncertain",
+            "final_verdict": verdict,
             "confidence": None,
             "resolved_at_tier": tier,
         })
-        print(packet.final_verdict.value if packet.final_verdict else "uncertain")
+        if verbose:
+            print(verdict)
     return results
 
 
@@ -136,27 +200,38 @@ def run_random_escalation_baseline(
     classifier: NLIClassifier,
     herald_escalation_rate: float,
     seed: int = 42,
+    prior: list[dict] | None = None,
+    verbose: bool = False,
 ) -> list[dict]:
     """Baseline 4: Randomly escalate the same fraction of cases as HERALD escalates.
     Escalated cases default to uncertain (as if human-reviewed without resolution).
     """
+    # Replay the RNG from the start so skipped cases consume the same draws.
     rng = random.Random(seed)
-    results = []
-    for i, case in enumerate(cases):
-        print(f"  [{i+1}/{len(cases)}] random escalation ...", end=" ", flush=True)
+    results = list(prior) if prior else []
+    start = len(results)
+    # Burn through RNG draws for already-completed cases to stay in sync.
+    for _ in range(start):
+        rng.random()
+    if start > 0:
+        print(f"  [resume] skipping {start} already-completed cases")
+    for i, case in enumerate(cases[start:], start=start):
+        if verbose:
+            print(f"  [{i+1}/{len(cases)}] random escalation ...", end=" ", flush=True)
         cp = CheckpointOutput(
             checkpoint_type=CheckpointType(case["checkpoint_type"]),
             output_text=case["output_text"],
             source_context=case["source_context"],
         )
         if rng.random() < herald_escalation_rate:
-            # Randomly escalated — mark as uncertain
             results.append({"final_verdict": "uncertain", "confidence": 0.5, "resolved_at_tier": 4})
-            print("escalated (uncertain)")
+            if verbose:
+                print("escalated (uncertain)")
         else:
             t1 = classifier.classify(cp, threshold=0.70)
             results.append({"final_verdict": t1.verdict.value, "confidence": t1.confidence, "resolved_at_tier": 1})
-            print(t1.verdict.value)
+            if verbose:
+                print(t1.verdict.value)
     return results
 
 
@@ -173,16 +248,20 @@ def main():
     parser.add_argument("--results", default="results/run_results.json", help="Prior HERALD run results")
     parser.add_argument("--config", default="configs/default.yaml")
     parser.add_argument("--output", default="results/baseline_comparison.json")
-    parser.add_argument("--model", default="llama-3.3-70b-versatile")
+    parser.add_argument("--model", default=None, help="Override the direct LLM baseline model for this run.")
     parser.add_argument("--sleep", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--resume", action="store_true", help="Resume from a partial output file.")
+    parser.add_argument("--verbose", action="store_true", help="Print per-case verdict lines.")
+    add_llm_override_args(parser, include_tier2=True, include_tier3=True)
     args = parser.parse_args()
 
-    api_key = os.environ.get("GROQ_API_KEY")
-    if not api_key:
-        raise ValueError("GROQ_API_KEY not set. Add it to .env.")
-
-    config = load_config(args.config)
+    config = load_config(
+        args.config,
+        provider=args.provider,
+        tier2_model=args.tier2_model or args.model,
+        tier3_model=args.tier3_model,
+    )
 
     with open(args.input) as f:
         ground_truth = json.load(f)
@@ -204,9 +283,17 @@ def main():
     print(f"\n{'='*70}")
     print("HERALD Baseline Comparison")
     print(f"Cases: {len(ground_truth)} | HERALD escalation rate: {herald_escalation_rate:.0%}")
+    print(f"Provider: {config['provider']} | Tier2: {config['tier2']['model']} | Tier3: {config['tier3']['model']}")
+    if args.resume:
+        print("Mode: RESUME")
+    if args.verbose:
+        print("Mode: VERBOSE")
     print(f"{'='*70}\n")
 
-    client = Groq(api_key=api_key)
+    output_path = Path(args.output)
+    prior = load_checkpoint(output_path) if args.resume else {}
+
+    client = get_llm_client(config)
     classifier = NLIClassifier(
         model_name=config["tier1"]["model_name"],
         device=config["tier1"].get("device", "cpu"),
@@ -216,24 +303,53 @@ def main():
     all_results = {}
 
     # Baseline 1: LLM-as-judge
-    print("Running Baseline 1: LLM-as-judge (all cases direct to Groq)...")
-    b1 = run_llm_judge_baseline(ground_truth, client, args.model, args.sleep)
-    all_results["llm_judge_all"] = b1
+    b1_prior = prior.get("llm_judge_all")
+    if b1_prior and len(b1_prior) == len(ground_truth):
+        print("Baseline 1: LLM-as-judge — already complete, skipping.")
+        all_results["llm_judge_all"] = b1_prior
+    else:
+        print("Running Baseline 1: LLM-as-judge (all cases direct to configured provider)...")
+        all_results["llm_judge_all"] = run_llm_judge_baseline(
+            ground_truth, client, args.sleep, prior=b1_prior, verbose=args.verbose
+        )
+        save_checkpoint(output_path, all_results, ground_truth)
 
     # Baseline 2: NLI-only
-    print("\nRunning Baseline 2: NLI-only (no escalation)...")
-    b2 = run_nli_only_baseline(ground_truth, classifier)
-    all_results["nli_only"] = b2
+    b2_prior = prior.get("nli_only")
+    if b2_prior and len(b2_prior) == len(ground_truth):
+        print("\nBaseline 2: NLI-only — already complete, skipping.")
+        all_results["nli_only"] = b2_prior
+    else:
+        print("\nRunning Baseline 2: NLI-only (no escalation)...")
+        all_results["nli_only"] = run_nli_only_baseline(
+            ground_truth, classifier, prior=b2_prior, verbose=args.verbose
+        )
+        save_checkpoint(output_path, all_results, ground_truth)
 
     # Baseline 3: 3-tier (no debate)
-    print("\nRunning Baseline 3: 3-tier (skip Tier 3 debate)...")
-    b3 = run_three_tier_baseline(ground_truth, pipeline)
-    all_results["three_tier_no_debate"] = b3
+    b3_prior = prior.get("three_tier_no_debate")
+    if b3_prior and len(b3_prior) == len(ground_truth):
+        print("\nBaseline 3: 3-tier (no debate) — already complete, skipping.")
+        all_results["three_tier_no_debate"] = b3_prior
+    else:
+        print("\nRunning Baseline 3: 3-tier (skip Tier 3 debate)...")
+        all_results["three_tier_no_debate"] = run_three_tier_baseline(
+            ground_truth, pipeline, prior=b3_prior, verbose=args.verbose
+        )
+        save_checkpoint(output_path, all_results, ground_truth)
 
     # Baseline 4: Random escalation
-    print("\nRunning Baseline 4: Random escalation...")
-    b4 = run_random_escalation_baseline(ground_truth, classifier, herald_escalation_rate, args.seed)
-    all_results["random_escalation"] = b4
+    b4_prior = prior.get("random_escalation")
+    if b4_prior and len(b4_prior) == len(ground_truth):
+        print("\nBaseline 4: Random escalation — already complete, skipping.")
+        all_results["random_escalation"] = b4_prior
+    else:
+        print("\nRunning Baseline 4: Random escalation...")
+        all_results["random_escalation"] = run_random_escalation_baseline(
+            ground_truth, classifier, herald_escalation_rate, args.seed,
+            prior=b4_prior, verbose=args.verbose,
+        )
+        save_checkpoint(output_path, all_results, ground_truth)
 
     # Print comparison table
     print(f"\n{'='*70}")
@@ -250,14 +366,13 @@ def main():
         print(f"  {'HERALD (full pipeline)':35s} accuracy={herald_acc:.1%}  human_review={herald_t4:.0%}")
         comparison["herald"] = {"accuracy": herald_acc, "human_review_rate": herald_t4}
 
-    # Save
-    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+    # Final save with summary
     output = {
         "summary": comparison,
-        "raw_results": {k: v for k, v in all_results.items()},
+        "raw_results": all_results,
         "ground_truth_labels": [c["label"] for c in ground_truth],
     }
-    with open(args.output, "w") as f:
+    with open(output_path, "w") as f:
         json.dump(output, f, indent=2)
 
     print(f"\nSaved to {args.output}")
