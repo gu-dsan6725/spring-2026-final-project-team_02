@@ -2,8 +2,9 @@
 
 import copy
 import os
-import yaml
 from pathlib import Path
+
+import yaml
 from dotenv import load_dotenv
 
 

@@ -7,6 +7,7 @@ adjudicates a specific question — not a blank validation task.
 import json
 from datetime import datetime
 from pathlib import Path
+
 from herald.core.types import EscalationPacket
 
 

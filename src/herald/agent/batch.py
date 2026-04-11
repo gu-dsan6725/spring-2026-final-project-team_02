@@ -18,8 +18,7 @@ import logging
 import math
 import random
 import time
-import uuid
-from typing import Callable
+from collections.abc import Callable
 
 from herald.core.types import (
     BatchValidationResult,
@@ -78,10 +77,7 @@ class BatchValidator:
 
         total = len(to_validate)
         for idx, output in enumerate(to_validate, 1):
-            self._progress(
-                f"  Validating {output.output_type} {idx}/{total} "
-                f"[id: {output.id}]..."
-            )
+            self._progress(f"  Validating {output.output_type} {idx}/{total} [id: {output.id}]...")
 
             checkpoint_type = self.map_to_checkpoint_type(output, task_plan)
             source_context = self.extract_source_context(output, sources, task_plan.source_chunking)
@@ -108,7 +104,7 @@ class BatchValidator:
                     self._progress(f"    → Tier 1: INVALID ({t1.confidence:.2f})")
             elif packet.resolved_at_tier == 4:
                 tier4_pending.append((output, packet))
-                self._progress(f"    → Tier 4: UNCERTAIN (needs human review)")
+                self._progress("    → Tier 4: UNCERTAIN (needs human review)")
             else:
                 escalated.append((output, packet))
                 verdict_str = packet.final_verdict.value.upper() if packet.final_verdict else "?"
@@ -204,9 +200,7 @@ class BatchValidator:
         if len(outputs) <= 20:
             return outputs
         n = min(20, math.ceil(0.15 * len(outputs)))
-        self._progress(
-            f"  Adaptive sampling: validating {n}/{len(outputs)} outputs"
-        )
+        self._progress(f"  Adaptive sampling: validating {n}/{len(outputs)} outputs")
         return random.sample(outputs, n)
 
     def _run_with_backoff(
@@ -226,7 +220,7 @@ class BatchValidator:
                 err_str = str(exc).lower()
                 is_rate_limit = "429" in err_str or "rate limit" in err_str or "too many" in err_str
                 if is_rate_limit and attempt < max_retries - 1:
-                    wait = delay * (2 ** attempt)
+                    wait = delay * (2**attempt)
                     logger.warning(
                         f"[BatchValidator] Rate limit hit, retrying in {wait:.1f}s "
                         f"(attempt {attempt + 1}/{max_retries})"
@@ -256,9 +250,7 @@ class BatchValidator:
         )
 
         # Run Tier 2 directly via the pipeline's judge
-        t2 = self.pipeline.tier2.judge(
-            checkpoint, fake_t1, threshold=self.pipeline.t2
-        )
+        t2 = self.pipeline.tier2.judge(checkpoint, fake_t1, threshold=self.pipeline.t2)
 
         packet = EscalationPacket(checkpoint=checkpoint)
         packet.tier1_result = fake_t1

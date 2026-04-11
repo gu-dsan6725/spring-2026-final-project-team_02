@@ -133,9 +133,7 @@ class TaskAnalyzer:
                 if attempt < max_retries - 1:
                     time.sleep(retry_delay)
 
-        raise RuntimeError(
-            f"TaskAnalyzer failed after {max_retries} attempts: {last_err}"
-        )
+        raise RuntimeError(f"TaskAnalyzer failed after {max_retries} attempts: {last_err}")
 
     def _parse_plan(self, data: dict) -> TaskPlan:
         """Parse and validate raw JSON into a TaskPlan."""

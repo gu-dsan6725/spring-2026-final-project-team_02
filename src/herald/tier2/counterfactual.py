@@ -36,8 +36,8 @@ import json
 import time
 
 from groq import Groq
-from herald.core.types import CounterfactualResult, TierResult, Verdict, CheckpointOutput
 
+from herald.core.types import CheckpointOutput, CounterfactualResult, TierResult
 
 PROBE_PROMPT = """You are performing a counterfactual validity check.
 
@@ -101,7 +101,6 @@ class CounterfactualProbe:
             reasoning=tier2_result.reasoning,
         )
 
-        last_err = None
         for attempt in range(max_retries):
             try:
                 response = self.client.chat.completions.create(
@@ -135,10 +134,9 @@ class CounterfactualProbe:
                 )
 
             except Exception as e:
-                last_err = e
                 if attempt < max_retries - 1:
                     time.sleep(retry_delay)
                 else:
                     raise RuntimeError(
                         f"Counterfactual probe failed after {max_retries} attempts: {e}"
-                    )
+                    ) from e
