@@ -218,30 +218,30 @@ The NLI model sees source-claim pairs as predominantly `neutral` (neither entail
 # 1. Regenerate cases with 70B model for higher quality
 uv run python notebooks/generate_govreport_cases.py \
   --yes --model llama-3.3-70b-versatile \
-  --output data/test_sets/gov_report_cases.json
+  --output data/test_sets/gov_report_v1.json
 
 # 2. Run pipeline with production config
 uv run python -m herald.pipeline.run \
-  --input data/test_sets/gov_report_cases.json \
+  --input data/test_sets/gov_report_v1.json \
   --output results/run_results.json \
   --config configs/default.yaml
 
 # 3. Threshold sweep (3x3 grid)
 uv run python notebooks/threshold_sweep.py \
-  --input data/test_sets/gov_report_cases.json \
+  --input data/test_sets/gov_report_v1.json \
   --config configs/default.yaml \
   --t1-values 0.60 0.70 0.80 \
   --t2-values 0.70 0.80 0.90
 
 # 4. Baseline comparison
 uv run python notebooks/baseline_comparison.py \
-  --input data/test_sets/gov_report_cases.json \
+  --input data/test_sets/gov_report_v1.json \
   --results results/run_results.json
 
 # 5. Final plots
 uv run python notebooks/generate_plots.py \
   --results results/run_results.json \
-  --ground-truth data/test_sets/gov_report_cases.json
+  --ground-truth data/test_sets/gov_report_v1.json
 ```
 
 ---

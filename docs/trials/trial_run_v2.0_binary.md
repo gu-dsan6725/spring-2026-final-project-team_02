@@ -11,8 +11,8 @@
 This report summarizes HERALD performance on:
 
 - **Input dataset:** `data/test_sets/gov_report_v2_filtered.json`
-- **Run output:** `results/govreport_v2_filtered.json`
-- **Evaluation output:** `results/govreport_v2_filtered_evaluation.json`
+- **Run output:** `results/runs/run_04_govreport_v2_100_filtered/gov_report_v2_filtered_run.json`
+- **Evaluation output:** `results/evaluation/gov_report_v2_filtered_evaluation.json`
 
 The filtered dataset was derived from `data/test_sets/gov_report_v2.json` by removing all `ambiguous` examples. That leaves:
 
