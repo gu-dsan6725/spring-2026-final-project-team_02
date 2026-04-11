@@ -6,9 +6,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../s
 from herald.core.config import load_config
 from herald.core.llm import get_llm_client
 
+
 def test_load_config():
     config = load_config("configs/default.yaml")
-    assert 'tier1' in config
+    assert "tier1" in config
 
 
 def test_load_config_overrides():

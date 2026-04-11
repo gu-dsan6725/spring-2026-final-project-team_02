@@ -5,13 +5,15 @@ stopping as soon as any tier resolves with sufficient confidence.
 """
 
 import logging
-from typing import Optional
+
 from herald.core.types import (
-    CheckpointOutput, EscalationPacket, Verdict,
+    CheckpointOutput,
+    EscalationPacket,
+    Verdict,
 )
 from herald.tier1.classifier import NLIClassifier
-from herald.tier2.judge import LLMJudge
 from herald.tier2.counterfactual import CounterfactualProbe
+from herald.tier2.judge import LLMJudge
 from herald.tier3.debate import MultiAgentDebate
 from herald.tier4.human_review import save_packet
 
@@ -34,7 +36,7 @@ class HeraldPipeline:
         tier3: MultiAgentDebate,
         t1_threshold: float = 0.70,
         t2_threshold: float = 0.80,
-        counterfactual_probe: Optional[CounterfactualProbe] = None,
+        counterfactual_probe: CounterfactualProbe | None = None,
     ):
         self.tier1 = tier1
         self.tier2 = tier2
@@ -72,9 +74,7 @@ class HeraldPipeline:
                     f"[Tier 2.5] Probing confident {t2.verdict.value} verdict "
                     f"({t2.confidence:.3f}) for disconfirming evidence"
                 )
-                cf = self.counterfactual_probe.probe(
-                    checkpoint, t2, t2_threshold=self.t2
-                )
+                cf = self.counterfactual_probe.probe(checkpoint, t2, t2_threshold=self.t2)
                 packet.tier2_5_result = cf
 
                 if cf.verdict_overridden:
@@ -133,12 +133,14 @@ def build_pipeline(config: dict) -> HeraldPipeline:
     cf_probe = None
     if config.get("counterfactual_probe", {}).get("enabled", False):
         provider = config.get("provider", "groq").lower()
-        api_key = config.get("groq_api_key", "") if provider == "groq" else config.get("gemini_api_key", "")
+        api_key = (
+            config.get("groq_api_key", "")
+            if provider == "groq"
+            else config.get("gemini_api_key", "")
+        )
         cf_probe = CounterfactualProbe(
             api_key=api_key,
-            model=config["counterfactual_probe"].get(
-                "model", config["tier2"]["model"]
-            ),
+            model=config["counterfactual_probe"].get("model", config["tier2"]["model"]),
         )
         logger.info("[Config] Tier 2.5 counterfactual probe enabled")
 

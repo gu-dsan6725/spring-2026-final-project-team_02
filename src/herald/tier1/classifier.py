@@ -8,8 +8,9 @@ Maps NLI labels to validation verdicts:
 """
 
 import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from herald.core.types import TierResult, Verdict, CheckpointOutput
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+from herald.core.types import CheckpointOutput, TierResult, Verdict
 
 
 class NLIClassifier:
@@ -82,7 +83,9 @@ class NLIClassifier:
         if not source_chunks:
             raise ValueError("source_chunks must not be empty")
 
-        all_scores = [self._get_nli_scores(chunk, checkpoint.output_text) for chunk in source_chunks]
+        all_scores = [
+            self._get_nli_scores(chunk, checkpoint.output_text) for chunk in source_chunks
+        ]
 
         if aggregation == "max_entailment":
             # Most generous: valid if any chunk entails it
@@ -102,7 +105,9 @@ class NLIClassifier:
             keys = ["entailment", "contradiction", "neutral"]
             agg = {k: sum(s[k] for s in all_scores) / len(all_scores) for k in keys}
         else:
-            raise ValueError(f"Unknown aggregation: {aggregation!r}. Use 'max_entailment', 'max_contradiction', or 'mean'.")
+            raise ValueError(
+                f"Unknown aggregation: {aggregation!r}. Use 'max_entailment', 'max_contradiction', or 'mean'."
+            )
 
         ent, con, neu = agg["entailment"], agg["contradiction"], agg["neutral"]
 
@@ -124,15 +129,20 @@ class NLIClassifier:
             tier=1,
             verdict=verdict,
             confidence=confidence,
-            reasoning=f"Multi-source NLI ({aggregation}, {len(source_chunks)} chunks): " + " | ".join(chunk_summary),
+            reasoning=f"Multi-source NLI ({aggregation}, {len(source_chunks)} chunks): "
+            + " | ".join(chunk_summary),
             raw_scores={**agg, "per_chunk": all_scores},
         )
 
     def _get_nli_scores(self, premise: str, hypothesis: str) -> dict:
         """Run NLI and return {entailment, contradiction, neutral} probabilities."""
         inputs = self.tokenizer(
-            premise, hypothesis,
-            return_tensors="pt", truncation=True, max_length=512, padding=True,
+            premise,
+            hypothesis,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512,
+            padding=True,
         ).to(self.device)
 
         with torch.no_grad():

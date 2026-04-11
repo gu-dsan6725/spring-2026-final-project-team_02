@@ -8,7 +8,6 @@ Usage:
     response = client.complete(prompt, json_mode=True, system=JUDGE_SYSTEM)
 """
 
-import json
 import os
 import re
 from dataclasses import dataclass
@@ -26,6 +25,7 @@ class GroqClient:
 
     def __init__(self, api_key: str, model: str):
         from groq import Groq
+
         self.client = Groq(api_key=api_key)
         self.model = model
         self.provider = "groq"
@@ -67,13 +67,21 @@ class GeminiClient:
     """
 
     # Models known not to support system_instruction or json_mode
-    _NO_SYSTEM_MODELS = {"gemma-3-1b-it", "gemma-3-4b-it", "gemma-3-12b-it",
-                         "gemma-3-27b-it", "gemma-3n-e4b-it", "gemma-3n-e2b-it",
-                         "gemma-4-26b-a4b-it", "gemma-4-31b-it"}
+    _NO_SYSTEM_MODELS = {
+        "gemma-3-1b-it",
+        "gemma-3-4b-it",
+        "gemma-3-12b-it",
+        "gemma-3-27b-it",
+        "gemma-3n-e4b-it",
+        "gemma-3n-e2b-it",
+        "gemma-4-26b-a4b-it",
+        "gemma-4-31b-it",
+    }
 
     def __init__(self, api_key: str, model: str):
         from google import genai
         from google.genai import types as genai_types
+
         self.client = genai.Client(api_key=api_key)
         self.model = model
         self.provider = "gemini"
@@ -112,7 +120,9 @@ class GeminiClient:
             config_kwargs["response_mime_type"] = "application/json"
 
         # For models without system support, merge system into prompt
-        effective_prompt = f"{system}\n\n{prompt}" if (system and not self._supports_system) else prompt
+        effective_prompt = (
+            f"{system}\n\n{prompt}" if (system and not self._supports_system) else prompt
+        )
 
         config = self._types.GenerateContentConfig(**config_kwargs)
         response = self.client.models.generate_content(
@@ -129,6 +139,7 @@ class OpenAIClient:
 
     def __init__(self, api_key: str, model: str):
         from openai import OpenAI
+
         self.client = OpenAI(api_key=api_key)
         self.model = model
         self.provider = "openai"

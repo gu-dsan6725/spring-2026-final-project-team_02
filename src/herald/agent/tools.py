@@ -12,7 +12,6 @@ Six tools:
 
 import json
 import uuid
-from typing import Optional
 
 import anthropic
 
@@ -23,7 +22,6 @@ from herald.core.types import (
     Verdict,
 )
 from herald.pipeline.escalation import HeraldPipeline
-
 
 # ── In-memory store so the agent can reference prior results by ID ──────────
 _packet_store: dict[str, EscalationPacket] = {}
@@ -36,7 +34,7 @@ def store_packet(packet: EscalationPacket) -> str:
     return pid
 
 
-def get_packet(pid: str) -> Optional[EscalationPacket]:
+def get_packet(pid: str) -> EscalationPacket | None:
     return _packet_store.get(pid)
 
 
@@ -197,8 +195,12 @@ TOOL_DEFINITIONS = [
                             "suggested_checkpoint_type": {
                                 "type": "string",
                                 "enum": [
-                                    "retrieval", "claim_extraction", "synthesis",
-                                    "numerical", "causal", "epistemic",
+                                    "retrieval",
+                                    "claim_extraction",
+                                    "synthesis",
+                                    "numerical",
+                                    "causal",
+                                    "epistemic",
                                 ],
                             },
                         },
@@ -249,6 +251,7 @@ TOOL_DEFINITIONS = [
 
 
 # ── Tool execution functions ─────────────────────────────────────────────────
+
 
 def run_validate_checkpoint(args: dict, pipeline: HeraldPipeline) -> dict:
     """Execute validate_checkpoint tool."""
@@ -314,7 +317,8 @@ def run_explain_verdict(args: dict) -> dict:
         "resolved_at_tier": packet.resolved_at_tier,
         "checkpoint_type": packet.checkpoint.checkpoint_type.value,
         "output_text": packet.checkpoint.output_text,
-        "source_context": packet.checkpoint.source_context[:500] + ("..." if len(packet.checkpoint.source_context) > 500 else ""),
+        "source_context": packet.checkpoint.source_context[:500]
+        + ("..." if len(packet.checkpoint.source_context) > 500 else ""),
         "tier_breakdown": {},
     }
 
@@ -391,7 +395,9 @@ def run_request_human_review(args: dict) -> dict:
 
     lean = "no clear lean"
     if t3:
-        lean = f"debate judge leaned '{t3.judge_verdict.value}' (confidence {t3.judge_confidence:.2f})"
+        lean = (
+            f"debate judge leaned '{t3.judge_verdict.value}' (confidence {t3.judge_confidence:.2f})"
+        )
     elif t2:
         lean = f"LLM judge returned '{t2.verdict.value}' with low confidence ({t2.confidence:.2f})"
 
@@ -455,11 +461,10 @@ def run_analyze_task(args: dict, anthropic_client: anthropic.Anthropic) -> dict:
 
 def run_validate_batch(args: dict, pipeline: HeraldPipeline) -> dict:
     """Execute validate_batch tool — Phase 2 batch validation."""
-    from herald.agent.batch import BatchValidator
-    from herald.core.types import (
-        CheckpointType, GeneratedOutput, TaskPlan
-    )
     import uuid
+
+    from herald.agent.batch import BatchValidator
+    from herald.core.types import CheckpointType, GeneratedOutput, TaskPlan
 
     # Build GeneratedOutput list
     outputs = []
@@ -471,20 +476,23 @@ def run_validate_batch(args: dict, pipeline: HeraldPipeline) -> dict:
                 suggested_ct = CheckpointType(ct_str)
             except ValueError:
                 pass
-        outputs.append(GeneratedOutput(
-            id=str(uuid.uuid4())[:8],
-            text=item["text"],
-            output_type=item.get("output_type", "output"),
-            references_section=item.get("references_section"),
-            suggested_checkpoint_type=suggested_ct,
-            metadata={},
-        ))
+        outputs.append(
+            GeneratedOutput(
+                id=str(uuid.uuid4())[:8],
+                text=item["text"],
+                output_type=item.get("output_type", "output"),
+                references_section=item.get("references_section"),
+                suggested_checkpoint_type=suggested_ct,
+                metadata={},
+            )
+        )
 
     # Build or default TaskPlan
     raw_plan = args.get("task_plan") or {}
     if raw_plan:
         try:
             from herald.agent.analyzer import TaskAnalyzer
+
             plan = TaskAnalyzer(client=None)._parse_plan(raw_plan)  # type: ignore[arg-type]
         except Exception:
             raw_plan = {}
@@ -523,7 +531,9 @@ def run_validate_batch(args: dict, pipeline: HeraldPipeline) -> dict:
             "note": (
                 "Call explain_verdict with any result_id from tier4_pending "
                 "to see the full evidence, then request_human_review to adjudicate."
-            ) if tier4_ids else None,
+            )
+            if tier4_ids
+            else None,
         }
     except Exception as exc:
         return {"error": str(exc)}
@@ -579,11 +589,12 @@ def run_generate_and_validate(
 
 # ── Dispatcher ───────────────────────────────────────────────────────────────
 
+
 def execute_tool(
     tool_name: str,
     tool_input: dict,
     pipeline: HeraldPipeline,
-    anthropic_client: Optional[anthropic.Anthropic] = None,
+    anthropic_client: anthropic.Anthropic | None = None,
 ) -> str:
     """Route a tool call to the right function and return JSON string result."""
     if tool_name == "validate_checkpoint":
