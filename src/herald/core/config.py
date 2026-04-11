@@ -75,4 +75,7 @@ def load_config(
     else:
         raise ValueError(f"Unknown provider: {provider!r}. Use 'groq', 'gemini', or 'openai'.")
 
+    # Optional — only required when running herald-agent
+    config["anthropic_api_key"] = os.environ.get("ANTHROPIC_API_KEY", "")
+
     return config

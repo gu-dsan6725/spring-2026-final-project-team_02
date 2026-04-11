@@ -9,6 +9,7 @@ dependencies = [
     "transformers>=4.36.0",
     "datasets>=2.16.0",
     "groq>=0.11.0",
+    "anthropic>=0.40.0",
     "pyyaml>=6.0",
     "pandas>=2.0.0",
     "numpy>=1.24.0",
@@ -28,6 +29,8 @@ dependencies = [
 herald-run = "herald.pipeline.run:main"
 herald-eval = "herald.evaluation.evaluate:main"
 herald-feasibility = "herald.notebooks.feasibility_check:main"
+herald-agent = "herald.agent.agent:main"
+herald-research = "herald.agent.research_agent:main"
 
 [build-system]
 requires = ["hatchling"]
