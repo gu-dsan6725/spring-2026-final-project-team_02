@@ -32,6 +32,24 @@ herald-feasibility = "herald.notebooks.feasibility_check:main"
 herald-agent = "herald.agent.agent:main"
 herald-research = "herald.agent.research_agent:main"
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.9.0",
+    "mypy>=1.10.0",
+    "pre-commit>=4.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v"
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_ignores = true
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

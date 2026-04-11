@@ -102,6 +102,107 @@ Each case in `data/test_sets/` needs: `checkpoint_type`, `output_text`, `source_
 1. `uv run pytest` — all tests must pass
 2. Sanity-run the pipeline on `data/test_sets/sample_cases.json`
 3. If you changed a prompt, document before/after and motivation in the PR
+4. **Always verify the PR base repo** — see the GitHub Classroom warning below before clicking "Create pull request"
+
+### CRITICAL: GitHub Classroom repo structure
+
+This repo (`gu-dsan6725/spring-2026-final-project-team_02`) was created from a
+professor-owned template. GitHub remembers that parent relationship and will
+**silently default new PRs to target the professor's template repo** instead of
+your team's repo. This is a GitHub Classroom gotcha that affects every team member.
+
+**Before clicking "Create pull request" on GitHub, always check:**
+- Base repository: `gu-dsan6725/spring-2026-final-project-team_02` ✓
+- NOT: `gu-dsan6725/spring-2026-georgetown-university-...` ✗ (professor's template)
+
+If GitHub pre-fills the wrong base repo, use the dropdown to switch it to
+`spring-2026-final-project-team_02` before submitting.
+
+**Safest way to open PRs — use the CLI instead of the GitHub UI:**
+```bash
+# Install gh CLI if not already: https://cli.github.com
+gh pr create --base main --repo gu-dsan6725/spring-2026-final-project-team_02
+```
+The `gh` CLI defaults to the correct repo and won't silently target the template.
+
+**If you accidentally opened a PR against the professor's repo:**
+1. Go to that PR immediately and click "Close pull request" (do NOT merge)
+2. Then open a new PR correctly at `gu-dsan6725/spring-2026-final-project-team_02`
+
+### Git workflow: working while a PR is pending
+
+If your branch is waiting for review and you want to keep working, branch off your
+pending branch — **not** `main` — so you pick up all your in-progress changes:
+
+```bash
+git checkout vivi-dev            # or whatever your pending branch is
+git checkout -b feature/my-next-thing
+```
+
+When you push, open the PR against your pending branch (`vivi-dev`), not `main`.
+That way the diff only shows the new work, not everything already in review.
+
+```bash
+git push origin feature/my-next-thing
+# On GitHub: double-check base repo is team_02, then set base branch → vivi-dev
+```
+
+Once your pending PR is approved and merged into `main`, rebase your new branch
+onto `main` and retarget the PR:
+
+```bash
+git fetch origin
+git checkout feature/my-next-thing
+git rebase origin/main
+git push --force origin feature/my-next-thing
+# On GitHub: change the PR base branch to main (and confirm base repo is team_02)
+```
+
+### Git workflow: syncing with main before starting new work
+
+If you want to start fresh from the latest `main` (not from a pending branch):
+
+```bash
+git checkout main
+git pull origin main
+git checkout -b feature/my-thing
+```
+
+### Git workflow: rebasing onto main hit conflicts
+
+If `git rebase origin/main` stops with conflicts, the files with `<<<<<<<` markers
+need manual resolution. In each conflicted file:
+- `<<<<<<< HEAD` — your branch's version
+- `>>>>>>> origin/main` — main's version
+- Pick what to keep, delete the markers, then:
+
+```bash
+git add <resolved-file>
+git rebase --continue
+```
+
+If the rebase gets into a broken state (ref-lock errors, can't continue or abort
+cleanly), the safest recovery is a **merge** instead:
+
+```bash
+git rebase --abort          # exit the broken rebase
+git merge origin/main       # merge instead — fewer edge cases on diverged histories
+# resolve conflicts, then:
+git add <resolved-files>
+git commit
+git push --force origin <your-branch>
+```
+
+Force-push is needed after a rebase or after recovering from a broken rebase state
+because the branch history was rewritten. It is safe on your own personal branch.
+Never force-push to `main`.
+
+### GitHub Issues workflow
+
+1. Create an issue on GitHub describing the work
+2. On the issue page click **"Create a branch"** — GitHub names it `123-issue-title`
+   and checks it out for you, or run: `git checkout -b feature/issue-123-description`
+3. Reference the issue in your PR body: `Closes #123` — GitHub auto-closes it on merge
 
 ## Known Issues / Active Concerns
 - **Groq 429 rate limits:** Switch to `provider: "gemini"` (default) or add `--resume` on reruns.

@@ -1,0 +1,87 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  branch-name:
+    name: Validate Branch Name
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch naming convention
+        run: |
+          BRANCH="${{ github.head_ref }}"
+          echo "Branch: $BRANCH"
+          # Allow: main, dev, feature/*, fix/*, <initials>-<feature>, <initials>-dev
+          if echo "$BRANCH" | grep -qE '^(main|dev|feature/.+|fix/.+|[a-z]+-[a-z].+)$'; then
+            echo "Branch name '$BRANCH' follows convention."
+          else
+            echo "::warning::Branch name '$BRANCH' does not follow convention."
+            echo "Expected: feature/<name>, fix/<name>, or <initials>-<description>"
+          fi
+
+  pr-size:
+    name: PR Size Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR size
+        run: |
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | wc -l)
+          LINES=$(git diff origin/${{ github.base_ref }}...HEAD | grep -E '^[+-]' | grep -v '^[+-]{3}' | wc -l)
+          echo "Files changed: $FILES"
+          echo "Lines changed: $LINES"
+          if [ "$LINES" -gt 1000 ]; then
+            echo "::warning::This PR changes $LINES lines. Consider breaking it into smaller PRs."
+          fi
+
+  secrets-scan:
+    name: Scan for Secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect hardcoded secrets
+        run: |
+          # Fail if API keys or secrets are hardcoded in source files
+          PATTERNS="GEMINI_API_KEY\s*=\s*['\"][A-Za-z0-9_-]{10,}|GROQ_API_KEY\s*=\s*['\"][A-Za-z0-9_-]{10,}|ANTHROPIC_API_KEY\s*=\s*['\"][A-Za-z0-9_-]{10,}|OPENAI_API_KEY\s*=\s*['\"][A-Za-z0-9_-]{10,}"
+          if git diff origin/${{ github.base_ref }}...HEAD -- '*.py' '*.yaml' '*.yml' '*.toml' | grep -qE "$PATTERNS"; then
+            echo "::error::Potential hardcoded API key detected in diff. Use environment variables or .env files."
+            exit 1
+          fi
+          echo "No hardcoded secrets detected."
+
+  test-labels:
+    name: Label PR
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add size label
+        run: |
+          LINES=$(git diff origin/${{ github.base_ref }}...HEAD | grep -E '^[+-]' | grep -v '^[+-]{3}' | wc -l)
+          if [ "$LINES" -lt 50 ]; then
+            SIZE="size/XS"
+          elif [ "$LINES" -lt 150 ]; then
+            SIZE="size/S"
+          elif [ "$LINES" -lt 400 ]; then
+            SIZE="size/M"
+          elif [ "$LINES" -lt 800 ]; then
+            SIZE="size/L"
+          else
+            SIZE="size/XL"
+          fi
+          echo "PR size label: $SIZE"
+          gh pr edit "${{ github.event.pull_request.number }}" --add-label "$SIZE" || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
