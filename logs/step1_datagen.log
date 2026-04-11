@@ -1,0 +1,254 @@
+warning: `VIRTUAL_ENV=/usr` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+`trust_remote_code` is not supported anymore.
+Please check that the Hugging Face dataset 'launch/gov_report' isn't based on a loading script and remove `trust_remote_code`.
+If the dataset is based on a loading script, please ask the dataset author to remove it and convert it to a standard format like Parquet.
+============================================================
+CHECKPOINT 1: Loading dataset
+============================================================
+  Trying launch/gov_report (structure, trust_remote_code=True)...
+  ✗ Failed: Dataset scripts are no longer supported, but found gov_report.py
+  Trying launch/gov_report parquet (hf://datasets/launch/gov_report@refs%2Fconvert%2Fparquet/structure/train/*.parquet)...
+  ✓ Loaded via launch/gov_report parquet (17519 docs)
+
+Source format: launch_parquet
+Total docs in 'train' split: 17519
+
+============================================================
+CHECKPOINT 2: Filtering to economics policy documents
+============================================================
+Economics policy docs:  391 / 17519  (2.2%)
+
+============================================================
+CHECKPOINT 3: Random selection
+============================================================
+Randomly selected 50 docs from pool of 391
+Sample titles:
+  • How Do VA, Education, and Labor Perform Gatekeeping?
+  • Budget Differences Not Adequately Explained
+  • DOD Does Not Anticipate Future Budget or Force Structure Changes and 2013 Report
+  • Preliminary Observations on the Proposed DOD National Security Personnel System 
+  • KMCC Currently Experiencing Substantial Cost, Schedule, and Performance Problems
+  ... and 45 more
+
+============================================================
+CHECKPOINT 4: Pre-flight estimate
+============================================================
+Source format:          launch_parquet
+Docs to process:        50
+Avg sections/doc:       2.9  (max 2 + 1 synthesis)
+Docs with 0 sections:   0  (will be skipped)
+Estimated API calls:    146
+Estimated cases output: ~438  (3 labels per call)
+Sleep between calls:    1.0s
+Estimated runtime:      ~2.4 min  (146s)
+Model:                  llama-3.1-8b-instant
+Output file:            data/test_sets/trial_cases.json
+
+Proceeding (--yes flag set).
+
+[  1/50] How Do VA, Education, and Labor Perform Gatekeeping?
+         ✓ [How Do VA, Education, and Labor Per] claim_extraction → 3 cases
+         ✓ [To What Extent Did SAA Gatekeeping ] numerical → 6 cases
+         ✓ [multi-section synthesis            ] synthesis → 9 cases
+[  2/50] Budget Differences Not Adequately Explained
+         ✓ [Budget Differences Not Adequately E] numerical → 12 cases
+         ✓ [VHA’S Year 2001 Funding for Network] numerical → 15 cases
+         ✓ [multi-section synthesis            ] synthesis → 18 cases
+[  3/50] DOD Does Not Anticipate Future Budget or Force Structure Changes and 2013 R
+         ✓ [DOD Does Not Anticipate Future Budg] numerical → 21 cases
+         ✓ [DOD Has Not Reported Comprehensive ] numerical → 24 cases
+         ✓ [multi-section synthesis            ] synthesis → 27 cases
+[  4/50] Preliminary Observations on the Proposed DOD National Security Personnel Sy
+         ✓ [Preliminary Observations on the Pro] claim_extraction → 30 cases
+         ✓ [DOD Faces Multiple Implementation C] claim_extraction → 33 cases
+         ✓ [multi-section synthesis            ] synthesis → 36 cases
+[  5/50] KMCC Currently Experiencing Substantial Cost, Schedule, and Performance Pro
+         ✓ [KMCC Currently Experiencing Substan] numerical → 39 cases
+         ✓ [KMCC Problems Caused by Overseas Co] causal → 42 cases
+         ✓ [multi-section synthesis            ] synthesis → 45 cases
+[  6/50] Existing Polar Satellite Infrastructure
+         ✓ [Existing Polar Satellite Infrastruc] claim_extraction → 48 cases
+         ✓ [The National Polar- orbiting Operat] claim_extraction → 51 cases
+         ✓ [multi-section synthesis            ] synthesis → 54 cases
+[  7/50] How Women Currently Fare Under Social Security
+         ✓ [How Women Currently Fare Under Soci] numerical → 57 cases
+         ✓ [How Women Might Be Affected by Vari] numerical → 60 cases
+         ✓ [multi-section synthesis            ] synthesis → 63 cases
+[  8/50] Efforts to Increase Aviation Capacity and Service Face Funding and Other Ch
+         ✓ [Efforts to Increase Aviation Capaci] numerical → 66 cases
+         ✓ [Efforts to Improve the Efficiency o] claim_extraction → 69 cases
+         ✓ [multi-section synthesis            ] synthesis → 72 cases
+[  9/50] Prior Civilian Workforce Reductions Demonstrate the Importance of Strategic
+         ✓ [Prior Civilian Workforce Reductions] claim_extraction → 75 cases
+         ✓ [Opportunities Exist for DOD to Enha] numerical → 78 cases
+         ✓ [multi-section synthesis            ] synthesis → 81 cases
+[ 10/50] STB’s Role in Surface Transportation Regulation
+         ✓ [STB’s Role in Surface Transportatio] numerical → 84 cases
+         ✓ [Pipelines Have Historically Been Re] causal → 87 cases
+         ✓ [multi-section synthesis            ] synthesis → 90 cases
+[ 11/50] American Samoa Employment, Earnings, and Status of Key Industries
+         ✓ [Concluding Observations            ] claim_extraction → 93 cases
+         ✓ [Agency Comments and Our Evaluation ] claim_extraction → 96 cases
+         ✓ [multi-section synthesis            ] synthesis → 99 cases
+[ 12/50] Preliminary Observations on the Proposed Human Capital Regulations
+         ✓ [Preliminary Observations on the Pro] claim_extraction → 102 cases
+         ✓ [DHS Faces Multiple Implementation C] claim_extraction → 105 cases
+         ✓ [multi-section synthesis            ] synthesis → 108 cases
+[ 13/50] Lack of Understanding of Key Social Security Information, Along with Financ
+         ✓ [Lack of Understanding of Key Social] numerical → 111 cases
+         ✓ [SSA Provides Key Claiming Informati] claim_extraction → 114 cases
+         ✓ [multi-section synthesis            ] synthesis → 117 cases
+[ 14/50] Federal Housing Finance Board: Actions Needed to Improve Regulatory Oversig
+         ✓ [Federal Housing Finance Board: Acti] claim_extraction → 120 cases
+[ 15/50] Objectives and Costs of the Domestic Preparedness Program
+         ✓ [Objectives and Costs of the Domesti] claim_extraction → 123 cases
+         ✓ [Training Program Is Beneficial     ] claim_extraction → 126 cases
+         ✓ [multi-section synthesis            ] synthesis → 129 cases
+[ 16/50] Weaknesses in CVN 78’s Business Case Manifested by Less Capability at Highe
+         ✓ [Weaknesses in CVN 78’s Business Cas] numerical → 132 cases
+         ✓ [Business Case for Follow-On Ship As] numerical → 135 cases
+         ✓ [multi-section synthesis            ] synthesis → 138 cases
+[ 17/50] Highlights of Major Issues Related to the U.S. Government’s Consolidated Fi
+         ✓ [Highlights of Major Issues Related ] numerical → 141 cases
+         ✓ [Recurring Systems Problems Hinder A] claim_extraction → 144 cases
+         ✓ [multi-section synthesis            ] synthesis → 147 cases
+[ 18/50] Social Security Reform Is Part of a Broader Fiscal and Economic Challenge
+         ✓ [Social Security Reform Is Part of a] claim_extraction → 150 cases
+         ✓ [Demographic Trends Drive Both the L] numerical → 153 cases
+         ✓ [multi-section synthesis            ] synthesis → 156 cases
+[ 19/50] Despite Several Years of Declining Annual Budget Deficits, the Long-Term Ou
+         ✓ [Despite Several Years of Declining ] numerical → 159 cases
+         ✓ [Our Long-Term Fiscal Outlook Is Dri] claim_extraction → 162 cases
+         ✓ [multi-section synthesis            ] synthesis → 165 cases
+[ 20/50] DOD’s Major Acquisition Programs Continue to Experience Significant Cost Gr
+         ✓ [DOD’s Major Acquisition Programs Co] numerical → 168 cases
+         ✓ [Fragmented Processes, Unexecutable ] claim_extraction → 171 cases
+         ✓ [multi-section synthesis            ] synthesis → 174 cases
+[ 21/50] Good Financial Management Is a Key Foundation to Managing IRS’ Operations
+         ✓ [Good Financial Management Is a Key ] numerical → 177 cases
+         ✓ [Reasons for GAO’S Disclaimer of Opi] numerical → 180 cases
+         ✓ [multi-section synthesis            ] synthesis → 183 cases
+[ 22/50] How Is Federal Debt Measured?
+         ✓ [How Is Federal Debt Measured?      ] numerical → 186 cases
+         ✓ [Federal Debt: Context and Measures ] numerical → 189 cases
+         ✓ [multi-section synthesis            ] synthesis → 192 cases
+[ 23/50] HUD’s Fiscal Year 1998 Budget and Programs
+         ✓ [HUD’s Fiscal Year 1998 Budget and P] numerical → 195 cases
+         ✓ [HUD’s Request for Section 8 Contrac] numerical → 198 cases
+         ✓ [multi-section synthesis            ] synthesis → 201 cases
+[ 24/50] FLSA Lawsuits Have Increased Substantially over the Last Decade and Most FL
+         ✓ [WHD Uses a Data- based Approach to ] claim_extraction → 204 cases
+         ✓ [GAO Contact and Staff Acknowledgmen] causal → 207 cases
+         ✓ [multi-section synthesis            ] synthesis → 210 cases
+[ 25/50] Information Unavailable to Substantiate Revenue
+         ✓ [Information Unavailable to Substant] numerical → 213 cases
+         ✓ [Accounts Receivable Could Not Be Ve] numerical → 216 cases
+         ✓ [multi-section synthesis            ] synthesis → 219 cases
+[ 26/50] New Fiscal Partnership Poses Challenges
+         ✓ [New Fiscal Partnership Poses Challe] causal → 222 cases
+         ✓ [Reserves Are Key to States’ Conting] claim_extraction → 225 cases
+         ✓ [multi-section synthesis            ] synthesis → 228 cases
+[ 27/50] Navy Unlikely to Execute DDG 1000 Program within Current Cost and Schedule 
+         ✓ [Navy Unlikely to Execute DDG 1000 P] numerical → 231 cases
+         ✓ [Program Execution Challenges Have R] causal → 234 cases
+         ✓ [multi-section synthesis            ] synthesis → 237 cases
+[ 28/50] Results of Our Audit of the U.S. Government’s Consolidated Financial Statem
+         ✓ [Results of Our Audit of the U.S. Go] numerical → 240 cases
+         ✓ [Effects of the Last Economic Recess] numerical → 243 cases
+         ✓ [multi-section synthesis            ] synthesis → 246 cases
+[ 29/50] The Results Act: Observations on Draft Strategic Plans of Five Financial Re
+         ✓ [The Results Act: Observations on Dr] numerical → 249 cases
+[ 30/50] General Criteria for a Budget Process
+         ✓ [General Criteria for a Budget Proce] numerical → 252 cases
+         ✓ [Long-Term Perspective and Commitmen] causal → 255 cases
+         ✓ [multi-section synthesis            ] synthesis → 258 cases
+[ 31/50] Observations on Final DHS Human Capital Regulations
+         ✓ [Observations on Final DHS Human Cap] causal → 261 cases
+         ✓ [DHS Confronts Many Challenges to Su] claim_extraction → 264 cases
+         ✓ [multi-section synthesis            ] synthesis → 267 cases
+[ 32/50] Estimates Raise Questions Regarding Long-term Funding
+         ✓ [Estimates Raise Questions Regarding] numerical → 270 cases
+         ✓ [Demand for Federal Rebuilding Resou] claim_extraction → 273 cases
+         ✓ [multi-section synthesis            ] synthesis → 276 cases
+[ 33/50] IRS’s Request Increases Enforcement Spending and Identifies Savings, but Pr
+         ✓ [IRS’s Request Increases Enforcement] numerical → 279 cases
+         ✓ [IRS Has Made Progress on Enforcemen] causal → 282 cases
+         ✓ [multi-section synthesis            ] synthesis → 285 cases
+[ 34/50] Tens of Thousands of Medicaid Beneficiaries Visit Multiple Medical Practiti
+         ✓ [Tens of Thousands of Medicaid Benef] numerical → 288 cases
+         ✓ [Examples of Fraud, Waste, and Abuse] claim_extraction → 291 cases
+         ✓ [multi-section synthesis            ] synthesis → 294 cases
+[ 35/50] Medicare’s Financial Condition
+         ✓ [Medicare’s Financial Condition     ] numerical → 297 cases
+         ✓ [Today’s Medicare Program           ] claim_extraction → 300 cases
+         ✓ [multi-section synthesis            ] synthesis → 303 cases
+[ 36/50] HUD Administers 20 Technical Assistance Programs at an Annual Total Cost of
+         ✓ [HUD Administers 20 Technical Assist] numerical → 306 cases
+         ✓ [Technical Assistance Programs Vary ] claim_extraction → 309 cases
+         ✓ [multi-section synthesis            ] synthesis → 312 cases
+[ 37/50] Progress Towards Financial Management Reform
+         ✓ [Progress Towards Financial Manageme] numerical → 315 cases
+         ✓ [Financial Management Reform Will Re] numerical → 318 cases
+         ✓ [multi-section synthesis            ] synthesis → 321 cases
+[ 38/50] Limitations Exist in Certain CMS Screening Procedures for Preventing and De
+         ✓ [Limitations Exist in Certain CMS Sc] causal → 324 cases
+         ✓ [GAO Contact and Staff Acknowledgmen] causal → 327 cases
+         ✓ [multi-section synthesis            ] synthesis → 330 cases
+[ 39/50] The Tax Gap Is Spread across Various Types of Taxpayers and Taxes
+         ✓ [Various Strategies Are Required to ] claim_extraction → 333 cases
+         ✓ [Challenges to Addressing Identity T] causal → 336 cases
+         ✓ [multi-section synthesis            ] synthesis → 339 cases
+[ 40/50] Missed Opportunities for Savings in Medicare
+         ✓ [Missed Opportunities for Savings in] claim_extraction → 342 cases
+         ✓ [Need for Additional Oversight of Me] claim_extraction → 345 cases
+         ✓ [multi-section synthesis            ] synthesis → 348 cases
+[ 41/50] IRS’ Financial Reporting Controls Are Inadequate and Its Financial Manageme
+         ✓ [IRS’ Financial Reporting Controls A] numerical → 351 cases
+         ✓ [IRS Continues to Lack a Subsidiary ] causal → 354 cases
+         ✓ [multi-section synthesis            ] synthesis → 357 cases
+[ 42/50] FEMA Has Developed and Documented Misconduct Policies and Procedures for Mo
+         ✓ [FEMA Has Developed and Documented M] claim_extraction → 360 cases
+         ✓ [GAO Contact and Staff Acknowledgmen] causal → 363 cases
+         ✓ [multi-section synthesis            ] synthesis → 366 cases
+[ 43/50] Airports’ Funding Sources Vary
+         ✓ [Airports’ Funding Sources Vary     ] numerical → 369 cases
+         ✓ [Past Funding Levels Are Less Than P] numerical → 372 cases
+         ✓ [multi-section synthesis            ] synthesis → 375 cases
+[ 44/50] Our Fiscal and Financial Condition Is Worse Than Advertised
+         ✓ [Our Fiscal and Financial Condition ] numerical → 378 cases
+         ✓ [The Long-term Fiscal Outlook       ] claim_extraction → 381 cases
+         ✓ [multi-section synthesis            ] synthesis → 384 cases
+[ 45/50] DHS and CBP Have Established Collaborative Mechanisms Along the Southwest B
+         ✓ [GAO Contact and Staff Acknowledgmen] claim_extraction → 387 cases
+         ✓ [Related GAO Products               ] claim_extraction → 390 cases
+         ✓ [multi-section synthesis            ] synthesis → 393 cases
+[ 46/50] Miscellaneous Obligations Used Extensively for Mission-Related Activities i
+         ✓ [Miscellaneous Obligations Used Exte] numerical → 396 cases
+         ✓ [Deficiencies in Design of Controls ] claim_extraction → 399 cases
+         ✓ [multi-section synthesis            ] synthesis → 402 cases
+[ 47/50] More Than 1,280 CFC Charities Had Tax Debts Totaling $35.6 Million
+         ✓ [More Than 1,280 CFC Charities Had T] numerical → 405 cases
+         ✓ [Certain CFC Charity Executives We I] numerical → 408 cases
+         ✓ [multi-section synthesis            ] synthesis → 411 cases
+[ 48/50] The Nation’s Long- Term Fiscal Challenge
+         ✓ [The Nation’s Long- Term Fiscal Chal] causal → 414 cases
+         ✓ [Mandatory Spending Programs Drive t] numerical → 417 cases
+         ✓ [multi-section synthesis            ] synthesis → 420 cases
+[ 49/50] Highlights of Major Issues Related to the U.S. Government’s Consolidated Fi
+         ✓ [Highlights of Major Issues Related ] numerical → 423 cases
+         ✓ [Impacts of the Recession and Stabil] numerical → 426 cases
+         ✓ [multi-section synthesis            ] synthesis → 429 cases
+[ 50/50] Medicare Advantage ACRP and Bid Process and Related Audit Requirements
+         ✓ [Medicare Advantage ACRP and Bid Pro] claim_extraction → 432 cases
+         ✓ [GAO Analysis Shows CMS Did Not Meet] numerical → 435 cases
+         ✓ [multi-section synthesis            ] synthesis → 438 cases
+
+============================================================
+Generated 438 cases (0 errors) → data/test_sets/trial_cases.json
+Data source:             launch_parquet
+API calls made:          146
+Label distribution:      {'valid': 146, 'invalid': 146, 'ambiguous': 146}
+Checkpoint distribution: {'claim_extraction': 105, 'numerical': 147, 'synthesis': 144, 'causal': 42}
+
+NEXT STEP:
+  uv run python -m herald.pipeline.run --input data/test_sets/trial_cases.json -v

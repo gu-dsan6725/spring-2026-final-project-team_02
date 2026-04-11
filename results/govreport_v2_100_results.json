@@ -1,0 +1,1002 @@
+[
+  {
+    "case_index": 0,
+    "checkpoint_type": "numerical",
+    "output_text": "The Forest Service offered 4.6 billion board feet of salvage timber between 1995...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.935,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 1,
+    "checkpoint_type": "numerical",
+    "output_text": "In fiscal year 2001, VERA shifted approximately $821 million among VA networks c...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 2,
+    "checkpoint_type": "numerical",
+    "output_text": "The Army Corps of Engineers reprogrammed funds over 8,000 times in fiscal years ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.993,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 3,
+    "checkpoint_type": "numerical",
+    "output_text": "The U.S. indemnification policy aims to balance protecting the commercial space ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.972,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 4,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Air Force recognizes the value of RPAs and is attempting to address workforc...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.846,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 5,
+    "checkpoint_type": "synthesis",
+    "output_text": "The IRS has been working to address tax-related identity theft since 2004, and t...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 6,
+    "checkpoint_type": "numerical",
+    "output_text": "In fiscal year 2015, the IRS collected approximately $3.5 trillion in revenue, p...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.571,
+    "tier2_confidence": 0.882,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 7,
+    "checkpoint_type": "numerical",
+    "output_text": "In fiscal year 2015, 26 federal agencies spent approximately $71 billion on IT o...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 8,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Flexibility initiative represented a substantial effort by the Department of...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.357,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 9,
+    "checkpoint_type": "synthesis",
+    "output_text": "Westat used a longitudinal panel design with appropriate sampling and analytic t...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.926,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 10,
+    "checkpoint_type": "numerical",
+    "output_text": "The Federal Acquisition Regulation (FAR) excludes certain contracts, such as tho...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 11,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The FY2005 Energy and Water Development and Interior appropriations acts both li...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 12,
+    "checkpoint_type": "synthesis",
+    "output_text": "China's rapid economic development has likely created significant challenges rel...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 13,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Oil Pollution Act of 1990 addresses oil spill liability, cleanup, and compen...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 14,
+    "checkpoint_type": "causal",
+    "output_text": "The 2011 Child and Family Services Improvement and Innovation Act mandated that ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 15,
+    "checkpoint_type": "synthesis",
+    "output_text": "The National School Lunch Program, established in 1946, provides low-cost or fre...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 16,
+    "checkpoint_type": "numerical",
+    "output_text": "The overseas census test indicated that a global count of Americans abroad would...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 17,
+    "checkpoint_type": "causal",
+    "output_text": "The GAO reviewed fiscal year 1998 audit results from 24 CFO agencies, the govern...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.711,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 18,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The GSA's Multiple Award Schedule (MAS) program simplifies the acquisition of co...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 19,
+    "checkpoint_type": "numerical",
+    "output_text": "The Navajo Generating Station is a 2,250-megawatt coal-fired power plant that be...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 20,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "International capital markets are more integrated now than 20 years ago, creatin...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 21,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Employees who opted for HRAs appeared to have lower healthcare costs before the ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 22,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Government Performance and Results Act of 1995 was passed to address concern...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.979,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 23,
+    "checkpoint_type": "numerical",
+    "output_text": "The water dispute in the ACF basin highlights the increasing tension between sta...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 24,
+    "checkpoint_type": "synthesis",
+    "output_text": "The U.S. Census has historically focused on counting people within the states, w...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 25,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Youth Opportunity Grants program provided $2 billion in funding over 5 years...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.995,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 26,
+    "checkpoint_type": "synthesis",
+    "output_text": "U.S. territories have complete control over Medicaid and CHIP programs, setting ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 27,
+    "checkpoint_type": "retrieval",
+    "output_text": "GAO-23-105188, released November 2023, provides background information on the De...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 28,
+    "checkpoint_type": "numerical",
+    "output_text": "The Department of State initially referred to the deposits as \"tar sands\" but sw...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.803,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 29,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Hardest Hit Fund represents a continuing effort by the federal government to...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 30,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Army and Marine Corps implemented initiatives to maintain equipment in theat...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 31,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "DOE\u2019s strategic plan details both its broad missions and specific program object...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 32,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Air Force has fully implemented a strategic human-capital approach to managi...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 33,
+    "checkpoint_type": "numerical",
+    "output_text": "Negotiators at four acquisition centers reported using various tools to ensure c...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 34,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Superfund program was originally funded by taxes on all energy products and ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 35,
+    "checkpoint_type": "synthesis",
+    "output_text": "The 1996 Farm Act represented a significant attempt to reduce government interve...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 36,
+    "checkpoint_type": "synthesis",
+    "output_text": "The recent drought has worsened a water conflict between Alabama, Florida, and G...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 37,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Air Force is working towards a strategic human-capital approach to managing ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 38,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Reducing water consumption is crucial for maintaining healthy stream flows and p...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 39,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Government Performance and Results Act of 1995 aimed to improve federal prog...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.808,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 40,
+    "checkpoint_type": "causal",
+    "output_text": "The campaign showed increased recall of anti-drug messages among both parents an...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 41,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Army's management of TC-AIMS II raises concerns about whether the program wi...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.739,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 42,
+    "checkpoint_type": "retrieval",
+    "output_text": "OMB-2021-M-22-02, issued March 2, 2021, provides guidance to federal agencies on...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.882,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 43,
+    "checkpoint_type": "synthesis",
+    "output_text": "DOD spends billions annually on IT systems supporting core business operations l...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.993,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 44,
+    "checkpoint_type": "retrieval",
+    "output_text": "OMB-2021-09, released March 2021, details guidance for federal agencies on imple...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.987,
+    "tier2_confidence": 0.882,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 45,
+    "checkpoint_type": "causal",
+    "output_text": "Westat found the campaign significantly reduced marijuana use among current non-...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 46,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "By improving financial information, FFMIA likely contributes to greater efficien...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 47,
+    "checkpoint_type": "synthesis",
+    "output_text": "During the mid-1990s, the primary threat to the U.S. from NBC weapons shifted fr...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 48,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Clinger-Cohen Act of 1996 required the OMB to analyze and track risks and re...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.538,
+    "tier2_confidence": 0.882,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 49,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The U.S. utilizes a multi-faceted approach to combating money laundering, sugges...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.745,
+    "tier2_confidence": 0.357,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 50,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The farm economy is often unstable due to price swings, weather, export demand, ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.987,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 51,
+    "checkpoint_type": "numerical",
+    "output_text": "FAA revised its methodology to address weaknesses, reducing insurance requiremen...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 52,
+    "checkpoint_type": "numerical",
+    "output_text": "The Navajo Generating Station is a 2,500-megawatt coal-fired power plant that be...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.975,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 53,
+    "checkpoint_type": "numerical",
+    "output_text": "In fiscal year 2013, the VA had over $150 billion in obligations and employed ap...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 54,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The FDA regulates in vitro diagnostics (IVDs) based on their cost, with higher-p...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 55,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The ACA mandated the creation of health insurance exchanges in each state to pro...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 56,
+    "checkpoint_type": "synthesis",
+    "output_text": "The DOE and NNSA have consistently struggled with effective oversight, leading t...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.988,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 57,
+    "checkpoint_type": "synthesis",
+    "output_text": "The GSA's Federal Supply Schedule (FSS) program, particularly the Multiple Award...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 58,
+    "checkpoint_type": "numerical",
+    "output_text": "The overseas census test indicated that a global count of Americans abroad would...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.882,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 59,
+    "checkpoint_type": "numerical",
+    "output_text": "The division of responsibility between the EPA and Coast Guard under the NCP sug...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.357,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 60,
+    "checkpoint_type": "synthesis",
+    "output_text": "The VA faces ongoing challenges in maintaining the security of its information s...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 61,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The VA's efforts to fix previously identified security weaknesses were insuffici...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 62,
+    "checkpoint_type": "numerical",
+    "output_text": "U.S. law defines a refugee as someone fleeing their country due to persecution o...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.992,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 63,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Government Performance and Results Act of 1993 was passed to address a lack ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.974,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 64,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Prior to switching to HRAs in 2003, employees in both the public and private emp...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.996,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 65,
+    "checkpoint_type": "synthesis",
+    "output_text": "Established in response to the financial crisis of 2008, the Hardest Hit Fund re...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 66,
+    "checkpoint_type": "numerical",
+    "output_text": "The Department of State and the EPA both used the term \"oil sands\" when discussi...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.994,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 67,
+    "checkpoint_type": "retrieval",
+    "output_text": "GAO-23-105888, released November 2023, examines the Department of Defense's effo...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.882,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 68,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The Army Corps of Engineers\u2019 Civil Works program appears to have a significant i...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.992,
+    "tier2_confidence": 0.357,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 69,
+    "checkpoint_type": "synthesis",
+    "output_text": "The sunset concept automatically terminates programs and agencies unless explici...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 70,
+    "checkpoint_type": "synthesis",
+    "output_text": "The IRS handles a massive volume of financial transactions and taxpayer data ann...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.974,
+    "tier2_confidence": 0.357,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 71,
+    "checkpoint_type": "numerical",
+    "output_text": "The Forest Service likely could have sold even more timber than the 4.6 billion ...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 72,
+    "checkpoint_type": "numerical",
+    "output_text": "The large amount spent on IT operations and maintenance in 2015 suggests a poten...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 73,
+    "checkpoint_type": "numerical",
+    "output_text": "QHP certification involves reviewing a plan's benefits, provider network, premiu...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.935,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 74,
+    "checkpoint_type": "numerical",
+    "output_text": "The IASB is working to harmonize international and U.S. accounting standards, su...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.981,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 75,
+    "checkpoint_type": "numerical",
+    "output_text": "In 2007, exactly 75 serious accidents or near misses were reported, primarily du...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.979,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 76,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "During the mid-1990s, the primary threat to the U.S. from NBC weapons shifted fr...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 77,
+    "checkpoint_type": "causal",
+    "output_text": "The National School Lunch Program, established in 1946, aims to protect the heal...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 78,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Everglades Forever Act and subsequent legislation demonstrate a sustained fe...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.987,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 79,
+    "checkpoint_type": "causal",
+    "output_text": "The decline in U.S. debt-for-nature transactions suggests a shift in priorities ...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 80,
+    "checkpoint_type": "retrieval",
+    "output_text": "GAO-23-105188, released January 26, 2023, provides background information on the...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 81,
+    "checkpoint_type": "causal",
+    "output_text": "Treasury\u2019s initial implementation of USA PATRIOT Act Section 311, from 2002-2005...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 82,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "Government incentives for renewable energy in the U.S. and China vary depending ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 83,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The challenges faced by states with Flexibility waivers suggest potential weakne...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.357,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 84,
+    "checkpoint_type": "synthesis",
+    "output_text": "The Forest Service increased timber sales in the mid-1990s to address the growin...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 85,
+    "checkpoint_type": "synthesis",
+    "output_text": "FFMIA is intended to create more effective government by improving financial man...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.814,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 86,
+    "checkpoint_type": "numerical",
+    "output_text": "The Forest Service's salvage timber sales have likely increased in recent years ...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.693,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 87,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "All grantees used the Department of Labor's management information system (MIS) ...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 88,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "The increasing availability of data suggests that government programs can be sig...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": 0.357,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 89,
+    "checkpoint_type": "numerical",
+    "output_text": "The overseas census test suggests that relying solely on voluntary surveys is in...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.671,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 90,
+    "checkpoint_type": "retrieval",
+    "output_text": "OMB Memorandum M-21-31, issued July 2021, outlines strategies for enhancing fede...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.989,
+    "tier2_confidence": 0.882,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 91,
+    "checkpoint_type": "synthesis",
+    "output_text": "The recent drought has worsened a water conflict between Alabama, Florida, and G...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.997,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 92,
+    "checkpoint_type": "numerical",
+    "output_text": "The sunset concept automatically terminates programs and agencies after three ye...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 93,
+    "checkpoint_type": "retrieval",
+    "output_text": "CBO-2018-14, released June 2018, analyzes the potential economic effects of a na...",
+    "resolved_at_tier": 2,
+    "final_verdict": "invalid",
+    "tier1_confidence": 0.635,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 94,
+    "checkpoint_type": "numerical",
+    "output_text": "Since 1977, the Forest Service has annually offered approximately 2.6 billion bo...",
+    "resolved_at_tier": 1,
+    "final_verdict": "invalid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 95,
+    "checkpoint_type": "numerical",
+    "output_text": "NASA directly invested over $48 billion in the development and construction of t...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.843,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 96,
+    "checkpoint_type": "causal",
+    "output_text": "The proposed commission aimed to fundamentally shift the balance of power regard...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 1.0,
+    "tier2_confidence": 0.357,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 97,
+    "checkpoint_type": "claim_extraction",
+    "output_text": "FFMIA aims to improve the quality of financial information provided by federal a...",
+    "resolved_at_tier": 1,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.998,
+    "tier2_confidence": null,
+    "tier3_confidence": null
+  },
+  {
+    "case_index": 98,
+    "checkpoint_type": "numerical",
+    "output_text": "A 1996 GAO report identified increased competition, the rise of electronic trans...",
+    "resolved_at_tier": 3,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.999,
+    "tier2_confidence": 0.506,
+    "tier3_confidence": 0.85
+  },
+  {
+    "case_index": 99,
+    "checkpoint_type": "synthesis",
+    "output_text": "In FY2014, the Department of Defense obligated over $280 billion in federal cont...",
+    "resolved_at_tier": 2,
+    "final_verdict": "valid",
+    "tier1_confidence": 0.983,
+    "tier2_confidence": 0.823,
+    "tier3_confidence": null
+  }
+]

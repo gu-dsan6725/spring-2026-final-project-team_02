@@ -1,17 +1,24 @@
 # HERALD Configuration
-# Thresholds and model settings
+
+# Provider: "gemini", "groq", or "openai"
+# gemini-2.0-flash: 1M tokens/day free, strong reasoning, no rate limit issues
+# groq llama-3.3-70b-versatile: 100k tokens/day, decommissioned models reduced options
+# openai gpt-4o-mini: reliable JSON output, uses OPENAI_API_KEY
+provider: "gemini"
 
 tier1:
-  model_name: "cross-encoder/nli-deberta-v3-large"  # Public, no HF auth required
-  # model_name: "microsoft/deberta-v3-large-mnli"   # Requires HF login (hf auth login)
-  # model_name: "models/deberta-finetuned"           # Phase 2: after fine-tuning
+  model_name: "cross-encoder/nli-deberta-v3-large"
   device: "cpu"  # "cuda" if you have a GPU, "mps" for Apple Silicon
 
 tier2:
-  model: "llama-3.3-70b-versatile"  # Groq free tier
+  model: "gemma-3-27b-it"   # used when provider: gemini (14,400 RPD free tier)
+  # model: "llama-3.3-70b-versatile"  # used when provider: groq
+  # model: "gpt-4o-mini"  # used when provider: openai
 
 tier3:
-  model: "llama-3.3-70b-versatile"  # Same model, 3 calls (advocate/critic/judge)
+  model: "gemma-3-27b-it"   # 3 calls per debate (advocate/critic/judge)
+  # model: "llama-3.3-70b-versatile"
+  # model: "gpt-4o-mini"
 
 thresholds:
   T1: 0.70  # Tier 1 → Tier 2 escalation (start here, tune later)

@@ -1,0 +1,228 @@
+/* ── HERALD Custom Styles ────────────────────────────────────────────────── */
+
+/* Pipeline tier card animations */
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
+  70%  { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes flow-arrow {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Tier box states */
+.tier-idle {
+  border-color: #334155;
+  background: #1e293b;
+}
+
+.tier-running {
+  border-color: #6366f1;
+  background: #1e1b4b;
+  animation: pulse-ring 1.4s ease-out infinite;
+}
+
+.tier-valid {
+  border-color: #22c55e;
+  background: #052e16;
+}
+
+.tier-invalid {
+  border-color: #ef4444;
+  background: #2d0a0a;
+}
+
+.tier-uncertain {
+  border-color: #f59e0b;
+  background: #1c1207;
+}
+
+.tier-waiting {
+  border-color: #334155;
+  background: #1e293b;
+  opacity: 0.45;
+}
+
+/* Spinner */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #4f46e5;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+/* Escalation arrow animation */
+.arrow-flowing {
+  background: linear-gradient(
+    90deg,
+    transparent 0%, #6366f1 40%, #818cf8 50%, #6366f1 60%, transparent 100%
+  );
+  background-size: 200% auto;
+  animation: flow-arrow 1.2s linear infinite;
+}
+
+.arrow-done {
+  background: #334155;
+}
+
+.arrow-idle {
+  background: #1e293b;
+  border: 1px dashed #334155;
+}
+
+/* Result cards slide in */
+.result-card {
+  animation: slide-in 0.3s ease-out;
+}
+
+/* Confidence bar */
+.conf-bar {
+  transition: width 0.6s ease;
+}
+
+/* Tab active underline */
+.tab-active {
+  color: #818cf8;
+  border-bottom: 2px solid #6366f1;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+/* Verdict badge glow */
+.badge-valid   { background: #14532d; color: #4ade80; border: 1px solid #166534; }
+.badge-invalid { background: #450a0a; color: #f87171; border: 1px solid #7f1d1d; }
+.badge-uncertain { background: #431407; color: #fbbf24; border: 1px solid #78350f; }
+.badge-pending { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+
+/* Collapsible transition */
+.collapsible-enter { animation: slide-in 0.25s ease-out; }
+
+/* Prose in debate text */
+.debate-prose {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #cbd5e1;
+  white-space: pre-wrap;
+}
+
+/* Score bars */
+.score-ent  { background: #22c55e; }
+.score-con  { background: #ef4444; }
+.score-neu  { background: #64748b; }
+
+/* Pipeline connector line */
+.connector {
+  height: 2px;
+  flex: 1;
+  min-width: 20px;
+}
+
+/* Tooltip */
+[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 50;
+  pointer-events: none;
+}
+
+[data-tip] { position: relative; }
+
+/* Textarea */
+textarea, input[type="text"] {
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  width: 100%;
+  font-size: 0.85rem;
+  resize: vertical;
+  transition: border-color 0.15s;
+}
+
+textarea:focus, input[type="text"]:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+select {
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  width: 100%;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+select:focus { outline: none; border-color: #6366f1; }
+
+/* Button variants */
+.btn-primary {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-primary:hover:not(:disabled) { background: #4338ca; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-ghost {
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 7px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-ghost:hover { border-color: #6366f1; color: #a5b4fc; }
+
+.btn-valid   { background: #166534; color: #4ade80; border: 1px solid #166534; }
+.btn-invalid { background: #7f1d1d; color: #f87171; border: 1px solid #7f1d1d; }
+.btn-uncertain { background: #78350f; color: #fbbf24; border: 1px solid #78350f; }
+.btn-valid, .btn-invalid, .btn-uncertain {
+  border-radius: 6px; padding: 7px 14px; font-size: 0.82rem;
+  font-weight: 600; cursor: pointer; transition: opacity 0.15s;
+}
+.btn-valid:hover, .btn-invalid:hover, .btn-uncertain:hover { opacity: 0.8; }

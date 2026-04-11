@@ -12,11 +12,11 @@ Checkpoint Output → Tier 1 (NLI) → Tier 2 (LLM Judge) → Tier 3 (Debate) �
 | Tier | Method | Cost |
 |------|--------|------|
 | 1 | DeBERTa-v3-large NLI classifier (local) | Free |
-| 2 | LLM Judge via Groq (Llama 3.3 70B) | Free |
-| 3 | Multi-agent debate via Groq | Free |
+| 2 | LLM Judge via configurable provider | Varies |
+| 3 | Multi-agent debate via configurable provider | Varies |
 | 4 | Human review with structured packet | Your time |
 
-**LLM Provider:** [Groq](https://console.groq.com) (free tier, OpenAI-compatible API)  
+**LLM Provider:** Configurable (`groq`, `gemini`, or `openai`)  
 **Package Manager:** [uv](https://docs.astral.sh/uv/)  
 **Domain:** Economics research
 
@@ -32,8 +32,8 @@ Checkpoint Output → Tier 1 (NLI) → Tier 2 (LLM Judge) → Tier 3 (Debate) �
 
 ### Tiers
 - **src/herald/tier1/classifier.py**: DeBERTa NLI classifier for initial validity screening.
-- **src/herald/tier2/judge.py**: Groq LLM judge for ambiguous/uncertain cases.
-- **src/herald/tier3/debate.py**: Multi-agent debate for high-stakes or unclear cases.
+- **src/herald/tier2/judge.py**: Configurable LLM judge for ambiguous/uncertain cases.
+- **src/herald/tier3/debate.py**: Configurable multi-agent debate for high-stakes or unclear cases.
 - **src/herald/tier4/human_review.py**: Human review packet generator for final escalation.
 
 
@@ -44,7 +44,7 @@ Checkpoint Output → Tier 1 (NLI) → Tier 2 (LLM Judge) → Tier 3 (Debate) �
 - **notebooks/generate_plots.py**: Generates all key deliverable plots (cost-accuracy tradeoff, escalation profile, baseline comparison, confusion analysis). Saves PNGs to results/plots/.
 - **notebooks/phase_gates.py**: Checks explicit GO/NO-GO gates for each project phase (NLI separation, Tier 1 accuracy, system vs baseline). Ensures readiness before advancing phases.
 - **notebooks/feasibility_check.py**: Runs DeBERTa NLI on test set, prints entailment/contradiction/neutral scores, and validates separation of valid/invalid/ambiguous cases.
-- **notebooks/generate_weak_labels.py**: Uses Groq to generate weak labels for claim/source pairs, enabling fine-tuning of Tier 1. Spot-checks label quality against human judgment.
+- **notebooks/generate_weak_labels.py**: Uses the configured LLM provider to generate weak labels for claim/source pairs, enabling fine-tuning of Tier 1. Spot-checks label quality against human judgment.
 - **notebooks/test_tier2.py**: Runs Tier 2 (LLM Judge) in isolation on all test cases, reporting verdicts and reasoning for threshold tuning.
 - **notebooks/test_tier3.py**: Runs Tier 3 (Multi-Agent Debate) in isolation, useful for inspecting debate quality on hard/ambiguous cases.
 - **notebooks/threshold_sweep.py**: Sweeps Tier 1 and Tier 2 thresholds to generate cost-accuracy tradeoff data. Saves results to threshold_sweep.json for plotting.

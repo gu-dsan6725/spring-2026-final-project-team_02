@@ -126,20 +126,16 @@ def build_pipeline(config: dict) -> HeraldPipeline:
         model_name=config["tier1"]["model_name"],
         device=config["tier1"].get("device", "cpu"),
     )
-    tier2 = LLMJudge(
-        api_key=config["groq_api_key"],
-        model=config["tier2"]["model"],
-    )
-    tier3 = MultiAgentDebate(
-        api_key=config["groq_api_key"],
-        model=config["tier3"]["model"],
-    )
+    tier2 = LLMJudge(config=config)
+    tier3 = MultiAgentDebate(config=config)
 
     # Tier 2.5 is opt-in via config
     cf_probe = None
     if config.get("counterfactual_probe", {}).get("enabled", False):
+        provider = config.get("provider", "groq").lower()
+        api_key = config.get("groq_api_key", "") if provider == "groq" else config.get("gemini_api_key", "")
         cf_probe = CounterfactualProbe(
-            api_key=config["groq_api_key"],
+            api_key=api_key,
             model=config["counterfactual_probe"].get(
                 "model", config["tier2"]["model"]
             ),
