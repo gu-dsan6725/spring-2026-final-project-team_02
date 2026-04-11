@@ -24,7 +24,7 @@ cp .env.example .env
 
 ### Run the pipeline
 ```bash
-uv run herald-run --input data/test_sets/gov_report_v2_100_filtered.json --config configs/default.yaml --output results/run_results.json --verbose
+uv run herald-run --input data/test_sets/gov_report_v2_filtered.json --config configs/default.yaml --output results/runs/run_04_govreport_v2_filtered/results.json --verbose
 
 # Resume after a rate-limit interruption:
 uv run herald-run ... --resume
@@ -32,16 +32,16 @@ uv run herald-run ... --resume
 
 ### Evaluate results
 ```bash
-uv run herald-eval --results results/run_results.json --ground-truth data/test_sets/gov_report_v2_100_filtered.json --output results/evaluation.json
+uv run herald-eval --results results/runs/run_04_govreport_v2_filtered/results.json --ground-truth data/test_sets/gov_report_v2_filtered.json --output results/evaluation/govreport_v2_filtered_eval.json
 ```
 
 ### Run notebooks/scripts
 ```bash
-uv run python notebooks/threshold_sweep.py --input data/test_sets/gov_report_v2_100_filtered.json --output results/threshold_sweep.json --t1-values 0.60 0.70 0.80 0.90 --t2-values 0.60 0.70 0.80 0.90
+uv run python notebooks/threshold_sweep.py --input data/test_sets/gov_report_v2_filtered.json --output results/sweeps/threshold_sweep.json --t1-values 0.60 0.70 0.80 0.90 --t2-values 0.60 0.70 0.80 0.90
 
-uv run python notebooks/baseline_comparison.py --input ... --results ... --output results/baseline_comparison.json
+uv run python notebooks/baseline_comparison.py --input ... --results ... --output results/misc/baseline_comparison.json
 
-uv run python notebooks/generate_plots.py --sweep results/threshold_sweep.json --results results/run_results.json --ground-truth data/test_sets/... --baseline results/baseline_comparison.json --output results/plots/
+uv run python notebooks/generate_plots.py --sweep results/sweeps/threshold_sweep.json --results results/runs/run_04_govreport_v2_filtered/results.json --ground-truth data/test_sets/... --baseline results/misc/baseline_comparison.json --output results/plots/
 ```
 
 ### Run tests

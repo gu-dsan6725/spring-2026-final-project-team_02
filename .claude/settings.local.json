@@ -4,7 +4,8 @@
       "Skill(claude-api)",
       "Skill(claude-api:*)",
       "Bash(python -c ':*)",
-      "Bash(uv run python -c ':*)"
+      "Bash(uv run python -c ':*)",
+      "Bash(md5 /Users/vivianaluccioli/Dropbox/DSAN6725-GenAI/project/data/test_sets/gov_report_v2_100_filtered.json /Users/vivianaluccioli/Dropbox/DSAN6725-GenAI/project/data/test_sets/gov_report_v2_filtered.json)"
     ]
   }
 }

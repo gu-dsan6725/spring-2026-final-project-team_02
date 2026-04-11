@@ -6,7 +6,7 @@ Improvements over v1:
 
 Usage:
     uv run python notebooks/threshold_sweep.py \
-        --input data/test_sets/gov_report_cases.json \
+        --input data/test_sets/gov_report_v1.json \
         --output results/threshold_sweep.json \
         --t1-values 0.60 0.70 0.80 \
         --t2-values 0.70 0.80 0.90

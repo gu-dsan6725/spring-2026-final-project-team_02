@@ -375,7 +375,7 @@ def assign_checkpoint_type(
 # ---------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="Generate HERALD cases from GovReport")
-    parser.add_argument("--output", default="data/test_sets/gov_report_cases.json")
+    parser.add_argument("--output", default="data/test_sets/gov_report_v1.json")
     parser.add_argument("--n-docs", type=int, default=50)
     parser.add_argument("--sections-per-doc", type=int, default=2)
     parser.add_argument("--config", default="configs/default.yaml")

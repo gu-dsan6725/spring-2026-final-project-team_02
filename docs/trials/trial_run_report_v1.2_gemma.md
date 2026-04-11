@@ -4,7 +4,7 @@
 **Data source:** `launch/gov_report` via parquet  
 **Purpose:** Standardized second trial run for comparison against the original Llama-based HERALD experiment
 
-**Scope note:** This report uses the internally consistent Gemma rerun artifacts: `data/test_sets/gov_report_v2_100.json`, `results/govreport_v2_100_results.json`, and `results/govreport_v2_eval.json`. The full regenerated corpus is `data/test_sets/gov_report_v2.json` (459 cases), but the standardized evaluation run was performed on a 100-case subset.
+**Scope note:** This report uses the internally consistent Gemma rerun artifacts: `data/test_sets/gov_report_v2_100.json`, `results/runs/run_03_govreport_v2_100/gov_report_v2_100_results.json`, and `results/evaluation/gov_report_v2_eval.json`. The full regenerated corpus is `data/test_sets/gov_report_v2.json` (459 cases), but the standardized evaluation run was performed on a 100-case subset.
 
 ---
 
@@ -68,7 +68,7 @@ Checkpoint distribution: numerical: 30  synthesis: 29  claim_extraction: 26  cau
 **Script:** `herald.pipeline.run`  
 **Config:** `configs/default.yaml` (T1=0.70, T2=0.80)  
 **Input:** `data/test_sets/gov_report_v2_100.json`  
-**Output:** `results/govreport_v2_100_results.json`
+**Output:** `results/runs/run_03_govreport_v2_100/gov_report_v2_100_results.json`
 
 ### Escalation Results
 ```text
@@ -91,7 +91,7 @@ Ground truth: valid=34  invalid=32  ambiguous=34
 ## 4. Evaluation (Step 3)
 
 **Script:** `herald.evaluation.evaluate`  
-**Output:** `results/govreport_v2_eval.json`
+**Output:** `results/evaluation/gov_report_v2_eval.json`
 
 ### Overall Accuracy: 58.0% (58/100)
 
@@ -249,12 +249,12 @@ uv run python notebooks/threshold_sweep.py \
 # 2. Re-run baseline comparison on the same standardized set
 uv run python notebooks/baseline_comparison.py \
   --input data/test_sets/gov_report_v2_100.json \
-  --results results/govreport_v2_100_results.json \
+  --results results/runs/run_03_govreport_v2_100/gov_report_v2_100_results.json \
   --output results/baseline_comparison_v2.json
 
 # 3. Generate comparison-ready plots
 uv run python notebooks/generate_plots.py \
-  --results results/govreport_v2_100_results.json \
+  --results results/runs/run_03_govreport_v2_100/gov_report_v2_100_results.json \
   --ground-truth data/test_sets/gov_report_v2_100.json
 ```
 
@@ -266,8 +266,8 @@ uv run python notebooks/generate_plots.py \
 |---|---|
 | `data/test_sets/gov_report_v2.json` | Full regenerated Gemma-era GAO corpus: 459 balanced cases from 50 documents |
 | `data/test_sets/gov_report_v2_100.json` | Standardized 100-case subset used for the v2 trial run |
-| `results/govreport_v2_100_results.json` | HERALD pipeline verdicts for the 100-case Gemma trial |
-| `results/govreport_v2_eval.json` | Accuracy and escalation metrics for the standardized Gemma trial |
+| `results/runs/run_03_govreport_v2_100/gov_report_v2_100_results.json` | HERALD pipeline verdicts for the 100-case Gemma trial |
+| `results/evaluation/gov_report_v2_eval.json` | Accuracy and escalation metrics for the standardized Gemma trial |
 | `results/baseline_comparison_v2.json` | Baseline comparison summary for the v2 setup |
 | `results/plots/plot2_escalation_profile.png` | Escalation by checkpoint type |
 | `results/plots/plot4_confusion_analysis.png` | Confusion matrix and error analysis |

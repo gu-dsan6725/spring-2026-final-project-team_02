@@ -2,8 +2,8 @@
 
 ## Scope
 
-- v1 source of truth: `data/test_sets/trial_cases.json`, `results/trial_run_results.json`, `results/trial_evaluation.json`
-- v2 source of truth: `data/test_sets/gov_report_v2_100.json`, `results/govreport_v2_100_results.json`, `results/govreport_v2_eval.json`
+- v1 source of truth: `data/test_sets/trial_cases.json`, `results/runs/run_01_trial/trial_run_results.json`, `results/evaluation/trial_evaluation.json`
+- v2 source of truth: `data/test_sets/gov_report_v2_100.json`, `results/runs/run_03_govreport_v2_100/gov_report_v2_100_results.json`, `results/evaluation/gov_report_v2_eval.json`
 - Important caveat: this is a comparison of the saved evaluation runs, not a perfectly matched rerun on the exact same case set.
 - The v1 evaluation used `438` cases. The v2 evaluation used a standardized `100`-case subset.
 - Retrieval appears only in v2, so it has no direct v1 counterpart.
