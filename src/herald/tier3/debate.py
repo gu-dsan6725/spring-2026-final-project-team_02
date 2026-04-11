@@ -6,9 +6,9 @@ Switch providers via config: provider: "groq" | "gemini" | "openai"
 """
 
 import json
-from herald.core.types import TierResult, Verdict, CheckpointOutput, DebateResult
-from herald.core.llm import get_llm_client
 
+from herald.core.llm import get_llm_client
+from herald.core.types import CheckpointOutput, DebateResult, TierResult, Verdict
 
 ADVOCATE_PROMPT = """You are the ADVOCATE in a validation debate. Argue that the agent's output IS valid and faithful to the source.
 
@@ -82,6 +82,7 @@ class MultiAgentDebate:
         retry_delay: float = 2.0,
     ) -> DebateResult:
         import time
+
         ctx = {
             "output_text": checkpoint.output_text,
             "source_context": checkpoint.source_context,
@@ -94,9 +95,7 @@ class MultiAgentDebate:
                 advocate = self.client.complete(
                     ADVOCATE_PROMPT.format(**ctx), temperature=0.3
                 ).content
-                critic = self.client.complete(
-                    CRITIC_PROMPT.format(**ctx), temperature=0.3
-                ).content
+                critic = self.client.complete(CRITIC_PROMPT.format(**ctx), temperature=0.3).content
                 judge_resp = self.client.complete(
                     DEBATE_JUDGE_PROMPT.format(
                         **ctx,
@@ -118,4 +117,4 @@ class MultiAgentDebate:
                 if attempt < max_retries - 1:
                     time.sleep(retry_delay)
                 else:
-                    raise RuntimeError(f"LLM API failed after {max_retries} attempts: {e}")
+                    raise RuntimeError(f"LLM API failed after {max_retries} attempts: {e}") from e

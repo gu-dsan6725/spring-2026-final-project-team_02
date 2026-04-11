@@ -28,10 +28,9 @@ import sys
 
 import anthropic
 
+from herald.agent.tools import TOOL_DEFINITIONS, execute_tool
 from herald.core.config import load_config
 from herald.pipeline.escalation import build_pipeline
-from herald.agent.tools import TOOL_DEFINITIONS, execute_tool
-
 
 SYSTEM_PROMPT = """You are HERALD, an interactive LLM evaluation assistant specializing in \
 validating economics research agent outputs for faithfulness to their source material.
@@ -85,10 +84,7 @@ def _print_streaming(stream: anthropic.Stream) -> str:
     """Stream response text to stdout and return the full text."""
     full_text = ""
     for event in stream:
-        if (
-            event.type == "content_block_delta"
-            and event.delta.type == "text_delta"
-        ):
+        if event.type == "content_block_delta" and event.delta.type == "text_delta":
             chunk = event.delta.text
             print(chunk, end="", flush=True)
             full_text += chunk
@@ -202,11 +198,13 @@ def run_agent(config_path: str = "configs/default.yaml", verbose: bool = False) 
                 if verbose:
                     print(f"[Tool result: {result_str[:300]}...]")
 
-                tool_results.append({
-                    "type": "tool_result",
-                    "tool_use_id": block.id,
-                    "content": result_str,
-                })
+                tool_results.append(
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": result_str,
+                    }
+                )
 
             messages.append({"role": "user", "content": tool_results})
             # Loop continues — Claude will now respond to tool results
@@ -232,7 +230,8 @@ Examples:
         help="Path to HERALD config YAML (default: configs/default.yaml)",
     )
     parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
         help="Show tool call inputs/outputs for debugging",
     )
@@ -248,6 +247,7 @@ Examples:
 
     if args.research:
         from herald.agent.research_agent import run_research_agent
+
         run_research_agent(config_path=args.config, verbose=args.verbose)
     else:
         run_agent(config_path=args.config, verbose=args.verbose)

@@ -24,6 +24,9 @@ import uuid
 
 import anthropic
 
+from herald.agent.analyzer import TaskAnalyzer
+from herald.agent.batch import BatchValidator
+from herald.agent.tools import store_packet
 from herald.core.config import load_config
 from herald.core.types import (
     BatchValidationResult,
@@ -33,9 +36,6 @@ from herald.core.types import (
     Verdict,
 )
 from herald.pipeline.escalation import build_pipeline
-from herald.agent.analyzer import TaskAnalyzer
-from herald.agent.batch import BatchValidator
-from herald.agent.tools import store_packet, TOOL_DEFINITIONS, execute_tool
 
 logger = logging.getLogger("herald")
 
@@ -99,15 +99,11 @@ class ResearchAgent:
 
         anthropic_key = config.get("anthropic_api_key", "")
         if not anthropic_key:
-            raise ValueError(
-                "ANTHROPIC_API_KEY not set. Add it to your .env file."
-            )
+            raise ValueError("ANTHROPIC_API_KEY not set. Add it to your .env file.")
 
         self.client = anthropic.Anthropic(api_key=anthropic_key)
 
-        analysis_model = config.get("task_analysis", {}).get(
-            "model", "claude-sonnet-4-20250514"
-        )
+        analysis_model = config.get("task_analysis", {}).get("model", "claude-sonnet-4-20250514")
         self.analyzer = TaskAnalyzer(client=self.client, model=analysis_model)
 
         print("Loading HERALD pipeline (Tier 1 NLI model may take a moment)...")
@@ -137,7 +133,7 @@ class ResearchAgent:
         # ── Phase 0: Task Analysis ───────────────────────────────────────────
         print("\n[Phase 0] Analyzing task structure...")
         task_plan = self.analyzer.analyze(query, source_documents)
-        print(f"  Task analysis complete.")
+        print("  Task analysis complete.")
         print(f"  Expected outputs: {task_plan.expected_output_count} {task_plan.output_unit}(s)")
         print(f"  Checkpoint types: {[ct.value for ct in task_plan.primary_checkpoint_types]}")
         print(f"  Evaluation mode: {task_plan.evaluation_mode}")
@@ -169,7 +165,7 @@ class ResearchAgent:
         print(f"  Generated {len(outputs)} {task_plan.output_unit}(s).")
 
         # ── Phase 2: Batch Validation ────────────────────────────────────────
-        print(f"\n[Phase 2] Validating outputs...")
+        print("\n[Phase 2] Validating outputs...")
         result = self.batch_validator.validate_batch(outputs, source_documents, task_plan)
 
         s = result.summary
@@ -182,7 +178,7 @@ class ResearchAgent:
 
         # ── Phase 3: Handle Escalations ──────────────────────────────────────
         if result.tier1_invalid or result.tier4_pending:
-            print(f"\n[Phase 3] Handling escalations...")
+            print("\n[Phase 3] Handling escalations...")
 
         # Attempt revision of INVALID outputs
         if result.tier1_invalid:
@@ -192,9 +188,7 @@ class ResearchAgent:
 
         # Surface Tier 4 cases to human
         if result.tier4_pending:
-            print(
-                f"\n  {len(result.tier4_pending)} output(s) require human review (Tier 4)."
-            )
+            print(f"\n  {len(result.tier4_pending)} output(s) require human review (Tier 4).")
             for output, packet in result.tier4_pending:
                 # Store packet so user can call explain_verdict
                 pid = store_packet(packet)
@@ -206,9 +200,9 @@ class ResearchAgent:
                     print(f"  Debate judge: {packet.tier3_result.judge_reasoning[:300]}")
                 print()
                 try:
-                    verdict_input = input(
-                        "  Your verdict [valid/invalid/uncertain/skip]: "
-                    ).strip().lower()
+                    verdict_input = (
+                        input("  Your verdict [valid/invalid/uncertain/skip]: ").strip().lower()
+                    )
                 except (EOFError, KeyboardInterrupt):
                     verdict_input = "skip"
 
@@ -284,17 +278,19 @@ class ResearchAgent:
                 except ValueError:
                     pass
 
-            outputs.append(GeneratedOutput(
-                id=output_id,
-                text=item.get("text", ""),
-                output_type=item.get("output_type", task_plan.output_unit),
-                references_section=item.get("references_section"),
-                suggested_checkpoint_type=suggested_ct,
-                metadata={
-                    "query": query,
-                    **item.get("metadata", {}),
-                },
-            ))
+            outputs.append(
+                GeneratedOutput(
+                    id=output_id,
+                    text=item.get("text", ""),
+                    output_type=item.get("output_type", task_plan.output_unit),
+                    references_section=item.get("references_section"),
+                    suggested_checkpoint_type=suggested_ct,
+                    metadata={
+                        "query": query,
+                        **item.get("metadata", {}),
+                    },
+                )
+            )
 
         return outputs, None
 
@@ -353,6 +349,7 @@ class ResearchAgent:
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
+
 def _task_plan_to_dict(plan: TaskPlan) -> dict:
     return {
         "expected_output_count": plan.expected_output_count,
@@ -370,6 +367,7 @@ def _task_plan_to_dict(plan: TaskPlan) -> dict:
 
 
 # ── Interactive session ──────────────────────────────────────────────────────
+
 
 def run_research_agent(
     config_path: str = "configs/default.yaml",
@@ -422,11 +420,12 @@ def run_research_agent(
             continue
 
         try:
-            result = agent.run(query=query, source_documents=sources)
+            agent.run(query=query, source_documents=sources)
         except Exception as exc:
             print(f"\nError: {exc}", file=sys.stderr)
             if verbose:
                 import traceback
+
                 traceback.print_exc()
 
         print("\n" + "-" * 60 + "\n")
@@ -449,7 +448,8 @@ Examples:
         help="Path to HERALD config YAML (default: configs/default.yaml)",
     )
     parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
         help="Show full TaskPlan and debug output",
     )

@@ -6,9 +6,9 @@ Receives cases Tier 1 couldn't resolve with confidence.
 
 import json
 import math
-from herald.core.types import TierResult, Verdict, CheckpointOutput
-from herald.core.llm import get_llm_client
 
+from herald.core.llm import get_llm_client
+from herald.core.types import CheckpointOutput, TierResult, Verdict
 
 JUDGE_SYSTEM = """You are a strict validation judge for policy research outputs. \
 Your job is to catch errors, hallucinations, and unsupported claims — not to confirm them.
@@ -79,6 +79,7 @@ class LLMJudge:
         retry_delay: float = 2.0,
     ) -> TierResult:
         import time
+
         prompt = JUDGE_TEMPLATE.format(
             output_text=checkpoint.output_text,
             source_context=checkpoint.source_context,
@@ -116,4 +117,4 @@ class LLMJudge:
                 if attempt < max_retries - 1:
                     time.sleep(retry_delay)
                 else:
-                    raise RuntimeError(f"LLM API failed after {max_retries} attempts: {e}")
+                    raise RuntimeError(f"LLM API failed after {max_retries} attempts: {e}") from e
