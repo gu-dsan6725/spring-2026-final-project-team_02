@@ -1,0 +1,17 @@
+# CODEOWNERS — reviewers are automatically requested when these paths change in a PR.
+# Syntax: <pattern> <github-username> [<github-username> ...]
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default: all team members review everything
+*                               @gu-dsan6725/team_02
+
+# Tier prompts are high-impact — require at least one review before merge
+src/herald/tier2/judge.py       @gu-dsan6725/team_02
+src/herald/tier3/debate.py      @gu-dsan6725/team_02
+
+# Pipeline and config changes affect all tiers
+src/herald/pipeline/            @gu-dsan6725/team_02
+configs/                        @gu-dsan6725/team_02
+
+# CI/CD changes
+.github/                        @gu-dsan6725/team_02
