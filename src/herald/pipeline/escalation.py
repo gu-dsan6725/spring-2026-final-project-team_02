@@ -108,45 +108,53 @@ class HeraldPipeline:
         packet.tier2_result = t2
 
         if t2.verdict != Verdict.UNCERTAIN:
-            # prefer_debate types skip straight to T3 even on a confident T2
-            # verdict. Causal and synthesis cases benefit from adversarial
-            # framing: a single judge over-fires INVALID on valid inferences
-            # because the prompt defaults to strict INVALID-bias. The debate
-            # structure (advocate + critic + judge) reduces this false-positive
-            # rate without sacrificing invalid recall.
-            if cp_type in self.prefer_debate_types:
+            # ── TIER 2.5: Counterfactual Probe (optional) ───────────────────
+            # Only runs on confident verdicts — probing uncertainty is redundant.
+            # For prefer_debate types, the probe still runs; if it fires it
+            # escalates to T3 (same as any other type). If it does NOT fire,
+            # prefer_debate triggers a T3 escalation anyway — but only for
+            # low-to-medium T2 confidence, not for highly confident verdicts
+            # where the risk of T3 degrading the result outweighs the benefit.
+            cf_overridden = False
+            if self.counterfactual_probe is not None:
                 logger.info(
-                    f"[Tier 2] '{cp_type}' is in prefer_debate — "
-                    f"T2 verdict {t2.verdict.value} ({t2.confidence:.3f}) "
-                    f"forwarded to T3 debate"
+                    f"[Tier 2.5] Probing confident {t2.verdict.value} verdict "
+                    f"({t2.confidence:.3f}) for disconfirming evidence"
                 )
-                # Fall through to Tier 3
-            else:
-                # ── TIER 2.5: Counterfactual Probe (optional) ───────────────
-                # Only runs on confident verdicts — probing uncertainty is redundant.
-                if self.counterfactual_probe is not None:
-                    logger.info(
-                        f"[Tier 2.5] Probing confident {t2.verdict.value} verdict "
-                        f"({t2.confidence:.3f}) for disconfirming evidence"
-                    )
-                    cf = self.counterfactual_probe.probe(checkpoint, t2, t2_threshold=self.t2)
-                    packet.tier2_5_result = cf
+                cf = self.counterfactual_probe.probe(checkpoint, t2, t2_threshold=self.t2)
+                packet.tier2_5_result = cf
+                cf_overridden = cf.verdict_overridden
 
-                    if cf.verdict_overridden:
-                        logger.info(
-                            f"[Tier 2.5] Override triggered — disconfirming evidence found: "
-                            f'"{cf.evidence_quote[:80]}..." → escalating to Tier 3'
-                        )
-                        # Fall through to Tier 3 instead of returning here
-                    else:
-                        logger.info(
-                            f"[Tier 2.5] No disconfirming evidence found — "
-                            f"Tier 2 verdict {t2.verdict.value} stands"
-                        )
-                        packet.resolved_at_tier = 2
-                        packet.final_verdict = t2.verdict
-                        return packet
+                if cf_overridden:
+                    logger.info(
+                        f"[Tier 2.5] Override triggered — disconfirming evidence found: "
+                        f'"{cf.evidence_quote[:80]}..." → escalating to Tier 3'
+                    )
+                    # Fall through to Tier 3
                 else:
+                    logger.info(
+                        f"[Tier 2.5] No disconfirming evidence found — "
+                        f"Tier 2 verdict {t2.verdict.value} stands"
+                    )
+
+            if not cf_overridden:
+                # For prefer_debate types, escalate to T3 only when T2 confidence
+                # is below a high-confidence bar (0.92). Above that bar the verdict
+                # is reliable enough that sending it to a noisier T3 debate hurts
+                # more than it helps — as confirmed by run 06 results.
+                HIGH_CONFIDENCE_BAR = 0.92
+                if cp_type in self.prefer_debate_types and t2.confidence < HIGH_CONFIDENCE_BAR:
+                    logger.info(
+                        f"[Tier 2] '{cp_type}' is in prefer_debate and T2 confidence "
+                        f"({t2.confidence:.3f}) < {HIGH_CONFIDENCE_BAR} — forwarding to T3 debate"
+                    )
+                    # Fall through to Tier 3
+                else:
+                    if cp_type in self.prefer_debate_types:
+                        logger.info(
+                            f"[Tier 2] '{cp_type}' in prefer_debate but confidence "
+                            f"({t2.confidence:.3f}) >= {HIGH_CONFIDENCE_BAR} — T2 verdict stands"
+                        )
                     packet.resolved_at_tier = 2
                     packet.final_verdict = t2.verdict
                     logger.info(f"[Tier 2] Resolved: {t2.verdict.value} ({t2.confidence:.3f})")
