@@ -1,0 +1,75 @@
+{
+  "accuracy": {
+    "overall": {
+      "acc": 0.8888888888888888,
+      "correct": 272,
+      "total": 306
+    },
+    "cp_claim_extraction": {
+      "acc": 0.9444444444444444,
+      "correct": 68,
+      "total": 72
+    },
+    "tier_1": {
+      "acc": 0.8720379146919431,
+      "correct": 184,
+      "total": 211
+    },
+    "label_valid": {
+      "acc": 0.9607843137254902,
+      "correct": 147,
+      "total": 153
+    },
+    "tier_2": {
+      "acc": 0.96,
+      "correct": 72,
+      "total": 75
+    },
+    "label_invalid": {
+      "acc": 0.8169934640522876,
+      "correct": 125,
+      "total": 153
+    },
+    "cp_numerical": {
+      "acc": 0.9,
+      "correct": 72,
+      "total": 80
+    },
+    "cp_synthesis": {
+      "acc": 0.8775510204081632,
+      "correct": 86,
+      "total": 98
+    },
+    "tier_3": {
+      "acc": 0.8,
+      "correct": 16,
+      "total": 20
+    },
+    "cp_retrieval": {
+      "acc": 0.8,
+      "correct": 8,
+      "total": 10
+    },
+    "cp_causal": {
+      "acc": 0.8260869565217391,
+      "correct": 38,
+      "total": 46
+    }
+  },
+  "escalation": {
+    "tier_1": {
+      "count": 211,
+      "rate": 0.6895424836601307
+    },
+    "tier_2": {
+      "count": 75,
+      "rate": 0.24509803921568626
+    },
+    "tier_3": {
+      "count": 20,
+      "rate": 0.06535947712418301
+    }
+  },
+  "cost_per_case": 0.0,
+  "human_review_rate": 0.0
+}

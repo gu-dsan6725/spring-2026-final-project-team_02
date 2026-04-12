@@ -58,9 +58,12 @@ Checkpoint Output → Tier 1 (NLI) → Tier 2 (LLM Judge) → Tier 3 (Debate) �
 - **configs/default.yaml**: Default threshold and config values.
 
 ### Results
-- **results/run_results.json**: Full pipeline run results (verdicts, confidence, escalation tier).
-- **results/feasibility_results.json**: Feasibility check results.
-- **results/api_budget.json**: API usage and cost tracking.
+- **results/runs/run_NN_\<name\>/**: Pipeline run outputs, one folder per run.
+- **results/evaluation/**: Evaluation JSON files keyed by run name.
+- **results/sweeps/**: Threshold sweep outputs.
+- **results/plots/**: Generated plots, organised by run name.
+- **results/misc/**: Baseline comparisons, API budget, feasibility results.
+- **results/human_review/**: Structured packets saved by Tier 4.
 
 ### Documentation & Templates
 - **README.md**: Project overview, setup, and instructions.
@@ -159,7 +162,7 @@ To generate all plots, ensure you have run `notebooks/threshold_sweep.py` and `n
 
 ### Prerequisites
 - Python 3.11+
-- A free Groq API key from https://console.groq.com
+- A Gemini API key (default, 1M tokens/day free) or a Groq API key
 - GPU recommended for Tier 1 (DeBERTa), but CPU works for small test sets
 
 ### Install uv (if you don't have it)
@@ -173,7 +176,72 @@ git clone <your-repo-url>
 cd herald
 uv sync
 cp .env.example .env
-# Edit .env and add your Groq API key
+# Edit .env and add your GEMINI_API_KEY or GROQ_API_KEY
+```
+
+---
+
+## How to Run the Experiment
+
+### 1. Run the pipeline
+```bash
+uv run herald-run \
+  --input data/test_sets/gov_report_v2_filtered.json \
+  --config configs/default.yaml \
+  --output results/runs/run_05_<name>/results.json \
+  --verbose
+```
+
+Results are saved incrementally after every case, so runs can be safely interrupted and resumed:
+```bash
+uv run herald-run \
+  --input data/test_sets/gov_report_v2_filtered.json \
+  --config configs/default.yaml \
+  --output results/runs/run_05_<name>/results.json \
+  --verbose \
+  --resume
+```
+
+### 2. Evaluate results
+```bash
+uv run herald-eval \
+  --results results/runs/run_05_<name>/results.json \
+  --ground-truth data/test_sets/gov_report_v2_filtered.json \
+  --output results/evaluation/<name>_eval.json
+```
+
+### 3. Threshold sweep (optional — for tuning T1/T2)
+```bash
+uv run python notebooks/threshold_sweep.py \
+  --input data/test_sets/gov_report_v2_filtered.json \
+  --output results/sweeps/threshold_sweep.json \
+  --t1-values 0.60 0.70 0.80 0.90 \
+  --t2-values 0.60 0.70 0.80 0.90
+```
+
+### 4. Baseline comparison (optional)
+```bash
+uv run python notebooks/baseline_comparison.py \
+  --input data/test_sets/gov_report_v2_filtered.json \
+  --results results/runs/run_05_<name>/results.json \
+  --output results/misc/baseline_comparison.json
+```
+
+### 5. Generate plots
+```bash
+uv run python notebooks/generate_plots.py \
+  --sweep results/sweeps/threshold_sweep.json \
+  --results results/runs/run_05_<name>/results.json \
+  --ground-truth data/test_sets/gov_report_v2_filtered.json \
+  --baseline results/misc/baseline_comparison.json \
+  --output results/plots/<name>/
+```
+
+### Run tests
+```bash
+uv run pytest                         # all tests
+uv run pytest tests/test_pipeline.py  # single file
+uv run pytest -k "test_name"          # single test
 ```
 
 ---

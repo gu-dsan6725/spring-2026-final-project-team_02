@@ -35,8 +35,7 @@ Design decisions
 import json
 import time
 
-from groq import Groq
-
+from herald.core.llm import get_llm_client
 from herald.core.types import CheckpointOutput, CounterfactualResult, TierResult
 
 PROBE_PROMPT = """You are performing a counterfactual validity check.
@@ -76,9 +75,15 @@ Respond with ONLY valid JSON:
 class CounterfactualProbe:
     """Tier 2.5: Counterfactual probe for overconfident Tier 2 verdicts."""
 
-    def __init__(self, api_key: str, model: str = "llama-3.3-70b-versatile"):
-        self.client = Groq(api_key=api_key)
-        self.model = model
+    def __init__(self, config: dict):
+        # Build a client for the probe using the configured provider and
+        # counterfactual_probe.model (falls back to tier2 model if not set).
+        probe_model = config.get("counterfactual_probe", {}).get("model")
+        probe_config = {**config}
+        if probe_model:
+            probe_config = {**config, "tier2": {**config.get("tier2", {}), "model": probe_model}}
+        self.client = get_llm_client(probe_config)
+        self.model = self.client.model
 
     def probe(
         self,
@@ -103,13 +108,8 @@ class CounterfactualProbe:
 
         for attempt in range(max_retries):
             try:
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0.1,
-                    response_format={"type": "json_object"},
-                )
-                raw = response.choices[0].message.content
+                response = self.client.complete(prompt, json_mode=True, temperature=0.1)
+                raw = response.content
                 result = json.loads(raw)
 
                 evidence_found = bool(result.get("evidence_found", False))

@@ -2,6 +2,22 @@
 
 Routes each checkpoint output through Tier 1 → 2 → 3 → 4,
 stopping as soon as any tier resolves with sufficient confidence.
+
+Checkpoint-type routing
+-----------------------
+Not all checkpoint types are equally suited for NLI or debate. The config's
+``checkpoint_routing`` block governs three behaviours:
+
+* ``skip_nli``       — T1 runs for its signal but its verdict is NEVER final;
+                       the case always escalates to T2. Use for types where NLI
+                       scores surface-level entailment while missing factual
+                       errors (numerical, causal, synthesis).
+* ``prefer_debate``  — After a confident T2 verdict, the case is still sent to
+                       T3 debate instead of resolving. Use where multi-agent
+                       adversarial framing catches errors a single judge misses.
+* ``nli_sufficient`` — T1 is trusted at its normal threshold; no override.
+
+These sets are read once at construction and used inside ``validate()``.
 """
 
 import logging
@@ -27,6 +43,9 @@ class HeraldPipeline:
     evidence would reverse it, then checks if that evidence exists in the source.
     If found, the verdict is overridden to UNCERTAIN and escalated to Tier 3.
     This catches correlated overconfidence errors that same-model debate misses.
+
+    Checkpoint-type routing rules (from config ``checkpoint_routing``) control
+    which tiers can resolve each type — see module docstring for details.
     """
 
     def __init__(
@@ -37,6 +56,9 @@ class HeraldPipeline:
         t1_threshold: float = 0.70,
         t2_threshold: float = 0.80,
         counterfactual_probe: CounterfactualProbe | None = None,
+        skip_nli_types: set[str] | None = None,
+        prefer_debate_types: set[str] | None = None,
+        t1_thresholds_by_type: dict[str, float] | None = None,
     ):
         self.tier1 = tier1
         self.tier2 = tier2
@@ -44,60 +66,94 @@ class HeraldPipeline:
         self.t1 = t1_threshold
         self.t2 = t2_threshold
         self.counterfactual_probe = counterfactual_probe
+        # Checkpoint types where T1 verdict is never final (always escalate to T2)
+        self.skip_nli_types: set[str] = skip_nli_types or set()
+        # Checkpoint types where T2 verdict always escalates to T3 debate
+        self.prefer_debate_types: set[str] = prefer_debate_types or set()
+        # Per-type T1 threshold overrides (fall back to self.t1 for unlisted types)
+        self.t1_thresholds_by_type: dict[str, float] = t1_thresholds_by_type or {}
 
     def validate(self, checkpoint: CheckpointOutput) -> EscalationPacket:
         """Run full escalation on a single checkpoint output."""
         packet = EscalationPacket(checkpoint=checkpoint)
+        cp_type = checkpoint.checkpoint_type.value
 
         # ── TIER 1: NLI Classifier ──────────────────────────────────────────
-        logger.info(f"[Tier 1] {checkpoint.checkpoint_type.value}")
-        t1 = self.tier1.classify(checkpoint, threshold=self.t1)
+        logger.info(f"[Tier 1] {cp_type}")
+        # Use a per-type threshold if configured, otherwise fall back to the global T1.
+        t1_threshold = self.t1_thresholds_by_type.get(cp_type, self.t1)
+        t1 = self.tier1.classify(checkpoint, threshold=t1_threshold)
         packet.tier1_result = t1
 
-        if t1.verdict != Verdict.UNCERTAIN:
+        # For skip_nli types, T1 provides signal but never resolves the case.
+        # NLI cannot reliably detect factual errors (wrong numbers, wrong dates,
+        # causal overreach) because it measures textual entailment, not factual
+        # accuracy. High entailment on a numerically wrong claim is common.
+        if cp_type not in self.skip_nli_types and t1.verdict != Verdict.UNCERTAIN:
             packet.resolved_at_tier = 1
             packet.final_verdict = t1.verdict
             logger.info(f"[Tier 1] Resolved: {t1.verdict.value} ({t1.confidence:.3f})")
             return packet
 
-        logger.info(f"[Tier 1] Uncertain ({t1.confidence:.3f}) → escalating")
+        if cp_type in self.skip_nli_types:
+            logger.info(
+                f"[Tier 1] '{cp_type}' is in skip_nli — T1 verdict suppressed "
+                f"({t1.verdict.value} {t1.confidence:.3f}) → escalating to T2"
+            )
+        else:
+            logger.info(f"[Tier 1] Uncertain ({t1.confidence:.3f}) → escalating")
 
         # ── TIER 2: LLM Judge ────────────────────────────────────────────────
         t2 = self.tier2.judge(checkpoint, t1, threshold=self.t2)
         packet.tier2_result = t2
 
         if t2.verdict != Verdict.UNCERTAIN:
-            # ── TIER 2.5: Counterfactual Probe (optional) ───────────────────
-            # Only runs on confident verdicts — probing uncertainty is redundant.
-            if self.counterfactual_probe is not None:
+            # prefer_debate types skip straight to T3 even on a confident T2
+            # verdict. Causal and synthesis cases benefit from adversarial
+            # framing: a single judge over-fires INVALID on valid inferences
+            # because the prompt defaults to strict INVALID-bias. The debate
+            # structure (advocate + critic + judge) reduces this false-positive
+            # rate without sacrificing invalid recall.
+            if cp_type in self.prefer_debate_types:
                 logger.info(
-                    f"[Tier 2.5] Probing confident {t2.verdict.value} verdict "
-                    f"({t2.confidence:.3f}) for disconfirming evidence"
+                    f"[Tier 2] '{cp_type}' is in prefer_debate — "
+                    f"T2 verdict {t2.verdict.value} ({t2.confidence:.3f}) "
+                    f"forwarded to T3 debate"
                 )
-                cf = self.counterfactual_probe.probe(checkpoint, t2, t2_threshold=self.t2)
-                packet.tier2_5_result = cf
+                # Fall through to Tier 3
+            else:
+                # ── TIER 2.5: Counterfactual Probe (optional) ───────────────
+                # Only runs on confident verdicts — probing uncertainty is redundant.
+                if self.counterfactual_probe is not None:
+                    logger.info(
+                        f"[Tier 2.5] Probing confident {t2.verdict.value} verdict "
+                        f"({t2.confidence:.3f}) for disconfirming evidence"
+                    )
+                    cf = self.counterfactual_probe.probe(checkpoint, t2, t2_threshold=self.t2)
+                    packet.tier2_5_result = cf
 
-                if cf.verdict_overridden:
-                    logger.info(
-                        f"[Tier 2.5] Override triggered — disconfirming evidence found: "
-                        f'"{cf.evidence_quote[:80]}..." → escalating to Tier 3'
-                    )
-                    # Fall through to Tier 3 instead of returning here
+                    if cf.verdict_overridden:
+                        logger.info(
+                            f"[Tier 2.5] Override triggered — disconfirming evidence found: "
+                            f'"{cf.evidence_quote[:80]}..." → escalating to Tier 3'
+                        )
+                        # Fall through to Tier 3 instead of returning here
+                    else:
+                        logger.info(
+                            f"[Tier 2.5] No disconfirming evidence found — "
+                            f"Tier 2 verdict {t2.verdict.value} stands"
+                        )
+                        packet.resolved_at_tier = 2
+                        packet.final_verdict = t2.verdict
+                        return packet
                 else:
-                    logger.info(
-                        f"[Tier 2.5] No disconfirming evidence found — "
-                        f"Tier 2 verdict {t2.verdict.value} stands"
-                    )
                     packet.resolved_at_tier = 2
                     packet.final_verdict = t2.verdict
+                    logger.info(f"[Tier 2] Resolved: {t2.verdict.value} ({t2.confidence:.3f})")
                     return packet
-            else:
-                packet.resolved_at_tier = 2
-                packet.final_verdict = t2.verdict
-                logger.info(f"[Tier 2] Resolved: {t2.verdict.value} ({t2.confidence:.3f})")
-                return packet
 
-        logger.info(f"[Tier 2] Uncertain ({t2.confidence:.3f}) → escalating")
+        if t2.verdict == Verdict.UNCERTAIN:
+            logger.info(f"[Tier 2] Uncertain ({t2.confidence:.3f}) → escalating")
 
         # ── TIER 3: Multi-Agent Debate ───────────────────────────────────────
         t3 = self.tier3.debate(checkpoint, t1, t2)
@@ -132,17 +188,22 @@ def build_pipeline(config: dict) -> HeraldPipeline:
     # Tier 2.5 is opt-in via config
     cf_probe = None
     if config.get("counterfactual_probe", {}).get("enabled", False):
-        provider = config.get("provider", "groq").lower()
-        api_key = (
-            config.get("groq_api_key", "")
-            if provider == "groq"
-            else config.get("gemini_api_key", "")
-        )
-        cf_probe = CounterfactualProbe(
-            api_key=api_key,
-            model=config["counterfactual_probe"].get("model", config["tier2"]["model"]),
-        )
+        cf_probe = CounterfactualProbe(config=config)
         logger.info("[Config] Tier 2.5 counterfactual probe enabled")
+
+    # Checkpoint-type routing from config
+    routing = config.get("checkpoint_routing", {})
+    skip_nli_types = set(routing.get("skip_nli", []))
+    prefer_debate_types = set(routing.get("prefer_debate", []))
+    if skip_nli_types:
+        logger.info(f"[Config] skip_nli types: {sorted(skip_nli_types)}")
+    if prefer_debate_types:
+        logger.info(f"[Config] prefer_debate types: {sorted(prefer_debate_types)}")
+
+    # Per-type T1 threshold overrides
+    t1_thresholds_by_type = config.get("thresholds", {}).get("T1_by_type", {})
+    if t1_thresholds_by_type:
+        logger.info(f"[Config] T1 per-type thresholds: {t1_thresholds_by_type}")
 
     return HeraldPipeline(
         tier1=tier1,
@@ -151,4 +212,7 @@ def build_pipeline(config: dict) -> HeraldPipeline:
         t1_threshold=config["thresholds"]["T1"],
         t2_threshold=config["thresholds"]["T2"],
         counterfactual_probe=cf_probe,
+        skip_nli_types=skip_nli_types,
+        prefer_debate_types=prefer_debate_types,
+        t1_thresholds_by_type=t1_thresholds_by_type,
     )
