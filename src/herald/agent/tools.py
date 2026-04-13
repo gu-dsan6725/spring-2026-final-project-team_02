@@ -545,13 +545,23 @@ def run_generate_and_validate(
     anthropic_client: anthropic.Anthropic,
 ) -> dict:
     """Execute generate_and_validate tool — full Phase 0→1→2 pipeline."""
+    import os
+
     from herald.agent.research_agent import ResearchAgent, _task_plan_to_dict
 
-    # Build a minimal config that ResearchAgent can use
-    # The pipeline is already built; we pass its components directly
+    # Determine provider from the existing pipeline's tier2 client
+    provider = getattr(pipeline.tier2.client, "provider", "groq")
+
+    # Build a minimal config that ResearchAgent can use.
+    # Read API keys from the environment — same source load_config uses —
+    # rather than trying to extract them from the pipeline client objects,
+    # which do not expose a public api_key attribute.
     config = {
+        "provider": provider,
         "anthropic_api_key": anthropic_client.api_key,
-        "groq_api_key": pipeline.tier2.client.api_key,
+        "groq_api_key": os.environ.get("GROQ_API_KEY", ""),
+        "gemini_api_key": os.environ.get("GEMINI_API_KEY", ""),
+        "openai_api_key": os.environ.get("OPENAI_API_KEY", ""),
         "tier1": {
             "model_name": pipeline.tier1.model_name,
             "device": getattr(pipeline.tier1, "device", "cpu"),
