@@ -204,6 +204,40 @@ Never force-push to `main`.
    and checks it out for you, or run: `git checkout -b feature/issue-123-description`
 3. Reference the issue in your PR body: `Closes #123` — GitHub auto-closes it on merge
 
+## Run Changelog Convention
+
+Every time the pipeline is modified and re-run on the evaluation dataset, create a
+changelog entry in `docs/runs/` before running:
+
+```
+docs/runs/run_##_changes.md
+```
+
+**Naming:** use the next run number (e.g. `run_07_changes.md` if the last run was 06).
+
+**What to include in each file:**
+- Date, branch, dataset, baseline run number and accuracy
+- Why this run exists — the problem it was trying to fix
+- Every file changed and exactly what changed (before/after for prompts and logic)
+- What was NOT changed (which prior fixes remain active)
+- Expected impact vs the previous run
+- The exact `herald-run` and `herald-eval` commands used
+
+**Index of runs so far:**
+
+| Run | Dataset | Overall Acc | Key change |
+|---|---|---|---|
+| 01 | trial (40 cases) | 67.5% | Initial dev set |
+| 02 | gov_report_v2 (100 cases, unfiltered) | 58.0% | Includes ambiguous labels |
+| 03 | gov_report_v2_100 (100 cases) | — | No saved eval |
+| 04 | gov_report_v2_filtered (306 cases) | 88.9% | Filtered ambiguous labels |
+| 05 | gov_report_v2_filtered (306 cases) | 88.9% | T1 hypothesis reformulation, per-type thresholds |
+| 06 | gov_report_v2_filtered (306 cases) | 83.0% | Routing fixes (skip_nli, prefer_debate, T2 anchor removal) — prefer_debate too aggressive |
+| 07 | gov_report_v2_filtered (306 cases) | TBD | prefer_debate made conditional on T2 conf < 0.92 |
+
+See `docs/runs/` for full changelogs from run 07 onward.
+See `docs/tier-routing-improvements.md` for the detailed design rationale behind runs 05–07.
+
 ## Known Issues / Active Concerns
 - **Groq 429 rate limits:** Switch to `provider: "gemini"` (default) or add `--resume` on reruns.
 - **Gemma models** (e.g., `gemma-3-27b-it`) don't support system prompts or native JSON mode — handled transparently in `GeminiClient`, but JSON parsing relies on regex extraction and may be fragile.

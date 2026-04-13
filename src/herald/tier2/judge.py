@@ -46,10 +46,24 @@ JUDGE_TEMPLATE = """## Agent Output
 
 ## Tier 1 NLI Scores
 {tier1_scores}
-
+{numerical_block}
 Check carefully for: wrong numbers, fabricated details, false causality, \
 unsupported inferences. Default to INVALID if unsure between VALID and INVALID.
 Respond with ONLY valid JSON."""
+
+# Injected into JUDGE_TEMPLATE for numerical and synthesis checkpoint types.
+# Forces the model to enumerate and cross-check every specific value before
+# issuing a verdict — the step it skips when not explicitly prompted.
+_NUMERICAL_VERIFICATION_BLOCK = """
+## Numerical Verification Required
+Before issuing your verdict, work through these steps explicitly:
+1. Extract EVERY number, date, year, percentage, dollar figure, and statistic \
+from the Agent Output above.
+2. For each one, find the corresponding value in the Source Context.
+3. If ANY value does not match exactly — even a single digit or year — verdict \
+MUST be INVALID.
+Do this before writing your reasoning. A single wrong number = INVALID.
+"""
 
 
 def _calibrate_confidence(confidence: float) -> float:
@@ -67,8 +81,8 @@ class LLMJudge:
     """Tier 2: Single LLM judge (Groq, Gemini, or OpenAI)."""
 
     def __init__(self, config: dict):
-        self.client = get_llm_client(config)
-        self.model = config.get("tier2", {}).get("model", "")
+        self.client = get_llm_client(config, tier=2)
+        self.model = self.client.model
 
     def judge(
         self,
@@ -80,10 +94,19 @@ class LLMJudge:
     ) -> TierResult:
         import time
 
+        # Inject the numerical verification block for types where the model
+        # must do explicit value-by-value cross-checking before issuing a verdict.
+        numerical_types = {"numerical", "synthesis"}
+        numerical_block = (
+            _NUMERICAL_VERIFICATION_BLOCK
+            if checkpoint.checkpoint_type.value in numerical_types
+            else ""
+        )
         prompt = JUDGE_TEMPLATE.format(
             output_text=checkpoint.output_text,
             source_context=checkpoint.source_context,
             tier1_scores=json.dumps(tier1_result.raw_scores, indent=2),
+            numerical_block=numerical_block,
         )
 
         for attempt in range(max_retries):
@@ -111,6 +134,8 @@ class LLMJudge:
                         "calibrated_confidence": confidence,
                         "key_issues": result.get("key_issues", []),
                         "provider": response.provider,
+                        "input_tokens": response.input_tokens,
+                        "output_tokens": response.output_tokens,
                     },
                 )
             except Exception as e:

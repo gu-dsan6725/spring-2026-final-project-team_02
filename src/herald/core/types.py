@@ -40,6 +40,8 @@ class CounterfactualResult:
     evidence_quote: str  # The relevant quote, or empty string if not found
     verdict_overridden: bool  # True if a confident Tier 2 verdict was flipped to UNCERTAIN
     reasoning: str  # Probe's explanation
+    input_tokens: int = 0
+    output_tokens: int = 0
 
 
 @dataclass
@@ -51,6 +53,8 @@ class DebateResult:
     judge_verdict: Verdict
     judge_confidence: float
     judge_reasoning: str
+    input_tokens: int = 0
+    output_tokens: int = 0
 
 
 @dataclass
@@ -75,6 +79,9 @@ class EscalationPacket:
     tier3_result: DebateResult | None = None
     resolved_at_tier: int | None = None
     final_verdict: Verdict | None = None
+    llm_calls: int = 0
+    total_input_tokens: int = 0
+    total_output_tokens: int = 0
 
 
 # ── Phase 0: Task Analysis types ────────────────────────────────────────────

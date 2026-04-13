@@ -18,6 +18,8 @@ class LLMResponse:
     content: str
     model: str
     provider: str
+    input_tokens: int = 0
+    output_tokens: int = 0
 
 
 class GroqClient:
@@ -52,10 +54,13 @@ class GroqClient:
             temperature=temperature,
             **kwargs,
         )
+        usage = response.usage
         return LLMResponse(
             content=response.choices[0].message.content,
             model=self.model,
             provider="groq",
+            input_tokens=usage.prompt_tokens if usage else 0,
+            output_tokens=usage.completion_tokens if usage else 0,
         )
 
 
@@ -131,7 +136,14 @@ class GeminiClient:
             config=config,
         )
         content = self._extract_json_from_text(response.text) if json_mode else response.text
-        return LLMResponse(content=content, model=self.model, provider="gemini")
+        usage = getattr(response, "usage_metadata", None)
+        return LLMResponse(
+            content=content,
+            model=self.model,
+            provider="gemini",
+            input_tokens=getattr(usage, "prompt_token_count", 0) or 0,
+            output_tokens=getattr(usage, "candidates_token_count", 0) or 0,
+        )
 
 
 class OpenAIClient:
@@ -166,16 +178,38 @@ class OpenAIClient:
             temperature=temperature,
             **kwargs,
         )
+        usage = response.usage
         return LLMResponse(
             content=response.choices[0].message.content,
             model=self.model,
             provider="openai",
+            input_tokens=usage.prompt_tokens if usage else 0,
+            output_tokens=usage.completion_tokens if usage else 0,
         )
 
 
-def get_llm_client(config: dict):
-    """Build the right LLM client from config."""
+def get_llm_client(config: dict, tier: int = 2):
+    """Build the right LLM client from config.
+
+    Args:
+        config: The full HERALD config dict.
+        tier:   Which tier's model config to use (2 or 3). Defaults to 2.
+                Tier 2 and Tier 3 can now use different models — set
+                ``tier2.model`` and ``tier3.model`` independently in
+                configs/default.yaml. If ``tier3.model`` is not set,
+                falls back to ``tier2.model``.
+    """
     provider = config.get("provider", "groq").lower()
+
+    # Resolve model: tier-specific first, then fall back to tier2 default
+    tier_key = f"tier{tier}"
+    fallback_model_defaults = {
+        "gemini": "gemini-2.0-flash",
+        "groq": "llama-3.3-70b-versatile",
+        "openai": "gpt-4o-mini",
+    }
+    tier2_model = config.get("tier2", {}).get("model", fallback_model_defaults.get(provider, ""))
+    model = config.get(tier_key, {}).get("model") or tier2_model
 
     if provider == "gemini":
         api_key = config.get("gemini_api_key") or os.environ.get("GEMINI_API_KEY", "")
@@ -184,21 +218,18 @@ def get_llm_client(config: dict):
                 "GEMINI_API_KEY not set. Add it to your .env file.\n"
                 "Get a free key at https://aistudio.google.com/apikey"
             )
-        model = config.get("tier2", {}).get("model", "gemini-2.0-flash")
         return GeminiClient(api_key=api_key, model=model)
 
     elif provider == "groq":
         api_key = config.get("groq_api_key", "")
         if not api_key:
             raise ValueError("GROQ_API_KEY not set. Add it to your .env file.")
-        model = config.get("tier2", {}).get("model", "llama-3.3-70b-versatile")
         return GroqClient(api_key=api_key, model=model)
 
     elif provider == "openai":
         api_key = config.get("openai_api_key") or os.environ.get("OPENAI_API_KEY", "")
         if not api_key:
             raise ValueError("OPENAI_API_KEY not set. Add it to your .env file.")
-        model = config.get("tier2", {}).get("model", "gpt-4o-mini")
         return OpenAIClient(api_key=api_key, model=model)
 
     else:

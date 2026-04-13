@@ -21,17 +21,28 @@ tier3:
   # model: "gpt-4o-mini"
 
 thresholds:
-  T1: 0.70  # Tier 1 → Tier 2 escalation (start here, tune later)
+  T1: 0.70  # Tier 1 → Tier 2 escalation (global default)
   T2: 0.80  # Tier 2 → Tier 3 escalation
+
+  # Per-type T1 overrides — applied instead of T1 for matching checkpoint types.
+  # Higher thresholds force more escalation to T2 for types where NLI is
+  # unreliable. Note: these are only meaningful for types NOT in skip_nli
+  # (skip_nli suppresses T1 resolution entirely, making the threshold moot).
+  # Use these for types like numerical/synthesis that aren't fully skipped but
+  # still benefit from a stricter confidence bar before T1 can resolve.
+  T1_by_type:
+    numerical: 0.85   # Wrong numbers get high entailment scores — demand more certainty
+    synthesis: 0.85   # Multi-claim outputs are harder for NLI to score holistically
 
 # Tier 2.5: Counterfactual probe
 # Addresses correlated model bias: after a confident Tier 2 verdict, asks the
 # model what disconfirming evidence would look like, then checks for it in source.
 # If found, overrides verdict to UNCERTAIN and escalates to Tier 3.
-# Set enabled: false when running large batches to conserve Groq rate limit quota.
+# Set enabled: false when running large batches to save API quota.
 counterfactual_probe:
   enabled: true
-  model: "llama-3.3-70b-versatile"  # Can use a different model to reduce correlation
+  # model: "gemini-2.0-flash"  # Optional: override to a different model to reduce correlation bias.
+  #                               Defaults to the tier2 model when omitted.
 
 # Phase 0: Task analysis settings
 # Uses a lighter Claude model to analyze the task before execution.
