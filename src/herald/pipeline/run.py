@@ -87,6 +87,9 @@ def main():
             "tier3_confidence": round(packet.tier3_result.judge_confidence, 3)
             if packet.tier3_result
             else None,
+            "llm_calls": packet.llm_calls,
+            "input_tokens": packet.total_input_tokens,
+            "output_tokens": packet.total_output_tokens,
         }
         results.append(result)
 

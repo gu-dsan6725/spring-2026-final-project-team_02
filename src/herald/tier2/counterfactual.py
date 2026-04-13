@@ -131,6 +131,8 @@ class CounterfactualProbe:
                     evidence_quote=evidence_quote,
                     verdict_overridden=verdict_overridden,
                     reasoning=result.get("reasoning", ""),
+                    input_tokens=response.input_tokens,
+                    output_tokens=response.output_tokens,
                 )
 
             except Exception as e:

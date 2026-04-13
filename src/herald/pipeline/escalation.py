@@ -22,6 +22,7 @@ These sets are read once at construction and used inside ``validate()``.
 
 import logging
 
+from herald.core.telemetry import configure_otel, get_tracer, timed_span
 from herald.core.types import (
     CheckpointOutput,
     EscalationPacket,
@@ -34,6 +35,8 @@ from herald.tier3.debate import MultiAgentDebate
 from herald.tier4.human_review import save_packet
 
 logger = logging.getLogger("herald")
+configure_otel()
+_tracer = get_tracer("herald.pipeline")
 
 
 class HeraldPipeline:
@@ -78,11 +81,34 @@ class HeraldPipeline:
         packet = EscalationPacket(checkpoint=checkpoint)
         cp_type = checkpoint.checkpoint_type.value
 
+        with timed_span(
+            _tracer,
+            "herald.validate",
+            {"herald.checkpoint_type": cp_type},
+        ) as root_span:
+            result = self._validate_inner(checkpoint, packet, cp_type, root_span)
+        return result
+
+    def _validate_inner(
+        self,
+        checkpoint: CheckpointOutput,
+        packet: EscalationPacket,
+        cp_type: str,
+        root_span,
+    ) -> EscalationPacket:
+        """Inner validation logic — separated so the OTel span wraps the whole call."""
         # ── TIER 1: NLI Classifier ──────────────────────────────────────────
         logger.info(f"[Tier 1] {cp_type}")
         # Use a per-type threshold if configured, otherwise fall back to the global T1.
         t1_threshold = self.t1_thresholds_by_type.get(cp_type, self.t1)
-        t1 = self.tier1.classify(checkpoint, threshold=t1_threshold)
+        with timed_span(_tracer, "herald.tier1", {"herald.checkpoint_type": cp_type}) as span:
+            t1 = self.tier1.classify(checkpoint, threshold=t1_threshold)
+            span.set_attribute("herald.tier1.verdict", t1.verdict.value)
+            span.set_attribute("herald.tier1.confidence", round(t1.confidence, 4))
+            span.set_attribute(
+                "herald.tier1.numeric_guard_fired",
+                t1.raw_scores.get("numeric_guard_fired", False),
+            )
         packet.tier1_result = t1
 
         # For skip_nli types, T1 provides signal but never resolves the case.
@@ -93,6 +119,8 @@ class HeraldPipeline:
             packet.resolved_at_tier = 1
             packet.final_verdict = t1.verdict
             logger.info(f"[Tier 1] Resolved: {t1.verdict.value} ({t1.confidence:.3f})")
+            root_span.set_attribute("herald.resolved_at_tier", 1)
+            root_span.set_attribute("herald.final_verdict", t1.verdict.value)
             return packet
 
         if cp_type in self.skip_nli_types:
@@ -104,8 +132,14 @@ class HeraldPipeline:
             logger.info(f"[Tier 1] Uncertain ({t1.confidence:.3f}) → escalating")
 
         # ── TIER 2: LLM Judge ────────────────────────────────────────────────
-        t2 = self.tier2.judge(checkpoint, t1, threshold=self.t2)
+        with timed_span(_tracer, "herald.tier2", {"herald.checkpoint_type": cp_type}) as span:
+            t2 = self.tier2.judge(checkpoint, t1, threshold=self.t2)
+            span.set_attribute("herald.tier2.verdict", t2.verdict.value)
+            span.set_attribute("herald.tier2.confidence", round(t2.confidence, 4))
         packet.tier2_result = t2
+        packet.llm_calls += 1
+        packet.total_input_tokens += t2.raw_scores.get("input_tokens", 0)
+        packet.total_output_tokens += t2.raw_scores.get("output_tokens", 0)
 
         if t2.verdict != Verdict.UNCERTAIN:
             # ── TIER 2.5: Counterfactual Probe (optional) ───────────────────
@@ -124,6 +158,9 @@ class HeraldPipeline:
                 cf = self.counterfactual_probe.probe(checkpoint, t2, t2_threshold=self.t2)
                 packet.tier2_5_result = cf
                 cf_overridden = cf.verdict_overridden
+                packet.llm_calls += 1
+                packet.total_input_tokens += cf.input_tokens
+                packet.total_output_tokens += cf.output_tokens
 
                 if cf_overridden:
                     logger.info(
@@ -158,19 +195,29 @@ class HeraldPipeline:
                     packet.resolved_at_tier = 2
                     packet.final_verdict = t2.verdict
                     logger.info(f"[Tier 2] Resolved: {t2.verdict.value} ({t2.confidence:.3f})")
+                    root_span.set_attribute("herald.resolved_at_tier", 2)
+                    root_span.set_attribute("herald.final_verdict", t2.verdict.value)
                     return packet
 
         if t2.verdict == Verdict.UNCERTAIN:
             logger.info(f"[Tier 2] Uncertain ({t2.confidence:.3f}) → escalating")
 
         # ── TIER 3: Multi-Agent Debate ───────────────────────────────────────
-        t3 = self.tier3.debate(checkpoint, t1, t2)
+        with timed_span(_tracer, "herald.tier3", {"herald.checkpoint_type": cp_type}) as span:
+            t3 = self.tier3.debate(checkpoint, t1, t2)
+            span.set_attribute("herald.tier3.verdict", t3.judge_verdict.value)
+            span.set_attribute("herald.tier3.confidence", round(t3.judge_confidence, 4))
         packet.tier3_result = t3
+        packet.llm_calls += 3  # advocate + critic + judge
+        packet.total_input_tokens += t3.input_tokens
+        packet.total_output_tokens += t3.output_tokens
 
         if t3.judge_verdict != Verdict.UNCERTAIN:
             packet.resolved_at_tier = 3
             packet.final_verdict = t3.judge_verdict
             logger.info(f"[Tier 3] Resolved: {t3.judge_verdict.value} ({t3.judge_confidence:.3f})")
+            root_span.set_attribute("herald.resolved_at_tier", 3)
+            root_span.set_attribute("herald.final_verdict", t3.judge_verdict.value)
             return packet
 
         logger.info("[Tier 3] Uncertain → escalating to human review")
@@ -180,6 +227,8 @@ class HeraldPipeline:
         packet.final_verdict = Verdict.UNCERTAIN
         filepath = save_packet(packet)
         logger.info(f"[Tier 4] Review packet saved: {filepath}")
+        root_span.set_attribute("herald.resolved_at_tier", 4)
+        root_span.set_attribute("herald.final_verdict", "uncertain")
 
         return packet
 

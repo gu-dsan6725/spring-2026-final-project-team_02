@@ -76,8 +76,8 @@ class MultiAgentDebate:
     """Tier 3: Structured Advocate/Critic/Judge debate."""
 
     def __init__(self, config: dict):
-        self.client = get_llm_client(config)
-        self.model = config.get("tier3", {}).get("model", "")
+        self.client = get_llm_client(config, tier=3)
+        self.model = self.client.model
 
     def debate(
         self,
@@ -100,29 +100,33 @@ class MultiAgentDebate:
 
         for attempt in range(max_retries):
             try:
-                advocate = self.client.complete(
+                advocate_resp = self.client.complete(
                     ADVOCATE_PROMPT.format(**advocate_ctx), temperature=0.3
-                ).content
-                critic = self.client.complete(
+                )
+                critic_resp = self.client.complete(
                     CRITIC_PROMPT.format(**advocate_ctx), temperature=0.3
-                ).content
+                )
                 judge_resp = self.client.complete(
                     DEBATE_JUDGE_PROMPT.format(
                         **advocate_ctx,
-                        advocate_argument=advocate,
-                        critic_argument=critic,
+                        advocate_argument=advocate_resp.content,
+                        critic_argument=critic_resp.content,
                         tier2_reasoning=tier2_result.reasoning,
                     ),
                     json_mode=True,
                     temperature=0.1,
                 )
                 result = json.loads(judge_resp.content)
+                total_in = advocate_resp.input_tokens + critic_resp.input_tokens + judge_resp.input_tokens
+                total_out = advocate_resp.output_tokens + critic_resp.output_tokens + judge_resp.output_tokens
                 return DebateResult(
-                    advocate_argument=advocate,
-                    critic_argument=critic,
+                    advocate_argument=advocate_resp.content,
+                    critic_argument=critic_resp.content,
                     judge_verdict=Verdict(result["verdict"].lower()),
                     judge_confidence=float(result["confidence"]),
                     judge_reasoning=result["reasoning"],
+                    input_tokens=total_in,
+                    output_tokens=total_out,
                 )
             except Exception as e:
                 if attempt < max_retries - 1:

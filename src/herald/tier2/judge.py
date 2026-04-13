@@ -81,8 +81,8 @@ class LLMJudge:
     """Tier 2: Single LLM judge (Groq, Gemini, or OpenAI)."""
 
     def __init__(self, config: dict):
-        self.client = get_llm_client(config)
-        self.model = config.get("tier2", {}).get("model", "")
+        self.client = get_llm_client(config, tier=2)
+        self.model = self.client.model
 
     def judge(
         self,
@@ -134,6 +134,8 @@ class LLMJudge:
                         "calibrated_confidence": confidence,
                         "key_issues": result.get("key_issues", []),
                         "provider": response.provider,
+                        "input_tokens": response.input_tokens,
+                        "output_tokens": response.output_tokens,
                     },
                 )
             except Exception as e:
