@@ -39,7 +39,7 @@ def stratified_split(
     train_cases: list[dict] = []
     test_cases: list[dict] = []
 
-    for cp_type, group in sorted(buckets.items()):  # sorted for determinism
+    for _cp_type, group in sorted(buckets.items()):  # sorted for determinism
         shuffled = list(group)
         rng.shuffle(shuffled)
         n_test = max(1, round(len(shuffled) * test_size))
@@ -60,7 +60,7 @@ def print_split_summary(train: list[dict], test: list[dict]) -> None:
 
     total = len(train) + len(test)
     print(f"\n{'='*55}")
-    print(f"HERALD Train/Test Split  (seed=42, stratified by type)")
+    print("HERALD Train/Test Split  (seed=42, stratified by type)")
     print(f"{'='*55}")
     print(f"  Total : {total}")
     print(f"  Train : {len(train)} ({len(train)/total:.0%})")
