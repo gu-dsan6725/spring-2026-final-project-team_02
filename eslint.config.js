@@ -39,6 +39,15 @@ module.exports = [
   },
   {
     files: ['tests/**/*.ts'],
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        project: path.resolve(__dirname, 'tsconfig.json'),
+      },
+    },
     rules: {
       'no-console': 'off',
     },
