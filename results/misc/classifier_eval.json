@@ -1,0 +1,102 @@
+{
+  "input": "data/test_sets/gov_report_v2_filtered.json",
+  "n_cases": 306,
+  "metrics": {
+    "rule_based": {
+      "overall_accuracy": 0.415,
+      "n_correct": 127,
+      "n_total": 306,
+      "avg_latency_s": 0.0,
+      "per_type": {
+        "causal": {
+          "support": 46,
+          "tp": 20,
+          "fp": 38,
+          "fn": 26,
+          "precision": 0.345,
+          "recall": 0.435
+        },
+        "claim_extraction": {
+          "support": 72,
+          "tp": 53,
+          "fp": 118,
+          "fn": 19,
+          "precision": 0.31,
+          "recall": 0.736
+        },
+        "numerical": {
+          "support": 80,
+          "tp": 35,
+          "fp": 14,
+          "fn": 45,
+          "precision": 0.714,
+          "recall": 0.438
+        },
+        "retrieval": {
+          "support": 10,
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0
+        },
+        "synthesis": {
+          "support": 98,
+          "tp": 9,
+          "fp": 8,
+          "fn": 89,
+          "precision": 0.529,
+          "recall": 0.092
+        }
+      }
+    },
+    "llm": {
+      "overall_accuracy": 0.4346,
+      "n_correct": 133,
+      "n_total": 306,
+      "avg_latency_s": 3.104,
+      "per_type": {
+        "causal": {
+          "support": 46,
+          "tp": 16,
+          "fp": 15,
+          "fn": 30,
+          "precision": 0.516,
+          "recall": 0.348
+        },
+        "claim_extraction": {
+          "support": 72,
+          "tp": 38,
+          "fp": 80,
+          "fn": 34,
+          "precision": 0.322,
+          "recall": 0.528
+        },
+        "numerical": {
+          "support": 80,
+          "tp": 40,
+          "fp": 34,
+          "fn": 40,
+          "precision": 0.541,
+          "recall": 0.5
+        },
+        "retrieval": {
+          "support": 10,
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0
+        },
+        "synthesis": {
+          "support": 98,
+          "tp": 29,
+          "fp": 42,
+          "fn": 69,
+          "precision": 0.408,
+          "recall": 0.296
+        }
+      }
+    }
+  }
+}

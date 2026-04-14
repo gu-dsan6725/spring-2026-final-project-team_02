@@ -49,6 +49,7 @@ logger = logging.getLogger("herald.mcp")
 
 _pipeline = None
 _config = None
+_classifier = None  # lazy-loaded on first "auto" call
 
 
 def _get_pipeline():
@@ -70,6 +71,25 @@ def _get_pipeline():
     return _pipeline
 
 
+def _get_classifier():
+    """Return the checkpoint-type classifier configured for this server.
+
+    Reads HERALD_CLASSIFIER env var: "rule_based" (default) or "llm".
+    The LLM classifier uses the same provider/model as the rest of HERALD.
+    """
+    global _classifier
+    if _classifier is not None:
+        return _classifier
+
+    from herald.routing.checkpoint_type_classifier import get_classifier
+
+    method = os.environ.get("HERALD_CLASSIFIER", "rule_based")
+    _get_pipeline()  # ensure _config is populated
+    _classifier = get_classifier(method=method, config=_config)
+    logger.info(f"[MCP] Checkpoint-type classifier: {method}")
+    return _classifier
+
+
 # ── In-session result store ───────────────────────────────────────────────────
 
 _result_store: dict[str, dict] = {}
@@ -84,14 +104,13 @@ def _store_result(result: dict) -> str:
 # ── Server ────────────────────────────────────────────────────────────────────
 
 
-def create_server():
+def create_server(host: str = "0.0.0.0", port: int = 8000):
     """Build and return the FastMCP server instance."""
     try:
         from mcp.server.fastmcp import FastMCP
     except ImportError as err:
         raise ImportError(
-            "fastmcp is not installed. Run: uv add mcp\n"
-            "See https://gofastmcp.com for docs."
+            "fastmcp is not installed. Run: uv add mcp\nSee https://gofastmcp.com for docs."
         ) from err
 
     from herald.core.types import CheckpointOutput, CheckpointType
@@ -104,6 +123,8 @@ def create_server():
             "Use validate_batch for multiple outputs at once. "
             "Use explain_verdict to understand why a verdict was reached."
         ),
+        host=host,
+        port=port,
     )
 
     # ── Tool: validate_checkpoint ─────────────────────────────────────────────
@@ -112,7 +133,7 @@ def create_server():
     def validate_checkpoint(
         output_text: str,
         source_context: str,
-        checkpoint_type: str,
+        checkpoint_type: str = "auto",
         query: str = "",
     ) -> dict:
         """Run HERALD 4-tier validation on a single LLM output.
@@ -120,20 +141,40 @@ def create_server():
         Args:
             output_text:      The agent's output text to validate.
             source_context:   The source material the output must be grounded in.
-            checkpoint_type:  One of: retrieval, claim_extraction, synthesis,
+            checkpoint_type:  One of: auto, retrieval, claim_extraction, synthesis,
                               numerical, causal, epistemic.
+                              Use "auto" (default) to let HERALD infer the type.
             query:            Optional original research question.
 
         Returns a dict with verdict (valid/invalid/uncertain), resolved_at_tier,
         confidence, reasoning, and a result_id for use with explain_verdict.
+        When checkpoint_type="auto", also includes inferred_checkpoint_type and
+        classifier_confidence so callers can audit the routing decision.
         """
         pipeline = _get_pipeline()
 
-        try:
-            cp_type = CheckpointType(checkpoint_type)
-        except ValueError:
-            valid = [e.value for e in CheckpointType]
-            return {"error": f"Unknown checkpoint_type '{checkpoint_type}'. Valid: {valid}"}
+        inferred_type_info: dict = {}
+
+        if checkpoint_type == "auto":
+            classifier = _get_classifier()
+            cr = classifier.classify(output_text=output_text, query=query)
+            cp_type = cr.checkpoint_type
+            inferred_type_info = {
+                "inferred_checkpoint_type": cp_type.value,
+                "classifier_confidence": round(cr.confidence, 3),
+                "classifier_rationale": cr.rationale,
+                "classifier_method": cr.method,
+            }
+            logger.info(
+                f"[MCP] Auto-classified as {cp_type.value!r} "
+                f"(conf={cr.confidence:.2f}, method={cr.method})"
+            )
+        else:
+            try:
+                cp_type = CheckpointType(checkpoint_type)
+            except ValueError:
+                valid = ["auto"] + [e.value for e in CheckpointType]
+                return {"error": f"Unknown checkpoint_type '{checkpoint_type}'. Valid: {valid}"}
 
         checkpoint = CheckpointOutput(
             checkpoint_type=cp_type,
@@ -146,7 +187,8 @@ def create_server():
         result = {
             "verdict": packet.final_verdict.value,
             "resolved_at_tier": packet.resolved_at_tier,
-            "checkpoint_type": checkpoint_type,
+            "checkpoint_type": cp_type.value,
+            **inferred_type_info,
         }
 
         if packet.tier1_result:
@@ -291,9 +333,9 @@ def main():
     )
     args = parser.parse_args()
 
-    server = create_server()
+    server = create_server(host=args.host, port=args.port)
     logger.info(f"[MCP] Starting HERALD MCP server on {args.host}:{args.port} ({args.transport})")
-    server.run(transport=args.transport, host=args.host, port=args.port)
+    server.run(transport=args.transport)
 
 
 if __name__ == "__main__":
