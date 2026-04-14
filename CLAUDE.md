@@ -221,7 +221,28 @@ docs/runs/run_##_changes.md
 - Every file changed and exactly what changed (before/after for prompts and logic)
 - What was NOT changed (which prior fixes remain active)
 - Expected impact vs the previous run
-- The exact `herald-run` and `herald-eval` commands used
+- The exact `herald-run` and `herald-eval` commands to run this experiment —
+  always at the end of the file under a `## Commands` section, copy-pasteable:
+
+```bash
+uv run herald-run \
+  --input data/test_sets/gov_report_v2_filtered.json \
+  --config configs/default.yaml \
+  --output results/runs/run_##_govreport_v2/results.json \
+  --verbose
+
+# If interrupted by rate limits:
+uv run herald-run \
+  --input data/test_sets/gov_report_v2_filtered.json \
+  --config configs/default.yaml \
+  --output results/runs/run_##_govreport_v2/results.json \
+  --verbose --resume
+
+uv run herald-eval \
+  --results results/runs/run_##_govreport_v2/results.json \
+  --ground-truth data/test_sets/gov_report_v2_filtered.json \
+  --output results/evaluation/run_##_govreport_v2_eval.json
+```
 
 **Index of runs so far:**
 
@@ -234,6 +255,7 @@ docs/runs/run_##_changes.md
 | 05 | gov_report_v2_filtered (306 cases) | 88.9% | T1 hypothesis reformulation, per-type thresholds |
 | 06 | gov_report_v2_filtered (306 cases) | 83.0% | Routing fixes (skip_nli, prefer_debate, T2 anchor removal) — prefer_debate too aggressive |
 | 07 | gov_report_v2_filtered (306 cases) | TBD | prefer_debate made conditional on T2 conf < 0.92 |
+| 08 | gov_report_v2_filtered (306 cases) | TBD | Numeric guard in T1, OTel+Braintrust, per-tier models, FastMCP server |
 
 See `docs/runs/` for full changelogs from run 07 onward.
 See `docs/tier-routing-improvements.md` for the detailed design rationale behind runs 05–07.

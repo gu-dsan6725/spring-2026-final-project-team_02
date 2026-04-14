@@ -31,8 +31,13 @@ from langgraph.graph.message import add_messages
 # ── ensure the src/ tree is importable when run directly ─────────────────────
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from herald.core.types import CheckpointOutput, CheckpointType, Verdict
-from herald.pipeline.escalation import build_pipeline
+# Load .env from the project root before any HERALD imports touch os.environ
+from dotenv import load_dotenv  # noqa: E402
+
+load_dotenv(Path(__file__).parent.parent / ".env")
+
+from herald.core.types import CheckpointOutput, CheckpointType, Verdict  # noqa: E402
+from herald.pipeline.escalation import build_pipeline  # noqa: E402
 
 # ── Config ────────────────────────────────────────────────────────────────────
 CONFIG_PATH = Path(__file__).parent.parent / "configs" / "default.yaml"
@@ -163,15 +168,18 @@ def retrieve(state: AgentState) -> AgentState:
     doc = _pick_doc(state["query"], state["retry_count"])
     msg = f"[retrieve] Fetched: '{doc['title']}'"
     print(f"\n  {msg}")
-    return {**state, "retrieved_doc": doc, "log": [msg]}
+    # Increment retry_count here (not in the router) so LangGraph persists it
+    return {**state, "retrieved_doc": doc, "retry_count": state["retry_count"] + 1, "log": [msg]}
 
 
 def validate_retrieval(state: AgentState) -> AgentState:
     doc = state["retrieved_doc"]
+    # output_text = the retrieved doc; source_context = the query it should answer.
+    # HERALD checks: "does this document actually address the user's question?"
     checkpoint = CheckpointOutput(
         checkpoint_type=CheckpointType.RETRIEVAL,
         output_text=doc["body"],
-        source_context=f"User query: {state['query']}",
+        source_context=state["query"],
         query=state["query"],
     )
     packet = _pipeline.validate(checkpoint)
@@ -232,13 +240,12 @@ def emit_answer(state: AgentState) -> AgentState:
 
 def route_after_retrieval(state: AgentState) -> str:
     verdict = state["herald_verdict"]
-    if verdict == Verdict.INVALID.value and state["retry_count"] < MAX_RETRIES:
+    # retry_count was already incremented by retrieve(), so compare directly
+    if verdict == Verdict.INVALID.value and state["retry_count"] <= MAX_RETRIES:
         print(
             f"  --> HERALD says INVALID → Retrying retrieval "
-            f"(attempt {state['retry_count'] + 1}/{MAX_RETRIES})"
+            f"(attempt {state['retry_count']}/{MAX_RETRIES})"
         )
-        # Mutate retry_count before the edge so the next retrieve() sees it
-        state["retry_count"] += 1
         return "retry_retrieve"
     elif verdict == Verdict.INVALID.value:
         print("  --> HERALD says INVALID but max retries reached → proceeding anyway")
