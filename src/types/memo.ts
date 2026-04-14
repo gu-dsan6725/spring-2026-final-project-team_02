@@ -11,6 +11,7 @@ export interface MemoInput {
   known_sources?: string[];
   template?: string;
   uploaded_files?: File[];
+  uploaded_file_paths?: string[];
   max_tool_calls?: number;
   max_research_tokens?: number;
 }

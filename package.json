@@ -79,5 +79,8 @@
     "prettier": "^3.8.2",
     "typescript": "^6.0.2",
     "vitest": "^4.1.4"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.89.0"
   }
 }
