@@ -11,16 +11,26 @@ tier1:
   device: "cpu"  # "cuda" if you have a GPU, "mps" for Apple Silicon
 
 tier2:
-  model: "gemma-3-27b-it"   # used when provider: gemini (14,400 RPD free tier)
+  model: "gemma-3-27b-it"       # used when provider: gemini (14,400 RPD free tier)
+  # model: "gemini-2.0-flash"   # faster/cheaper option; good for T2 single-judge calls
   # model: "llama-3.3-70b-versatile"  # used when provider: groq
-  # model: "gpt-4o-mini"  # used when provider: openai
+  # model: "gpt-4o-mini"        # used when provider: openai
 
 tier3:
-  model: "gemma-3-27b-it"   # 3 calls per debate (advocate/critic/judge)
+  # Tier 3 makes 3 API calls per case (advocate + critic + judge).
+  # Using a stronger model here than Tier 2 improves debate quality on hard cases.
+  # Using the same model is fine for cost-constrained runs.
+  model: "gemma-3-27b-it"
+  # model: "gemini-2.5-pro-preview-03-25"  # stronger reasoning for hard debates
   # model: "llama-3.3-70b-versatile"
-  # model: "gpt-4o-mini"
+  # model: "gpt-4o"
 
 thresholds:
+  # METHODOLOGY NOTE: Thresholds below were derived by sweeping on the full
+  # gov_report_v2_filtered dataset (runs 04–07). Now that train/test splits
+  # exist (data/test_sets/train.json and test.json), any future threshold
+  # tuning must be done on train.json only. Test set is held out for final
+  # reporting. Use notebooks/sweep_and_evaluate.py for a clean train→test flow.
   T1: 0.70  # Tier 1 → Tier 2 escalation (global default)
   T2: 0.80  # Tier 2 → Tier 3 escalation
 

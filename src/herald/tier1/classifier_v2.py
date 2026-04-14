@@ -72,7 +72,6 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 from herald.core.types import CheckpointOutput, CheckpointType, TierResult, Verdict
 
-
 # Lever 1: per-type hypothesis prefixes.
 _HYPOTHESIS_PREFIXES: dict[CheckpointType, str] = {
     CheckpointType.RETRIEVAL: "The source document contains the following information: ",
