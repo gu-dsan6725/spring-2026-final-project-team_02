@@ -560,12 +560,6 @@ def run_generate_and_validate(
         "tier3": {"model": pipeline.tier3.model},
         "thresholds": {"T1": pipeline.t1, "T2": pipeline.t2},
     }
-    if pipeline.counterfactual_probe is not None:
-        config["counterfactual_probe"] = {
-            "enabled": True,
-            "model": pipeline.counterfactual_probe.model,
-        }
-
     try:
         agent = ResearchAgent(config=config)
         result = agent.run(

@@ -44,15 +44,12 @@ thresholds:
     numerical: 0.85   # Wrong numbers get high entailment scores — demand more certainty
     synthesis: 0.85   # Multi-claim outputs are harder for NLI to score holistically
 
-# Tier 2.5: Counterfactual probe
-# Addresses correlated model bias: after a confident Tier 2 verdict, asks the
-# model what disconfirming evidence would look like, then checks for it in source.
-# If found, overrides verdict to UNCERTAIN and escalates to Tier 3.
-# Set enabled: false when running large batches to save API quota.
+# Tier 2.5: Counterfactual probe — disabled.
+# Removed: same-model probing doesn't escape correlated blind spots, and the
+# extra LLM call per confident T2 verdict added cost without measurable accuracy
+# gain. The adversarial self-check is now baked into the JUDGE_SYSTEM prompt.
 counterfactual_probe:
-  enabled: true
-  # model: "gemini-2.0-flash"  # Optional: override to a different model to reduce correlation bias.
-  #                               Defaults to the tier2 model when omitted.
+  enabled: false
 
 # Phase 0: Task analysis settings
 # Uses a lighter Claude model to analyze the task before execution.

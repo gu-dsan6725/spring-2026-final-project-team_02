@@ -26,6 +26,12 @@ what is explicitly stated. Defensible but not directly entailed.
 3. VALID    — only if every factual claim in the output is directly and explicitly \
 supported by the source. No assumptions, no extensions.
 
+Before issuing your verdict, steelman the opposite conclusion:
+- If you are leaning VALID, ask: what specific number, date, or claim in the output \
+could be wrong? Search the source for disconfirming evidence before deciding.
+- If you are leaning INVALID, ask: is the output a reasonable direct inference? \
+Does the source actually contradict it, or just not state it explicitly?
+
 Confidence rules:
 - Use the FULL range 0.0–1.0. Do not default to 0.8 or 0.9.
 - High confidence (>0.90): you can point to specific text that proves your verdict.

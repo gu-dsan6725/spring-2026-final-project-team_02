@@ -256,27 +256,12 @@ class BatchValidator:
         packet.tier1_result = fake_t1
 
         if t2.verdict != Verdict.UNCERTAIN:
-            # Optionally run Tier 2.5 counterfactual probe
-            if self.pipeline.counterfactual_probe is not None:
-                cf = self.pipeline.counterfactual_probe.probe(
-                    checkpoint, t2, t2_threshold=self.pipeline.t2
-                )
-                packet.tier2_result = t2
-                packet.tier2_5_result = cf
-                if cf.verdict_overridden:
-                    # Fall through to Tier 3
-                    pass
-                else:
-                    packet.resolved_at_tier = 2
-                    packet.final_verdict = t2.verdict
-                    return packet
-            else:
-                packet.tier2_result = t2
-                packet.resolved_at_tier = 2
-                packet.final_verdict = t2.verdict
-                return packet
+            packet.tier2_result = t2
+            packet.resolved_at_tier = 2
+            packet.final_verdict = t2.verdict
+            return packet
 
-        # Tier 2 uncertain (or overridden by 2.5) — escalate to Tier 3
+        # Tier 2 uncertain — escalate to Tier 3
         packet.tier2_result = t2
         t3 = self.pipeline.tier3.debate(checkpoint, fake_t1, t2)
         packet.tier3_result = t3

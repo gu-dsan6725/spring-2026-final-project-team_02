@@ -29,7 +29,6 @@ from herald.core.types import (
     Verdict,
 )
 from herald.tier1.classifier import NLIClassifier
-from herald.tier2.counterfactual import CounterfactualProbe
 from herald.tier2.judge import LLMJudge
 from herald.tier3.debate import MultiAgentDebate
 from herald.tier4.human_review import save_packet
@@ -40,12 +39,7 @@ _tracer = get_tracer("herald.pipeline")
 
 
 class HeraldPipeline:
-    """Four-tier escalation pipeline with optional Tier 2.5 counterfactual probe.
-
-    Tier 2.5 runs after a confident Tier 2 verdict and asks the model what
-    evidence would reverse it, then checks if that evidence exists in the source.
-    If found, the verdict is overridden to UNCERTAIN and escalated to Tier 3.
-    This catches correlated overconfidence errors that same-model debate misses.
+    """Four-tier escalation pipeline.
 
     Checkpoint-type routing rules (from config ``checkpoint_routing``) control
     which tiers can resolve each type — see module docstring for details.
@@ -58,7 +52,6 @@ class HeraldPipeline:
         tier3: MultiAgentDebate,
         t1_threshold: float = 0.70,
         t2_threshold: float = 0.80,
-        counterfactual_probe: CounterfactualProbe | None = None,
         skip_nli_types: set[str] | None = None,
         prefer_debate_types: set[str] | None = None,
         t1_thresholds_by_type: dict[str, float] | None = None,
@@ -68,7 +61,6 @@ class HeraldPipeline:
         self.tier3 = tier3
         self.t1 = t1_threshold
         self.t2 = t2_threshold
-        self.counterfactual_probe = counterfactual_probe
         # Checkpoint types where T1 verdict is never final (always escalate to T2)
         self.skip_nli_types: set[str] = skip_nli_types or set()
         # Checkpoint types where T2 verdict always escalates to T3 debate
@@ -142,62 +134,29 @@ class HeraldPipeline:
         packet.total_output_tokens += t2.raw_scores.get("output_tokens", 0)
 
         if t2.verdict != Verdict.UNCERTAIN:
-            # ── TIER 2.5: Counterfactual Probe (optional) ───────────────────
-            # Only runs on confident verdicts — probing uncertainty is redundant.
-            # For prefer_debate types, the probe still runs; if it fires it
-            # escalates to T3 (same as any other type). If it does NOT fire,
-            # prefer_debate triggers a T3 escalation anyway — but only for
-            # low-to-medium T2 confidence, not for highly confident verdicts
-            # where the risk of T3 degrading the result outweighs the benefit.
-            cf_overridden = False
-            if self.counterfactual_probe is not None:
+            # For prefer_debate types, escalate to T3 only when T2 confidence
+            # is below a high-confidence bar (0.92). Above that bar the verdict
+            # is reliable enough that sending it to a noisier T3 debate hurts
+            # more than it helps — as confirmed by run 06 results.
+            HIGH_CONFIDENCE_BAR = 0.92
+            if cp_type in self.prefer_debate_types and t2.confidence < HIGH_CONFIDENCE_BAR:
                 logger.info(
-                    f"[Tier 2.5] Probing confident {t2.verdict.value} verdict "
-                    f"({t2.confidence:.3f}) for disconfirming evidence"
+                    f"[Tier 2] '{cp_type}' is in prefer_debate and T2 confidence "
+                    f"({t2.confidence:.3f}) < {HIGH_CONFIDENCE_BAR} — forwarding to T3 debate"
                 )
-                cf = self.counterfactual_probe.probe(checkpoint, t2, t2_threshold=self.t2)
-                packet.tier2_5_result = cf
-                cf_overridden = cf.verdict_overridden
-                packet.llm_calls += 1
-                packet.total_input_tokens += cf.input_tokens
-                packet.total_output_tokens += cf.output_tokens
-
-                if cf_overridden:
+                # Fall through to Tier 3
+            else:
+                if cp_type in self.prefer_debate_types:
                     logger.info(
-                        f"[Tier 2.5] Override triggered — disconfirming evidence found: "
-                        f'"{cf.evidence_quote[:80]}..." → escalating to Tier 3'
+                        f"[Tier 2] '{cp_type}' in prefer_debate but confidence "
+                        f"({t2.confidence:.3f}) >= {HIGH_CONFIDENCE_BAR} — T2 verdict stands"
                     )
-                    # Fall through to Tier 3
-                else:
-                    logger.info(
-                        f"[Tier 2.5] No disconfirming evidence found — "
-                        f"Tier 2 verdict {t2.verdict.value} stands"
-                    )
-
-            if not cf_overridden:
-                # For prefer_debate types, escalate to T3 only when T2 confidence
-                # is below a high-confidence bar (0.92). Above that bar the verdict
-                # is reliable enough that sending it to a noisier T3 debate hurts
-                # more than it helps — as confirmed by run 06 results.
-                HIGH_CONFIDENCE_BAR = 0.92
-                if cp_type in self.prefer_debate_types and t2.confidence < HIGH_CONFIDENCE_BAR:
-                    logger.info(
-                        f"[Tier 2] '{cp_type}' is in prefer_debate and T2 confidence "
-                        f"({t2.confidence:.3f}) < {HIGH_CONFIDENCE_BAR} — forwarding to T3 debate"
-                    )
-                    # Fall through to Tier 3
-                else:
-                    if cp_type in self.prefer_debate_types:
-                        logger.info(
-                            f"[Tier 2] '{cp_type}' in prefer_debate but confidence "
-                            f"({t2.confidence:.3f}) >= {HIGH_CONFIDENCE_BAR} — T2 verdict stands"
-                        )
-                    packet.resolved_at_tier = 2
-                    packet.final_verdict = t2.verdict
-                    logger.info(f"[Tier 2] Resolved: {t2.verdict.value} ({t2.confidence:.3f})")
-                    root_span.set_attribute("herald.resolved_at_tier", 2)
-                    root_span.set_attribute("herald.final_verdict", t2.verdict.value)
-                    return packet
+                packet.resolved_at_tier = 2
+                packet.final_verdict = t2.verdict
+                logger.info(f"[Tier 2] Resolved: {t2.verdict.value} ({t2.confidence:.3f})")
+                root_span.set_attribute("herald.resolved_at_tier", 2)
+                root_span.set_attribute("herald.final_verdict", t2.verdict.value)
+                return packet
 
         if t2.verdict == Verdict.UNCERTAIN:
             logger.info(f"[Tier 2] Uncertain ({t2.confidence:.3f}) → escalating")
@@ -242,12 +201,6 @@ def build_pipeline(config: dict) -> HeraldPipeline:
     tier2 = LLMJudge(config=config)
     tier3 = MultiAgentDebate(config=config)
 
-    # Tier 2.5 is opt-in via config
-    cf_probe = None
-    if config.get("counterfactual_probe", {}).get("enabled", False):
-        cf_probe = CounterfactualProbe(config=config)
-        logger.info("[Config] Tier 2.5 counterfactual probe enabled")
-
     # Checkpoint-type routing from config
     routing = config.get("checkpoint_routing", {})
     skip_nli_types = set(routing.get("skip_nli", []))
@@ -268,7 +221,6 @@ def build_pipeline(config: dict) -> HeraldPipeline:
         tier3=tier3,
         t1_threshold=config["thresholds"]["T1"],
         t2_threshold=config["thresholds"]["T2"],
-        counterfactual_probe=cf_probe,
         skip_nli_types=skip_nli_types,
         prefer_debate_types=prefer_debate_types,
         t1_thresholds_by_type=t1_thresholds_by_type,
