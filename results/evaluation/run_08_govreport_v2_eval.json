@@ -1,0 +1,88 @@
+{
+  "accuracy": {
+    "overall": {
+      "acc": 0.8921568627450981,
+      "correct": 273,
+      "total": 306
+    },
+    "cp_claim_extraction": {
+      "acc": 0.9444444444444444,
+      "correct": 68,
+      "total": 72
+    },
+    "tier_1": {
+      "acc": 0.9617834394904459,
+      "correct": 151,
+      "total": 157
+    },
+    "label_valid": {
+      "acc": 0.8888888888888888,
+      "correct": 136,
+      "total": 153
+    },
+    "tier_2": {
+      "acc": 0.9615384615384616,
+      "correct": 50,
+      "total": 52
+    },
+    "label_invalid": {
+      "acc": 0.8954248366013072,
+      "correct": 137,
+      "total": 153
+    },
+    "cp_numerical": {
+      "acc": 0.9625,
+      "correct": 77,
+      "total": 80
+    },
+    "cp_synthesis": {
+      "acc": 0.8979591836734694,
+      "correct": 88,
+      "total": 98
+    },
+    "tier_3": {
+      "acc": 0.7422680412371134,
+      "correct": 72,
+      "total": 97
+    },
+    "cp_retrieval": {
+      "acc": 0.8,
+      "correct": 8,
+      "total": 10
+    },
+    "cp_causal": {
+      "acc": 0.6956521739130435,
+      "correct": 32,
+      "total": 46
+    }
+  },
+  "escalation": {
+    "tier_1": {
+      "count": 157,
+      "rate": 0.5130718954248366
+    },
+    "tier_2": {
+      "count": 52,
+      "rate": 0.16993464052287582
+    },
+    "tier_3": {
+      "count": 97,
+      "rate": 0.31699346405228757
+    }
+  },
+  "cost_per_case": 0.0,
+  "human_review_rate": 0.0,
+  "llm_cost": {
+    "total_llm_calls": 0,
+    "avg_llm_calls_per_case": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "avg_tokens_per_case": 0.0,
+    "baseline_judge_all_calls": 306,
+    "baseline_debate_all_calls": 918,
+    "call_reduction_vs_judge_all": 1.0,
+    "call_reduction_vs_debate_all": 1.0
+  },
+  "split": null
+}

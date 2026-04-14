@@ -94,7 +94,7 @@ while preserving the invalid-recall gains from the T1 routing changes.
 
 ---
 
-## Commands used
+## Commands
 
 ```bash
 uv run herald-run \
@@ -102,6 +102,13 @@ uv run herald-run \
   --config configs/default.yaml \
   --output results/runs/run_07_govreport_v2/results.json \
   --verbose
+
+# If interrupted by rate limits:
+uv run herald-run \
+  --input data/test_sets/gov_report_v2_filtered.json \
+  --config configs/default.yaml \
+  --output results/runs/run_07_govreport_v2/results.json \
+  --verbose --resume
 
 uv run herald-eval \
   --results results/runs/run_07_govreport_v2/results.json \

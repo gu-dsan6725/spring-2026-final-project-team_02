@@ -1,0 +1,3376 @@
+{
+  "raw_results": {
+    "llm_judge_all": [
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.75,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.6,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.75,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.6,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.85,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.7,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 1.0,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.95,
+        "resolved_at_tier": 2
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8,
+        "resolved_at_tier": 2
+      }
+    ],
+    "nli_only": [
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9974867105484009,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9989733479451388,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9991135001182556,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9986400436609983,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9993647920200601,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9975196304731071,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9975870847702026,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6351247429847717,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9951204657554626,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9681899547576904,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9976820945739746,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9953286647796631,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9993578508147039,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9976495939772576,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.5305793285369873,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9999346733093262,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9993253833381459,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9991472824476659,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.821992039680481,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9778591990470886,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.8104117512702942,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9997465913766064,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9971492886543274,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.7223870158195496,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9368641451001167,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9954583304934204,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9981420040130615,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9790840148925781,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9738876819610596,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9997368454933167,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9965483546257019,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.8067771792411804,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9991118311882019,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9772554915398359,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.998073935508728,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9997890156955691,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9964356422424316,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9996503591537476,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9894510470330715,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.571281909942627,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9982376098632812,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9999619722366333,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9718165993690491,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.644106924533844,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9971717116422951,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9979640084784478,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.996354341506958,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9986506104469299,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9998252092627808,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.978841383010149,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9411323107779026,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9852564092725515,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9969897270202637,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9885785579681396,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9938550591468811,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.5321685075759888,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9534687995910645,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.8545320928096771,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9946066737174988,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.790895938873291,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9977582097053528,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.5165112018585205,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.996161937713623,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9932920932769775,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9975870847702026,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6351247429847717,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9938189387321472,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9917308688163757,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9976929426193237,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.5771730542182922,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.97353595495224,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.996536374092102,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9986397624015808,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.979455828666687,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9973843693733215,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9999274015426636,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9741199612617493,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.8083643913269043,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9982506632804871,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9999265817314154,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6673555374145508,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.7114121317863464,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6404551863670349,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.8812898546457291,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9945170283317566,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9995500183431432,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9985987544059753,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.8473249226808548,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9822928309440613,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9684903025627136,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9986085295677185,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9938554870896041,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9962928891181946,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9932523369789124,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9899678230285645,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9997695653582923,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9949846267700195,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9990241511259228,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9943990111351013,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.8031909316778183,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.8941879868507385,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9970417348667979,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9970831274986267,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9996360540390015,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9982936978340149,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9999715089797974,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9933727979660034,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.983451247215271,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9924529260024428,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9993324408424087,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.8710899651050568,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9912517666816711,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9952399730682373,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9757285714149475,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9979631900787354,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6963169574737549,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9986567497253418,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9979301691055298,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.991137683391571,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9515084624290466,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9977241158485413,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9991193413734436,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9992355869617313,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.99559322046116,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.993100643157959,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9914209246635437,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9975870847702026,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6351247429847717,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9980394244194031,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9569051861763,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9296746850013733,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9982390403747559,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9993553587119095,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9994416927802376,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9983038902282715,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9585719704627991,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.518140971660614,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9999206066131592,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9937978386878967,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.8226640671491623,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9636132717132568,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9921091198921204,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9978193044662476,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9987220929469913,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9929613471031189,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9999183416366577,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6224392056465149,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9999469518661499,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9984070658683777,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9345017075538635,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.822029173374176,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6524786949157715,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.8426389694213867,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9971560901030898,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.998847246170044,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.990746021270752,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9773298501968384,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7119129598140717,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9983522891998291,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9870900511741638,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9794180393218994,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9971668124198914,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9260075688362122,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6200797259807587,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9986677169799805,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9994473635451868,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.998703122138977,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9841576218605042,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.943747453391552,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9997996687889099,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9952237010002136,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9999192953109741,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9987693428993225,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9984466433525085,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6850197017192841,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9994683861732483,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9942939877510071,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9997492432594299,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9951604008674622,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9348118379712105,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9194456934928894,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9995029348065145,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.998503565788269,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9962480664253235,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9974014759063721,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9958391189575195,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.960617184638977,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9955801367759705,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9998541719687637,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9997448428766802,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9970741271972656,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.8811529651284218,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9987918734550476,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9999191761016846,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9356973171234131,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.8508206009864807,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9926066398620605,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6057368516921997,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9943437576293945,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9998758787987754,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9969525337219238,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9977056018542498,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9974964261054993,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9470083303749561,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9974467754364014,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9942968487739563,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9823058247566223,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.537865400314331,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9665730595588684,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9904696345329285,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9896144270896912,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9998925924301147,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9969193935394287,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9922890067100525,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9990373849868774,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9767137765884399,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9981600642204285,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9952183365821838,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9377814531326294,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9352147579193115,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.854357123374939,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.978935718536377,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9952431321144104,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9513349756598473,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9833348747342825,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9900573417544365,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.996776282787323,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9994890456437133,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9139447435736656,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.5757415294647217,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9918925762176514,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9995785355567932,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9885396361351013,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9998186230659485,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9988560676574707,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9997138381004333,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.997212827205658,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9940600078552961,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.998241662979126,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9024623259902,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9903685450553894,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9992219070554711,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.997226893901825,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9461309351027012,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.994841992855072,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9902788996696472,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9983528852462769,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9998861532949377,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.995399534702301,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9730949401855469,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9999554431524302,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9946159720420837,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9954869151115417,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9987221360206604,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9971639513969421,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7963238954544067,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9937179055996239,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9877035617828369,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9932540059089661,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9981039880076423,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9968344569206238,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9999164342880249,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9260234236717224,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9829013347625732,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9964737296104431,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9753667712211609,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9934460520744324,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9938348531723022,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.8523937463760376,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.7855718582868576,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9981608839007095,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9975531259551644,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9960278272628784,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.5206649005413055,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.999473373987712,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9996227512601763,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9969235062599182,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9720387887209654,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9934456944465637,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.992646336555481,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.8764700293540955,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.6262909173965454,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.998195469379425,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9917668700218201,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9970706701278687,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9999724626541138,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9700312614440918,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9999157190322876,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9978140592575073,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9972056746482849,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9985724687576294,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.988224271684885,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.982919454574585,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9661188721656799,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9968018531799316,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9999616146087646,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9973351359367371,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "uncertain",
+        "confidence": 0.9999045481454232,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.995359480381012,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9993451237678528,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.997922956943512,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.992422878742218,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9976307153701782,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9999610185623169,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "valid",
+        "confidence": 0.9156299829483032,
+        "resolved_at_tier": 1
+      },
+      {
+        "final_verdict": "invalid",
+        "confidence": 0.9950413107872009,
+        "resolved_at_tier": 1
+      }
+    ]
+  },
+  "ground_truth_labels": [
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid",
+    "valid",
+    "invalid"
+  ]
+}
