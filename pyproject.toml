@@ -23,14 +23,19 @@ dependencies = [
     "openai>=1.0.0",
     "fastapi>=0.135.3",
     "uvicorn>=0.44.0",
+    "mcp>=1.27.0",
+    "braintrust>=0.14.0",
+    "langgraph>=1.1.6",
 ]
 
 [project.scripts]
 herald-run = "herald.pipeline.run:main"
 herald-eval = "herald.evaluation.evaluate:main"
+herald-split = "herald.evaluation.split_dataset:main"
 herald-feasibility = "herald.notebooks.feasibility_check:main"
 herald-agent = "herald.agent.agent:main"
 herald-research = "herald.agent.research_agent:main"
+herald-mcp = "herald.mcp.server:main"
 
 [project.optional-dependencies]
 dev = [

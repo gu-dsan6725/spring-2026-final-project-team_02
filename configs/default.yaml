@@ -15,6 +15,9 @@ tier2:
   # model: "gemini-2.0-flash"   # faster/cheaper option; good for T2 single-judge calls
   # model: "llama-3.3-70b-versatile"  # used when provider: groq
   # model: "gpt-4o-mini"        # used when provider: openai
+  # Failover: if the primary model exhausts all retries, this model is tried once.
+  # Prefix with "groq/" or "gemini/" to use a different provider than the default.
+  fallback_model: "groq/llama-3.3-70b-versatile"
 
 tier3:
   # Tier 3 makes 3 API calls per case (advocate + critic + judge).
@@ -24,6 +27,7 @@ tier3:
   # model: "gemini-2.5-pro-preview-03-25"  # stronger reasoning for hard debates
   # model: "llama-3.3-70b-versatile"
   # model: "gpt-4o"
+  fallback_model: "groq/llama-3.3-70b-versatile"
 
 thresholds:
   # METHODOLOGY NOTE: Thresholds below were derived by sweeping on the full
