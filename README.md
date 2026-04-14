@@ -1,60 +1,167 @@
-# DSAN 6725 Final Project
+# Policy Memo Writing Agent
 
-This repository contains information about deliverables, project ideas, and all things related to the final project.
+This repository is being built around the architecture defined in `CLAUDE.md` and the checkpoint-by-checkpoint implementation plan in `claude_prompts.md`.
 
-## Overview
+The target system is an AI-powered policy memo writer with a structured provenance trail and a multi-tier claim evaluation framework called HERALD: Hierarchical Evidence Review and Automated Legitimacy Detection.
 
-DSAN 6725 is an applied AI course. The focus is on building production-quality AI agent systems that solve real problems. All projects must implement AI agents unless an alternative approach is explicitly approved by the professor.
+## What This Project Is
 
-This repo provides project ideas but you are not limited to these. You can explore other ideas but it is incumbent upon you (your team) to discuss these ideas and get approval before proceeding. The ideas suggested here are practically useful and have been selected because they have a reasonable chance of success in a 6-week timeframe.
+The product goal is a research and writing system that:
 
-This repo is organized into the following parts:
+- accepts a policy topic, framing context, and optional source material
+- uses tools and external data sources to research the topic
+- produces a policy memo plus a structured notes log
+- links every memo claim back to source evidence
+- lets users selectively evaluate claims through a tiered validation pipeline
+- supports revision when claims are weak, unsupported, or overstated
 
-- [Project Ideas](#project-ideas)
-- [Deliverables](#deliverables)
-- [FAQ](#faq)
-- [Resources](#resources)
+This README describes the intended build and operating model. `CLAUDE.md` remains the architecture source of truth.
 
-## Project Ideas
+## Core System Flow
 
-These project ideas have well-defined problem statements, but the implementation details are flexible and open to creative solutions. Use the descriptions provided as springboards for your own approaches to solving these problems.
+The proposed system has four major phases:
 
-### Spring 2026 Projects
+1. User input and prompt assembly
+2. Research and memo generation
+3. User review of memo and provenance
+4. HERALD claim evaluation and revision
 
-- [AI Tech Debt Forge](./spring-2026/ai-tech-debt-forge.md) - Multi-agent system for codebase modernization with persona-based validation
-- [AI Trading Strategist](./spring-2026/ai-trading-strategist.md) - Paper trading system using Alpaca API for strategy development and backtesting
-- [AI Spark Optimizer](./spring-2026/ai-spark-optimizer.md) - Intelligent Spark job analysis with interpretable performance recommendations
-- [Cloud Cost Refinery](./spring-2026/cloud-cost-refinery.md) - AWS cost optimization agent that generates executable cleanup commands
-- [AI Schema Harmonizer](./spring-2026/ai-schema-harmonizer.md) - Normalize schemas across SaaS tools with observability data focus
-- [AI Data Prep Pipeline](./spring-2026/ai-data-prep-pipeline.md) - Universal document processing for RAG and vector search
+In practice, that means:
 
-### Archived Projects
+- the user submits a topic, context, and optional sources
+- the agent assembles a structured research-and-writing prompt
+- the agent researches with tools, logs evidence, and builds a notes log before drafting
+- the memo is rendered with claim markers and provenance
+- selected claims are routed into HERALD for evaluation
+- invalid or weak claims are revised and re-checked
 
-Previous semester project ideas are available in [spring-2025/](./spring-2025/).
+## HERALD at a Glance
 
-## Deliverables
+HERALD is a four-tier escalation framework for evaluating claims in the memo:
 
-All deliverables are described in [deliverables.md](./deliverables.md).
+1. Tier 1: local NLI checks for claims that are well suited to entailment testing
+2. Tier 2: LLM-as-judge evaluation for source faithfulness and reasoning quality
+3. Tier 3: multi-agent debate across domain expert, methodologist, and skeptic personas
+4. Tier 4: human review when automated tiers cannot confidently resolve the claim
 
-Summary of what you will produce:
-- Project paper (8-12 pages, conference format)
-- Code repository (production quality)
-- Working demo
-- Presentation slides
-- Conference-style poster
+Claims are classified into six types, and that type determines how evaluation starts:
 
-## FAQ
+- statistical or numeric
+- causal
+- comparative
+- predictive or projective
+- normative or prescriptive
+- synthesis
 
-**Can I do this project alone or with more than 4 people?**
-No. Teams must have 2-4 members.
+The architecture also tracks derivation risk:
 
-**Can I use any model provider (OpenAI, Anthropic, Google, etc.)?**
-Yes. Use whatever works best for your project.
+- `direct_extraction`
+- `paraphrase`
+- `cross_source`
+- `agent_inference`
 
-**What if I want to propose a different project idea?**
-Discuss with the professor before Milestone 1. Your proposal should have a clear problem statement, feasible scope for 6 weeks, and an AI agent architecture.
+## Notes Log and Provenance
 
-## Resources
+A core design principle in this project is that the memo is not enough by itself. The system must also generate a notes log during research.
 
-- Course [bookmarks](https://github.com/gu-dsan6725/bookmarks/tree/main) repository
-- [LangChain](https://python.langchain.com/), [LlamaIndex](https://docs.llamaindex.ai/), [Claude Agent SDK](https://github.com/anthropics/anthropic-cookbook)
+Each claim should carry:
+
+- a stable claim ID
+- claim text
+- claim type
+- derivation method
+- one or more linked sources
+- relevant supporting excerpts
+- agent reasoning about how the claim was formed
+
+That notes log is what powers provenance inspection, claim selection, HERALD routing, and revision.
+
+## Architecture Blueprint
+
+The project is designed as a TypeScript frontend and orchestration layer plus a Python backend for services and evaluation infrastructure.
+
+Planned major areas include:
+
+- `src/agent/` for prompt assembly, research loops, claim extraction, and memo generation
+- `src/herald/` for routing, tier execution, and revision feedback
+- `src/mcp/` for external tools such as arXiv, World Bank, web search, and file readers
+- `src/observability/` for Braintrust and telemetry integration
+- `src/ui/` for the user-facing workflow across input, generation, review, and evaluation
+- `src/types/` for the core TypeScript schemas
+- `backend/src/policy_memo_agent/` for FastAPI routes, services, models, DB access, and Python HERALD logic
+- `backend/tests/` and `tests/` for Python and TypeScript test coverage
+
+Two architecture rules matter a lot:
+
+- TypeScript and Python models must stay in sync.
+- Every final memo claim should map back to structured provenance.
+
+## Build Plan
+
+The implementation flow is driven by `claude_prompts.md`, which is organized as a sequential set of prompts for Claude Code.
+
+The high-level checkpoint order is:
+
+1. repository initialization, Python setup, hooks, and CI
+2. TypeScript scaffold and shared types
+3. prompt assembler and research agent loop
+4. claim extraction and HERALD routing
+5. HERALD tiers 1 through 3
+6. frontend workflow for input, progress, memo review, and results
+7. real API integrations and Braintrust observability
+8. reliability features, memory, DB-backed state, and revision loops
+9. human review, integration polish, and end-to-end testing
+
+If you are building from the prompts, complete one checkpoint at a time and verify each before moving forward.
+
+## Developer Workflow
+
+This repo uses Husky hooks, `lint-staged`, TypeScript checks, and Python checks. The easiest way to avoid the usual commit and push surprises is to run the full local verification command before you commit or push:
+
+```bash
+npm run verify
+```
+
+Recommended flow:
+
+```bash
+npm run verify
+git add .
+git commit -m "feat: short description"
+git push
+```
+
+Why this helps:
+
+- `git commit` runs staged-file checks only
+- `git push` runs heavier checks through the pre-push hook
+- CI can still be stricter on protected branches
+
+So `npm run verify` is the main local “am I safe to push?” command.
+
+## Expected Tooling
+
+The architecture and prompts assume a setup centered on:
+
+- Next.js with TypeScript on the application side
+- FastAPI and `uv` on the Python side
+- Ruff, mypy, and pytest for Python quality
+- ESLint, Prettier, Vitest, Husky, and lint-staged for TypeScript quality
+- Braintrust for observability and tracing
+- MCP-based tool access for research capabilities
+
+## Working Agreement for Contributors
+
+When extending this project:
+
+- treat `CLAUDE.md` as the architecture contract
+- treat `claude_prompts.md` as the build sequence
+- keep claims, notes log entries, and evaluation outputs strongly typed
+- do not let memo generation drift away from provenance requirements
+- prefer small checkpoint-sized changes over broad speculative refactors
+
+## Current Status
+
+This repository contains both planning artifacts and an in-progress implementation. Some parts reflect the target architecture before every module in that architecture is fully built.
+
+That is intentional: the docs describe the system we are building toward, and the prompt sequence in `claude_prompts.md` is the operating plan for getting there.
