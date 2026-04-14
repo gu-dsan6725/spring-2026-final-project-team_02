@@ -1,4 +1,4 @@
-# Implementation Prompts for Claude Code
+# Implementation Prompts for Claude Code (CORRECTED)
 
 ## How to Use This Document
 
@@ -64,9 +64,11 @@ This prompt sets up the entire repository foundation. Do everything below in ord
 ## Part 1: Git and Node.js Initialization
 
 1. git init
-2. Create package.json: `npm init -y`, set name to "policy-memo-agent"
-3. Install Node dev dependencies:
-   npm install --save-dev husky lint-staged @commitlint/cli @commitlint/config-conventional eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-config-next prettier vitest @vitest/coverage-v8 typescript @types/node @types/react @types/react-dom
+2. Initialize a Next.js app with TypeScript, Tailwind CSS, and the App Router:
+   npx create-next-app@latest . --typescript --tailwind --app --eslint --src-dir --import-alias "@/*" --use-npm
+   (If the directory is not empty, move CLAUDE.md aside, run the command, then move it back.)
+3. Install additional Node dev dependencies:
+   npm install --save-dev husky lint-staged @commitlint/cli @commitlint/config-conventional @typescript-eslint/eslint-plugin @typescript-eslint/parser vitest @vitest/coverage-v8
 
 ## Part 2: Python Backend with uv
 
@@ -100,7 +102,7 @@ This prompt sets up the entire repository foundation. Do everything below in ord
 9. Create backend/tests/conftest.py with:
    - Async test client fixture using httpx.AsyncClient + FastAPI TestClient
    - Mock Anthropic client fixture
-   - Sample NotesLogEntry fixtures (reuse the 6 mock claims from CLAUDE.md — one per claim type)
+   - Create one sample NotesLogEntry fixture per claim type (6 total), modeled on the C-003 example in CLAUDE.md. Invent realistic examples for statistical, causal, predictive, normative, and synthesis types alongside the comparative example already in CLAUDE.md.
    - Database test fixtures (use SQLite in-memory for tests)
    - Fixture that marks tests as integration if ANTHROPIC_API_KEY is not set
 
@@ -441,10 +443,9 @@ This prompt sets up the entire repository foundation. Do everything below in ord
     # OS
     .DS_Store
     Thumbs.db
-
-    # uv
-    backend/uv.lock
     ```
+
+    IMPORTANT: Do NOT include backend/uv.lock in .gitignore. The uv.lock lockfile must be committed to version control for reproducible installs.
 
 27. Create .env.example with all env vars from CLAUDE.md.
 
@@ -462,18 +463,18 @@ This prompt sets up the entire repository foundation. Do everything below in ord
 If anything fails, fix it before moving to Checkpoint 1.
 ````
 
-### Prompt 1.1 — Initialize Project and Define Types
+---
+
+## Checkpoint 1: TypeScript Type System
+
+### Prompt 1.1 — Define Core TypeScript Types
 
 ```
 Read CLAUDE.md thoroughly. This is the architecture bible for this project.
 
-Initialize the project:
-- Create a Next.js app with TypeScript and Tailwind CSS in the project root
-- Set up a Python backend directory at /backend using FastAPI
-- Create the full directory structure as specified in CLAUDE.md under "Project Structure"
-- Create .env.example with all environment variables listed in CLAUDE.md
+Prompt 0.1 has already initialized the repo with Next.js (TypeScript + Tailwind + App Router), the Python backend with uv, Git hooks, and CI/CD. The full directory structure from CLAUDE.md has been created. Do NOT re-initialize the project or recreate the backend directory.
 
-Then define the core type system in src/types/. These types are foundational — everything else builds on them:
+Your task is to define the core type system in src/types/. These types are foundational — everything else builds on them.
 
 In src/types/claims.ts:
 - ClaimType enum with exactly 6 values: statistical, causal, comparative, predictive, normative, synthesis
@@ -557,11 +558,11 @@ This is the core agent that calls the Anthropic API with tool use to research an
 1. A runResearchAgent(input: MemoInput, config: AgentConfig) async function that:
    - Uses the prompt assembler to build the system prompt
    - Calls Claude API (claude-sonnet-4-20250514) with tool use enabled
-   - Available tools (define as Anthropic tool schemas):
-     a. web_search — uses Anthropic's built-in web search
-     b. arxiv_search — searches arXiv API (query: string, max_results: number) → returns paper titles, abstracts, URLs
-     c. worldbank_data — queries World Bank Indicators API (indicator: string, country: string, date_range: string) → returns data points
-     d. read_uploaded_file — reads content from user-uploaded files (file_path: string) → returns extracted text
+   - Available tools:
+     a. web_search — use Anthropic's server-side tool type (`type: "web_search_20250305"`). This is NOT a custom tool schema — it uses Anthropic's built-in server-side tool format, separate from the custom tool definitions below.
+     b. arxiv_search — custom tool definition (query: string, max_results: number) → returns paper titles, abstracts, URLs
+     c. worldbank_data — custom tool definition (indicator: string, country: string, date_range: string) → returns data points
+     d. read_uploaded_file — custom tool definition (file_path: string) → returns extracted text
    - Implements the agent loop: send message → check for tool_use → execute tool → send tool_result → repeat until done
    - Tracks all tool calls in a ToolCallLog array
 
@@ -580,9 +581,9 @@ This is the core agent that calls the Anthropic API with tool use to research an
    - Wrap each tool call in try/catch with 3 retries and exponential backoff (1s, 2s, 4s)
    - 30-second timeout per tool call
    - If tool fails after retries, return a tool_result with error message so agent can adapt
-   - Log all errors to console and Braintrust
+   - Log all errors using the Braintrust span helpers in src/observability/ (NOT console.log — see CLAUDE.md "When Working on This Project, Never" section)
 
-For now, implement arxiv_search and worldbank_data as mock tool handlers that return realistic sample data. We'll wire up real APIs in Checkpoint 4.
+For now, implement arxiv_search, worldbank_data, and read_uploaded_file as mock tool handlers that return realistic sample data. We'll wire up real MCP servers in Checkpoint 5.
 
 Write tests in tests/agent/research-agent.test.ts that verify:
 - Agent loop completes and produces both memo and notes log
@@ -638,27 +639,62 @@ Write comprehensive tests covering all 6 claim types for classification and rout
 
 ## Checkpoint 3: HERALD Evaluation Pipeline (Tiers 1-3)
 
-### Prompt 3.1 — Tier 1: NLI Model
+### Prompt 3.1 — Tier 1: Local NLI Model
 
 ```
 Read CLAUDE.md, focusing on HERALD Tier 1 and the routing table.
 
-Create src/herald/tier1-nli.ts:
+IMPORTANT: CLAUDE.md specifies Tier 1 as "NLI Model (Local, Free)" using "DeBERTa-v3-large fine-tuned on MultiNLI" run via "ONNX Runtime or Hugging Face Transformers locally." Tier 1 MUST be a local model — it is the cheap, fast filter that prevents unnecessary expensive LLM calls in Tiers 2-3. Do NOT use the Anthropic API for Tier 1.
 
-Implement the NLI-based evaluation tier. For the initial implementation, we'll call the Anthropic API to simulate NLI rather than running a local model (we'll swap in a real NLI model later, so keep the interface clean).
+## Part A: Python NLI Service (backend)
+
+Create backend/src/policy_memo_agent/services/nli_service.py:
+
+1. NLIService class that:
+   - Loads the DeBERTa-v3-large-mnli model on initialization using Hugging Face Transformers:
+     `from transformers import pipeline`
+     `self.nli_pipeline = pipeline("text-classification", model="microsoft/deberta-v3-large-mnli", device=-1)`
+     (device=-1 for CPU; if GPU is available, use device=0)
+   - Alternatively, if the env var NLI_ONNX_MODEL_PATH is set, load via ONNX Runtime for faster CPU inference:
+     `import onnxruntime as ort`
+     Load the quantized ONNX model and tokenizer
+   - Provides a predict(premise: str, hypothesis: str) → NLIResult method that returns:
+     - label: "entailment" | "neutral" | "contradiction"
+     - scores: dict with confidence for each label
+   - Model is loaded ONCE on app startup (via the FastAPI lifespan handler in app.py, already stubbed in Checkpoint 0)
+   - Add a health check method: is_loaded() → bool
+
+2. Create backend/src/policy_memo_agent/api/routes/herald.py (replace the 501 stub):
+   - POST /api/herald/nli endpoint that:
+     - Accepts: { premise: string, hypothesis: string }
+     - Calls NLIService.predict()
+     - Returns: { label: string, scores: { entailment: float, neutral: float, contradiction: float } }
+   - POST /api/herald/nli/batch endpoint that:
+     - Accepts: { pairs: [{ premise: string, hypothesis: string }, ...] }
+     - Runs all pairs through the NLI model
+     - Returns: { results: [{ label, scores }, ...] }
+
+3. Write backend/tests/test_herald/test_tier1_nli.py:
+   - Test NLI model loads successfully
+   - Test entailment detection: premise="The unemployment rate is 5.2%", hypothesis="Unemployment is at 5.2%" → entailment
+   - Test contradiction detection: premise="GDP grew by 3%", hypothesis="GDP shrank by 3%" → contradiction
+   - Test neutral detection: premise="The program was implemented in 2020", hypothesis="The program was successful" → neutral
+   - Mark these tests with @pytest.mark.tier1 and @pytest.mark.slow (model loading takes time)
+
+## Part B: TypeScript Tier 1 Client
+
+Create src/herald/tier1-nli.ts:
 
 1. evaluateWithNLI(claim: NotesLogEntry) → TierOutput
    - For each source in the claim, construct a premise-hypothesis pair:
      - Premise: source.relevant_chunk
      - Hypothesis: claim.claim_text
-   - Call Claude with a specialized NLI prompt that instructs it to:
-     - Determine if the premise ENTAILS, CONTRADICTS, or is NEUTRAL to the hypothesis
-     - Return a confidence score 0-1
-     - Explain its reasoning
-   - Aggregate across multiple sources (if claim has multiple):
-     - All entail → entailment
-     - Any contradiction → contradiction
-     - Mixed → neutral
+   - Call the Python NLI endpoint (POST /api/herald/nli/batch) via HTTP (use fetch or axios)
+   - Process the NLI results:
+     - Aggregate across multiple sources (if claim has multiple):
+       - All entail → entailment
+       - Any contradiction → contradiction
+       - Mixed → neutral
 
 2. Decision logic (use the thresholds from CLAIM_TYPE_CONFIG):
    - Look up the claim's nliEscalationThreshold from the config
@@ -668,7 +704,7 @@ Implement the NLI-based evaluation tier. For the initial implementation, we'll c
 
 3. Return TierOutput with: tier_id: 1, verdict, confidence, reasoning, suggested_revision (if invalid)
 
-Important: This should NEVER be called for claims where skipNLI is true (predictive, normative, synthesis). The router will handle this, but add a guard check that throws if called with a skipNLI claim type.
+4. Guard check: This should NEVER be called for claims where skipNLI is true (predictive, normative, synthesis). The router handles this, but add a guard that throws if called with a skipNLI claim type.
 
 Create src/herald/router.ts:
 - routeClaim(claim: NotesLogEntry) → determines starting tier based on claim_type
@@ -677,11 +713,12 @@ Create src/herald/router.ts:
   - If false: start at Tier 1, escalate if needed
   - If true: skip directly to Tier 2
 
-Write tests that verify:
+Write TypeScript tests that verify:
 - Statistical claims with clear entailment pass at Tier 1
 - Claims with contradictions fail at Tier 1
 - Predictive/normative/synthesis claims are never sent to Tier 1
 - Causal claims use the lower 0.85 threshold
+- The TypeScript client correctly calls the Python NLI endpoint
 ```
 
 ### Prompt 3.2 — Tier 2: LLM-as-Judge
@@ -733,12 +770,14 @@ Implement the LLM-as-Judge evaluation tier with domain-specific prompts.
 
 2. evaluateWithLLMJudge(claim: NotesLogEntry, tier1Result?: TierOutput) → TierOutput
    - Build the judge prompt using getJudgePrompt(claim.claim_type)
-   - Include: the claim text, all source chunks, the claim's derivation method, and (if available) the Tier 1 result
+   - Include in the prompt: the claim text, all source chunks, the claim's derivation method
+   - If tier1Result is provided, include it in the prompt so the LLM knows why Tier 1 was inconclusive (e.g., "NLI Tier 1 returned 'neutral' with confidence 0.62 because the premise-hypothesis pair did not clearly entail or contradict. Focus your evaluation on the aspects NLI could not resolve."). This prevents the judge from redundantly re-evaluating aspects Tier 1 already resolved.
    - Call Claude Sonnet with temperature 0.2 for consistency
    - Parse the response into: verdict, confidence, reasoning, suggested_revision
-   - Decision logic:
+   - Decision logic (matching CLAUDE.md's three bands):
      - Confidence > 0.85 → exit with verdict
-     - Confidence < 0.85 → verdict: 'uncertain', escalate to Tier 3
+     - Confidence 0.6–0.85 → verdict: 'uncertain', escalate to Tier 3
+     - Confidence < 0.6 → verdict: 'uncertain', escalate to Tier 3 with high-priority flag
 
 Write tests for each of the 6 claim types verifying the correct judge prompt is selected and the evaluation criteria match what's in CLAUDE.md.
 ```
@@ -771,9 +810,10 @@ Implement the multi-agent debate evaluation tier.
    - Each persona receives: the claim, sources, derivation method, and prior tier results
    - Each returns a DebateOutput: { persona, verdict, reasoning }
    - Then run the judge synthesis with all 3 outputs
-   - Decision logic:
-     - Judge confidence > 0.75 → exit with verdict
-     - Judge confidence < 0.75 → verdict: 'uncertain', escalate to Tier 4
+   - Decision logic (matching CLAUDE.md's consensus-based rules):
+     - If all 3 personas agree on the verdict → exit with that verdict (high confidence)
+     - If 2 of 3 personas agree AND the judge's confidence in the majority view is > 0.75 → exit with the majority verdict
+     - If no majority exists OR judge confidence ≤ 0.75 → verdict: 'uncertain', escalate to Tier 4
 
 3. Wire it into the router in src/herald/router.ts:
    - Update evaluateClaim to chain Tier 1 → Tier 2 → Tier 3 → Tier 4 with proper escalation
@@ -782,8 +822,10 @@ Implement the multi-agent debate evaluation tier.
 
 Write tests verifying:
 - All 3 personas are called in parallel
-- Judge synthesizes correctly from unanimous agreement
-- Judge synthesizes correctly from 2-1 split
+- Judge synthesizes correctly from unanimous agreement (all 3 agree → exit)
+- Judge synthesizes correctly from 2-1 split with high confidence (→ exit with majority)
+- Judge synthesizes correctly from 2-1 split with low confidence (→ escalate)
+- No consensus (3-way split) triggers escalation to Tier 4
 - Escalation to Tier 4 happens when judge confidence is low
 ```
 
@@ -799,13 +841,13 @@ Read CLAUDE.md. Review the claim taxonomy and all 6 types with their color codes
 Create the frontend UI components. We're using Next.js with Tailwind CSS. The design aesthetic should be editorial/serious — think policy journal, not startup landing page. Use a serif display font (like Playfair Display) for headings, a clean sans-serif (like Source Sans 3) for UI elements, and a serif (like Source Serif 4) for body text. Color palette: dark navy (#1a1a2e), warm gold accent (#e2b04a), warm paper background (#faf9f7).
 
 Create src/ui/components/InputForm.tsx:
-- Text input for policy topic
-- Textarea for background/framing
-- Textarea for known sources (one per line)
-- Textarea for template/format instructions
-- File upload area for source documents (drag-and-drop)
+- Text input for policy topic (required — show validation error if empty on submit)
+- Textarea for background/framing (optional — show "(optional)" label)
+- Textarea for known sources, one per line (optional — show "(optional)" label)
+- Textarea for template/format instructions (optional — show "(optional)" label)
+- File upload area for source documents, drag-and-drop (optional — show "(optional)" label)
 - "Generate Policy Memo" button that calls the agent API
-- Form validation: topic is required, show helpful placeholder text in all fields
+- Form validation: topic is required; all other fields are optional. Show helpful placeholder text in all fields.
 
 Create src/ui/components/AgentProgress.tsx:
 - Displays while the agent is running
@@ -888,9 +930,9 @@ Create src/ui/components/HeraldResults.tsx:
 Displays the evaluation results with tier progression visualization.
 
 Requirements:
-- Summary bar at top: count of Valid, Needs Revision, and total Evaluated claims
+- Summary bar at top: count of Valid, Invalid, Needs Revision, Uncertain, and total Evaluated claims
 - Each evaluated claim gets a result card showing:
-  - Verdict icon: green checkmark for valid, orange exclamation for needs_revision
+  - Verdict icon: green checkmark for valid, red X for invalid, orange exclamation for needs_revision, gray question mark for uncertain
   - Claim ID, type badge, verdict text with confidence percentage
   - Expandable detail section (click to expand):
     - Tier progression visualization: 4 boxes in a row (Tier 1 through 4)
@@ -911,58 +953,81 @@ Create src/ui/components/TierProgress.tsx:
 
 ## Checkpoint 5: Wiring Up Real APIs and MCP Tools
 
-### Prompt 5.1 — Anthropic API Integration
+### Prompt 5.1 — Anthropic API Integration and MCP Tool Servers
 
 ```
-Read CLAUDE.md, focusing on the agent architecture and tool use.
+Read CLAUDE.md, focusing on the agent architecture, tool use, and MCP Tool Servers section.
 
-Create or update src/agent/research-agent.ts to use the real Anthropic API:
+IMPORTANT: CLAUDE.md specifies that arXiv, World Bank, and file reading are implemented as MCP tool servers (src/mcp/arxiv-server.ts, src/mcp/worldbank-server.ts, src/mcp/file-reader-server.ts). The research agent's tool handlers must call these servers, NOT the raw APIs directly. Each server wraps the external API with input validation, response parsing, error handling, and the MCP tool interface.
 
-1. Set up the Anthropic client using the SDK:
-   - npm install @anthropic-ai/sdk
-   - Initialize with ANTHROPIC_API_KEY from env
-   - Use model: 'claude-sonnet-4-20250514'
+## Part A: Set up the Anthropic client
 
+1. Install: npm install @anthropic-ai/sdk
+2. Initialize with ANTHROPIC_API_KEY from env
+3. Use model: 'claude-sonnet-4-20250514'
+
+## Part B: Implement MCP Tool Servers
+
+Create src/mcp/arxiv-server.ts:
+- MCP-compatible tool server wrapping the arXiv API
+- Accepts: { query: string, max_results: number }
+- Calls: GET http://export.arxiv.org/api/query?search_query={query}&max_results={n}
+- Parses the Atom XML response
+- Extracts: title, authors, abstract, published date, PDF URL
+- Returns structured JSON the agent can consume
+- Error handling: timeout (30s), retries (3x exponential backoff), graceful error responses
+
+Create src/mcp/worldbank-server.ts:
+- MCP-compatible tool server wrapping the World Bank Indicators API
+- Accepts: { indicator: string, country: string, date_range: string }
+- Calls: GET http://api.worldbank.org/v2/country/{country}/indicator/{indicator}?date={range}&format=json
+- Parses the JSON response
+- Extracts: indicator name, country, year, value
+- Returns structured JSON
+- Error handling: same pattern as arXiv
+
+Create src/mcp/file-reader-server.ts:
+- MCP-compatible tool server for reading user-uploaded files
+- Accepts: { file_path: string }
+- Install file parsing dependencies: npm install pdf-parse mammoth
+- Routes by file extension:
+  - .pdf → pdf-parse
+  - .docx → mammoth
+  - .txt/.md → fs.readFile
+- Returns extracted text content
+- Error handling: file not found, unsupported format, corrupted file
+
+Create src/mcp/tool-registry.ts:
+- Register each tool with: name, handler function (pointing to the MCP server), timeout (ms), max_retries, health_check_url
+- Tools: web_search (30s timeout, 3 retries), arxiv_search (30s, 3), worldbank_data (30s, 3), read_uploaded_file (10s, 1)
+
+## Part C: Update the Research Agent
+
+Update src/agent/research-agent.ts to use real APIs:
+1. Replace mock tool handlers with calls to the MCP tool servers via tool-registry.ts
 2. Implement the tool use loop properly:
-   - Define tool schemas for: web_search (use Anthropic's built-in), arxiv_search, worldbank_data, read_uploaded_file
+   - web_search uses Anthropic's server-side tool type (`type: "web_search_20250305"`), separate from custom tool definitions
+   - arxiv_search, worldbank_data, read_uploaded_file use custom tool definitions that route through the MCP servers
    - Send initial message with system prompt + user message + tools
    - Check response for tool_use stop_reason
-   - For each tool_use block: execute the tool handler, collect results
+   - For each tool_use block: route to the appropriate MCP server via tool-registry, collect results
    - Send tool_result messages back
    - Continue loop until the agent produces a final text response (stop_reason: 'end_turn')
    - Parse final response into MemoOutput
-
-3. Implement real tool handlers for arxiv_search:
-   - Use the arXiv API: GET http://export.arxiv.org/api/query?search_query={query}&max_results={n}
-   - Parse the Atom XML response
-   - Extract: title, authors, abstract, published date, PDF URL
-   - Return as structured JSON the agent can consume
-
-4. Implement real tool handler for worldbank_data:
-   - Use the World Bank Indicators API: GET http://api.worldbank.org/v2/country/{country}/indicator/{indicator}?date={range}&format=json
-   - Parse the JSON response
-   - Extract: indicator name, country, year, value
-   - Return as structured JSON
-
-5. Implement read_uploaded_file:
-   - Accept a file path
-   - Use appropriate parser based on file extension (.pdf → pdf-parse, .docx → mammoth, .txt → fs.readFile)
-   - Return extracted text content
-
-6. Handle rate limits and errors:
-   - Implement exponential backoff for 429 responses
-   - Timeout tool calls at 30 seconds
-   - Log all API calls with timestamps for observability
+3. Handle rate limits: exponential backoff for 429 responses
+4. Log all API calls using Braintrust span helpers (NOT console.log)
 
 Write integration tests that verify the full agent loop works end-to-end with real API calls (mark as integration tests that require API keys).
 ```
 
-### Prompt 5.2 — Braintrust Observability
+### Prompt 5.2 — Braintrust Observability (TypeScript + Python)
 
 ```
 Read CLAUDE.md, focusing on the observability section.
 
-Set up Braintrust integration for logging and tracing.
+Set up Braintrust integration for logging and tracing across BOTH TypeScript and Python.
+
+## Part A: TypeScript Braintrust Integration
 
 1. Install: npm install braintrust
 
@@ -981,20 +1046,34 @@ Set up Braintrust integration for logging and tracing.
    - logHeraldEvaluation(claimId, tier, verdict, confidence) — logs each HERALD tier evaluation
    - logAgentLoop(iteration, tokenUsage, toolCallCount) — logs agent loop state
 
-4. Instrument the existing code:
+4. Instrument the existing TypeScript code:
    - Wrap research-agent.ts runResearchAgent in a top-level Braintrust experiment
    - Log each tool call within the agent loop
    - Log the notes log output
-   - Wrap each HERALD tier evaluation
+   - Wrap each HERALD tier evaluation (Tiers 2 and 3, which use the Anthropic API)
    - Log the full HERALD pipeline per claim
 
-5. Create src/observability/telemetry.ts:
+## Part B: Python Braintrust Integration
+
+5. Create backend/src/policy_memo_agent/services/braintrust_service.py:
+   - Initialize Braintrust with the same API key and project name
+   - Create equivalent Python wrappers:
+     - log_nli_inference(claim_id, premise, hypothesis, result, latency_ms) — logs every NLI model call
+     - log_nli_batch(claim_id, pairs_count, results_summary, total_latency_ms) — logs batch NLI calls
+     - log_model_load(model_name, load_time_ms, device) — logs NLI model initialization
+   - Instrument the NLI service (nli_service.py) to log every inference call
+   - Instrument the /api/herald/nli endpoint to log request/response with latency
+
+## Part C: OpenTelemetry
+
+6. Create src/observability/telemetry.ts:
    - Set up OpenTelemetry with a console exporter (for development)
    - Create spans for: agent_research, agent_write, herald_tier_1, herald_tier_2, herald_tier_3, herald_tier_4
    - Track: total latency per phase, token usage, tool call count, claim count
 
 The goal: after running a full memo generation + evaluation, you should be able to see in Braintrust:
 - Every tool call the agent made, with query and response
+- Every NLI inference call (from the Python backend), with premise, hypothesis, and result
 - Every claim extracted, with type and sources
 - Every HERALD evaluation, with tier progression and verdict
 ```
@@ -1009,6 +1088,7 @@ Create a comprehensive SETUP.md in the project root that walks a developer throu
 1. Prerequisites:
    - Node.js 18+
    - Python 3.11+
+   - uv (Python package manager) — install with: curl -LsSf https://astral.sh/uv/install.sh | sh
    - PostgreSQL 14+ (or Docker setup)
    - Redis (or Docker setup)
 
@@ -1017,23 +1097,32 @@ Create a comprehensive SETUP.md in the project root that walks a developer throu
    - Braintrust API key: link to https://www.braintrust.dev/, explain how to create a project
    - Explain each env var in .env.example with comments
 
-3. Database Setup:
+3. Installation:
+   - Clone the repo
+   - npm install (installs Node dependencies + sets up Husky hooks via the prepare script)
+   - cd backend && uv sync --group dev (installs Python dependencies into .venv)
+   - Copy .env.example to .env and fill in API keys
+
+4. Database Setup:
    - Create the PostgreSQL database
-   - Run the schema migration (create src/db/schema.sql with tables for: memos, claims, sources, herald_evaluations, tool_call_logs)
-   - Seed test data with scripts/seed-test-data.ts
+   - Run the schema migration: cd backend && uv run alembic upgrade head
+   - Seed test data with: npm run seed (create scripts/seed-test-data.ts)
 
-4. Running the Project:
-   - npm install in root
-   - pip install -r backend/requirements.txt
-   - npm run dev — starts both frontend and backend
-   - npm run agent:test — runs agent with sample input
-   - npm run herald:test — runs HERALD on sample claims
+5. NLI Model Setup:
+   - First run will download the DeBERTa-v3-large-mnli model (~1.5GB) from Hugging Face
+   - Optional: download the ONNX quantized version for faster CPU inference
+   - Verify model loads: curl http://localhost:8000/health/nli
 
-5. Verify Setup:
+6. Running the Project:
+   - npm run dev — starts the Next.js frontend on port 3000
+   - cd backend && uv run uvicorn policy_memo_agent.api.app:create_app --factory --reload — starts the FastAPI backend on port 8000
+   - Or use docker-compose up for the full stack
+
+7. Verify Setup:
    - A checklist of curl commands to verify each API is reachable
    - A test script that runs a minimal agent loop and confirms output
 
-Also create a docker-compose.yml for local development with PostgreSQL and Redis containers.
+Also create a docker-compose.yml for local development with PostgreSQL, Redis, and optionally the FastAPI backend containers.
 ```
 
 ---
@@ -1080,21 +1169,18 @@ Write tests for budget enforcement (verify hard stop at limit), deduplication (v
 ```
 Read CLAUDE.md, focusing on MCP Server Reliability.
 
-Create src/mcp/tool-registry.ts:
+Update src/mcp/tool-registry.ts (created in Checkpoint 5.1):
 
-1. Tool Registry:
-   - Register each tool with: name, handler function, timeout (ms), max_retries, health_check_url
-   - Tools: web_search (30s timeout, 3 retries), arxiv_search (30s, 3), worldbank_data (30s, 3), read_uploaded_file (10s, 1)
-
-2. Health Check System:
+1. Health Check System:
    - Before the agent starts, run health checks on all registered tools
    - For arxiv: ping http://export.arxiv.org/api/query?search_query=test&max_results=1
    - For World Bank: ping http://api.worldbank.org/v2/country/US/indicator/NY.GDP.MKTP.CD?format=json&per_page=1
    - For web search: verify Anthropic API is reachable
+   - For NLI: check GET /health/nli on the Python backend
    - Report tool availability to the agent in its system prompt: "Available tools: web_search (healthy), arxiv_search (healthy), worldbank_data (unavailable — API timeout)"
    - Agent adapts its research plan based on available tools
 
-3. Resilient Tool Execution:
+2. Resilient Tool Execution:
    - executeTool(name, params) async function that:
      - Looks up the tool in the registry
      - Wraps execution in a timeout (AbortController)
@@ -1102,7 +1188,7 @@ Create src/mcp/tool-registry.ts:
      - On final failure: returns a structured error result that the agent can understand
      - Logs all attempts to Braintrust
 
-4. Graceful Degradation:
+3. Graceful Degradation:
    - If arXiv is down: agent relies more on web search for academic sources
    - If World Bank is down: agent uses web search for economic data
    - If all external tools fail: agent works only with user-uploaded sources and its own knowledge, with a prominent warning to the user
@@ -1134,7 +1220,7 @@ Implement persistence so users can resume work across sessions and track memo re
    - If the user's session disconnects during generation, they can resume from where the agent left off
    - Store HERALD evaluation progress (which claims have been evaluated, which are pending)
 
-4. API Endpoints (create in the Next.js API routes or FastAPI backend):
+4. API Endpoints — create these in the FastAPI backend at backend/src/policy_memo_agent/api/routes/memos.py and herald.py (replace the 501 stubs):
    - POST /api/memos — create new memo (triggers agent)
    - GET /api/memos/:id — get memo with notes log
    - GET /api/memos/:id/claims — get all claims for a memo
@@ -1264,7 +1350,7 @@ Integration tasks:
 
 4. Export Options:
    - Download memo as .md file
-   - Download memo as .docx (using the docx npm package — reference the SKILL.md for docx creation)
+   - Download memo as .docx using the `docx` npm package (npm install docx) for programmatic .docx generation
    - Download notes log as .json
    - Download HERALD evaluation report as .json
    - Download everything as a .zip bundle
