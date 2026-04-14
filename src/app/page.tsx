@@ -1,29 +1,37 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import InputForm from '@/ui/components/InputForm';
 import AgentProgress, { type AgentStep } from '@/ui/components/AgentProgress';
-import type { MemoInput } from '@/types/memo';
+import MemoViewer from '@/ui/components/MemoViewer';
+import NotesLog from '@/ui/components/NotesLog';
+import ClaimSelector from '@/ui/components/ClaimSelector';
+import HeraldResults from '@/ui/components/HeraldResults';
+import { ClaimType, DerivationMethod } from '@/types/claims';
+import type { NotesLogEntry } from '@/types/claims';
+import type { MemoInput, MemoSection } from '@/types/memo';
+import type { HeraldResult } from '@/types/herald';
 
 // ---------------------------------------------------------------------------
-// Phase and tab types
+// Phase types
 // ---------------------------------------------------------------------------
 
-type AppPhase = 'input' | 'generating' | 'review' | 'evaluate' | 'herald';
+type AppPhase = 'input' | 'generating' | 'memo' | 'notes-log' | 'evaluate' | 'herald';
 
-interface PostGenerationTab {
-  id: Extract<AppPhase, 'review' | 'evaluate' | 'herald'>;
+interface Tab {
+  id: Extract<AppPhase, 'memo' | 'notes-log' | 'evaluate' | 'herald'>;
   label: string;
 }
 
-const POST_GENERATION_TABS: PostGenerationTab[] = [
-  { id: 'review', label: 'Memo' },
+const POST_GENERATION_TABS: Tab[] = [
+  { id: 'memo', label: 'Memo' },
+  { id: 'notes-log', label: 'Notes Log' },
   { id: 'evaluate', label: 'Evaluate Claims' },
   { id: 'herald', label: 'HERALD Results' },
 ];
 
 // ---------------------------------------------------------------------------
-// Default agent steps — updated via WebSocket/polling in production
+// Default agent steps
 // ---------------------------------------------------------------------------
 
 const INITIAL_STEPS: AgentStep[] = [
@@ -34,23 +42,162 @@ const INITIAL_STEPS: AgentStep[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Placeholder content for post-generation phases (replaced by 4.2 / 4.3)
+// Mock output — replaced by real API response in checkpoint 5.1
 // ---------------------------------------------------------------------------
 
-function PlaceholderPanel({ label }: { label: string }) {
-  return (
-    <div
-      className="flex items-center justify-center rounded-lg min-h-64"
-      style={{ backgroundColor: 'var(--color-paper-dark)' }}
-    >
-      <p
-        className="text-sm"
-        style={{ color: 'var(--color-muted)', fontFamily: 'var(--font-sans)' }}
-      >
-        {label} — implemented in checkpoint 4.2 / 4.3
-      </p>
-    </div>
-  );
+function buildMockOutput(topic: string): {
+  sections: MemoSection[];
+  notesLog: NotesLogEntry[];
+} {
+  const sections: MemoSection[] = [
+    {
+      title: 'Executive Summary',
+      content: `This memo examines ${topic}. Evidence suggests significant gaps in policy implementation [C-001]. Cross-country comparisons reveal divergent outcomes depending on institutional capacity [C-002].`,
+      claim_ids: ['C-001', 'C-002'],
+    },
+    {
+      title: 'Key Findings',
+      content: `Program reach remains limited, with coverage rates below 40% in rural areas [C-003]. Causal analysis indicates that inadequate targeting contributes to persistent exclusion [C-004]. Projections suggest demand will outpace current supply by 2032 [C-005].`,
+      claim_ids: ['C-003', 'C-004', 'C-005'],
+    },
+    {
+      title: 'Recommendations',
+      content: `Evidence-based targeting frameworks are considered best practice for programme design [C-006]. Strengthening monitoring systems and community feedback loops should be prioritised to improve accountability [C-007].`,
+      claim_ids: ['C-006', 'C-007'],
+    },
+  ];
+
+  const notesLog: NotesLogEntry[] = [
+    {
+      claim_id: 'C-001',
+      claim_text: 'Significant gaps in policy implementation',
+      claim_type: ClaimType.Statistical,
+      derivation: DerivationMethod.DirectExtraction,
+      sources: [
+        {
+          source_id: 'S-001',
+          source_title: 'World Bank Policy Review 2023',
+          source_url: 'https://worldbank.org/policy-review-2023',
+          relevant_chunk:
+            'Implementation gaps persist across 63% of reviewed programmes in low-income countries.',
+        },
+      ],
+      reasoning: 'Directly lifted from World Bank programme review.',
+    },
+    {
+      claim_id: 'C-002',
+      claim_text:
+        'Cross-country comparisons reveal divergent outcomes depending on institutional capacity',
+      claim_type: ClaimType.Comparative,
+      derivation: DerivationMethod.CrossSource,
+      sources: [
+        {
+          source_id: 'S-002',
+          source_title: 'IMF Working Paper WP/23/041',
+          source_url: 'https://imf.org/en/Publications/WP/2023',
+          relevant_chunk:
+            'Countries with strong public financial management systems showed 2.3x better programme outcomes.',
+        },
+        {
+          source_id: 'S-003',
+          source_title: 'OECD Development Co-operation Report',
+          source_url: 'https://oecd.org/dac/development-co-operation-report',
+          relevant_chunk:
+            'Institutional capacity is the primary predictor of programme success across peer countries.',
+        },
+      ],
+      reasoning: 'Combined two sources showing institutional capacity as the key differentiator.',
+    },
+    {
+      claim_id: 'C-003',
+      claim_text: 'Coverage rates below 40% in rural areas',
+      claim_type: ClaimType.Statistical,
+      derivation: DerivationMethod.DirectExtraction,
+      sources: [
+        {
+          source_id: 'S-004',
+          source_title: 'UNICEF Rural Coverage Survey 2022',
+          source_url: 'https://unicef.org/reports/rural-coverage-2022',
+          relevant_chunk: 'Rural coverage remained at 37.4% nationally, down from 41.2% in 2020.',
+        },
+      ],
+      reasoning: 'Direct extraction of the 37.4% figure.',
+    },
+    {
+      claim_id: 'C-004',
+      claim_text: 'Inadequate targeting contributes to persistent exclusion',
+      claim_type: ClaimType.Causal,
+      derivation: DerivationMethod.AgentInference,
+      sources: [
+        {
+          source_id: 'S-004',
+          source_title: 'UNICEF Rural Coverage Survey 2022',
+          source_url: 'https://unicef.org/reports/rural-coverage-2022',
+          relevant_chunk: 'Targeting errors accounted for 58% of exclusion errors in the sample.',
+        },
+      ],
+      reasoning:
+        'Inferred causal link from exclusion error data; source shows correlation, not causation.',
+    },
+    {
+      claim_id: 'C-005',
+      claim_text: 'Demand will outpace current supply by 2032',
+      claim_type: ClaimType.Predictive,
+      derivation: DerivationMethod.DirectExtraction,
+      sources: [
+        {
+          source_id: 'S-005',
+          source_title: 'UN Population Division Projection 2023',
+          source_url: 'https://population.un.org/wpp/2023',
+          relevant_chunk:
+            'Under the medium fertility scenario, demand for social services is projected to exceed supply capacity by 2031–2033.',
+        },
+      ],
+      reasoning: 'Projection lifted directly from UN medium-fertility scenario.',
+    },
+    {
+      claim_id: 'C-006',
+      claim_text:
+        'Evidence-based targeting frameworks are considered best practice for programme design',
+      claim_type: ClaimType.Normative,
+      derivation: DerivationMethod.Paraphrase,
+      sources: [
+        {
+          source_id: 'S-006',
+          source_title: 'OECD DAC Peer Learning Guidelines 2023',
+          source_url: 'https://oecd.org/dac/peer-learning-guidelines',
+          relevant_chunk:
+            'Best practice guidance identifies evidence-based targeting as the highest-priority design feature for social protection programmes.',
+        },
+      ],
+      reasoning: 'Paraphrased from OECD best-practice guidance.',
+    },
+    {
+      claim_id: 'C-007',
+      claim_text:
+        'Strengthening monitoring systems and community feedback loops should be prioritised to improve accountability',
+      claim_type: ClaimType.Synthesis,
+      derivation: DerivationMethod.CrossSource,
+      sources: [
+        {
+          source_id: 'S-003',
+          source_title: 'OECD Development Co-operation Report',
+          source_url: 'https://oecd.org/dac/development-co-operation-report',
+          relevant_chunk: 'Monitoring systems are a key lever for programme improvement.',
+        },
+        {
+          source_id: 'S-007',
+          source_title: 'Accountability in Social Protection — ODI Briefing',
+          source_url: 'https://odi.org/briefings/accountability-social-protection',
+          relevant_chunk:
+            'Community feedback mechanisms are strongly associated with improved accountability outcomes.',
+        },
+      ],
+      reasoning: 'Synthesised from two sources: OECD on monitoring and ODI on community feedback.',
+    },
+  ];
+
+  return { sections, notesLog };
 }
 
 // ---------------------------------------------------------------------------
@@ -63,17 +210,23 @@ export default function Page() {
   const [steps, setSteps] = useState<AgentStep[]>(INITIAL_STEPS);
   const [toolCallsUsed, setToolCallsUsed] = useState(0);
   const [tokensUsed, setTokensUsed] = useState(0);
+  const [memoSections, setMemoSections] = useState<MemoSection[]>([]);
+  const [notesLog, setNotesLog] = useState<NotesLogEntry[]>([]);
+  const [selectedClaimId, setSelectedClaimId] = useState<string | null>(null);
+  const [heraldResults, setHeraldResults] = useState<HeraldResult[]>([]);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Polling stub — replace with WebSocket subscription when backend is live.
-  // Polls /api/agent/progress?input_id=... and updates step/budget state.
+  const memoTitle = useMemo(
+    () => (memoInput !== null ? `Policy Memo: ${memoInput.topic}` : 'Policy Memo'),
+    [memoInput],
+  );
+
+  // Polling stub — swap for WebSocket in checkpoint 5.1
   const startPolling = (input: MemoInput): void => {
-    // Activate first step
     setSteps((prev) =>
       prev.map((s, i) => (i === 0 ? { ...s, status: 'running', detail: 'Planning queries…' } : s)),
     );
 
-    // Placeholder simulation — remove once real API exists
     let tick = 0;
     pollRef.current = setInterval(() => {
       tick += 1;
@@ -117,7 +270,10 @@ export default function Page() {
           prev.map((s, i) => (i === 3 ? { ...s, status: 'complete', detail: 'Memo ready.' } : s)),
         );
         if (pollRef.current !== null) clearInterval(pollRef.current);
-        setPhase('review');
+        const { sections, notesLog: log } = buildMockOutput(input.topic);
+        setMemoSections(sections);
+        setNotesLog(log);
+        setPhase('memo');
       }
     }, 1000);
   };
@@ -128,21 +284,76 @@ export default function Page() {
     setSteps(INITIAL_STEPS);
     setToolCallsUsed(0);
     setTokensUsed(0);
+    setSelectedClaimId(null);
+    setHeraldResults([]);
     startPolling(input);
   };
 
-  const handleTabClick = (tab: Extract<AppPhase, 'review' | 'evaluate' | 'herald'>): void => {
+  const handleClaimClick = (claimId: string): void => {
+    setSelectedClaimId(claimId);
+    setPhase('notes-log');
+  };
+
+  const handleNotesLogSelect = (claimId: string): void => {
+    setSelectedClaimId(claimId);
+  };
+
+  const handleRunEvaluation = (selectedIds: string[]): void => {
+    // Stub: produce mock HERALD results for selected claims
+    const mockResults: HeraldResult[] = selectedIds.map((id, idx) => {
+      const verdicts = ['valid', 'invalid', 'needs_revision', 'uncertain'] as const;
+      const verdict = verdicts[idx % verdicts.length] ?? 'uncertain';
+      const tierReached = ([1, 2, 2, 3] as const)[idx % 4] ?? 2;
+      return {
+        claim_id: id,
+        tier_reached: tierReached,
+        verdict,
+        confidence: 0.55 + (idx % 5) * 0.09,
+        feedback:
+          'Mock feedback from HERALD pipeline. Replace with real evaluation in checkpoint 5.x.',
+        suggested_revision:
+          verdict === 'needs_revision'
+            ? 'Consider softening the causal language to "is associated with" rather than "causes".'
+            : null,
+        tier_details: {
+          tier_1: null,
+          tier_2: { tier_id: 2, verdict, confidence: 0.7, reasoning: 'LLM judge evaluation.' },
+          tier_3: null,
+          tier_4: null,
+        },
+      };
+    });
+    setHeraldResults(mockResults);
+    setPhase('herald');
+  };
+
+  const handleNewMemo = (): void => {
+    if (pollRef.current !== null) clearInterval(pollRef.current);
+    setPhase('input');
+    setMemoInput(null);
+    setMemoSections([]);
+    setNotesLog([]);
+    setSelectedClaimId(null);
+    setHeraldResults([]);
+    setSteps(INITIAL_STEPS);
+    setToolCallsUsed(0);
+    setTokensUsed(0);
+  };
+
+  const handleTabClick = (
+    tab: Extract<AppPhase, 'memo' | 'notes-log' | 'evaluate' | 'herald'>,
+  ): void => {
     setPhase(tab);
   };
 
-  // Clean up polling interval on unmount
   useEffect(() => {
     return () => {
       if (pollRef.current !== null) clearInterval(pollRef.current);
     };
   }, []);
 
-  const isPostGeneration = phase === 'review' || phase === 'evaluate' || phase === 'herald';
+  const isPostGeneration =
+    phase === 'memo' || phase === 'notes-log' || phase === 'evaluate' || phase === 'herald';
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-paper)' }}>
@@ -168,14 +379,7 @@ export default function Page() {
         {memoInput !== null && (
           <button
             type="button"
-            onClick={() => {
-              if (pollRef.current !== null) clearInterval(pollRef.current);
-              setPhase('input');
-              setMemoInput(null);
-              setSteps(INITIAL_STEPS);
-              setToolCallsUsed(0);
-              setTokensUsed(0);
-            }}
+            onClick={handleNewMemo}
             className="text-xs tracking-wide hover:opacity-80 transition-opacity"
             style={{ color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-sans)' }}
           >
@@ -184,7 +388,7 @@ export default function Page() {
         )}
       </header>
 
-      {/* ── Post-generation tab bar ── */}
+      {/* ── Tab bar ── */}
       {isPostGeneration && (
         <nav
           className="flex border-b"
@@ -219,7 +423,7 @@ export default function Page() {
 
       {/* ── Main content ── */}
       <main className="flex-1 w-full max-w-3xl mx-auto px-6 py-12">
-        {/* Input phase */}
+        {/* Input */}
         {phase === 'input' && (
           <div>
             <div className="mb-10">
@@ -233,15 +437,15 @@ export default function Page() {
                 className="text-base"
                 style={{ color: 'var(--color-muted)', fontFamily: 'var(--font-body)' }}
               >
-                The agent will research your topic, extract and classify claims, and produce a
-                sourced memo. You can then evaluate claims through the HERALD pipeline.
+                The agent researches your topic, extracts and classifies claims, then produces a
+                sourced memo. Evaluate claims through the HERALD pipeline.
               </p>
             </div>
             <InputForm onSubmit={handleFormSubmit} isDisabled={false} />
           </div>
         )}
 
-        {/* Generating phase */}
+        {/* Generating */}
         {phase === 'generating' && (
           <div>
             <div className="mb-10">
@@ -270,14 +474,33 @@ export default function Page() {
           </div>
         )}
 
-        {/* Review phase (Memo tab) */}
-        {phase === 'review' && <PlaceholderPanel label="Memo Viewer" />}
+        {/* Memo */}
+        {phase === 'memo' && (
+          <MemoViewer
+            title={memoTitle}
+            sections={memoSections}
+            notesLog={notesLog}
+            selectedClaimId={selectedClaimId}
+            onClaimClick={handleClaimClick}
+          />
+        )}
 
-        {/* Evaluate phase */}
-        {phase === 'evaluate' && <PlaceholderPanel label="Claim Selector & Evaluator" />}
+        {/* Notes Log */}
+        {phase === 'notes-log' && (
+          <NotesLog
+            entries={notesLog}
+            selectedClaimId={selectedClaimId}
+            onClaimSelect={handleNotesLogSelect}
+          />
+        )}
 
-        {/* HERALD Results phase */}
-        {phase === 'herald' && <PlaceholderPanel label="HERALD Results" />}
+        {/* Evaluate */}
+        {phase === 'evaluate' && (
+          <ClaimSelector entries={notesLog} onRunEvaluation={handleRunEvaluation} />
+        )}
+
+        {/* HERALD Results */}
+        {phase === 'herald' && <HeraldResults results={heraldResults} notesLog={notesLog} />}
       </main>
     </div>
   );
