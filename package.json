@@ -1,0 +1,80 @@
+{
+  "name": "policy-memo-agent",
+  "version": "0.1.0",
+  "description": "AI-powered Policy Memo Writing Agent with HERALD evaluation framework",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/ --max-warnings 0",
+    "lint:fix": "eslint src/ --fix --max-warnings 0",
+    "format": "prettier --write 'src/**/*.{ts,tsx,json,md}'",
+    "format:check": "prettier --check 'src/**/*.{ts,tsx,json,md}'",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:agent": "vitest run tests/agent/",
+    "test:herald": "vitest run tests/herald/",
+    "test:integration": "vitest run tests/integration/",
+    "test:coverage": "vitest run --coverage",
+    "validate": "npm run typecheck && npm run lint && npm run test",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix --max-warnings 0 --no-warn-ignored",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ],
+    "src/types/**/*.ts": [
+      "bash -c 'npm run typecheck'"
+    ],
+    "src/herald/**/*.ts": [
+      "bash -c 'npm run test:herald -- --passWithNoTests'"
+    ],
+    "src/agent/**/*.ts": [
+      "bash -c 'npm run test:agent -- --passWithNoTests'"
+    ],
+    "backend/**/*.py": [
+      "bash -c 'cd backend && uv run ruff check --fix'",
+      "bash -c 'cd backend && uv run ruff format'"
+    ],
+    "backend/src/**/*.py": [
+      "bash -c 'cd backend && uv run mypy src/'"
+    ],
+    "backend/tests/test_herald/**/*.py": [
+      "bash -c 'cd backend && (uv run pytest tests/test_herald/ -x --timeout=30 -q || [ $? -eq 5 ])'"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gu-dsan6725/spring-2026-final-project-team_02.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gu-dsan6725/spring-2026-final-project-team_02/issues"
+  },
+  "homepage": "https://github.com/gu-dsan6725/spring-2026-final-project-team_02#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@eslint/eslintrc": "^3.3.5",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.58.2",
+    "@typescript-eslint/parser": "^8.58.2",
+    "@vitest/coverage-v8": "^4.1.4",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.2",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
+  }
+}

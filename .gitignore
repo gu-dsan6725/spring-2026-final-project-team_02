@@ -1,7 +1,26 @@
+# ── Node ─────────────────────────────────────────────────────────────────────
+node_modules/
+.next/
+dist/
+coverage/
+*.tsbuildinfo
+
+# ── Python ────────────────────────────────────────────────────────────────────
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.egg-info/
+backend/.mypy_cache/
+backend/.ruff_cache/
+backend/.pytest_cache/
+backend/coverage.xml
+backend/uv.lock
+backend/htmlcov/
+backend/.coverage
 
 # C extensions
 *.so
