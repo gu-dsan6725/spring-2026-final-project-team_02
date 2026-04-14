@@ -1488,14 +1488,11 @@ dependencies = [
     { name = "braintrust" },
     { name = "fastapi" },
     { name = "httpx" },
-    { name = "onnxruntime" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "python-multipart" },
     { name = "redis" },
     { name = "sqlalchemy" },
-    { name = "torch" },
-    { name = "transformers" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "websockets" },
 ]
@@ -1512,6 +1509,11 @@ dev = [
     { name = "pytest-timeout" },
     { name = "pytest-xdist" },
     { name = "ruff" },
+]
+nli = [
+    { name = "onnxruntime" },
+    { name = "torch" },
+    { name = "transformers" },
 ]
 
 [package.dev-dependencies]
@@ -1538,7 +1540,7 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28.0" },
     { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.28.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.13.0" },
-    { name = "onnxruntime", specifier = ">=1.20.0" },
+    { name = "onnxruntime", marker = "extra == 'nli'", specifier = ">=1.20.0" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.0.0" },
     { name = "pydantic", specifier = ">=2.9.0" },
     { name = "pydantic-settings", specifier = ">=2.6.0" },
@@ -1552,12 +1554,12 @@ requires-dist = [
     { name = "redis", specifier = ">=5.2.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8.0" },
     { name = "sqlalchemy", specifier = ">=2.0.36" },
-    { name = "torch", specifier = ">=2.5.0" },
-    { name = "transformers", specifier = ">=4.46.0" },
+    { name = "torch", marker = "extra == 'nli'", specifier = ">=2.5.0" },
+    { name = "transformers", marker = "extra == 'nli'", specifier = ">=4.46.0" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.32.0" },
     { name = "websockets", specifier = ">=14.0" },
 ]
-provides-extras = ["dev"]
+provides-extras = ["nli", "dev"]
 
 [package.metadata.requires-dev]
 dev = [
