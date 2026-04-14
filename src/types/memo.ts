@@ -7,11 +7,10 @@ import type { NotesLogEntry } from './claims';
 
 export interface MemoInput {
   topic: string;
-  background?: string;
-  known_sources?: string[];
-  template?: string;
-  max_tool_calls?: number;
-  max_research_tokens?: number;
+  background: string;
+  sources: string;
+  template: string;
+  uploaded_files: File[];
 }
 
 export interface MemoSection {
@@ -21,11 +20,11 @@ export interface MemoSection {
 }
 
 export interface MemoOutput {
-  memo_id: string;
-  title: string;
-  sections: MemoSection[];
+  memo_markdown: string;
   notes_log: NotesLogEntry[];
-  total_tool_calls: number;
-  total_research_tokens: number;
-  model_used: string;
+  metadata: {
+    generation_timestamp: string;
+    token_usage: number;
+    tool_calls_count: number;
+  };
 }
