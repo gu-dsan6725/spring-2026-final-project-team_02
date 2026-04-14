@@ -10,9 +10,457 @@ Before starting, make sure:
 2. You have your API keys ready (Anthropic, Braintrust)
 3. You've decided on your stack (the prompts assume TypeScript + Next.js + FastAPI, but you can tell Claude Code to adjust)
 
+## Prompt Execution Order Summary
+
+| #   | Prompt                              | Creates                                                                          | Depends On    |
+| --- | ----------------------------------- | -------------------------------------------------------------------------------- | ------------- |
+| 0.1 | Repo init + Python + hooks + CI/CD  | Git, uv, Husky, lint-staged, Ruff, Mypy, pytest, GitHub Actions, Pydantic models | Nothing       |
+| 1.1 | TypeScript types + project scaffold | TS type system, Next.js structure                                                | 0.1           |
+| 2.1 | Prompt assembler                    | System prompt generation                                                         | 1.1           |
+| 2.2 | Research agent + loop               | Agent core with tool use                                                         | 1.1, 2.1      |
+| 2.3 | Claim extractor                     | Classification + routing                                                         | 1.1           |
+| 3.1 | HERALD Tier 1 + router              | NLI evaluation + routing                                                         | 1.1, 2.3      |
+| 3.2 | HERALD Tier 2                       | LLM-as-Judge with type-specific prompts                                          | 1.1, 3.1      |
+| 3.3 | HERALD Tier 3                       | Multi-agent debate                                                               | 1.1, 3.1, 3.2 |
+| 4.1 | Input + Progress UI                 | Phase 1-2 frontend                                                               | 1.1           |
+| 4.2 | Memo + Notes Log UI                 | Phase 3 frontend                                                                 | 1.1, 4.1      |
+| 4.3 | Claim Selector + Results UI         | Phase 3-4 frontend                                                               | 1.1, 4.1, 4.2 |
+| 5.1 | Real API integration                | Live Anthropic + tool APIs                                                       | 2.2           |
+| 5.2 | Braintrust observability            | Logging + tracing                                                                | 5.1           |
+| 5.3 | Setup guide + Docker                | Developer onboarding                                                             | All above     |
+| 6.1 | Agent loop control                  | Budget, dedup, quality gate                                                      | 2.2, 5.1      |
+| 6.2 | MCP reliability                     | Health checks, retries, degradation                                              | 5.1, 6.1      |
+| 6.3 | Memory + versioning                 | DB, session state, API endpoints                                                 | 5.1           |
+| 7.1 | Revision pipeline                   | Feedback loop with convergence                                                   | 3.1-3.3, 6.3  |
+| 7.2 | Human review (Tier 4)               | Queue + UI                                                                       | 7.1           |
+| 7.3 | Integration + polish                | E2E test, WebSocket, export, UI polish                                           | All above     |
+
 ---
 
-## Checkpoint 1: Project Scaffolding & Type System
+## Tips for Using These Prompts
+
+1. **Start with Checkpoint 0.** It sets up the entire repo foundation — git, Python backend, hooks, CI/CD. Everything else assumes this is done.
+2. **Paste one prompt at a time** into Claude Code. Let it complete before moving to the next.
+3. **Run tests after each checkpoint** before moving on. Fix failures before proceeding.
+4. **Commit after each checkpoint.** The pre-commit hooks will catch issues automatically. If a hook fails, fix the issue — don't bypass it.
+5. **The prompts reference CLAUDE.md** — keep it up to date if you make architectural changes.
+6. **Checkpoint 5 requires API keys.** Have them ready before starting that section.
+7. **Checkpoints 1-3 can be developed without a running frontend.** Use the test scripts.
+8. **Checkpoint 4 can be developed with mock data** while the backend catches up.
+9. **Python and TypeScript types must stay in sync.** The Pydantic models in `backend/src/policy_memo_agent/models/` must mirror the TypeScript types in `src/types/`. When you change one, change the other.
+10. **Use `/setup-hooks` slash command** if hooks get corrupted or need reinstallation.
+
+---
+
+## Checkpoint 0: Repository Initialization, Python Infrastructure & Quality Gates
+
+### Prompt 0.1 — Git Init, Python Backend, Virtual Environment, and All Quality Infrastructure
+
+````
+Read CLAUDE.md thoroughly — in particular the "Git Hooks & Quality Gates" section, the "Python Backend Infrastructure" section, and the project structure for both TypeScript and Python.
+
+This prompt sets up the entire repository foundation. Do everything below in order.
+
+## Part 1: Git and Node.js Initialization
+
+1. git init
+2. Create package.json: `npm init -y`, set name to "policy-memo-agent"
+3. Install Node dev dependencies:
+   npm install --save-dev husky lint-staged @commitlint/cli @commitlint/config-conventional eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-config-next prettier vitest @vitest/coverage-v8 typescript @types/node @types/react @types/react-dom
+
+## Part 2: Python Backend with uv
+
+4. Create the backend/ directory with the full structure specified in CLAUDE.md under "Python Backend Structure":
+   - backend/src/policy_memo_agent/ with all subpackages (api, herald, models, services, db)
+   - backend/tests/ with conftest.py and test directories
+   - backend/alembic/ for migrations
+   - All __init__.py files
+
+5. Create backend/pyproject.toml exactly as specified in CLAUDE.md. This is critical — it contains:
+   - All project dependencies (FastAPI, uvicorn, pydantic, SQLAlchemy, anthropic, transformers, torch, onnxruntime, braintrust, etc.)
+   - Dev dependencies (pytest, pytest-asyncio, pytest-cov, pytest-xdist, pytest-timeout, pytest-mock, ruff, mypy, pre-commit)
+   - Ruff configuration: target Python 3.11, line-length 100, select rules E/W/F/I/N/UP/B/SIM/T20/RET/ARG/PTH/RUF/ASYNC, T20 catches print statements (use logging instead)
+   - Mypy configuration: strict mode, pydantic plugin
+   - Pytest configuration: asyncio_mode auto, timeout 30s, custom markers (integration, slow, tier1, tier2, tier3)
+   - Coverage configuration: fail_under 80, source = src/policy_memo_agent
+
+6. Initialize the Python virtual environment with uv:
+   cd backend && uv sync --group dev
+   This creates .venv/ automatically and installs all dependencies including dev deps.
+
+7. Create backend/.python-version file with: 3.11
+
+8. Create Pydantic models in backend/src/policy_memo_agent/models/ that mirror the TypeScript types:
+   - claims.py: ClaimType (StrEnum with 6 values), DerivationMethod (StrEnum with 4 values), Source, NotesLogEntry, ClaimTypeConfig with the HERALD routing table
+   - herald.py: Verdict, TierOutput, HeraldResult, DebatePersona, DebateOutput
+   - memo.py: MemoInput, MemoOutput
+   - agent.py: ResearchPlan, ToolCallLog, AgentConfig
+   These Pydantic models are the Python single source of truth. They must match the TypeScript types exactly.
+
+9. Create backend/tests/conftest.py with:
+   - Async test client fixture using httpx.AsyncClient + FastAPI TestClient
+   - Mock Anthropic client fixture
+   - Sample NotesLogEntry fixtures (reuse the 6 mock claims from CLAUDE.md — one per claim type)
+   - Database test fixtures (use SQLite in-memory for tests)
+   - Fixture that marks tests as integration if ANTHROPIC_API_KEY is not set
+
+## Part 3: FastAPI Application Skeleton
+
+10. Create backend/src/policy_memo_agent/api/app.py:
+    - FastAPI application factory pattern: def create_app() -> FastAPI
+    - Include CORS middleware (allow localhost:3000 for Next.js dev)
+    - Include the error handler middleware
+    - Mount routes from routes/ directory
+    - Lifespan handler that initializes DB connection pool and NLI model on startup
+
+11. Create backend/src/policy_memo_agent/api/routes/health.py:
+    - GET /health — returns {"status": "ok", "python": version, "dependencies": {...}}
+    - GET /health/nli — checks if NLI model is loaded
+    - GET /health/db — checks database connection
+
+12. Create stub route files for memos.py and herald.py with placeholder endpoints that return 501 Not Implemented (we'll fill these in during later checkpoints).
+
+## Part 4: Git Hooks and Linting
+
+13. Initialize Husky: npx husky init
+
+14. Create .husky/pre-commit:
+    ```bash
+    #!/usr/bin/env sh
+    . "$(dirname -- "$0")/_/husky.sh"
+    npx lint-staged
+    ```
+
+15. Create .husky/commit-msg:
+    ```bash
+    #!/usr/bin/env sh
+    . "$(dirname -- "$0")/_/husky.sh"
+    npx --no -- commitlint --edit ${1}
+    ```
+
+16. Create .husky/pre-push:
+    ```bash
+    #!/usr/bin/env sh
+    . "$(dirname -- "$0")/_/husky.sh"
+
+    echo "▸ TypeScript checks..."
+    npm run typecheck
+    npm run test
+
+    echo "▸ Python checks..."
+    cd backend
+    uv run ruff check .
+    uv run ruff format . --check
+    uv run mypy src/
+    uv run pytest -m "not integration" -x --timeout=30
+
+    echo "All checks passed."
+    ```
+
+17. Create lint-staged config in package.json that covers BOTH TypeScript and Python:
+    ```json
+    {
+      "lint-staged": {
+        "*.{ts,tsx}": [
+          "eslint --fix --max-warnings 0",
+          "prettier --write"
+        ],
+        "*.{json,md,yml,yaml}": [
+          "prettier --write"
+        ],
+        "src/types/**/*.ts": [
+          "bash -c 'npm run typecheck'"
+        ],
+        "src/herald/**/*.ts": [
+          "bash -c 'npm run test:herald -- --passWithNoTests'"
+        ],
+        "src/agent/**/*.ts": [
+          "bash -c 'npm run test:agent -- --passWithNoTests'"
+        ],
+        "backend/**/*.py": [
+          "bash -c 'cd backend && uv run ruff check --fix'",
+          "bash -c 'cd backend && uv run ruff format'"
+        ],
+        "backend/src/**/*.py": [
+          "bash -c 'cd backend && uv run mypy src/'"
+        ],
+        "backend/tests/test_herald/**/*.py": [
+          "bash -c 'cd backend && uv run pytest tests/test_herald/ -x --timeout=30 --passWithNoTests'"
+        ]
+      }
+    }
+    ```
+
+18. Create commitlint.config.js with custom type-enum as specified in CLAUDE.md.
+
+19. Create .eslintrc.json, .prettierrc, .prettierignore as specified in CLAUDE.md.
+
+20. Make all hook files executable: chmod +x .husky/*
+
+## Part 5: CI/CD with GitHub Actions
+
+21. Create .github/workflows/ci.yml:
+
+    ```yaml
+    name: CI
+
+    on:
+      push:
+        branches: [main, develop]
+      pull_request:
+        branches: [main]
+
+    env:
+      NODE_VERSION: '20'
+      PYTHON_VERSION: '3.11'
+
+    jobs:
+      lint-and-typecheck:
+        name: Lint & Type Check
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+
+          - name: Setup Node
+            uses: actions/setup-node@v4
+            with:
+              node-version: ${{ env.NODE_VERSION }}
+              cache: 'npm'
+
+          - name: Install Node dependencies
+            run: npm ci
+
+          - name: TypeScript typecheck
+            run: npm run typecheck
+
+          - name: ESLint
+            run: npm run lint
+
+          - name: Prettier check
+            run: npm run format:check
+
+          - name: Install uv
+            uses: astral-sh/setup-uv@v4
+            with:
+              version: "latest"
+
+          - name: Setup Python
+            uses: actions/setup-python@v5
+            with:
+              python-version: ${{ env.PYTHON_VERSION }}
+
+          - name: Install Python dependencies
+            run: cd backend && uv sync --group dev
+
+          - name: Ruff lint
+            run: cd backend && uv run ruff check .
+
+          - name: Ruff format check
+            run: cd backend && uv run ruff format . --check
+
+          - name: Mypy
+            run: cd backend && uv run mypy src/
+
+      test-unit:
+        name: Unit Tests
+        needs: lint-and-typecheck
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+
+          - name: Setup Node
+            uses: actions/setup-node@v4
+            with:
+              node-version: ${{ env.NODE_VERSION }}
+              cache: 'npm'
+
+          - name: Install Node dependencies
+            run: npm ci
+
+          - name: Run TypeScript tests
+            run: npm run test -- --coverage
+
+          - name: Install uv
+            uses: astral-sh/setup-uv@v4
+            with:
+              version: "latest"
+
+          - name: Setup Python
+            uses: actions/setup-python@v5
+            with:
+              python-version: ${{ env.PYTHON_VERSION }}
+
+          - name: Install Python dependencies
+            run: cd backend && uv sync --group dev
+
+          - name: Run Python tests (no integration)
+            run: cd backend && uv run pytest -m "not integration" --cov --cov-report=xml --timeout=30
+
+          - name: Upload coverage
+            uses: codecov/codecov-action@v4
+            with:
+              files: ./coverage/lcov.info,./backend/coverage.xml
+              fail_ci_if_error: false
+
+      test-integration:
+        name: Integration Tests
+        needs: test-unit
+        if: github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        environment: integration-tests
+        services:
+          postgres:
+            image: postgres:16
+            env:
+              POSTGRES_USER: test
+              POSTGRES_PASSWORD: test
+              POSTGRES_DB: policy_memo_test
+            ports:
+              - 5432:5432
+            options: >-
+              --health-cmd pg_isready
+              --health-interval 10s
+              --health-timeout 5s
+              --health-retries 5
+          redis:
+            image: redis:7
+            ports:
+              - 6379:6379
+            options: >-
+              --health-cmd "redis-cli ping"
+              --health-interval 10s
+              --health-timeout 5s
+              --health-retries 5
+        steps:
+          - uses: actions/checkout@v4
+
+          - name: Setup Node
+            uses: actions/setup-node@v4
+            with:
+              node-version: ${{ env.NODE_VERSION }}
+              cache: 'npm'
+
+          - name: Install Node dependencies
+            run: npm ci
+
+          - name: Install uv
+            uses: astral-sh/setup-uv@v4
+            with:
+              version: "latest"
+
+          - name: Setup Python
+            uses: actions/setup-python@v5
+            with:
+              python-version: ${{ env.PYTHON_VERSION }}
+
+          - name: Install Python dependencies
+            run: cd backend && uv sync --group dev
+
+          - name: Run integration tests
+            env:
+              ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+              BRAINTRUST_API_KEY: ${{ secrets.BRAINTRUST_API_KEY }}
+              DATABASE_URL: postgresql://test:test@localhost:5432/policy_memo_test
+              REDIS_URL: redis://localhost:6379
+            run: |
+              cd backend && uv run alembic upgrade head
+              cd backend && uv run pytest -m integration --timeout=60
+              npm run test:integration
+    ```
+
+22. Create .github/workflows/herald-benchmark.yml — runs weekly on main to track HERALD accuracy over time:
+
+    ```yaml
+    name: HERALD Benchmark
+
+    on:
+      schedule:
+        - cron: '0 6 * * 1'  # Every Monday at 6 AM UTC
+      workflow_dispatch:       # Manual trigger
+
+    jobs:
+      benchmark:
+        runs-on: ubuntu-latest
+        environment: integration-tests
+        steps:
+          - uses: actions/checkout@v4
+          - name: Setup Python
+            uses: actions/setup-python@v5
+            with:
+              python-version: '3.11'
+          - name: Install uv
+            uses: astral-sh/setup-uv@v4
+          - name: Install deps
+            run: cd backend && uv sync --group dev
+          - name: Run HERALD benchmark
+            env:
+              ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+            run: cd backend && uv run python -m scripts.run_herald_benchmark
+    ```
+
+## Part 6: Remaining Configuration Files
+
+23. Create tsconfig.json with strict mode, path aliases (@/ → src/).
+
+24. Create vitest.config.ts with test pattern tests/**/*.test.ts, timeout 30s, coverage thresholds 80%.
+
+25. Add all npm scripts to package.json as specified in CLAUDE.md.
+
+26. Create .gitignore covering both TypeScript and Python:
+    ```
+    # Node
+    node_modules/
+    .next/
+    dist/
+    coverage/
+    *.tsbuildinfo
+
+    # Python
+    backend/.venv/
+    backend/__pycache__/
+    backend/**/__pycache__/
+    backend/*.egg-info/
+    backend/.mypy_cache/
+    backend/.ruff_cache/
+    backend/.pytest_cache/
+    backend/coverage.xml
+    backend/htmlcov/
+    backend/.coverage
+
+    # Environment
+    .env
+    .env.local
+    .env.*.local
+
+    # IDE
+    .vscode/
+    .idea/
+    *.swp
+    *.swo
+
+    # OS
+    .DS_Store
+    Thumbs.db
+
+    # uv
+    backend/uv.lock
+    ```
+
+27. Create .env.example with all env vars from CLAUDE.md.
+
+## Part 7: Verify Everything Works
+
+28. Run verification:
+    - `npm run typecheck` should pass (may need placeholder tsconfig paths)
+    - `cd backend && uv run ruff check .` should pass
+    - `cd backend && uv run mypy src/` should pass
+    - `cd backend && uv run pytest --co` should discover test files (0 tests is fine at this stage)
+    - Make a test commit: `git add -A && git commit -m "checkpoint-0.1: repository initialization with full quality infrastructure"`
+    - Verify the pre-commit hook runs lint-staged
+    - Verify the commit-msg hook accepts the checkpoint format
+
+If anything fails, fix it before moving to Checkpoint 1.
+````
 
 ### Prompt 1.1 — Initialize Project and Define Types
 
@@ -837,39 +1285,3 @@ Run the full pipeline test with at least 3 different policy topics and verify:
 ```
 
 ---
-
-## Prompt Execution Order Summary
-
-| #   | Prompt                      | Creates                                 | Depends On    |
-| --- | --------------------------- | --------------------------------------- | ------------- |
-| 1.1 | Project scaffold + types    | Type system, project structure          | Nothing       |
-| 2.1 | Prompt assembler            | System prompt generation                | 1.1           |
-| 2.2 | Research agent + loop       | Agent core with tool use                | 1.1, 2.1      |
-| 2.3 | Claim extractor             | Classification + routing                | 1.1           |
-| 3.1 | HERALD Tier 1 + router      | NLI evaluation + routing                | 1.1, 2.3      |
-| 3.2 | HERALD Tier 2               | LLM-as-Judge with type-specific prompts | 1.1, 3.1      |
-| 3.3 | HERALD Tier 3               | Multi-agent debate                      | 1.1, 3.1, 3.2 |
-| 4.1 | Input + Progress UI         | Phase 1-2 frontend                      | 1.1           |
-| 4.2 | Memo + Notes Log UI         | Phase 3 frontend                        | 1.1, 4.1      |
-| 4.3 | Claim Selector + Results UI | Phase 3-4 frontend                      | 1.1, 4.1, 4.2 |
-| 5.1 | Real API integration        | Live Anthropic + tool APIs              | 2.2           |
-| 5.2 | Braintrust observability    | Logging + tracing                       | 5.1           |
-| 5.3 | Setup guide + Docker        | Developer onboarding                    | All above     |
-| 6.1 | Agent loop control          | Budget, dedup, quality gate             | 2.2, 5.1      |
-| 6.2 | MCP reliability             | Health checks, retries, degradation     | 5.1, 6.1      |
-| 6.3 | Memory + versioning         | DB, session state, API endpoints        | 5.1           |
-| 7.1 | Revision pipeline           | Feedback loop with convergence          | 3.1-3.3, 6.3  |
-| 7.2 | Human review (Tier 4)       | Queue + UI                              | 7.1           |
-| 7.3 | Integration + polish        | E2E test, WebSocket, export, UI polish  | All above     |
-
----
-
-## Tips for Using These Prompts
-
-1. **Paste one prompt at a time** into Claude Code. Let it complete before moving to the next.
-2. **Run tests after each checkpoint** before moving on. Fix failures before proceeding.
-3. **Commit after each checkpoint.** This gives you rollback points.
-4. **The prompts reference CLAUDE.md** — keep it up to date if you make architectural changes.
-5. **Checkpoint 5 requires API keys.** Have them ready before starting that section.
-6. **Checkpoints 1-3 can be developed without a running frontend.** Use the test scripts.
-7. **Checkpoint 4 can be developed with mock data** while the backend catches up.

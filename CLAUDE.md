@@ -333,9 +333,292 @@ policy-memo-agent/
     └── run-herald-benchmark.ts
 ```
 
+### Python Backend Structure (`backend/`)
+
+```
+backend/
+├── pyproject.toml                     # Project metadata, dependencies, tool config
+├── src/
+│   └── policy_memo_agent/
+│       ├── __init__.py
+│       ├── api/
+│       │   ├── __init__.py
+│       │   ├── app.py                 # FastAPI application factory
+│       │   ├── routes/
+│       │   │   ├── __init__.py
+│       │   │   ├── memos.py           # Memo CRUD endpoints
+│       │   │   ├── herald.py          # HERALD evaluation endpoints
+│       │   │   └── health.py          # Health check endpoints
+│       │   ├── middleware/
+│       │   │   ├── __init__.py
+│       │   │   └── error_handler.py   # Global error handling
+│       │   └── deps.py                # Dependency injection (DB, services)
+│       ├── herald/
+│       │   ├── __init__.py
+│       │   ├── router.py              # Claim routing logic
+│       │   ├── tier1_nli.py           # NLI model (DeBERTa/ONNX)
+│       │   ├── tier2_judge.py         # LLM-as-Judge
+│       │   ├── tier3_debate.py        # Multi-agent debate
+│       │   ├── tier4_human.py         # Human review queue
+│       │   └── prompts/
+│       │       ├── __init__.py
+│       │       ├── judge_system.py
+│       │       ├── domain_expert.py
+│       │       ├── methodologist.py
+│       │       ├── skeptic.py
+│       │       └── judge_synthesis.py
+│       ├── models/
+│       │   ├── __init__.py
+│       │   ├── claims.py              # Pydantic models mirroring TS types
+│       │   ├── herald.py
+│       │   ├── memo.py
+│       │   └── agent.py
+│       ├── services/
+│       │   ├── __init__.py
+│       │   ├── nli_service.py         # NLI model loading and inference
+│       │   └── braintrust_service.py  # Observability wrapper
+│       └── db/
+│           ├── __init__.py
+│           ├── database.py            # SQLAlchemy/asyncpg setup
+│           ├── models.py              # ORM models
+│           └── repositories/
+│               ├── __init__.py
+│               ├── memo_repo.py
+│               └── claim_repo.py
+├── tests/
+│   ├── conftest.py                    # Fixtures, test DB, mock services
+│   ├── test_herald/
+│   │   ├── test_router.py
+│   │   ├── test_tier1_nli.py
+│   │   ├── test_tier2_judge.py
+│   │   ├── test_tier3_debate.py
+│   │   └── test_feedback_loop.py
+│   ├── test_api/
+│   │   ├── test_memos.py
+│   │   └── test_herald.py
+│   └── test_models/
+│       └── test_claims.py
+└── alembic/
+    ├── alembic.ini
+    ├── env.py
+    └── versions/
+```
+
 ---
 
-## Agent Loop Control
+## Python Backend Infrastructure
+
+### Virtual Environment: uv
+
+We use **uv** as the Python package manager and virtual environment tool. uv is fast, handles lockfiles, and replaces pip, pip-tools, virtualenv, and pyenv in a single binary.
+
+**Why uv over alternatives:**
+
+- **Over venv+pip**: uv is 10-100x faster, has proper lockfile support (`uv.lock`), and handles Python version management
+- **Over Poetry**: uv is faster, has better monorepo support, and uses standard `pyproject.toml` without custom sections
+- **Over conda**: uv is lighter weight and doesn't conflate Python packages with system packages. We don't need conda's data science environment management.
+- **Over pipenv**: uv is significantly faster and more actively maintained
+
+### pyproject.toml
+
+```toml
+[project]
+name = "policy-memo-agent"
+version = "0.1.0"
+description = "Policy memo writing agent with HERALD evaluation framework"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.6.0",
+    "sqlalchemy>=2.0.36",
+    "asyncpg>=0.30.0",
+    "alembic>=1.14.0",
+    "redis>=5.2.0",
+    "httpx>=0.28.0",
+    "anthropic>=0.40.0",
+    "braintrust>=0.0.160",
+    "transformers>=4.46.0",
+    "torch>=2.5.0",
+    "onnxruntime>=1.20.0",
+    "websockets>=14.0",
+    "python-multipart>=0.0.12",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "pytest-xdist>=3.5.0",
+    "pytest-timeout>=2.3.0",
+    "pytest-mock>=3.14.0",
+    "httpx>=0.28.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+    "pre-commit>=4.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.backends"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/policy_memo_agent"]
+
+# ── Ruff (replaces flake8, isort, black, pyflakes, pycodestyle) ──
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort
+    "N",     # pep8-naming
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "SIM",   # flake8-simplify
+    "T20",   # flake8-print (catches print statements — use logging/braintrust instead)
+    "RET",   # flake8-return
+    "ARG",   # flake8-unused-arguments
+    "PTH",   # flake8-use-pathlib
+    "RUF",   # Ruff-specific rules
+    "ASYNC", # flake8-async
+]
+ignore = [
+    "E501",  # line length handled by formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["T20", "ARG"]  # allow print and unused args in tests
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+# ── Mypy ──
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_any_explicit = false  # too strict for Pydantic models
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = "transformers.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "onnxruntime.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "braintrust.*"
+ignore_missing_imports = true
+
+# ── Pytest ──
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+timeout = 30
+markers = [
+    "integration: tests requiring external API keys (deselect with -m 'not integration')",
+    "slow: tests taking > 10 seconds (deselect with -m 'not slow')",
+    "tier1: HERALD Tier 1 NLI tests",
+    "tier2: HERALD Tier 2 LLM Judge tests",
+    "tier3: HERALD Tier 3 Multi-Agent Debate tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:transformers.*",
+]
+
+# ── Coverage ──
+[tool.coverage.run]
+source = ["src/policy_memo_agent"]
+omit = ["*/tests/*", "*/migrations/*"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.",
+]
+```
+
+### Python Commands
+
+```bash
+# Environment setup
+uv sync                              # Install all dependencies (creates .venv automatically)
+uv sync --group dev                  # Install with dev dependencies
+
+# Running
+uv run uvicorn policy_memo_agent.api.app:create_app --factory --reload  # Dev server
+uv run python -m policy_memo_agent.herald.router  # Run HERALD standalone
+
+# Testing
+uv run pytest                        # All tests
+uv run pytest tests/test_herald/     # HERALD tests only
+uv run pytest -m "not integration"   # Skip integration tests (no API key needed)
+uv run pytest -m tier1               # Only Tier 1 NLI tests
+uv run pytest --cov --cov-report=html  # Coverage report
+uv run pytest -x                     # Stop on first failure
+uv run pytest -n auto                # Parallel execution
+
+# Linting & Formatting
+uv run ruff check .                  # Lint
+uv run ruff check . --fix            # Lint + autofix
+uv run ruff format .                 # Format
+uv run ruff format . --check         # Check formatting without changing
+uv run mypy src/                     # Type check
+
+# Full validation (run before push)
+uv run ruff check . && uv run ruff format . --check && uv run mypy src/ && uv run pytest
+
+# Database migrations
+uv run alembic upgrade head          # Apply all migrations
+uv run alembic revision --autogenerate -m "description"  # Create migration
+```
+
+### Python Pre-commit Hooks
+
+The Python side uses the same Husky-based hooks as TypeScript. The `pre-commit` hook in `.husky/pre-commit` should also run Python checks on staged `.py` files. This is configured via lint-staged in `package.json`:
+
+```json
+{
+  "lint-staged": {
+    "*.{ts,tsx}": ["eslint --fix --max-warnings 0", "prettier --write"],
+    "*.py": [
+      "bash -c 'cd backend && uv run ruff check --fix'",
+      "bash -c 'cd backend && uv run ruff format'"
+    ],
+    "backend/src/**/*.py": ["bash -c 'cd backend && uv run mypy src/'"],
+    "backend/tests/test_herald/**/*.py": [
+      "bash -c 'cd backend && uv run pytest tests/test_herald/ -x --timeout=30'"
+    ]
+  }
+}
+```
+
+### CI/CD: GitHub Actions
+
+The CI pipeline runs on every push and PR. It has 3 jobs:
+
+1. **lint-and-type-check** — Fast, runs first. Catches formatting, import, and type errors.
+2. **test-unit** — Runs all non-integration tests. No API keys needed.
+3. **test-integration** — Runs only on `main` branch pushes. Requires API key secrets.
+
+Workflow file: `.github/workflows/ci.yml`
 
 ### Research Budget
 
@@ -447,6 +730,7 @@ npm run telemetry:view   # View OpenTelemetry traces
 - Commit after each checkpoint (see IMPLEMENTATION_PROMPTS.md)
 - Commit messages: `checkpoint-N.M: brief description` (e.g., `checkpoint-2.2: research agent with tool use`)
 - Run tests before every commit. Do not commit broken tests.
+- Pre-commit hooks enforce quality gates automatically (see below)
 
 ### Testing Strategy
 
@@ -490,3 +774,195 @@ After completing a checkpoint, start a fresh context and review the files that w
 - Error handling coverage
 - Test coverage for happy path and failure cases
 - Consistency with the claim taxonomy and HERALD routing table
+
+---
+
+## Git Hooks & Quality Gates
+
+### Overview
+
+The project uses **Husky** for Git hooks and **lint-staged** to run checks only on staged files. Every commit must pass: TypeScript compilation, ESLint, Prettier formatting, and unit tests for modified files. This prevents broken code from ever entering the repo.
+
+### Setup (run once after cloning)
+
+```bash
+npm install --save-dev husky lint-staged @commitlint/cli @commitlint/config-conventional
+npx husky init
+```
+
+### Hook Configuration
+
+#### Pre-commit Hook (`.husky/pre-commit`)
+
+Runs on every `git commit`. Blocks the commit if any check fails.
+
+```bash
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npx lint-staged
+```
+
+#### Commit-msg Hook (`.husky/commit-msg`)
+
+Enforces conventional commit message format. All commits must follow: `checkpoint-N.M: description` or conventional format (`feat:`, `fix:`, `test:`, `refactor:`, `docs:`, `chore:`).
+
+```bash
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npx --no -- commitlint --edit ${1}
+```
+
+#### Pre-push Hook (`.husky/pre-push`)
+
+Runs the full test suite before allowing a push. More expensive checks that don't need to run on every commit.
+
+```bash
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "Running full test suite before push..."
+npm run typecheck
+npm run test
+echo "All checks passed."
+```
+
+### lint-staged Configuration (`package.json`)
+
+```json
+{
+  "lint-staged": {
+    "*.{ts,tsx}": ["eslint --fix --max-warnings 0", "prettier --write"],
+    "*.{json,md,yml,yaml}": ["prettier --write"],
+    "src/types/**/*.ts": ["bash -c 'npm run typecheck'"],
+    "src/herald/**/*.ts": [
+      "bash -c 'npm run test:herald -- --passWithNoTests'"
+    ],
+    "src/agent/**/*.ts": ["bash -c 'npm run test:agent -- --passWithNoTests'"]
+  }
+}
+```
+
+Key behavior: if you modify any file in `src/herald/`, the HERALD tests run automatically before commit. Same for `src/agent/`. Changes to type definitions trigger a full typecheck. This catches routing table violations and taxonomy mismatches at commit time, not in production.
+
+### Commitlint Configuration (`commitlint.config.js`)
+
+```javascript
+module.exports = {
+  extends: ["@commitlint/config-conventional"],
+  rules: {
+    "type-enum": [
+      2,
+      "always",
+      [
+        "checkpoint", // checkpoint-2.2: research agent with tool use
+        "feat", // feat: add World Bank MCP tool
+        "fix", // fix: HERALD routing for causal claims
+        "test", // test: add Tier 2 judge prompt tests
+        "refactor", // refactor: extract claim classification logic
+        "docs", // docs: update CLAUDE.md with new tool
+        "chore", // chore: update dependencies
+        "ci", // ci: add GitHub Actions workflow
+      ],
+    ],
+    "subject-max-length": [2, "always", 100],
+  },
+};
+```
+
+### ESLint Configuration (`.eslintrc.json`)
+
+```json
+{
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/strict-type-checked"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_" }
+    ],
+    "@typescript-eslint/strict-boolean-expressions": "error",
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-unreachable": "error",
+    "eqeqeq": ["error", "always"],
+    "no-throw-literal": "error"
+  },
+  "overrides": [
+    {
+      "files": ["tests/**/*.ts"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
+}
+```
+
+The `no-console` warning enforces the "use Braintrust span helpers, not console.log" rule from the conventions section. The `no-explicit-any` error enforces the type safety requirement. `strict-boolean-expressions` catches accidental truthiness checks that should be explicit.
+
+### Prettier Configuration (`.prettierrc`)
+
+```json
+{
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "arrowParens": "always"
+}
+```
+
+### package.json Scripts
+
+```json
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/ --max-warnings 0",
+    "lint:fix": "eslint src/ --fix --max-warnings 0",
+    "format": "prettier --write 'src/**/*.{ts,tsx,json,md}'",
+    "format:check": "prettier --check 'src/**/*.{ts,tsx,json,md}'",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:agent": "vitest run tests/agent/",
+    "test:herald": "vitest run tests/herald/",
+    "test:integration": "vitest run tests/integration/",
+    "test:coverage": "vitest run --coverage",
+    "validate": "npm run typecheck && npm run lint && npm run test",
+    "prepare": "husky"
+  }
+}
+```
+
+The `validate` script runs everything — use it before major pushes or PR merges. `prepare` ensures Husky hooks are installed when anyone runs `npm install`.
+
+### What Gets Blocked
+
+| Trigger                       | Check                             | Blocks If                        |
+| ----------------------------- | --------------------------------- | -------------------------------- |
+| `git commit` (any file)       | ESLint + Prettier on staged files | Lint errors or formatting issues |
+| `git commit` (types changed)  | `tsc --noEmit`                    | Type errors anywhere in project  |
+| `git commit` (herald changed) | HERALD test suite                 | Any HERALD test fails            |
+| `git commit` (agent changed)  | Agent test suite                  | Any agent test fails             |
+| `git commit` (message)        | commitlint                        | Message doesn't match format     |
+| `git push`                    | Full typecheck + all tests        | Any check fails                  |
+
+### Claude Code Integration
+
+When Claude Code makes changes and tries to commit, these hooks run automatically. If a hook fails, Claude Code will see the error output and should fix the issue before retrying the commit. This is intentional — it catches:
+
+- Type regressions when modifying the claim taxonomy
+- HERALD routing bugs when changing evaluation logic
+- Missing error handling on new API calls
+- Formatting inconsistencies
