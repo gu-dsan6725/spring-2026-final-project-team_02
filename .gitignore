@@ -18,7 +18,6 @@ backend/.mypy_cache/
 backend/.ruff_cache/
 backend/.pytest_cache/
 backend/coverage.xml
-backend/uv.lock
 backend/htmlcov/
 backend/.coverage
 

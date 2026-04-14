@@ -3,51 +3,22 @@
  * backend/src/policy_memo_agent/models/herald.py
  */
 
-export type Verdict = 'valid' | 'invalid' | 'uncertain' | 'plausible_but_unsupported';
+export type Verdict = 'valid' | 'invalid' | 'needs_revision' | 'uncertain';
 
 export type DebatePersona = 'domain_expert' | 'methodologist' | 'skeptic';
 
-export interface TierOneOutput {
-  entailment_score: number;
-  neutral_score: number;
-  contradiction_score: number;
+export interface TierOutput {
+  tier_id: 1 | 2 | 3 | 4;
   verdict: Verdict;
   confidence: number;
   reasoning: string;
-}
-
-export interface TierTwoOutput {
-  verdict: Verdict;
-  confidence: number;
-  accuracy_assessment: string;
-  relevance_assessment: string;
-  completeness_assessment: string;
-  specialized_assessment: string;
-  reasoning: string;
-  suggested_revision: string | null;
-}
-
-export interface PersonaOutput {
-  persona: DebatePersona;
-  verdict: Verdict;
-  reasoning: string;
+  suggested_revision?: string;
 }
 
 export interface DebateOutput {
-  domain_expert: PersonaOutput;
-  methodologist: PersonaOutput;
-  skeptic: PersonaOutput;
-  judge_synthesis: string;
-  final_verdict: Verdict;
-  confidence: number;
-  suggested_revision: string | null;
-}
-
-export interface TierOutput {
-  tier: 1 | 2 | 3 | 4;
-  output: TierOneOutput | TierTwoOutput | DebateOutput | null;
-  skipped: boolean;
-  skip_reason: string | null;
+  persona: DebatePersona;
+  verdict: Verdict;
+  reasoning: string;
 }
 
 export interface HeraldResult {
@@ -57,5 +28,10 @@ export interface HeraldResult {
   confidence: number;
   feedback: string;
   suggested_revision: string | null;
-  tier_details: Record<string, TierOutput | null>;
+  tier_details: {
+    tier_1: TierOutput | null;
+    tier_2: TierOutput | null;
+    tier_3: TierOutput | null;
+    tier_4: TierOutput | null;
+  };
 }
