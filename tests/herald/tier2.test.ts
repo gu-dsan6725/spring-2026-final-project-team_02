@@ -50,6 +50,21 @@ vi.mock('@anthropic-ai/sdk', () => ({
   }),
 }));
 
+// Silence Braintrust observability — without this mock every evaluateWithLLMJudge
+// call writes JSON span events to process.stderr, flooding CI output.
+vi.mock('../../src/observability/braintrust', () => ({
+  startSpan: vi.fn(() => ({
+    id: 'test-span',
+    name: 'test',
+    startTime: 0,
+    log: vi.fn(),
+    end: vi.fn(),
+  })),
+  logError: vi.fn(),
+  logToolCall: vi.fn(),
+  logWarn: vi.fn(),
+}));
+
 // ---------------------------------------------------------------------------
 // Test fixtures
 // ---------------------------------------------------------------------------
