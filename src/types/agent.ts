@@ -5,16 +5,30 @@
 
 import type { ClaimType } from './claims';
 
+export interface PlannedQuery {
+  tool: string;
+  query: string;
+  expected_claim_types: ClaimType[];
+  priority: number; // 1 = highest priority, higher numbers = lower priority
+}
+
 export interface ResearchPlan {
-  planned_queries: Array<{
-    tool: string;
-    query: string;
-    expected_claim_types: ClaimType[];
-  }>;
+  planned_queries: PlannedQuery[];
   budget: {
     max_tool_calls: number;
     max_tokens: number;
+    calls_per_query: number; // approximate budget allocation per query
   };
+  total_queries: number;
+}
+
+export interface QualityGateResult {
+  passed: boolean;
+  unique_sources: number;
+  total_claims: number;
+  claim_type_count: number;
+  needs_extra_round: boolean;
+  flags: string[];
 }
 
 export interface ToolCallLog {

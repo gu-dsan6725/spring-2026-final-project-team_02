@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "test:agent": "vitest run tests/agent/",
     "test:herald": "vitest run tests/herald/",
+    "test:mcp": "vitest run tests/mcp/",
     "test:integration": "vitest run tests/integration/",
     "test:coverage": "vitest run --coverage",
     "seed": "npx tsx scripts/seed-test-data.ts",
