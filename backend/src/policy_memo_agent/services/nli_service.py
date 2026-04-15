@@ -59,9 +59,9 @@ def _parse_hf_output(raw: object) -> NLIResult:
       {"label": "ENTAILMENT", "score": 0.9}
     """
     if isinstance(raw, dict):
-        items: list[dict[str, object]] = [raw]  # type: ignore[list-item]
+        items: list[dict[str, object]] = [raw]
     else:
-        items = list(raw)  # type: ignore[arg-type]
+        items = list(raw)  # type: ignore[call-overload]
 
     scores: dict[str, float] = {}
     for item in items:
@@ -163,7 +163,7 @@ class NLIService:
 
     def _load_hf(self) -> None:
         try:
-            from transformers import pipeline  # type: ignore[import-untyped]
+            from transformers import pipeline
         except ImportError as exc:
             msg = (
                 "transformers is not installed. "
@@ -184,13 +184,13 @@ class NLIService:
         self._use_onnx = False
 
     def _predict_hf(self, premise: str, hypothesis: str) -> NLIResult:
-        raw = self._pipeline(premise, text_pair=hypothesis)  # type: ignore[operator]
+        raw = self._pipeline(premise, text_pair=hypothesis)  # type: ignore[operator, misc]
         return _parse_hf_output(raw)
 
     def _predict_hf_batch(self, pairs: list[tuple[str, str]]) -> list[NLIResult]:
         # Hugging Face pipeline accepts list of (text, text_pair) dicts
         inputs = [{"text": p, "text_pair": h} for p, h in pairs]
-        raw_batch = self._pipeline(inputs)  # type: ignore[operator]
+        raw_batch = self._pipeline(inputs)  # type: ignore[operator, misc]
         return [_parse_hf_output(r) for r in raw_batch]
 
     # ------------------------------------------------------------------
@@ -200,8 +200,8 @@ class NLIService:
     def _load_onnx(self, model_dir: str) -> None:
         """Load a quantised ONNX model and its tokenizer from *model_dir*."""
         try:
-            import onnxruntime as ort  # type: ignore[import-untyped]
-            from transformers import AutoTokenizer  # type: ignore[import-untyped]
+            import onnxruntime as ort
+            from transformers import AutoTokenizer
         except ImportError as exc:
             msg = "onnxruntime and/or transformers are not installed. Run: uv sync --extra nli."
             raise ImportError(msg) from exc
@@ -228,12 +228,12 @@ class NLIService:
         self._use_onnx = True
 
     def _predict_onnx(self, premise: str, hypothesis: str) -> NLIResult:
-        import numpy as np  # type: ignore[import-untyped]
+        import numpy as np
 
         tokenizer = self._tokenizer
         session = self._ort_session
 
-        encoding = tokenizer(  # type: ignore[operator]
+        encoding = tokenizer(  # type: ignore[operator, misc]
             premise,
             hypothesis,
             return_tensors="np",
@@ -262,7 +262,7 @@ class NLIService:
     def _detect_device() -> int:
         """Return 0 for CUDA GPU if available, else -1 for CPU."""
         try:
-            import torch  # type: ignore[import-untyped]
+            import torch
 
             return 0 if torch.cuda.is_available() else -1
         except ImportError:

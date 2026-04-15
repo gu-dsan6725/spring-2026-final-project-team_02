@@ -17,6 +17,7 @@
 import { CLAIM_TYPE_CONFIG, type ClaimType, type NotesLogEntry } from '../types/claims';
 import type { HeraldResult, TierOutput } from '../types/herald';
 import { evaluateWithNLI } from './tier1-nli';
+import { evaluateWithLLMJudge } from './tier2-llm-judge';
 
 // ---------------------------------------------------------------------------
 // Tier routing
@@ -46,26 +47,7 @@ export function routeClaim(claim: NotesLogEntry): RouteDecision {
     nliThreshold: config.nliEscalationThreshold,
     rationale:
       `Claim type '${claim.claim_type}' starts at Tier 1 ` +
-      `(NLI threshold: ${(config.nliEscalationThreshold ?? 0.9) * 100}%).`,
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Tier 2 stub
-// ---------------------------------------------------------------------------
-
-/**
- * Tier 2 LLM-as-Judge placeholder — will be implemented in a future checkpoint.
- * Returns an uncertain verdict so callers know to treat results as incomplete.
- */
-async function _tier2Stub(claim: NotesLogEntry, _priorTier1: TierOutput | null): Promise<TierOutput> {
-  return {
-    tier_id: 2,
-    verdict: 'uncertain',
-    confidence: 0,
-    reasoning:
-      `Tier 2 (LLM-as-Judge) is not yet implemented. ` +
-      `Claim '${claim.claim_id}' (${claim.claim_type}) requires manual review.`,
+      `(NLI threshold: ${String((config.nliEscalationThreshold ?? 0.9) * 100)}%).`,
   };
 }
 
@@ -106,7 +88,7 @@ export async function evaluateClaim(claim: NotesLogEntry): Promise<HeraldResult>
   }
 
   // -- Tier 2 --
-  tier2Output = await _tier2Stub(claim, tier1Output);
+  tier2Output = await evaluateWithLLMJudge(claim, tier1Output !== null ? tier1Output : undefined);
   tierDetails.tier_2 = tier2Output;
 
   return _buildResult(claim, tier2Output.verdict, tier2Output, tierDetails);
@@ -139,13 +121,17 @@ function _buildResult(
 // ---------------------------------------------------------------------------
 
 export function claimTypesSkippingNLI(): ClaimType[] {
-  return (Object.entries(CLAIM_TYPE_CONFIG) as Array<[ClaimType, (typeof CLAIM_TYPE_CONFIG)[ClaimType]]>)
+  return (
+    Object.entries(CLAIM_TYPE_CONFIG) as Array<[ClaimType, (typeof CLAIM_TYPE_CONFIG)[ClaimType]]>
+  )
     .filter(([, cfg]) => cfg.skipNLI)
     .map(([claimType]) => claimType);
 }
 
 export function claimTypesUsingNLI(): ClaimType[] {
-  return (Object.entries(CLAIM_TYPE_CONFIG) as Array<[ClaimType, (typeof CLAIM_TYPE_CONFIG)[ClaimType]]>)
+  return (
+    Object.entries(CLAIM_TYPE_CONFIG) as Array<[ClaimType, (typeof CLAIM_TYPE_CONFIG)[ClaimType]]>
+  )
     .filter(([, cfg]) => !cfg.skipNLI)
     .map(([claimType]) => claimType);
 }
