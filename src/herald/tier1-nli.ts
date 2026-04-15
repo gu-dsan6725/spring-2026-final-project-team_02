@@ -19,8 +19,9 @@ import type { TierOutput } from '../types/herald';
 // ---------------------------------------------------------------------------
 
 const API_BASE =
-  (typeof process !== 'undefined' && process.env['NEXT_PUBLIC_API_URL']) ||
-  'http://localhost:8000';
+  (typeof process !== 'undefined' && process.env['NEXT_PUBLIC_API_URL'] !== undefined
+    ? process.env['NEXT_PUBLIC_API_URL']
+    : null) ?? 'http://localhost:8000';
 
 // ---------------------------------------------------------------------------
 // Types mirroring the Python NLI response schema
@@ -95,7 +96,9 @@ function aggregateResults(items: NLIResponseItem[]): AggregatedResult {
 // HTTP call
 // ---------------------------------------------------------------------------
 
-async function callNLIBatch(pairs: Array<{ premise: string; hypothesis: string }>): Promise<NLIBatchResponse> {
+async function callNLIBatch(
+  pairs: Array<{ premise: string; hypothesis: string }>,
+): Promise<NLIBatchResponse> {
   const url = `${API_BASE}/api/herald/nli/batch`;
   const response = await fetch(url, {
     method: 'POST',
@@ -105,7 +108,7 @@ async function callNLIBatch(pairs: Array<{ premise: string; hypothesis: string }
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`NLI service error ${response.status}: ${body}`);
+    throw new Error(`NLI service error ${String(response.status)}: ${body}`);
   }
 
   return response.json() as Promise<NLIBatchResponse>;
@@ -153,7 +156,7 @@ export async function evaluateWithNLI(claim: NotesLogEntry): Promise<TierOutput>
       verdict: 'valid',
       confidence: agg.confidence,
       reasoning:
-        `All ${pairs.length} source(s) entail the claim with confidence ` +
+        `All ${String(pairs.length)} source(s) entail the claim with confidence ` +
         `${(agg.confidence * 100).toFixed(1)}% (threshold: ${(threshold * 100).toFixed(0)}%).`,
     };
   }
@@ -168,7 +171,7 @@ export async function evaluateWithNLI(claim: NotesLogEntry): Promise<TierOutput>
       confidence: agg.confidence,
       reasoning:
         `NLI detected a contradiction between the claim and ` +
-        `${contradictingCount} of ${pairs.length} source chunk(s). ` +
+        `${String(contradictingCount)} of ${String(pairs.length)} source chunk(s). ` +
         `Contradiction confidence: ${(agg.confidence * 100).toFixed(1)}%.`,
       suggested_revision:
         'Verify the claim against the cited source. The claim may misrepresent the direction ' +
@@ -186,8 +189,8 @@ export async function evaluateWithNLI(claim: NotesLogEntry): Promise<TierOutput>
     verdict: 'uncertain',
     confidence: agg.confidence,
     reasoning:
-      `NLI result inconclusive across ${pairs.length} source(s): ` +
-      `${entailCount} entailment, ${neutralCount} neutral, ${contraCount} contradiction. ` +
+      `NLI result inconclusive across ${String(pairs.length)} source(s): ` +
+      `${String(entailCount)} entailment, ${String(neutralCount)} neutral, ${String(contraCount)} contradiction. ` +
       `Aggregate label '${agg.label}' with confidence ${(agg.confidence * 100).toFixed(1)}% ` +
       `(threshold: ${(threshold * 100).toFixed(0)}%). Escalating to Tier 2.`,
   };
