@@ -16,7 +16,12 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ClaimType, DerivationMethod, type NotesLogEntry, type Source } from '../../src/types/claims';
+import {
+  ClaimType,
+  DerivationMethod,
+  type NotesLogEntry,
+  type Source,
+} from '../../src/types/claims';
 import { evaluateWithNLI } from '../../src/herald/tier1-nli';
 import {
   claimTypesSkippingNLI,
@@ -24,6 +29,18 @@ import {
   evaluateClaim,
   routeClaim,
 } from '../../src/herald/router';
+
+// Isolate tier1 tests from the real Tier 2 implementation.
+// evaluateClaim() routes through Tier 2 for uncertain/skipNLI results;
+// these tests only care about Tier 1 behavior, so we stub Tier 2 here.
+vi.mock('../../src/herald/tier2-llm-judge', () => ({
+  evaluateWithLLMJudge: vi.fn().mockResolvedValue({
+    tier_id: 2,
+    verdict: 'uncertain',
+    confidence: 0.0,
+    reasoning: 'Tier 2 stub (mocked for tier1 isolation).',
+  }),
+}));
 
 // ---------------------------------------------------------------------------
 // Test fixtures
@@ -73,6 +90,7 @@ function mockNLIBatch(
 const fetchMock = vi.fn();
 
 beforeEach(() => {
+  fetchMock.mockClear();
   vi.stubGlobal('fetch', fetchMock);
 });
 
@@ -215,7 +233,9 @@ describe('evaluateWithNLI verdicts', () => {
 
   it('returns invalid with suggested_revision when contradiction > 0.7', async () => {
     fetchMock.mockReturnValueOnce(
-      mockNLIBatch([{ label: 'contradiction', entailment: 0.05, neutral: 0.1, contradiction: 0.85 }]),
+      mockNLIBatch([
+        { label: 'contradiction', entailment: 0.05, neutral: 0.1, contradiction: 0.85 },
+      ]),
     );
 
     const result = await evaluateWithNLI(makeEntry({ claim_type: ClaimType.Statistical }));
@@ -227,7 +247,9 @@ describe('evaluateWithNLI verdicts', () => {
 
   it('returns uncertain when contradiction is weak (< 0.7)', async () => {
     fetchMock.mockReturnValueOnce(
-      mockNLIBatch([{ label: 'contradiction', entailment: 0.2, neutral: 0.45, contradiction: 0.35 }]),
+      mockNLIBatch([
+        { label: 'contradiction', entailment: 0.2, neutral: 0.45, contradiction: 0.35 },
+      ]),
     );
 
     const result = await evaluateWithNLI(makeEntry({ claim_type: ClaimType.Statistical }));
@@ -262,10 +284,7 @@ describe('evaluateWithNLI multi-source aggregation', () => {
 
     const claim = makeEntry({
       claim_type: ClaimType.Statistical,
-      sources: [
-        makeSource('Chunk 1', 'S-001'),
-        makeSource('Chunk 2', 'S-002'),
-      ],
+      sources: [makeSource('Chunk 1', 'S-001'), makeSource('Chunk 2', 'S-002')],
     });
     const result = await evaluateWithNLI(claim);
 
@@ -330,7 +349,9 @@ describe('evaluateWithNLI HTTP call', () => {
     expect(url).toMatch(/\/api\/herald\/nli\/batch$/);
     expect(options.method).toBe('POST');
 
-    const body = JSON.parse(options.body as string) as { pairs: Array<{ premise: string; hypothesis: string }> };
+    const body = JSON.parse(options.body as string) as {
+      pairs: Array<{ premise: string; hypothesis: string }>;
+    };
     expect(body.pairs).toHaveLength(1);
     expect(body.pairs[0]!.premise).toBe('The unemployment rate is 5.2%.');
     expect(body.pairs[0]!.hypothesis).toBe(claim.claim_text);
