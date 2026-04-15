@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import logging
+import time
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
+from policy_memo_agent.services.braintrust_service import get_braintrust
 from policy_memo_agent.services.nli_service import NLIResult, NLIService, get_nli_service
 
 logger = logging.getLogger(__name__)
@@ -56,6 +58,7 @@ class NLIResponse(BaseModel):
 
 class NLIBatchRequest(BaseModel):
     pairs: list[NLIPair]
+    claim_ids: list[str] | None = None
 
 
 class NLIBatchResponse(BaseModel):
@@ -92,7 +95,17 @@ async def nli_single(body: NLIPair, service: LoadedNLI) -> NLIResponse:
     - **hypothesis**: the claim text being evaluated
     """
     logger.debug("NLI single: premise_len=%d hyp_len=%d", len(body.premise), len(body.hypothesis))
+    t0 = time.perf_counter()
     result = service.predict(body.premise, body.hypothesis)
+    latency_ms = (time.perf_counter() - t0) * 1000.0
+
+    get_braintrust().log_herald_request(
+        endpoint="/api/herald/nli",
+        claim_id="",
+        latency_ms=latency_ms,
+        status_code=200,
+        metadata={"label": result.label},
+    )
     return _to_response(result)
 
 
@@ -107,8 +120,18 @@ async def nli_batch(body: NLIBatchRequest, service: LoadedNLI) -> NLIBatchRespon
         return NLIBatchResponse(results=[])
 
     logger.debug("NLI batch: %d pairs", len(body.pairs))
+    t0 = time.perf_counter()
     pairs = [(p.premise, p.hypothesis) for p in body.pairs]
-    results = service.predict_batch(pairs)
+    results = service.predict_batch(pairs, claim_ids=body.claim_ids)
+    latency_ms = (time.perf_counter() - t0) * 1000.0
+
+    get_braintrust().log_herald_request(
+        endpoint="/api/herald/nli/batch",
+        claim_id="",
+        latency_ms=latency_ms,
+        status_code=200,
+        metadata={"pair_count": len(pairs)},
+    )
     return NLIBatchResponse(results=[_to_response(r) for r in results])
 
 

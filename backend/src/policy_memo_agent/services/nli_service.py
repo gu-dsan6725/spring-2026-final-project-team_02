@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 import os
+import time
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
@@ -115,19 +116,41 @@ class NLIService:
         2. Otherwise -> load HuggingFace pipeline for the model at HF_MODEL_PATH
            (defaults to 'microsoft/deberta-v3-large-mnli').
         """
+        from .braintrust_service import ModelLoadLog, get_braintrust
+
+        model_name = os.getenv("HF_MODEL_PATH", _DEFAULT_HF_MODEL)
         onnx_path = os.getenv("NLI_ONNX_MODEL_PATH")
-        if onnx_path:
-            self._load_onnx(onnx_path)
-        else:
-            self._load_hf()
-        self._loaded = True
+        t0 = time.perf_counter()
+        error: str | None = None
+
+        try:
+            if onnx_path:
+                self._load_onnx(onnx_path)
+            else:
+                self._load_hf()
+            self._loaded = True
+        except Exception as exc:
+            error = str(exc)
+            raise
+        finally:
+            latency_ms = (time.perf_counter() - t0) * 1000.0
+            get_braintrust().log_model_load(
+                ModelLoadLog(
+                    use_onnx=bool(onnx_path),
+                    model_name=onnx_path or model_name,
+                    latency_ms=latency_ms,
+                    success=error is None,
+                    error=error,
+                )
+            )
+
         logger.info("NLI model loaded (onnx=%s)", self._use_onnx)
 
     def is_loaded(self) -> bool:
         """Return True once load() has completed successfully."""
         return self._loaded
 
-    def predict(self, premise: str, hypothesis: str) -> NLIResult:
+    def predict(self, premise: str, hypothesis: str, claim_id: str = "") -> NLIResult:
         """
         Run NLI inference for a single premise-hypothesis pair.
 
@@ -135,27 +158,74 @@ class NLIService:
         ----------
         premise:    The source chunk that supposedly supports the claim.
         hypothesis: The claim text being evaluated.
+        claim_id:   Optional claim identifier for observability logging.
         """
         if not self._loaded:
             msg = "NLIService.predict() called before load()"
             raise RuntimeError(msg)
 
-        if self._use_onnx:
-            return self._predict_onnx(premise, hypothesis)
-        return self._predict_hf(premise, hypothesis)
+        from .braintrust_service import NLIInferenceLog, get_braintrust
 
-    def predict_batch(self, pairs: list[tuple[str, str]]) -> list[NLIResult]:
+        t0 = time.perf_counter()
+        if self._use_onnx:
+            result = self._predict_onnx(premise, hypothesis)
+        else:
+            result = self._predict_hf(premise, hypothesis)
+        latency_ms = (time.perf_counter() - t0) * 1000.0
+
+        get_braintrust().log_nli_inference(
+            NLIInferenceLog(
+                claim_id=claim_id,
+                claim_text=hypothesis,
+                premise_chunk=premise,
+                label=result.label,
+                entailment_score=result.scores.get("entailment", 0.0),
+                neutral_score=result.scores.get("neutral", 0.0),
+                contradiction_score=result.scores.get("contradiction", 0.0),
+                latency_ms=latency_ms,
+                use_onnx=self._use_onnx,
+            )
+        )
+        return result
+
+    def predict_batch(
+        self,
+        pairs: list[tuple[str, str]],
+        claim_ids: list[str] | None = None,
+    ) -> list[NLIResult]:
         """
         Run NLI inference on a batch of (premise, hypothesis) pairs.
         Falls back to sequential calls when using ONNX (no native batching).
+
+        Parameters
+        ----------
+        pairs:      List of (premise, hypothesis) tuples.
+        claim_ids:  Optional parallel list of claim IDs for logging.
         """
         if not self._loaded:
             msg = "NLIService.predict_batch() called before load()"
             raise RuntimeError(msg)
 
+        from .braintrust_service import NLIBatchLog, get_braintrust
+
+        t0 = time.perf_counter()
         if self._use_onnx:
-            return [self._predict_onnx(p, h) for p, h in pairs]
-        return self._predict_hf_batch(pairs)
+            results = [self._predict_onnx(p, h) for p, h in pairs]
+        else:
+            results = self._predict_hf_batch(pairs)
+        latency_ms = (time.perf_counter() - t0) * 1000.0
+
+        ids = claim_ids if claim_ids is not None else [f"pair-{i}" for i in range(len(pairs))]
+        get_braintrust().log_nli_batch(
+            NLIBatchLog(
+                claim_ids=ids,
+                labels=[r.label for r in results],
+                latency_ms=latency_ms,
+                pair_count=len(pairs),
+                use_onnx=self._use_onnx,
+            )
+        )
+        return results
 
     # ------------------------------------------------------------------
     # HuggingFace Transformers backend
