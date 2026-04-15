@@ -265,12 +265,14 @@ def loaded_nli_service() -> NLIService:
     return service
 
 
+@pytest.mark.integration
 @pytest.mark.tier1
 @pytest.mark.slow
 def test_model_loads_successfully(loaded_nli_service: NLIService) -> None:
     assert loaded_nli_service.is_loaded() is True
 
 
+@pytest.mark.integration
 @pytest.mark.tier1
 @pytest.mark.slow
 def test_entailment_detection(loaded_nli_service: NLIService) -> None:
@@ -284,6 +286,7 @@ def test_entailment_detection(loaded_nli_service: NLIService) -> None:
     assert result.scores["entailment"] > 0.5
 
 
+@pytest.mark.integration
 @pytest.mark.tier1
 @pytest.mark.slow
 def test_contradiction_detection(loaded_nli_service: NLIService) -> None:
@@ -297,6 +300,7 @@ def test_contradiction_detection(loaded_nli_service: NLIService) -> None:
     assert result.scores["contradiction"] > 0.5
 
 
+@pytest.mark.integration
 @pytest.mark.tier1
 @pytest.mark.slow
 def test_neutral_detection(loaded_nli_service: NLIService) -> None:
@@ -310,6 +314,7 @@ def test_neutral_detection(loaded_nli_service: NLIService) -> None:
     assert result.scores["neutral"] > 0.3
 
 
+@pytest.mark.integration
 @pytest.mark.tier1
 @pytest.mark.slow
 def test_batch_consistent_with_single(loaded_nli_service: NLIService) -> None:
