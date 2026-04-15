@@ -160,5 +160,5 @@ jobs:
           REDIS_URL: redis://localhost:6379
         run: |
           cd backend && uv run alembic upgrade head
-          cd backend && uv run pytest -m integration --timeout=60
+          cd backend && uv run pytest -m integration --cov --cov-fail-under=80 --timeout=60
           npm run test:integration

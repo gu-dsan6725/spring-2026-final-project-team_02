@@ -26,7 +26,20 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     """
     logger.info("Starting policy-memo-agent backend...")
     # TODO checkpoint-0.x: initialize DB connection pool
-    # TODO checkpoint-1.x: load NLI model
+
+    # Load NLI model once at startup — Tier 1 of HERALD pipeline
+    from policy_memo_agent.services.nli_service import get_nli_service
+
+    nli_service = get_nli_service()
+    try:
+        nli_service.load()
+        logger.info("NLI model ready")
+    except Exception:
+        logger.exception(
+            "NLI model failed to load — Tier 1 evaluation will be unavailable. "
+            "Install transformers + torch (uv sync --extra nli) or set NLI_ONNX_MODEL_PATH."
+        )
+
     yield
     logger.info("Shutting down policy-memo-agent backend...")
     # TODO checkpoint-0.x: close DB connection pool
