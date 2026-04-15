@@ -17,7 +17,16 @@ export default defineConfig({
         statements: 80,
       },
       include: ['src/**/*.ts'],
-      exclude: ['src/**/*.test.ts', 'src/ui/**', 'src/types/**'],
+      exclude: [
+        'src/**/*.test.ts',
+        'src/ui/**',
+        'src/types/**',
+        // MCP servers are covered by integration tests only (real external APIs)
+        'src/mcp/**',
+        // OpenTelemetry infrastructure — no unit-level tests, covered by observability integration suite
+        'src/observability/span-helpers.ts',
+        'src/observability/telemetry.ts',
+      ],
     },
   },
   resolve: {

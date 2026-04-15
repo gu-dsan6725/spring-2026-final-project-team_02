@@ -25,6 +25,14 @@ import { ClaimType, DerivationMethod } from '../../src/types/claims';
 // constructor so it can be retrieved in tests.
 // ---------------------------------------------------------------------------
 
+// Silence Braintrust span logs in unit tests — no observability infrastructure available
+vi.mock('../../src/observability/braintrust', () => ({
+  startSpan: vi.fn(() => ({ id: 'test', name: 'test', startTime: 0, log: vi.fn(), end: vi.fn() })),
+  logError: vi.fn(),
+  logToolCall: vi.fn(),
+  logWarn: vi.fn(),
+}));
+
 vi.mock('groq-sdk', () => {
   const create = vi.fn();
   function MockGroq(_opts?: unknown) {
