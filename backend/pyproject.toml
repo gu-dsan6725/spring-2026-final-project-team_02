@@ -116,6 +116,14 @@ ignore_missing_imports = true
 module = "braintrust.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "numpy.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "torch.*"
+ignore_missing_imports = true
+
 # ── Pytest ──
 [tool.pytest.ini_options]
 testpaths = ["tests"]
