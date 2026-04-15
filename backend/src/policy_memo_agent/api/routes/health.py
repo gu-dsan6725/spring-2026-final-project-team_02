@@ -31,12 +31,18 @@ async def health_check() -> JSONResponse:
 @router.get("/nli", status_code=status.HTTP_200_OK)
 async def nli_health() -> JSONResponse:
     """Checks whether the NLI model is loaded and ready."""
-    # NLI model loading is implemented in checkpoint-1.x (tier1_nli.py).
-    # Until then, report the model as not yet loaded.
+    from policy_memo_agent.services.nli_service import get_nli_service
+
+    service = get_nli_service()
+    if service.is_loaded():
+        return JSONResponse(content={"status": "ok", "message": "NLI model is loaded and ready."})
     return JSONResponse(
         content={
             "status": "not_loaded",
-            "message": "NLI model will be loaded in checkpoint-1.x",
+            "message": (
+                "NLI model is not loaded. "
+                "Install transformers + torch (uv sync --extra nli) or set NLI_ONNX_MODEL_PATH."
+            ),
         },
         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
     )
