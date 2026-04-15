@@ -378,44 +378,387 @@ describe('runResearchAgent — completeness', () => {
 // Unit: LoopController
 // ---------------------------------------------------------------------------
 
-describe('LoopController', () => {
+describe('LoopController — budget thresholds', () => {
   const config: AgentConfig = {
     max_tool_calls: 10,
     max_research_tokens: 1_000,
     max_revision_attempts: 2,
   };
 
-  it('starts with ok status', () => {
+  it('starts with ok status and full remaining budget', () => {
     const ctrl = new LoopController(config);
-    expect(ctrl.getState().status).toBe('ok');
+    const state = ctrl.getState();
+    expect(state.status).toBe('ok');
+    expect(state.toolCallsUsed).toBe(0);
+    expect(state.toolCallsRemaining).toBe(10);
+    expect(state.tokensRemaining).toBe(1_000);
     expect(ctrl.isBudgetExceeded()).toBe(false);
   });
 
-  it('returns warn at 80% tool call usage', () => {
+  it('returns warn_60 at 60% tool call usage', () => {
     const ctrl = new LoopController(config);
-    for (let i = 0; i < 8; i++) ctrl.recordToolCall(0);
-    expect(ctrl.getState().status).toBe('warn');
+    for (let i = 0; i < 6; i++) ctrl.recordToolCall(0);
+    expect(ctrl.getState().status).toBe('warn_60');
   });
 
-  it('returns exceeded when tool limit is reached', () => {
+  it('returns warn_60 at exactly 60% token usage', () => {
+    const ctrl = new LoopController(config);
+    ctrl.recordTokens(600); // 60% of 1_000
+    expect(ctrl.getState().status).toBe('warn_60');
+  });
+
+  it('returns warn_80 at 80% tool call usage', () => {
+    const ctrl = new LoopController(config);
+    for (let i = 0; i < 8; i++) ctrl.recordToolCall(0);
+    expect(ctrl.getState().status).toBe('warn_80');
+  });
+
+  it('returns warn_80 at 80% token usage', () => {
+    const ctrl = new LoopController(config);
+    ctrl.recordTokens(800);
+    expect(ctrl.getState().status).toBe('warn_80');
+  });
+
+  it('returns exceeded when tool limit is reached (hard stop)', () => {
     const ctrl = new LoopController(config);
     for (let i = 0; i < 10; i++) ctrl.recordToolCall(0);
     expect(ctrl.isToolBudgetExceeded()).toBe(true);
     expect(ctrl.getState().status).toBe('exceeded');
+    expect(ctrl.getState().toolCallsRemaining).toBe(0);
   });
 
   it('returns exceeded when token budget is consumed', () => {
     const ctrl = new LoopController(config);
     ctrl.recordTokens(1_000);
     expect(ctrl.isTokenBudgetExceeded()).toBe(true);
+    expect(ctrl.getState().status).toBe('exceeded');
   });
 
-  it('buildBudgetExceededMessage contains useful context', () => {
+  it('isBudgetExceeded is true when only tool calls are exhausted', () => {
+    const ctrl = new LoopController(config);
+    for (let i = 0; i < 10; i++) ctrl.recordToolCall(0);
+    expect(ctrl.isBudgetExceeded()).toBe(true);
+  });
+
+  it('isBudgetExceeded is true when only tokens are exhausted', () => {
+    const ctrl = new LoopController(config);
+    ctrl.recordTokens(1_001);
+    expect(ctrl.isBudgetExceeded()).toBe(true);
+  });
+
+  it('buildBudgetExceededMessage contains limit and synthesise instruction', () => {
     const ctrl = new LoopController(config);
     for (let i = 0; i < 10; i++) ctrl.recordToolCall(0);
     const msg = ctrl.buildBudgetExceededMessage();
     expect(msg).toContain('10');
     expect(msg.toLowerCase()).toContain('synthesise');
+  });
+
+  it('buildSynthesisPromptMessage includes remaining call count', () => {
+    const ctrl = new LoopController(config);
+    for (let i = 0; i < 8; i++) ctrl.recordToolCall(0); // 2 remaining
+    const msg = ctrl.buildSynthesisPromptMessage();
+    expect(msg).toContain('2');
+    expect(msg.toLowerCase()).toContain('synthesising');
+  });
+
+  it('buildSynthesisPromptMessage handles singular remaining call', () => {
+    const ctrl = new LoopController(config);
+    for (let i = 0; i < 9; i++) ctrl.recordToolCall(0); // 1 remaining
+    const msg = ctrl.buildSynthesisPromptMessage();
+    expect(msg).toContain('1 tool call remaining');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Unit: LoopController — deduplication cache
+// ---------------------------------------------------------------------------
+
+describe('LoopController — deduplication cache', () => {
+  const config: AgentConfig = {
+    max_tool_calls: 10,
+    max_research_tokens: 10_000,
+    max_revision_attempts: 2,
+  };
+
+  it('returns cache miss for unseen (tool, query) pair', () => {
+    const ctrl = new LoopController(config);
+    const result = ctrl.lookupCache('arxiv_search', 'UBI Africa');
+    expect(result.hit).toBe(false);
+  });
+
+  it('returns cache hit after storing a result', () => {
+    const ctrl = new LoopController(config);
+    const payload = { results: ['some result'] };
+    ctrl.storeCache('arxiv_search', 'UBI Africa', payload);
+    const result = ctrl.lookupCache('arxiv_search', 'UBI Africa');
+    expect(result.hit).toBe(true);
+    if (result.hit) {
+      expect(result.result).toEqual(payload);
+    }
+  });
+
+  it('normalises query before comparing — case insensitive', () => {
+    const ctrl = new LoopController(config);
+    ctrl.storeCache('arxiv_search', 'UBI Africa', { data: 1 });
+    const result = ctrl.lookupCache('arxiv_search', 'ubi africa');
+    expect(result.hit).toBe(true);
+  });
+
+  it('normalises query before comparing — punctuation stripped', () => {
+    const ctrl = new LoopController(config);
+    ctrl.storeCache('arxiv_search', 'UBI, Africa!', { data: 1 });
+    const result = ctrl.lookupCache('arxiv_search', 'ubi africa');
+    expect(result.hit).toBe(true);
+  });
+
+  it('normalises query before comparing — word order independent', () => {
+    const ctrl = new LoopController(config);
+    ctrl.storeCache('arxiv_search', 'Africa UBI policy', { data: 1 });
+    const result = ctrl.lookupCache('arxiv_search', 'policy ubi africa');
+    expect(result.hit).toBe(true);
+  });
+
+  it('different tool names do not collide in cache', () => {
+    const ctrl = new LoopController(config);
+    ctrl.storeCache('arxiv_search', 'UBI Africa', { source: 'arxiv' });
+    const result = ctrl.lookupCache('web_search', 'UBI Africa');
+    expect(result.hit).toBe(false);
+  });
+
+  it('cacheSize reflects number of stored entries', () => {
+    const ctrl = new LoopController(config);
+    expect(ctrl.cacheSize).toBe(0);
+    ctrl.storeCache('arxiv_search', 'query one', {});
+    ctrl.storeCache('web_search', 'query two', {});
+    expect(ctrl.cacheSize).toBe(2);
+  });
+
+  it('storing the same normalised key twice does not increase cache size', () => {
+    const ctrl = new LoopController(config);
+    ctrl.storeCache('arxiv_search', 'UBI Africa', { v: 1 });
+    ctrl.storeCache('arxiv_search', 'ubi africa', { v: 2 }); // same normalised key
+    expect(ctrl.cacheSize).toBe(1);
+    const result = ctrl.lookupCache('arxiv_search', 'UBI Africa');
+    expect(result.hit).toBe(true);
+    if (result.hit) {
+      // second write wins
+      expect((result.result as { v: number }).v).toBe(2);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Unit: LoopController — research plan generation
+// ---------------------------------------------------------------------------
+
+describe('LoopController — buildResearchPlan', () => {
+  const config: AgentConfig = {
+    max_tool_calls: 25,
+    max_research_tokens: 50_000,
+    max_revision_attempts: 2,
+  };
+
+  it('returns a ResearchPlan with at least one query', () => {
+    const ctrl = new LoopController(config);
+    const plan = ctrl.buildResearchPlan('Universal basic income in sub-Saharan Africa');
+    expect(plan.planned_queries.length).toBeGreaterThan(0);
+    expect(plan.total_queries).toBe(plan.planned_queries.length);
+  });
+
+  it('budget.max_tool_calls matches config', () => {
+    const ctrl = new LoopController(config);
+    const plan = ctrl.buildResearchPlan('Climate adaptation in the Sahel');
+    expect(plan.budget.max_tool_calls).toBe(config.max_tool_calls);
+    expect(plan.budget.max_tokens).toBe(config.max_research_tokens);
+  });
+
+  it('queries do not exceed 80% of max_tool_calls', () => {
+    const ctrl = new LoopController(config);
+    const plan = ctrl.buildResearchPlan('Healthcare financing in low-income countries');
+    expect(plan.planned_queries.length).toBeLessThanOrEqual(
+      Math.floor(config.max_tool_calls * 0.8),
+    );
+  });
+
+  it('queries are sorted by ascending priority', () => {
+    const ctrl = new LoopController(config);
+    const plan = ctrl.buildResearchPlan('Education policy outcomes');
+    const priorities = plan.planned_queries.map((q) => q.priority);
+    for (let i = 1; i < priorities.length; i++) {
+      expect(priorities[i]).toBeGreaterThanOrEqual(priorities[i - 1] as number);
+    }
+  });
+
+  it('each planned query has required fields', () => {
+    const ctrl = new LoopController(config);
+    const plan = ctrl.buildResearchPlan('Water sanitation policy');
+    for (const q of plan.planned_queries) {
+      expect(typeof q.tool).toBe('string');
+      expect(q.tool.length).toBeGreaterThan(0);
+      expect(typeof q.query).toBe('string');
+      expect(q.query.length).toBeGreaterThan(0);
+      expect(Array.isArray(q.expected_claim_types)).toBe(true);
+      expect(typeof q.priority).toBe('number');
+    }
+  });
+
+  it('incorporates caller-supplied seed queries', () => {
+    const ctrl = new LoopController(config);
+    const seed: import('../../src/types/agent').PlannedQuery = {
+      tool: 'read_uploaded_file',
+      query: 'uploaded-report.pdf',
+      expected_claim_types: ['normative' as ClaimType],
+      priority: 1,
+    };
+    const plan = ctrl.buildResearchPlan('Fiscal policy reform', [seed]);
+    const toolNames = plan.planned_queries.map((q) => q.tool);
+    expect(toolNames).toContain('read_uploaded_file');
+  });
+
+  it('calls_per_query is a positive integer', () => {
+    const ctrl = new LoopController(config);
+    const plan = ctrl.buildResearchPlan('Rural electrification subsidies');
+    expect(plan.budget.calls_per_query).toBeGreaterThan(0);
+    expect(Number.isInteger(plan.budget.calls_per_query)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Unit: LoopController — quality gate
+// ---------------------------------------------------------------------------
+
+describe('LoopController — quality gate', () => {
+  const config: AgentConfig = {
+    max_tool_calls: 25,
+    max_research_tokens: 50_000,
+    max_revision_attempts: 2,
+  };
+
+  function makeEntry(
+    claimId: string,
+    claimType: ClaimType,
+    sourceIds: string[],
+  ): import('../../src/types/claims').NotesLogEntry {
+    return {
+      claim_id: claimId,
+      claim_text: `Claim text for ${claimId}`,
+      claim_type: claimType,
+      derivation: DerivationMethod.DirectExtraction,
+      sources: sourceIds.map((id) => ({
+        source_id: id,
+        source_title: `Source ${id}`,
+        source_url: `https://example.com/${id}`,
+        relevant_chunk: 'Relevant text.',
+      })),
+      reasoning: 'Test reasoning.',
+    };
+  }
+
+  it('passes when minimum evidence is met', () => {
+    const ctrl = new LoopController(config);
+    const log = [
+      makeEntry('C-001', ClaimType.Statistical, ['S-001', 'S-002']),
+      makeEntry('C-002', ClaimType.Causal, ['S-003']),
+      makeEntry('C-003', ClaimType.Comparative, ['S-004']),
+      makeEntry('C-004', ClaimType.Statistical, ['S-005']),
+    ];
+    const result = ctrl.checkQualityGate(log);
+    expect(result.passed).toBe(true);
+    expect(result.needs_extra_round).toBe(false);
+    expect(result.flags).toHaveLength(0);
+  });
+
+  it('fails and triggers extra round when too few sources', () => {
+    const ctrl = new LoopController(config);
+    const log = [
+      makeEntry('C-001', ClaimType.Statistical, ['S-001']),
+      makeEntry('C-002', ClaimType.Causal, ['S-001']), // same source
+      makeEntry('C-003', ClaimType.Comparative, ['S-001']),
+      makeEntry('C-004', ClaimType.Statistical, ['S-001']),
+    ];
+    const result = ctrl.checkQualityGate(log);
+    expect(result.passed).toBe(false);
+    expect(result.unique_sources).toBe(1);
+    expect(result.needs_extra_round).toBe(true);
+  });
+
+  it('fails and triggers extra round when too few claims', () => {
+    const ctrl = new LoopController(config);
+    const log = [
+      makeEntry('C-001', ClaimType.Statistical, ['S-001']),
+      makeEntry('C-002', ClaimType.Causal, ['S-002']),
+      makeEntry('C-003', ClaimType.Comparative, ['S-003']),
+      // only 3 claims — need 4
+    ];
+    const result = ctrl.checkQualityGate(log);
+    expect(result.passed).toBe(false);
+    expect(result.total_claims).toBe(3);
+    expect(result.needs_extra_round).toBe(true);
+  });
+
+  it('fails and triggers extra round when only one claim type', () => {
+    const ctrl = new LoopController(config);
+    const log = [
+      makeEntry('C-001', ClaimType.Statistical, ['S-001']),
+      makeEntry('C-002', ClaimType.Statistical, ['S-002']),
+      makeEntry('C-003', ClaimType.Statistical, ['S-003']),
+      makeEntry('C-004', ClaimType.Statistical, ['S-004']),
+    ];
+    const result = ctrl.checkQualityGate(log);
+    expect(result.passed).toBe(false);
+    expect(result.claim_type_count).toBe(1);
+    expect(result.needs_extra_round).toBe(true);
+  });
+
+  it('extra round is only triggered once — second failure sets needs_extra_round=false', () => {
+    const ctrl = new LoopController(config);
+    const thinLog = [
+      makeEntry('C-001', ClaimType.Statistical, ['S-001']),
+      makeEntry('C-002', ClaimType.Statistical, ['S-001']),
+    ];
+
+    const first = ctrl.checkQualityGate(thinLog);
+    expect(first.needs_extra_round).toBe(true);
+    expect(ctrl.hasUsedExtraRound).toBe(true);
+
+    // Second call — extra round already used
+    const second = ctrl.checkQualityGate(thinLog);
+    expect(second.needs_extra_round).toBe(false);
+  });
+
+  it('flags low-evidence memo when fewer than 3 claims collected', () => {
+    const ctrl = new LoopController(config);
+    const log = [
+      makeEntry('C-001', ClaimType.Statistical, ['S-001']),
+      makeEntry('C-002', ClaimType.Causal, ['S-002']),
+    ];
+    const result = ctrl.checkQualityGate(log);
+    const hasLowEvidenceFlag = result.flags.some((f) => f.toLowerCase().includes('low-evidence'));
+    expect(hasLowEvidenceFlag).toBe(true);
+  });
+
+  it('does not trigger extra round when budget is already exceeded', () => {
+    const ctrl = new LoopController(config);
+    // Exhaust the budget
+    for (let i = 0; i < config.max_tool_calls; i++) ctrl.recordToolCall(0);
+
+    const thinLog = [makeEntry('C-001', ClaimType.Statistical, ['S-001'])];
+    const result = ctrl.checkQualityGate(thinLog);
+    expect(result.needs_extra_round).toBe(false);
+  });
+
+  it('reports correct unique source count across entries with shared sources', () => {
+    const ctrl = new LoopController(config);
+    const log = [
+      makeEntry('C-001', ClaimType.Statistical, ['S-001', 'S-002']),
+      makeEntry('C-002', ClaimType.Causal, ['S-002', 'S-003']),
+      makeEntry('C-003', ClaimType.Comparative, ['S-003', 'S-004']),
+      makeEntry('C-004', ClaimType.Normative, ['S-004', 'S-005']),
+    ];
+    const result = ctrl.checkQualityGate(log);
+    expect(result.unique_sources).toBe(5);
+    expect(result.passed).toBe(true);
   });
 });
 
