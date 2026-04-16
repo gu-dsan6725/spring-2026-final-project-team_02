@@ -18,6 +18,8 @@ import { CLAIM_TYPE_CONFIG, type ClaimType, type NotesLogEntry } from '../types/
 import type { HeraldResult, TierOutput } from '../types/herald';
 import { evaluateWithNLI } from './tier1-nli';
 import { evaluateWithLLMJudge } from './tier2-llm-judge';
+import { evaluateWithDebate } from './tier3-debate';
+import { logWarn } from '../observability/braintrust';
 
 // ---------------------------------------------------------------------------
 // Tier routing
@@ -77,21 +79,40 @@ export async function evaluateClaim(claim: NotesLogEntry): Promise<HeraldResult>
 
   // -- Tier 1 --
   if (!route.skipNLI) {
-    tier1Output = await evaluateWithNLI(claim);
-    tierDetails.tier_1 = tier1Output;
+    try {
+      tier1Output = await evaluateWithNLI(claim);
+      tierDetails.tier_1 = tier1Output;
 
-    if (tier1Output.verdict === 'valid' || tier1Output.verdict === 'invalid') {
-      // Early exit: confident verdict from Tier 1
-      return _buildResult(claim, tier1Output.verdict, tier1Output, tierDetails);
+      if (tier1Output.verdict === 'valid' || tier1Output.verdict === 'invalid') {
+        // Early exit: confident verdict from Tier 1
+        return _buildResult(claim, tier1Output.verdict, tier1Output, tierDetails);
+      }
+      // 'uncertain' → fall through to Tier 2
+    } catch (err) {
+      // NLI backend unavailable (e.g. Python service not running) — skip to Tier 2
+      logWarn('herald.tier1.unavailable', {
+        claim_id: claim.claim_id,
+        reason: err instanceof Error ? err.message : String(err),
+        note: 'Falling back to Tier 2 (LLM Judge).',
+      });
+      // tier1Output stays null; Tier 2 runs without NLI context
     }
-    // 'uncertain' → fall through to Tier 2
   }
 
   // -- Tier 2 --
   tier2Output = await evaluateWithLLMJudge(claim, tier1Output !== null ? tier1Output : undefined);
   tierDetails.tier_2 = tier2Output;
 
-  return _buildResult(claim, tier2Output.verdict, tier2Output, tierDetails);
+  if (tier2Output.verdict !== 'uncertain') {
+    // Confident verdict from Tier 2 — exit
+    return _buildResult(claim, tier2Output.verdict, tier2Output, tierDetails);
+  }
+
+  // -- Tier 3 — Multi-Agent Debate --
+  const tier3Output = await evaluateWithDebate(claim, tier2Output);
+  tierDetails.tier_3 = tier3Output;
+
+  return _buildResult(claim, tier3Output.verdict, tier3Output, tierDetails);
 }
 
 // ---------------------------------------------------------------------------

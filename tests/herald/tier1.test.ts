@@ -42,6 +42,18 @@ vi.mock('../../src/herald/tier2-llm-judge', () => ({
   }),
 }));
 
+// Stub Tier 3 so that when Tier 2 returns 'uncertain' the router does not
+// attempt real Groq API calls.  Tier 3 returns a confident verdict so the
+// pipeline exits cleanly.
+vi.mock('../../src/herald/tier3-debate', () => ({
+  evaluateWithDebate: vi.fn().mockResolvedValue({
+    tier_id: 3,
+    verdict: 'valid',
+    confidence: 0.9,
+    reasoning: 'Tier 3 stub (mocked for tier1 isolation).',
+  }),
+}));
+
 // ---------------------------------------------------------------------------
 // Test fixtures
 // ---------------------------------------------------------------------------
@@ -415,6 +427,8 @@ describe('evaluateClaim routing', () => {
 
     expect(result.tier_details.tier_1).not.toBeNull();
     expect(result.tier_details.tier_2).not.toBeNull();
-    expect(result.tier_reached).toBe(2);
+    // Tier 2 stub returns 'uncertain', so the router escalates to Tier 3.
+    // The deciding tier (and therefore tier_reached) is 3.
+    expect(result.tier_reached).toBe(3);
   });
 });

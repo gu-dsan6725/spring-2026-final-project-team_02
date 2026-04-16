@@ -1,0 +1,108 @@
+{
+  "generated_at": "2026-04-16T05:40:30.219Z",
+  "total_claims": 5,
+  "valid_count": 1,
+  "invalid_count": 2,
+  "needs_revision_count": 0,
+  "uncertain_count": 2,
+  "requires_human_intervention": [],
+  "results": [
+    {
+      "claim_id": "C-001",
+      "tier_reached": 2,
+      "verdict": "uncertain",
+      "confidence": 0.8,
+      "feedback": "[ESCALATING TO TIER 3: confidence 80.0% is below the 85% exit threshold] The claim states that global average temperatures have risen by approximately 1.1°C since pre-industrial times. However, the source material from the IPCC Sixth Assessment Report (2021) states that global surface temperature was 1.09 [0.95 to 1.20] °C higher in 2011–2020 than 1850–1900, which is a slightly different time period and range. The claim is close but not an exact match to the source material.",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "uncertain",
+          "confidence": 0.8,
+          "reasoning": "[ESCALATING TO TIER 3: confidence 80.0% is below the 85% exit threshold] The claim states that global average temperatures have risen by approximately 1.1°C since pre-industrial times. However, the source material from the IPCC Sixth Assessment Report (2021) states that global surface temperature was 1.09 [0.95 to 1.20] °C higher in 2011–2020 than 1850–1900, which is a slightly different time period and range. The claim is close but not an exact match to the source material."
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-002",
+      "tier_reached": 2,
+      "verdict": "invalid",
+      "confidence": 0.9,
+      "feedback": "The claim states that renewable energy capacity is projected to triple globally by 2030 under current policy trajectories. However, the source material (IEA World Energy Outlook 2023) only supports this level of growth under the Net Zero Emissions by 2050 scenario, not under current policy trajectories. According to the source, under the Stated Policies Scenario, global renewable power capacity more than doubles by 2030, and under the Announced Pledges Scenario, it grows 2.5x by 2030. Therefore, the claim misrepresents the source material.",
+      "suggested_revision": "Renewable energy capacity is projected to more than double globally by 2030 under current policy trajectories, as stated in the Stated Policies Scenario.",
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "invalid",
+          "confidence": 0.9,
+          "reasoning": "The claim states that renewable energy capacity is projected to triple globally by 2030 under current policy trajectories. However, the source material (IEA World Energy Outlook 2023) only supports this level of growth under the Net Zero Emissions by 2050 scenario, not under current policy trajectories. According to the source, under the Stated Policies Scenario, global renewable power capacity more than doubles by 2030, and under the Announced Pledges Scenario, it grows 2.5x by 2030. Therefore, the claim misrepresents the source material.",
+          "suggested_revision": "Renewable energy capacity is projected to more than double globally by 2030 under current policy trajectories, as stated in the Stated Policies Scenario."
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-003",
+      "tier_reached": 2,
+      "verdict": "uncertain",
+      "confidence": 0.8,
+      "feedback": "[ESCALATING TO TIER 3: confidence 80.0% is below the 85% exit threshold] The claim compares carbon pricing mechanisms to command-and-control regulations, stating the former has 'demonstrated superior emissions reductions' in industrial sectors. Source 1 (World Bank) indicates regions with carbon pricing have '3-5% faster emissions intensity reductions on average', implying a positive effect of carbon pricing. Source 2 (OECD) suggests 'market-based instruments including carbon pricing demonstrate cost-effective emissions reductions' compared to command-and-control approaches. However, neither source directly compares the two mechanisms in industrial sectors specifically, nor do they provide a direct quantitative comparison of emissions reductions. Thus, while the claim is directionally correct in suggesting carbon pricing can be more effective, it lacks specificity and direct evidence from the sources to fully support the comparison as stated. Revision is needed to align the claim with the evidence provided by the sources.",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "uncertain",
+          "confidence": 0.8,
+          "reasoning": "[ESCALATING TO TIER 3: confidence 80.0% is below the 85% exit threshold] The claim compares carbon pricing mechanisms to command-and-control regulations, stating the former has 'demonstrated superior emissions reductions' in industrial sectors. Source 1 (World Bank) indicates regions with carbon pricing have '3-5% faster emissions intensity reductions on average', implying a positive effect of carbon pricing. Source 2 (OECD) suggests 'market-based instruments including carbon pricing demonstrate cost-effective emissions reductions' compared to command-and-control approaches. However, neither source directly compares the two mechanisms in industrial sectors specifically, nor do they provide a direct quantitative comparison of emissions reductions. Thus, while the claim is directionally correct in suggesting carbon pricing can be more effective, it lacks specificity and direct evidence from the sources to fully support the comparison as stated. Revision is needed to align the claim with the evidence provided by the sources."
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-004",
+      "tier_reached": 2,
+      "verdict": "invalid",
+      "confidence": 0.9,
+      "feedback": "The claim states that fossil fuel subsidies 'crowding out clean energy investment', which is not supported by the source material. The source only provides information on the amount of fossil fuel subsidies, but does not mention the impact on clean energy investment. The agent's inference about 'crowding out clean energy investment' is not based on the provided source.",
+      "suggested_revision": "Fossil fuel subsidies globally exceeded $7 trillion in 2022.",
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "invalid",
+          "confidence": 0.9,
+          "reasoning": "The claim states that fossil fuel subsidies 'crowding out clean energy investment', which is not supported by the source material. The source only provides information on the amount of fossil fuel subsidies, but does not mention the impact on clean energy investment. The agent's inference about 'crowding out clean energy investment' is not based on the provided source.",
+          "suggested_revision": "Fossil fuel subsidies globally exceeded $7 trillion in 2022."
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-005",
+      "tier_reached": 2,
+      "verdict": "valid",
+      "confidence": 0.9,
+      "feedback": "The claim is supported by the Bridgetown Initiative, which calls for MDBs to prioritize concessional financing for climate adaptation in vulnerable nations, including Least Developed Countries. The source material explicitly urges MDBs to triple adaptation financing for these countries, aligning with the claim's recommendation.",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "valid",
+          "confidence": 0.9,
+          "reasoning": "The claim is supported by the Bridgetown Initiative, which calls for MDBs to prioritize concessional financing for climate adaptation in vulnerable nations, including Least Developed Countries. The source material explicitly urges MDBs to triple adaptation financing for these countries, aligning with the claim's recommendation."
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    }
+  ]
+}

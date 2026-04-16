@@ -1,7 +1,7 @@
 /**
  * HERALD Tier 2 — LLM-as-Judge tests.
  *
- * These tests mock the Anthropic SDK so no real API call is made.  They verify:
+ * These tests mock the Groq SDK so no real API call is made.  They verify:
  *
  *   Prompt selection:
  *   - Each of the 6 claim types produces a distinct, non-empty system prompt
@@ -20,7 +20,7 @@
  *   Robustness:
  *   - Unknown verdict string from model is coerced to 'uncertain'
  *   - API error is re-thrown (not swallowed)
- *   - Missing tool_use block in response throws a descriptive error
+ *   - Missing tool_calls in response throws a descriptive error
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -36,22 +36,18 @@ import { getJudgePrompt, _CLAIM_CRITERIA } from '../../src/herald/prompts/judge-
 import type { TierOutput } from '../../src/types/herald';
 
 // ---------------------------------------------------------------------------
-// Anthropic SDK mock — hoisted before all imports
+// Groq SDK mock — hoisted before all imports
 // ---------------------------------------------------------------------------
 
-// vi.hoisted ensures mockCreate is defined before the vi.mock factory runs.
-// Arrow functions cannot be used as constructors, so we use a regular function
-// as the Anthropic class mock so that `new Anthropic()` works correctly.
 const mockCreate = vi.hoisted(() => vi.fn());
 
-vi.mock('@anthropic-ai/sdk', () => ({
+vi.mock('groq-sdk', () => ({
   default: vi.fn(function () {
-    return { messages: { create: mockCreate } };
+    return { chat: { completions: { create: mockCreate } } };
   }),
 }));
 
-// Silence Braintrust observability — without this mock every evaluateWithLLMJudge
-// call writes JSON span events to process.stderr, flooding CI output.
+// Silence Braintrust observability spans in test output
 vi.mock('../../src/observability/braintrust', () => ({
   startSpan: vi.fn(() => ({
     id: 'test-span',
@@ -91,7 +87,7 @@ function makeEntry(overrides: Partial<NotesLogEntry> = {}): NotesLogEntry {
 }
 
 /**
- * Build a fake Anthropic message response containing a tool_use block.
+ * Build a fake Groq chat completion response containing a tool_call.
  */
 function mockJudgeResponse(input: {
   verdict: string;
@@ -100,21 +96,29 @@ function mockJudgeResponse(input: {
   suggested_revision?: string;
 }) {
   return {
-    id: 'msg_test',
-    type: 'message',
-    role: 'assistant',
-    content: [
+    id: 'chatcmpl_test',
+    object: 'chat.completion',
+    choices: [
       {
-        type: 'tool_use',
-        id: 'toolu_test',
-        name: 'submit_evaluation',
-        input,
+        index: 0,
+        message: {
+          role: 'assistant',
+          content: null,
+          tool_calls: [
+            {
+              id: 'call_test',
+              type: 'function',
+              function: {
+                name: 'submit_evaluation',
+                arguments: JSON.stringify(input),
+              },
+            },
+          ],
+        },
+        finish_reason: 'tool_calls',
       },
     ],
-    model: 'claude-sonnet-4-6',
-    stop_reason: 'tool_use',
-    stop_sequence: null,
-    usage: { input_tokens: 200, output_tokens: 80 },
+    usage: { prompt_tokens: 200, completion_tokens: 80, total_tokens: 280 },
   };
 }
 
@@ -163,7 +167,6 @@ describe('getJudgePrompt — prompt selection', () => {
     const prompt = getJudgePrompt(ClaimType.Causal);
     expect(prompt).toMatch(/causal mechanism/i);
     expect(prompt).toContain('correlation');
-    // Must call out language hedging — core risk for causal claims
     expect(prompt).toContain('hedging');
     expect(prompt).toMatch(/direction of causality/i);
   });
@@ -180,7 +183,6 @@ describe('getJudgePrompt — prompt selection', () => {
     expect(prompt).toContain('projection');
     expect(prompt).toContain('assumption');
     expect(prompt).toMatch(/uncertainty/i);
-    // Must flag when projections are stated as certainties
     expect(prompt).toContain('hedg');
   });
 
@@ -275,15 +277,13 @@ describe('evaluateWithLLMJudge — high-confidence exit (> 0.85)', () => {
     expect(result.confidence).toBeCloseTo(0.86);
   });
 
-  it('exits at exactly 0.85 (boundary is exclusive — 0.85 < threshold)', async () => {
-    // 0.85 is NOT above threshold (> 0.85 is required), so it escalates
+  it('escalates at exactly 0.85 (boundary is exclusive — 0.85 is NOT > 0.85)', async () => {
     mockCreate.mockResolvedValueOnce(
       mockJudgeResponse({ verdict: 'valid', confidence: 0.85, reasoning: 'Borderline.' }),
     );
 
     const result = await evaluateWithLLMJudge(makeEntry());
 
-    // 0.85 is NOT > 0.85, so it falls into the mid-band and escalates
     expect(result.verdict).toBe('uncertain');
   });
 });
@@ -398,17 +398,18 @@ describe('evaluateWithLLMJudge — low-confidence high-priority escalation (< 0.
 // ---------------------------------------------------------------------------
 
 describe('evaluateWithLLMJudge — Tier 1 context injection', () => {
-  it('includes NLI result in messages when tier1Result is provided', async () => {
+  it('includes NLI result in user message when tier1Result is provided', async () => {
     mockCreate.mockResolvedValueOnce(
       mockJudgeResponse({ verdict: 'valid', confidence: 0.9, reasoning: 'Confirmed by review.' }),
     );
 
     await evaluateWithLLMJudge(makeEntry(), TIER1_UNCERTAIN);
 
-    const callArgs = mockCreate.mock.calls[0] as [
+    const [params] = mockCreate.mock.calls[0] as [
       { messages: Array<{ role: string; content: string }> },
     ];
-    const userContent = callArgs[0].messages[0]?.content as string;
+    // messages[0] = system, messages[1] = user
+    const userContent = params.messages[1]?.content ?? '';
 
     expect(userContent).toContain('Tier 1 NLI Result');
     expect(userContent).toContain('0.62');
@@ -423,10 +424,10 @@ describe('evaluateWithLLMJudge — Tier 1 context injection', () => {
 
     await evaluateWithLLMJudge(makeEntry());
 
-    const callArgs = mockCreate.mock.calls[0] as [
+    const [params] = mockCreate.mock.calls[0] as [
       { messages: Array<{ role: string; content: string }> },
     ];
-    const userContent = callArgs[0].messages[0]?.content as string;
+    const userContent = params.messages[1]?.content ?? '';
 
     expect(userContent).not.toContain('Tier 1 NLI Result');
   });
@@ -444,10 +445,10 @@ describe('evaluateWithLLMJudge — Tier 1 context injection', () => {
 
     await evaluateWithLLMJudge(claim);
 
-    const callArgs = mockCreate.mock.calls[0] as [
+    const [params] = mockCreate.mock.calls[0] as [
       { messages: Array<{ role: string; content: string }> },
     ];
-    const userContent = callArgs[0].messages[0]?.content as string;
+    const userContent = params.messages[1]?.content ?? '';
 
     expect(userContent).toContain('Urban poverty increased by 12%.');
     expect(userContent).toContain('agent_inference');
@@ -457,11 +458,11 @@ describe('evaluateWithLLMJudge — Tier 1 context injection', () => {
 });
 
 // ---------------------------------------------------------------------------
-// evaluateWithLLMJudge: API call structure
+// evaluateWithLLMJudge: Groq API call structure
 // ---------------------------------------------------------------------------
 
-describe('evaluateWithLLMJudge — Anthropic API call structure', () => {
-  it('calls messages.create with correct model and temperature', async () => {
+describe('evaluateWithLLMJudge — Groq API call structure', () => {
+  it('calls chat.completions.create with correct model and temperature', async () => {
     mockCreate.mockResolvedValueOnce(
       mockJudgeResponse({ verdict: 'valid', confidence: 0.9, reasoning: 'OK.' }),
     );
@@ -469,11 +470,11 @@ describe('evaluateWithLLMJudge — Anthropic API call structure', () => {
     await evaluateWithLLMJudge(makeEntry());
 
     const [params] = mockCreate.mock.calls[0] as [Record<string, unknown>];
-    expect(params['model']).toBe('claude-sonnet-4-6');
+    expect(params['model']).toBe('llama-3.3-70b-versatile');
     expect(params['temperature']).toBe(0.2);
   });
 
-  it('uses the submit_evaluation tool with tool_choice forced', async () => {
+  it('uses the submit_evaluation function with tool_choice forced', async () => {
     mockCreate.mockResolvedValueOnce(
       mockJudgeResponse({ verdict: 'valid', confidence: 0.9, reasoning: 'OK.' }),
     );
@@ -481,34 +482,30 @@ describe('evaluateWithLLMJudge — Anthropic API call structure', () => {
     await evaluateWithLLMJudge(makeEntry());
 
     const [params] = mockCreate.mock.calls[0] as [Record<string, unknown>];
-    const tools = params['tools'] as Array<{ name: string }>;
-    const toolChoice = params['tool_choice'] as { type: string; name: string };
+    const tools = params['tools'] as Array<{ type: string; function: { name: string } }>;
+    const toolChoice = params['tool_choice'] as { type: string; function: { name: string } };
 
     expect(tools).toHaveLength(1);
-    expect(tools[0]?.name).toBe('submit_evaluation');
-    expect(toolChoice.type).toBe('tool');
-    expect(toolChoice.name).toBe('submit_evaluation');
+    expect(tools[0]?.type).toBe('function');
+    expect(tools[0]?.function.name).toBe('submit_evaluation');
+    expect(toolChoice.type).toBe('function');
+    expect(toolChoice.function.name).toBe('submit_evaluation');
   });
 
-  it('sends system prompt as array with cache_control ephemeral', async () => {
+  it('sends system prompt as first message with role "system"', async () => {
     mockCreate.mockResolvedValueOnce(
       mockJudgeResponse({ verdict: 'valid', confidence: 0.9, reasoning: 'OK.' }),
     );
 
     await evaluateWithLLMJudge(makeEntry({ claim_type: ClaimType.Causal }));
 
-    const [params] = mockCreate.mock.calls[0] as [Record<string, unknown>];
-    const system = params['system'] as Array<{
-      type: string;
-      text: string;
-      cache_control: { type: string };
-    }>;
+    const [params] = mockCreate.mock.calls[0] as [
+      { messages: Array<{ role: string; content: string }> },
+    ];
 
-    expect(Array.isArray(system)).toBe(true);
-    expect(system[0]?.type).toBe('text');
-    expect(system[0]?.cache_control?.type).toBe('ephemeral');
+    expect(params.messages[0]?.role).toBe('system');
     // Should contain causal-specific criteria
-    expect(system[0]?.text).toContain('causal');
+    expect(params.messages[0]?.content).toContain('causal');
   });
 
   it('uses distinct system prompts for each claim type', async () => {
@@ -521,9 +518,10 @@ describe('evaluateWithLLMJudge — Anthropic API call structure', () => {
 
       await evaluateWithLLMJudge(makeEntry({ claim_type: claimType }));
 
-      const [params] = mockCreate.mock.calls.at(-1) as [Record<string, unknown>];
-      const system = params['system'] as Array<{ text: string }>;
-      capturedSystemPrompts.push(system[0]?.text ?? '');
+      const [params] = mockCreate.mock.calls.at(-1) as [
+        { messages: Array<{ role: string; content: string }> },
+      ];
+      capturedSystemPrompts.push(params.messages[0]?.content ?? '');
     }
 
     const unique = new Set(capturedSystemPrompts);
@@ -547,7 +545,6 @@ describe('evaluateWithLLMJudge — robustness', () => {
 
     const result = await evaluateWithLLMJudge(makeEntry());
 
-    // Unknown verdict string → uncertain (even though confidence > 0.85)
     expect(result.verdict).toBe('uncertain');
   });
 
@@ -558,16 +555,16 @@ describe('evaluateWithLLMJudge — robustness', () => {
   });
 
   it('throws descriptively when model does not call submit_evaluation', async () => {
-    // Model returns a text block instead of a tool_use block
     mockCreate.mockResolvedValueOnce({
-      id: 'msg_x',
-      type: 'message',
-      role: 'assistant',
-      content: [{ type: 'text', text: 'I think this is valid.' }],
-      model: 'claude-sonnet-4-6',
-      stop_reason: 'end_turn',
-      stop_sequence: null,
-      usage: { input_tokens: 100, output_tokens: 20 },
+      id: 'chatcmpl_x',
+      choices: [
+        {
+          index: 0,
+          message: { role: 'assistant', content: 'I think this is valid.', tool_calls: null },
+          finish_reason: 'stop',
+        },
+      ],
+      usage: { prompt_tokens: 100, completion_tokens: 20, total_tokens: 120 },
     });
 
     await expect(evaluateWithLLMJudge(makeEntry())).rejects.toThrow(/submit_evaluation/);

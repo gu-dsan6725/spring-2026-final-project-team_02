@@ -958,66 +958,357 @@ Create src/ui/components/TierProgress.tsx:
 ```
 Read CLAUDE.md, focusing on the agent architecture, tool use, and MCP Tool Servers section.
 
-IMPORTANT: CLAUDE.md specifies that arXiv, World Bank, and file reading are implemented as MCP tool servers (src/mcp/arxiv-server.ts, src/mcp/worldbank-server.ts, src/mcp/file-reader-server.ts). The research agent's tool handlers must call these servers, NOT the raw APIs directly. Each server wraps the external API with input validation, response parsing, error handling, and the MCP tool interface.
+The research agent uses Groq (Llama 3.3 70B) instead of the Anthropic API. Groq is already
+in the stack — GROQ_API_KEY is in .env. Web search uses the Brave Search API (free tier,
+2,000 queries/month) instead of Anthropic's built-in search tool. All external APIs are
+wrapped as MCP-compatible tool servers under src/mcp/.
 
-## Part A: Set up the Anthropic client
+---
 
-1. Install: npm install @anthropic-ai/sdk
-2. Initialize with ANTHROPIC_API_KEY from env
-3. Use model: 'claude-sonnet-4-20250514'
+## Part A: Install dependencies
+
+npm install groq-sdk
+npm install pdf-parse mammoth
+npm install --save-dev @types/pdf-parse
+
+Add to .env:
+  GROQ_API_KEY=          # already exists from Python backend
+  BRAVE_SEARCH_API_KEY=  # free at https://brave.com/search/api/
+  GOVINFO_API_KEY=       # free at https://api.govinfo.gov/docs/
+  FRED_API_KEY=          # free at https://fred.stlouisfed.org/docs/api/api_key.html
+
+---
 
 ## Part B: Implement MCP Tool Servers
 
-Create src/mcp/arxiv-server.ts:
-- MCP-compatible tool server wrapping the arXiv API
-- Accepts: { query: string, max_results: number }
-- Calls: GET http://export.arxiv.org/api/query?search_query={query}&max_results={n}
-- Parses the Atom XML response
-- Extracts: title, authors, abstract, published date, PDF URL
-- Returns structured JSON the agent can consume
-- Error handling: timeout (30s), retries (3x exponential backoff), graceful error responses
+Each server exports a single async handler function with this signature:
+  (input: Record<string, unknown>) => Promise<Record<string, unknown>>
 
-Create src/mcp/worldbank-server.ts:
-- MCP-compatible tool server wrapping the World Bank Indicators API
-- Accepts: { indicator: string, country: string, date_range: string }
-- Calls: GET http://api.worldbank.org/v2/country/{country}/indicator/{indicator}?date={range}&format=json
-- Parses the JSON response
-- Extracts: indicator name, country, year, value
-- Returns structured JSON
-- Error handling: same pattern as arXiv
+The handler validates input, calls the external API, parses the response, and returns
+structured JSON. All HTTP calls use a shared retry wrapper (3 attempts, exponential backoff,
+30s timeout) defined in src/mcp/tool-registry.ts.
 
-Create src/mcp/file-reader-server.ts:
-- MCP-compatible tool server for reading user-uploaded files
-- Accepts: { file_path: string }
-- Install file parsing dependencies: npm install pdf-parse mammoth
-- Routes by file extension:
-  - .pdf → pdf-parse
-  - .docx → mammoth
-  - .txt/.md → fs.readFile
-- Returns extracted text content
-- Error handling: file not found, unsupported format, corrupted file
+---
 
-Create src/mcp/tool-registry.ts:
-- Register each tool with: name, handler function (pointing to the MCP server), timeout (ms), max_retries, health_check_url
-- Tools: web_search (30s timeout, 3 retries), arxiv_search (30s, 3), worldbank_data (30s, 3), read_uploaded_file (10s, 1)
+### src/mcp/arxiv-server.ts
 
-## Part C: Update the Research Agent
+Input: { query: string; max_results?: number }
+API:   GET http://export.arxiv.org/api/query?search_query={query}&max_results={n}
+Parse: Atom XML — extract entry elements, then for each:
+  - title (text)
+  - author names (array)
+  - summary (abstract text)
+  - published date
+  - id URL (use as PDF URL, replace /abs/ with /pdf/)
+Return: { results: Array<{ title, authors, abstract, published, pdf_url }> }
 
-Update src/agent/research-agent.ts to use real APIs:
-1. Replace mock tool handlers with calls to the MCP tool servers via tool-registry.ts
-2. Implement the tool use loop properly:
-   - web_search uses Anthropic's server-side tool type (`type: "web_search_20250305"`), separate from custom tool definitions
-   - arxiv_search, worldbank_data, read_uploaded_file use custom tool definitions that route through the MCP servers
-   - Send initial message with system prompt + user message + tools
-   - Check response for tool_use stop_reason
-   - For each tool_use block: route to the appropriate MCP server via tool-registry, collect results
-   - Send tool_result messages back
-   - Continue loop until the agent produces a final text response (stop_reason: 'end_turn')
-   - Parse final response into MemoOutput
-3. Handle rate limits: exponential backoff for 429 responses
-4. Log all API calls using Braintrust span helpers (NOT console.log)
+---
 
-Write integration tests that verify the full agent loop works end-to-end with real API calls (mark as integration tests that require API keys).
+### src/mcp/worldbank-server.ts
+
+Input: { indicator: string; country: string; date_range: string }
+  - indicator: World Bank series code, e.g. "NY.GDP.MKTP.CD"
+  - country: ISO2 code, e.g. "US" or "all"
+  - date_range: e.g. "2018:2023"
+API:   GET https://api.worldbank.org/v2/country/{country}/indicator/{indicator}?date={range}&format=json
+Parse: Response is array[2] where [1] is the data array. Each entry has:
+  - indicator.value (name), country.value, date, value
+Return: { indicator, country, observations: Array<{ year, value }> }
+
+---
+
+### src/mcp/govreport-server.ts
+
+Source: HuggingFace Datasets REST API — launch/gov_report dataset
+This dataset contains ~19,000 US government reports (GAO, CRS, CDC, OMB).
+Use keyword search across the pre-loaded metadata, then fetch the full report text.
+
+Input: { query: string; max_results?: number }
+Step 1 — search rows:
+  GET https://datasets-server.huggingface.co/search
+    ?dataset=launch/gov_report
+    &config=default
+    &split=train
+    &query={query}
+    &limit={max_results ?? 5}
+Step 2 — for each result, extract:
+  - title (from the "title" field if present, else first 80 chars of input)
+  - report text (the "input" field — full report text)
+  - summary (the "output" field — human-written summary)
+Return: { results: Array<{ title, summary, full_text_excerpt (first 2000 chars of input), source_url }> }
+source_url should be "https://huggingface.co/datasets/launch/gov_report" for all results.
+Handle gracefully if the search endpoint returns no results (return empty array, do not throw).
+
+---
+
+### src/mcp/govinfo-server.ts
+
+Source: US Government Publishing Office — Congressional Research Service, GAO, CBO reports
+Requires: GOVINFO_API_KEY
+
+Input: { query: string; collection?: string; max_results?: number }
+  - collection: one of "CRS", "GAO", "BILLS", "FR" (Federal Register). Default "CRS".
+  - max_results: default 5
+
+Step 1 — search:
+  GET https://api.govinfo.gov/search
+    ?query={query}
+    &pageSize={max_results}
+    &offsetMark=*
+    &collection={collection}
+    &api_key={GOVINFO_API_KEY}
+Parse: results[].packageId, title, dateIssued, governmentAuthor
+
+Step 2 — for each packageId, fetch summary:
+  GET https://api.govinfo.gov/packages/{packageId}/summary?api_key={GOVINFO_API_KEY}
+Parse: title, dateIssued, governmentAuthor, download.txtLink (if present)
+
+Step 3 — if txtLink is present, fetch up to 3000 chars of the text content.
+
+Return: { results: Array<{ packageId, title, date, authors, excerpt, source_url }> }
+source_url: https://www.govinfo.gov/content/pkg/{packageId}/html/{packageId}.htm
+
+---
+
+### src/mcp/fred-server.ts
+
+Source: Federal Reserve Economic Data (FRED)
+Requires: FRED_API_KEY
+
+Input: { series_id: string; start_date?: string; end_date?: string }
+  - series_id: FRED series code, e.g. "UNRATE", "CPIAUCSL", "GDP"
+  - start_date / end_date: YYYY-MM-DD format
+
+Step 1 — fetch series metadata:
+  GET https://api.stlouisfed.org/fred/series
+    ?series_id={series_id}
+    &api_key={FRED_API_KEY}
+    &file_type=json
+Extract: title, units, frequency, notes
+
+Step 2 — fetch observations:
+  GET https://api.stlouisfed.org/fred/series/observations
+    ?series_id={series_id}
+    &api_key={FRED_API_KEY}
+    &file_type=json
+    &observation_start={start_date ?? "2015-01-01"}
+    &observation_end={end_date ?? today}
+Extract: observations array of { date, value }
+
+Return: {
+  series_id, title, units, frequency,
+  observations: Array<{ date, value }>,
+  source_url: "https://fred.stlouisfed.org/series/{series_id}"
+}
+
+---
+
+### src/mcp/semantic-scholar-server.ts
+
+Source: Semantic Scholar Academic Graph API — no auth needed for basic use
+Covers policy-relevant papers in economics, public health, political science not on arXiv.
+
+Input: { query: string; max_results?: number; fields_of_study?: string[] }
+API:   GET https://api.semanticscholar.org/graph/v1/paper/search
+         ?query={query}
+         &limit={max_results ?? 10}
+         &fields=title,abstract,year,authors,externalIds,openAccessPdf,citationCount
+Optionally filter by fieldsOfStudy if provided.
+
+Return: { results: Array<{
+  title, abstract, year,
+  authors: string[],
+  citation_count,
+  pdf_url (from openAccessPdf.url if present, else null),
+  source_url: "https://www.semanticscholar.org/paper/{paperId}"
+}> }
+
+---
+
+### src/mcp/file-reader-server.ts
+
+Input: { file_path: string }
+Route by extension:
+  .pdf  → pdf-parse: extract text from buffer
+  .docx → mammoth: extractRawText
+  .txt / .md → fs.readFile (utf-8)
+  other → throw { error: "Unsupported file type: {ext}" }
+Return: { file_path, content (full extracted text), char_count }
+Error cases: file not found, corrupted file — return { error: string } rather than throwing.
+
+---
+
+### src/mcp/web-search-server.ts
+
+Source: Brave Search API
+Requires: BRAVE_SEARCH_API_KEY
+
+Input: { query: string; max_results?: number }
+API:   GET https://api.search.brave.com/res/v1/web/search
+         ?q={query}
+         &count={max_results ?? 10}
+Headers: { "Accept": "application/json", "X-Subscription-Token": BRAVE_SEARCH_API_KEY }
+Parse: web.results array, each with title, url, description
+Return: { results: Array<{ title, url, snippet }> }
+
+---
+
+### src/mcp/tool-registry.ts
+
+Define the ToolDefinition interface:
+  interface ToolDefinition {
+    name: string;
+    description: string;
+    parameters: Record<string, unknown>;  // JSON Schema object for the tool's input
+    handler: (input: Record<string, unknown>) => Promise<Record<string, unknown>>;
+    timeout_ms: number;
+    max_retries: number;
+  }
+
+Implement a shared fetchWithRetry utility:
+  - Wraps fetch with AbortController (timeout_ms)
+  - On failure: wait 2^attempt * 500ms, retry up to max_retries times
+  - On final failure: return { error: string } rather than throwing
+
+Register all tools:
+
+  web_search:
+    description: "Search the web for recent information, news, and policy documents"
+    parameters: { query: string, max_results?: number }
+    handler: webSearchHandler
+    timeout_ms: 30000, max_retries: 3
+
+  arxiv_search:
+    description: "Search arXiv for academic papers. Use for economic research, policy analysis, quantitative studies."
+    parameters: { query: string, max_results?: number }
+    handler: arxivHandler
+    timeout_ms: 30000, max_retries: 3
+
+  worldbank_data:
+    description: "Fetch World Bank development indicators by country and year range. Use series codes like NY.GDP.MKTP.CD (GDP), SP.POP.TOTL (population), SH.STA.MMRT (maternal mortality)."
+    parameters: { indicator: string, country: string, date_range: string }
+    handler: worldbankHandler
+    timeout_ms: 30000, max_retries: 3
+
+  govreport_search:
+    description: "Search US government reports (GAO, CRS, CDC, OMB) from the GovReport dataset. Best for existing government analyses and official policy positions."
+    parameters: { query: string, max_results?: number }
+    handler: govreportHandler
+    timeout_ms: 30000, max_retries: 3
+
+  govinfo_search:
+    description: "Search US Government Publishing Office documents — Congressional Research Service reports, GAO analyses, Federal Register. Use collection CRS for policy briefs, GAO for audits."
+    parameters: { query: string, collection?: string, max_results?: number }
+    handler: govinfoHandler
+    timeout_ms: 30000, max_retries: 3
+
+  fred_data:
+    description: "Fetch Federal Reserve economic time series data. Use for macroeconomic statistics: UNRATE (unemployment), CPIAUCSL (inflation), GDP, FEDFUNDS (interest rates)."
+    parameters: { series_id: string, start_date?: string, end_date?: string }
+    handler: fredHandler
+    timeout_ms: 30000, max_retries: 3
+
+  semantic_scholar_search:
+    description: "Search Semantic Scholar for academic papers in economics, public health, and political science. Complements arXiv for policy-relevant social science research."
+    parameters: { query: string, max_results?: number, fields_of_study?: string[] }
+    handler: semanticScholarHandler
+    timeout_ms: 30000, max_retries: 3
+
+  read_uploaded_file:
+    description: "Read text content from a user-uploaded file (PDF, DOCX, TXT, MD)."
+    parameters: { file_path: string }
+    handler: fileReaderHandler
+    timeout_ms: 10000, max_retries: 1
+
+Export:
+  - TOOL_REGISTRY: Record<string, ToolDefinition>
+  - getToolDefinitions(): returns array of Groq-compatible tool objects (name, description, parameters as JSON Schema)
+  - callTool(name: string, input: Record<string, unknown>): routes to handler with retry
+
+---
+
+## Part C: Research Agent with Groq Tool Use Loop
+
+Update src/agent/research-agent.ts:
+
+### Groq client setup
+
+import Groq from 'groq-sdk';
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const MODEL = 'llama-3.3-70b-versatile';
+
+### Tool use loop
+
+Groq's function calling follows the same pattern as OpenAI:
+- Tools are passed as `tools` array with type "function"
+- When the model wants to call a tool, response.choices[0].finish_reason === "tool_calls"
+- response.choices[0].message.tool_calls is an array of { id, function: { name, arguments } }
+- After calling the tool, append the assistant message AND a tool result message:
+    { role: "tool", tool_call_id: toolCall.id, content: JSON.stringify(result) }
+- Continue the loop until finish_reason === "stop"
+
+Implement runResearchAgent(input: MemoInput): Promise<MemoOutput>:
+
+1. Build system prompt via promptAssembler (already exists)
+2. Initialise messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userMessage }]
+3. Get tool definitions from getToolDefinitions()
+4. Loop (max input.max_tool_calls ?? 25 iterations):
+   a. Call groq.chat.completions.create({ model: MODEL, messages, tools, tool_choice: "auto", response_format: undefined })
+   b. If finish_reason === "stop": break — this is the final response
+   c. If finish_reason === "tool_calls":
+      - For each tool_call in message.tool_calls:
+        * Parse arguments: JSON.parse(toolCall.function.arguments)
+        * Call callTool(toolCall.function.name, parsedArgs)
+        * Log the call to Braintrust span
+        * Increment toolCallsUsed counter
+      - Append assistant message (with tool_calls) to messages
+      - Append one tool result message per tool call to messages
+   d. If finish_reason is anything else: break with error
+5. Parse the final assistant text response into MemoOutput:
+   - The system prompt instructs the agent to output JSON with { memo_sections, notes_log }
+   - Use JSON.parse on the content — if it fails, attempt to extract JSON from markdown code block
+   - Validate with validateNotesLog and checkMemoCompleteness (already implemented in claim-extractor.ts)
+6. Return MemoOutput
+
+### Token budget enforcement
+
+Track approximate token usage (sum of message lengths / 4 as rough estimate).
+Stop the loop and return partial output if max_research_tokens is exceeded.
+Log a warning to Braintrust when budget is hit.
+
+### Rate limit handling
+
+If groq.chat.completions.create throws with status 429:
+  - Wait 60 seconds (Groq free tier resets per minute)
+  - Retry once
+  - If still 429, throw with a user-facing message
+
+### Braintrust logging
+
+Wrap the entire agent run in a Braintrust trace.
+Log each tool call as a child span: { tool_name, input, output, duration_ms }.
+Log final output as { memo_section_count, claim_count, tool_calls_used, tokens_estimated }.
+Do NOT use console.log — use the span helpers in src/observability/.
+
+---
+
+## Part D: Integration Tests
+
+Write tests/agent/research-agent.test.ts marked @integration (requires GROQ_API_KEY and BRAVE_SEARCH_API_KEY):
+
+1. Tool call routing test — mock the Groq response to return a tool_call for arxiv_search,
+   verify the handler is called with correct arguments and result is appended to messages.
+
+2. Full loop test — run the agent on a simple topic ("impact of minimum wage on employment"),
+   verify the output has at least 3 notes log entries and a valid memo structure.
+
+3. Budget enforcement test — set max_tool_calls to 2, verify the agent stops after 2 tool calls.
+
+4. Rate limit retry test — mock a 429 response followed by success, verify retry logic fires.
+
+Unit tests (no API key needed):
+5. Tool registry test — verify all 8 tools are registered, each has required fields.
+6. fetchWithRetry test — mock fetch to fail twice then succeed, verify 3 attempts are made.
 ```
 
 ### Prompt 5.2 — Braintrust Observability (TypeScript + Python)

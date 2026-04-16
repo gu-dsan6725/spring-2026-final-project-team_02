@@ -1,8 +1,8 @@
 /**
  * HERALD Tier 2 — LLM-as-Judge evaluation.
  *
- * Calls Claude Sonnet to assess a claim against its cited source chunks using
- * a claim-type-specific evaluation prompt.  This tier handles:
+ * Calls Groq (Llama 3.3 70B) to assess a claim against its cited source chunks
+ * using a claim-type-specific evaluation prompt.  This tier handles:
  *
  *   - Claims that Tier 1 (NLI) returned 'uncertain' on (statistical, comparative, causal)
  *   - Claims that skip NLI entirely (predictive, normative, synthesis)
@@ -13,7 +13,7 @@
  *   confidence < 0.6    → override to 'uncertain', escalate to Tier 3 (high-priority)
  */
 
-import Anthropic from '@anthropic-ai/sdk';
+import Groq from 'groq-sdk';
 
 import { DERIVATION_CONFIG, type NotesLogEntry } from '../types/claims';
 import type { TierOutput, Verdict } from '../types/herald';
@@ -24,7 +24,7 @@ import { getJudgePrompt } from './prompts/judge-system';
 // Constants
 // ---------------------------------------------------------------------------
 
-const JUDGE_MODEL = 'claude-sonnet-4-6';
+const JUDGE_MODEL = 'llama-3.3-70b-versatile';
 const JUDGE_TEMPERATURE = 0.2;
 const JUDGE_MAX_TOKENS = 1024;
 
@@ -35,59 +35,62 @@ const CONFIDENCE_EXIT_THRESHOLD = 0.85;
 const CONFIDENCE_HIGH_PRIORITY_THRESHOLD = 0.6;
 
 // ---------------------------------------------------------------------------
-// Anthropic client (lazy singleton)
+// Groq client (lazy singleton)
 // ---------------------------------------------------------------------------
 
-let _client: Anthropic | null = null;
+let _client: Groq | null = null;
 
-/** Return the shared Anthropic client, creating it on first call. */
-function getClient(): Anthropic {
+function getClient(): Groq {
   if (_client === null) {
-    _client = new Anthropic();
+    _client = new Groq({ apiKey: process.env['GROQ_API_KEY'] });
   }
   return _client;
 }
 
 // ---------------------------------------------------------------------------
-// Tool definition for structured output
+// Function definition for structured output (OpenAI-compatible tool calling)
 // ---------------------------------------------------------------------------
 
-const SUBMIT_EVALUATION_TOOL: Anthropic.Tool = {
-  name: 'submit_evaluation',
-  description:
-    'Submit the structured claim evaluation result. ' +
-    'Always call this tool — do not respond with plain text.',
-  input_schema: {
-    type: 'object' as const,
-    properties: {
-      verdict: {
-        type: 'string',
-        enum: ['valid', 'invalid', 'needs_revision', 'uncertain'],
-        description: 'The evaluation verdict for this claim.',
+const SUBMIT_EVALUATION_FUNCTION: Groq.Chat.ChatCompletionTool = {
+  type: 'function',
+  function: {
+    name: 'submit_evaluation',
+    description:
+      'Submit the structured claim evaluation result. ' +
+      'Always call this function — do not respond with plain text.',
+    parameters: {
+      type: 'object',
+      properties: {
+        verdict: {
+          type: 'string',
+          enum: ['valid', 'invalid', 'needs_revision', 'uncertain'],
+          description: 'The evaluation verdict for this claim.',
+        },
+        confidence: {
+          type: 'number',
+          description:
+            'Confidence in the verdict, from 0.0 (very uncertain) to 1.0 (very certain).',
+        },
+        reasoning: {
+          type: 'string',
+          description:
+            'Clear, specific reasoning citing source material. ' +
+            'For invalid/needs_revision verdicts, identify the specific mismatch.',
+        },
+        suggested_revision: {
+          type: 'string',
+          description:
+            'Concrete revised claim text that would be valid. ' +
+            'Required for invalid and needs_revision verdicts; omit for valid/uncertain.',
+        },
       },
-      confidence: {
-        type: 'number',
-        description: 'Confidence in the verdict, from 0.0 (very uncertain) to 1.0 (very certain).',
-      },
-      reasoning: {
-        type: 'string',
-        description:
-          'Clear, specific reasoning citing source material. ' +
-          'For invalid/needs_revision verdicts, identify the specific mismatch.',
-      },
-      suggested_revision: {
-        type: 'string',
-        description:
-          'Concrete revised claim text that would be valid. ' +
-          'Required for invalid and needs_revision verdicts; omit for valid/uncertain.',
-      },
+      required: ['verdict', 'confidence', 'reasoning'],
     },
-    required: ['verdict', 'confidence', 'reasoning'],
   },
 };
 
 // ---------------------------------------------------------------------------
-// Type guard for parsed tool output
+// Type guard for parsed function output
 // ---------------------------------------------------------------------------
 
 interface JudgeToolInput {
@@ -224,7 +227,7 @@ function applyDecisionLogic(raw: JudgeToolInput): TierOutput {
 // ---------------------------------------------------------------------------
 
 /**
- * Evaluate a claim at HERALD Tier 2 using Claude Sonnet as a domain-aware judge.
+ * Evaluate a claim at HERALD Tier 2 using Groq Llama 3.3 70B as a domain-aware judge.
  *
  * @param claim       - The claim and its source provenance from the notes log.
  * @param tier1Result - Optional Tier 1 NLI result (when Tier 1 was inconclusive).
@@ -246,45 +249,67 @@ export async function evaluateWithLLMJudge(
     const systemPrompt = getJudgePrompt(claim.claim_type);
     const userMessage = buildUserMessage(claim, tier1Result);
 
-    const response = await getClient().messages.create({
+    const response = await getClient().chat.completions.create({
       model: JUDGE_MODEL,
       max_tokens: JUDGE_MAX_TOKENS,
       temperature: JUDGE_TEMPERATURE,
-      system: [
-        {
-          type: 'text' as const,
-          text: systemPrompt,
-          cache_control: { type: 'ephemeral' as const },
-        },
+      tools: [SUBMIT_EVALUATION_FUNCTION],
+      tool_choice: { type: 'function', function: { name: 'submit_evaluation' } },
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage },
       ],
-      tools: [SUBMIT_EVALUATION_TOOL],
-      tool_choice: { type: 'tool' as const, name: 'submit_evaluation' },
-      messages: [{ role: 'user' as const, content: userMessage }],
     });
 
-    // Extract the tool_use block — required by tool_choice: { type: 'tool' }
-    const toolUseBlock = response.content.find((b) => b.type === 'tool_use');
-    if (toolUseBlock === undefined) {
+    // Extract the function call — required by tool_choice: function
+    const toolCall = response.choices[0]?.message?.tool_calls?.[0];
+    const plainTextContent = response.choices[0]?.message?.content ?? '';
+
+    let parsed: unknown;
+
+    if (toolCall !== undefined) {
+      // Normal path: model called the function
+      try {
+        parsed = JSON.parse(toolCall.function.arguments) as unknown;
+      } catch {
+        throw new Error(
+          `submit_evaluation arguments JSON parse failed: ${toolCall.function.arguments.slice(0, 300)}`,
+        );
+      }
+    } else if (plainTextContent.length > 0) {
+      // Fallback: Groq occasionally ignores tool_choice and returns plain text JSON
+      const jsonMatch = /\{[\s\S]*\}/.exec(plainTextContent);
+      if (jsonMatch === null) {
+        throw new Error(
+          `Tier 2 judge did not call submit_evaluation and response contains no JSON. ` +
+            `finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
+        );
+      }
+      try {
+        parsed = JSON.parse(jsonMatch[0]) as unknown;
+      } catch {
+        throw new Error(
+          `Tier 2 judge plain-text JSON parse failed: ${plainTextContent.slice(0, 300)}`,
+        );
+      }
+    } else {
       throw new Error(
         `Tier 2 judge model did not call submit_evaluation. ` +
-          `stop_reason=${response.stop_reason ?? 'null'}, ` +
-          `content_types=${response.content.map((b) => b.type).join(',')}`,
+          `finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
       );
     }
 
-    if (!isJudgeToolInput(toolUseBlock.input)) {
-      throw new Error(
-        `submit_evaluation tool input failed validation: ` + JSON.stringify(toolUseBlock.input),
-      );
+    if (!isJudgeToolInput(parsed)) {
+      throw new Error(`submit_evaluation arguments failed validation: ` + JSON.stringify(parsed));
     }
 
-    const result = applyDecisionLogic(toolUseBlock.input);
+    const result = applyDecisionLogic(parsed);
 
     span.end({
       verdict: result.verdict,
       confidence: result.confidence,
-      input_tokens: response.usage.input_tokens,
-      output_tokens: response.usage.output_tokens,
+      input_tokens: response.usage?.prompt_tokens ?? 0,
+      output_tokens: response.usage?.completion_tokens ?? 0,
     });
 
     return result;

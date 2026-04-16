@@ -1,0 +1,95 @@
+/* HERALD Design System — CSS custom properties */
+
+@import "tailwindcss";
+
+:root {
+  /* Brand colours */
+  --color-navy: #0b2545;
+  --color-navy-dark: #071b38;
+  --color-navy-light: #1a3d6b;
+  --color-gold: #d4af37;
+  --color-gold-light: #e8d068;
+
+  /* Paper tones */
+  --color-paper: #faf8f5;
+  --color-paper-dark: #e8e2d6;
+  --color-paper-border: #d4ccba;
+
+  /* Text */
+  --color-text: #1a1208;
+  --color-text-muted: #6b5e44;
+
+  /* Typography */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: 'Georgia', ui-serif, Georgia, 'Times New Roman', serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+}
+
+/* Base styles */
+html {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Scrollbar styling (WebKit) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-paper-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-paper-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Spinner animation */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 0.8s linear infinite;
+}
+
+/* Smooth hover transitions for buttons */
+button {
+  transition-property: opacity, background-color, color, border-color, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+/* Print styles */
+@media print {
+  header,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+    color: black;
+    font-size: 11pt;
+  }
+}
