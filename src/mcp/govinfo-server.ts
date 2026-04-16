@@ -53,16 +53,18 @@ export async function govinfoHandler(
     return { error: 'GOVINFO_API_KEY is not set' };
   }
 
-  // Step 1: Search
-  const searchUrl = new URL('https://api.govinfo.gov/search');
-  searchUrl.searchParams.set('query', query);
-  searchUrl.searchParams.set('pageSize', String(Math.min(maxResults, 10)));
-  searchUrl.searchParams.set('offsetMark', '*');
-  searchUrl.searchParams.set('collection', collection);
-  searchUrl.searchParams.set('api_key', apiKey);
+  // Step 1: Search (GovInfo requires POST for /search)
+  const searchUrl = `https://api.govinfo.gov/search?api_key=${apiKey}`;
 
-  const searchResponse = await fetch(searchUrl.toString(), {
-    headers: { Accept: 'application/json' },
+  const searchResponse = await fetch(searchUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      query,
+      pageSize: Math.min(maxResults, 10),
+      offsetMark: '*',
+      filters: { collectionCode: [collection] },
+    }),
   });
 
   if (!searchResponse.ok) {
