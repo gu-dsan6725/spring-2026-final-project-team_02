@@ -6,6 +6,9 @@
  *   - TOOL_REGISTRY: map of all 8 registered tools
  *   - getToolDefinitions(): Groq-compatible tool array for chat.completions.create
  *   - callTool(): routes a tool call to its handler with retry logic
+ *   - runHealthChecks(): pings each tool's health endpoint before the agent starts
+ *   - getAvailabilityPrompt(): produces the "Available tools: ..." line for the system prompt
+ *   - executeTool(): callTool + Braintrust logging in one call
  */
 
 import { webSearchHandler } from './web-search-server';
@@ -16,6 +19,8 @@ import { govinfoHandler } from './govinfo-server';
 import { fredHandler } from './fred-server';
 import { semanticScholarHandler } from './semantic-scholar-server';
 import { fileReaderHandler } from './file-reader-server';
+import { logMcpToolCall } from '../observability/span-helpers';
+import { logWarn } from '../observability/braintrust';
 
 // ---------------------------------------------------------------------------
 // Shared fetch utility
@@ -23,7 +28,7 @@ import { fileReaderHandler } from './file-reader-server';
 
 /**
  * Wraps fetch with a timeout (via AbortController) and exponential backoff retry.
- * On final failure, returns { error: string } rather than throwing.
+ * On final failure, throws the last error rather than swallowing it.
  */
 export async function fetchWithRetry(
   url: string,
@@ -69,6 +74,34 @@ export interface ToolDefinition {
   handler: (input: Record<string, unknown>) => Promise<Record<string, unknown>>;
   timeout_ms: number;
   max_retries: number;
+  /** URL to GET for liveness check. A 2xx response means healthy. */
+  health_check_url: string;
+}
+
+// ---------------------------------------------------------------------------
+// Health check types
+// ---------------------------------------------------------------------------
+
+export type HealthStatus = 'healthy' | 'unhealthy' | 'degraded';
+
+export interface ToolHealthReport {
+  name: string;
+  status: HealthStatus;
+  /** Human-readable reason, present when status !== 'healthy'. */
+  reason?: string;
+  /** Round-trip latency in ms (only present when status === 'healthy'). */
+  latency_ms?: number;
+}
+
+/** Aggregated result returned by runHealthChecks(). */
+export interface HealthCheckSummary {
+  reports: ToolHealthReport[];
+  /** True when at least one tool is healthy. */
+  any_available: boolean;
+  /** Names of healthy tools. */
+  available: string[];
+  /** Names of unhealthy/degraded tools. */
+  unavailable: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -95,6 +128,8 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
     handler: webSearchHandler,
     timeout_ms: 30_000,
     max_retries: 3,
+    // Anthropic API reachability: use the public models endpoint (no auth needed for 401 vs network error)
+    health_check_url: 'https://api.anthropic.com/v1/models',
   },
 
   arxiv_search: {
@@ -113,6 +148,7 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
     handler: arxivHandler,
     timeout_ms: 30_000,
     max_retries: 3,
+    health_check_url: 'https://export.arxiv.org/api/query?search_query=test&max_results=1',
   },
 
   worldbank_data: {
@@ -143,6 +179,8 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
     handler: worldbankHandler,
     timeout_ms: 30_000,
     max_retries: 3,
+    health_check_url:
+      'https://api.worldbank.org/v2/country/US/indicator/NY.GDP.MKTP.CD?format=json&per_page=1',
   },
 
   govreport_search: {
@@ -161,6 +199,7 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
     handler: govreportHandler,
     timeout_ms: 30_000,
     max_retries: 3,
+    health_check_url: 'https://huggingface.co/datasets/launch/gov_report',
   },
 
   govinfo_search: {
@@ -186,6 +225,7 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
     handler: govinfoHandler,
     timeout_ms: 30_000,
     max_retries: 3,
+    health_check_url: 'https://api.govinfo.gov/collections?api_key=DEMO_KEY',
   },
 
   fred_data: {
@@ -216,6 +256,8 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
     handler: fredHandler,
     timeout_ms: 30_000,
     max_retries: 3,
+    health_check_url:
+      'https://api.stlouisfed.org/fred/series?series_id=UNRATE&api_key=&file_type=json',
   },
 
   semantic_scholar_search: {
@@ -242,6 +284,7 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
     handler: semanticScholarHandler,
     timeout_ms: 30_000,
     max_retries: 3,
+    health_check_url: 'https://api.semanticscholar.org/graph/v1/paper/search?query=test&limit=1',
   },
 
   read_uploaded_file: {
@@ -261,8 +304,178 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
     handler: fileReaderHandler,
     timeout_ms: 10_000,
     max_retries: 1,
+    // Local tool — health is always "healthy" (no network dependency).
+    // We use a data: URI so fetch never goes to the network; we override this
+    // in runHealthChecks() instead.
+    health_check_url: 'local',
   },
 };
+
+// ---------------------------------------------------------------------------
+// Health check system
+// ---------------------------------------------------------------------------
+
+/** Timeout for each individual health check ping (ms). */
+const HEALTH_CHECK_TIMEOUT_MS = 5_000;
+
+/**
+ * Checks liveness for a single tool by GETting its health_check_url.
+ * A 2xx or 4xx response means the endpoint is reachable (even auth errors
+ * confirm reachability). Only network-level failures mark a tool unhealthy.
+ *
+ * The `read_uploaded_file` tool is local and always considered healthy.
+ */
+async function checkToolHealth(tool: ToolDefinition): Promise<ToolHealthReport> {
+  // Local tool — no network check needed.
+  if (tool.health_check_url === 'local') {
+    return { name: tool.name, status: 'healthy', latency_ms: 0 };
+  }
+
+  const start = Date.now();
+  const controller = new AbortController();
+  const timer = setTimeout(() => {
+    controller.abort();
+  }, HEALTH_CHECK_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(tool.health_check_url, {
+      method: 'GET',
+      signal: controller.signal,
+      // Don't follow redirects — a redirect means we reached the server.
+      redirect: 'manual',
+    });
+    clearTimeout(timer);
+
+    const latency_ms = Date.now() - start;
+
+    // 2xx, 3xx, and 4xx all mean the endpoint is reachable.
+    // 5xx means the service itself is down.
+    if (response.status >= 500) {
+      return {
+        name: tool.name,
+        status: 'unhealthy',
+        reason: `API returned ${String(response.status)}`,
+      };
+    }
+
+    return { name: tool.name, status: 'healthy', latency_ms };
+  } catch (error) {
+    clearTimeout(timer);
+    const isTimeout =
+      error instanceof Error && (error.name === 'AbortError' || error.message.includes('abort'));
+    return {
+      name: tool.name,
+      status: 'unhealthy',
+      reason: isTimeout
+        ? 'health check timed out'
+        : error instanceof Error
+          ? error.message
+          : String(error),
+    };
+  }
+}
+
+/**
+ * Runs health checks on all registered tools in parallel.
+ * Returns a HealthCheckSummary with per-tool reports and aggregate availability.
+ *
+ * Call this once before starting the agent loop and pass the result to
+ * getAvailabilityPrompt() to inject tool availability into the system prompt.
+ */
+export async function runHealthChecks(): Promise<HealthCheckSummary> {
+  const tools = Object.values(TOOL_REGISTRY).filter((t): t is ToolDefinition => t !== undefined);
+
+  const reports = await Promise.all(tools.map((t) => checkToolHealth(t)));
+
+  const available = reports.filter((r) => r.status === 'healthy').map((r) => r.name);
+  const unavailable = reports.filter((r) => r.status !== 'healthy').map((r) => r.name);
+
+  if (unavailable.length > 0) {
+    logWarn('tool_health_check', {
+      unavailable,
+      reports: reports
+        .filter((r) => r.status !== 'healthy')
+        .map((r) => ({ name: r.name, reason: r.reason })),
+    });
+  }
+
+  return {
+    reports,
+    any_available: available.length > 0,
+    available,
+    unavailable,
+  };
+}
+
+/**
+ * Builds the "Available tools: ..." line for the agent's system prompt.
+ *
+ * Example output:
+ *   Available tools: web_search (healthy), arxiv_search (healthy),
+ *   worldbank_data (unavailable — API timeout), read_uploaded_file (healthy)
+ *
+ * Also appends a degraded-mode warning when no external tools are reachable
+ * so the agent knows to rely only on user-uploaded sources and its own knowledge.
+ */
+export function getAvailabilityPrompt(summary: HealthCheckSummary): string {
+  const tools = Object.values(TOOL_REGISTRY).filter((t): t is ToolDefinition => t !== undefined);
+
+  const parts = tools.map((tool) => {
+    const report = summary.reports.find((r) => r.name === tool.name);
+    if (report === undefined || report.status === 'healthy') {
+      return `${tool.name} (healthy)`;
+    }
+    const reason = report.reason ?? 'unavailable';
+    return `${tool.name} (unavailable — ${reason})`;
+  });
+
+  const header = `Available tools: ${parts.join(', ')}`;
+
+  // Check whether ALL external tools are down (read_uploaded_file is local and always healthy).
+  const externalTools = tools.filter((t) => t.health_check_url !== 'local');
+  const allExternalDown = externalTools.every((t) => summary.unavailable.includes(t.name));
+
+  if (allExternalDown && externalTools.length > 0) {
+    return (
+      header +
+      '\n\nWARNING: All external research tools are currently unreachable. ' +
+      'You must rely exclusively on user-uploaded sources (read_uploaded_file) ' +
+      'and your own knowledge to write this memo. ' +
+      'Mark any claims produced without an external source as degraded_mode: true ' +
+      'in the notes log so reviewers are aware of the reduced evidentiary basis.'
+    );
+  }
+
+  return header;
+}
+
+// ---------------------------------------------------------------------------
+// Graceful degradation helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns an ordered list of fallback tools for a given unavailable tool.
+ *
+ * Degradation policy (per CLAUDE.md):
+ *   - arxiv_search down  → prefer web_search for academic sources
+ *   - worldbank_data down → prefer web_search for economic data
+ *   - All external down  → read_uploaded_file only
+ */
+export function getFallbackTools(unavailableTool: string, summary: HealthCheckSummary): string[] {
+  const fallbackMap: Record<string, string[]> = {
+    arxiv_search: ['semantic_scholar_search', 'web_search'],
+    worldbank_data: ['fred_data', 'web_search'],
+    fred_data: ['worldbank_data', 'web_search'],
+    govreport_search: ['govinfo_search', 'web_search'],
+    govinfo_search: ['govreport_search', 'web_search'],
+    semantic_scholar_search: ['arxiv_search', 'web_search'],
+    web_search: ['govreport_search', 'arxiv_search'],
+    read_uploaded_file: [],
+  };
+
+  const candidates = fallbackMap[unavailableTool] ?? ['web_search'];
+  return candidates.filter((name) => summary.available.includes(name));
+}
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -286,8 +499,8 @@ export function getToolDefinitions(): Array<{
 
 /**
  * Route a tool call to the appropriate handler.
- * Retries up to the tool's max_retries on network errors.
- * Never throws — returns { error: string } on final failure.
+ * Retries up to the tool's max_retries on network errors with exponential backoff.
+ * Never throws — returns { error: string, source_unavailable: true } on final failure.
  */
 export async function callTool(
   name: string,
@@ -301,20 +514,30 @@ export async function callTool(
   let lastError: unknown;
 
   for (let attempt = 0; attempt <= tool.max_retries; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      controller.abort();
+    }, tool.timeout_ms);
+
     try {
+      const resultPromise = tool.handler(input);
+      // Race the handler against the AbortController-linked timeout promise.
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => {
+        controller.signal.addEventListener('abort', () => {
           reject(new Error(`Tool ${name} timed out after ${String(tool.timeout_ms)}ms`));
-        }, tool.timeout_ms);
+        });
       });
 
-      const result = await Promise.race([tool.handler(input), timeoutPromise]);
+      const result = await Promise.race([resultPromise, timeoutPromise]);
+      clearTimeout(timer);
       return result;
     } catch (error) {
+      clearTimeout(timer);
       lastError = error;
 
       if (attempt < tool.max_retries) {
-        await new Promise((resolve) => setTimeout(resolve, 500 * Math.pow(2, attempt)));
+        // Exponential backoff: 1s, 2s, 4s (as specified in CLAUDE.md)
+        await new Promise((resolve) => setTimeout(resolve, 1_000 * Math.pow(2, attempt)));
       }
     }
   }
@@ -324,4 +547,26 @@ export async function callTool(
     error: `Tool ${name} failed after ${String(tool.max_retries + 1)} attempts: ${message}`,
     source_unavailable: true,
   };
+}
+
+/**
+ * Execute a tool call and log it to Braintrust.
+ *
+ * This is the preferred entry point for the agent loop — it combines callTool()
+ * with observability so callers don't have to manage timing and logging themselves.
+ *
+ * Returns the same shape as callTool() (never throws).
+ */
+export async function executeTool(
+  name: string,
+  input: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const start = Date.now();
+  const result = await callTool(name, input);
+  const latencyMs = Date.now() - start;
+  const success = !('error' in result);
+
+  logMcpToolCall(name, input, JSON.stringify(result).slice(0, 2_000), latencyMs, success);
+
+  return result;
 }
