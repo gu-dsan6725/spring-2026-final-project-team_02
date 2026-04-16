@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -19,15 +20,52 @@ logger = logging.getLogger(__name__)
 async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     """
     Application lifespan handler.
-    - Startup: initialize DB connection pool and NLI model
-    - Shutdown: release resources
-
-    DB and NLI model initialization will be wired up in later checkpoints.
+    - Startup: initialise DB connection pool, Redis client, and NLI model
+    - Shutdown: release all resources
     """
     logger.info("Starting policy-memo-agent backend...")
-    # TODO checkpoint-0.x: initialize DB connection pool
 
-    # Load NLI model once at startup — Tier 1 of HERALD pipeline
+    # ------------------------------------------------------------------
+    # Database
+    # ------------------------------------------------------------------
+    database_url = os.getenv("DATABASE_URL", "")
+    if database_url:
+        from policy_memo_agent.db.database import init_db
+
+        try:
+            init_db(database_url)
+            logger.info("Database initialised")
+        except Exception:
+            logger.exception(
+                "Database initialisation failed — memo persistence will be unavailable."
+            )
+    else:
+        logger.warning(
+            "DATABASE_URL is not set — running without database persistence. "
+            "Set DATABASE_URL in .env to enable memo storage."
+        )
+
+    # ------------------------------------------------------------------
+    # Redis
+    # ------------------------------------------------------------------
+    redis_url = os.getenv("REDIS_URL", "")
+    if redis_url:
+        from policy_memo_agent.services.session_service import init_redis
+
+        try:
+            init_redis(redis_url)
+            logger.info("Redis client initialised")
+        except Exception:
+            logger.exception("Redis initialisation failed — session resume will be unavailable.")
+    else:
+        logger.warning(
+            "REDIS_URL is not set — running without Redis. "
+            "Agent state will not be persisted across disconnects."
+        )
+
+    # ------------------------------------------------------------------
+    # NLI model (Tier 1 HERALD)
+    # ------------------------------------------------------------------
     from policy_memo_agent.services.nli_service import get_nli_service
 
     nli_service = get_nli_service()
@@ -41,8 +79,21 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
         )
 
     yield
+
+    # ------------------------------------------------------------------
+    # Shutdown
+    # ------------------------------------------------------------------
     logger.info("Shutting down policy-memo-agent backend...")
-    # TODO checkpoint-0.x: close DB connection pool
+
+    if database_url:
+        from policy_memo_agent.db.database import close_db
+
+        await close_db()
+
+    if redis_url:
+        from policy_memo_agent.services.session_service import close_redis
+
+        await close_redis()
 
 
 def create_app() -> FastAPI:

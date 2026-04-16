@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Annotated
+import uuid
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
+from policy_memo_agent.api.deps import ClaimRepo, MemoRepo
 from policy_memo_agent.services.braintrust_service import get_braintrust
 from policy_memo_agent.services.nli_service import NLIResult, NLIService, get_nli_service
 
@@ -35,8 +37,18 @@ def _nli_service(service: Annotated[NLIService, Depends(get_nli_service)]) -> NL
 LoadedNLI = Annotated[NLIService, Depends(_nli_service)]
 
 
+def _parse_memo_id(raw: str) -> uuid.UUID:
+    try:
+        return uuid.UUID(raw)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=f"Invalid memo id: {raw!r}",
+        ) from None
+
+
 # ---------------------------------------------------------------------------
-# Request / response schemas
+# Request / response schemas — NLI (unchanged)
 # ---------------------------------------------------------------------------
 
 
@@ -66,11 +78,43 @@ class NLIBatchResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Request / response schemas — memo-scoped HERALD evaluation
+# ---------------------------------------------------------------------------
+
+
+class EvaluateRequest(BaseModel):
+    claim_ids: list[str] = Field(
+        ...,
+        min_length=1,
+        description="Agent claim IDs to evaluate (C-001, C-002 …)",
+    )
+
+
+class EvaluationJobResponse(BaseModel):
+    memo_id: str
+    queued_claim_ids: list[str]
+    message: str
+
+
+class HeraldResultResponse(BaseModel):
+    claim_id: str
+    claim_text: str
+    claim_type: str
+    tier_reached: int
+    verdict: str
+    confidence: float
+    feedback: str
+    suggested_revision: str | None
+    tier_details: dict[str, Any]
+    evaluated_at: str | None
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 
-def _to_response(result: NLIResult) -> NLIResponse:
+def _to_nli_response(result: NLIResult) -> NLIResponse:
     return NLIResponse(
         label=result.label,
         scores=NLIScores(
@@ -82,7 +126,7 @@ def _to_response(result: NLIResult) -> NLIResponse:
 
 
 # ---------------------------------------------------------------------------
-# Endpoints
+# Endpoints — low-level NLI inference (unchanged from prior checkpoint)
 # ---------------------------------------------------------------------------
 
 
@@ -106,7 +150,7 @@ async def nli_single(body: NLIPair, service: LoadedNLI) -> NLIResponse:
         status_code=200,
         metadata={"label": result.label},
     )
-    return _to_response(result)
+    return _to_nli_response(result)
 
 
 @router.post("/nli/batch", response_model=NLIBatchResponse)
@@ -132,24 +176,121 @@ async def nli_batch(body: NLIBatchRequest, service: LoadedNLI) -> NLIBatchRespon
         status_code=200,
         metadata={"pair_count": len(pairs)},
     )
-    return NLIBatchResponse(results=[_to_response(r) for r in results])
+    return NLIBatchResponse(results=[_to_nli_response(r) for r in results])
 
 
 # ---------------------------------------------------------------------------
-# Legacy stubs (retained for future checkpoints)
+# Endpoints — memo-scoped HERALD evaluation pipeline
 # ---------------------------------------------------------------------------
 
-_NOT_IMPLEMENTED_MSG = {
-    "error": "not_implemented",
-    "message": "This HERALD endpoint will be implemented in a future checkpoint.",
-}
+
+@router.post("/memos/{memo_id}/evaluate", response_model=EvaluationJobResponse)
+async def evaluate_claims(
+    memo_id: str,
+    body: EvaluateRequest,
+    memo_repo: MemoRepo,
+    claim_repo: ClaimRepo,
+) -> EvaluationJobResponse:
+    """
+    Trigger HERALD evaluation for a set of claims within a memo.
+
+    Validates that the memo and each requested claim exist.  Actual
+    tier-by-tier evaluation is enqueued as a background task (wired up in
+    checkpoint-3.x — HERALD integration).  Returns immediately with the list of
+    queued claim IDs so the frontend can poll ``GET .../evaluate/{claimId}``.
+    """
+    mid = _parse_memo_id(memo_id)
+    memo = await memo_repo.get_by_id(mid)
+    if memo is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Memo not found")
+
+    queued: list[str] = []
+    missing: list[str] = []
+    for cid in body.claim_ids:
+        claim = await claim_repo.get_claim_by_claim_id(mid, cid)
+        if claim is None:
+            missing.append(cid)
+        else:
+            queued.append(cid)
+
+    if missing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Claims not found in this memo: {missing}",
+        )
+
+    # TODO checkpoint-3.x: dispatch HERALD pipeline tasks to background queue
+    logger.info("HERALD evaluation queued for memo %s: %s", memo_id, queued)
+
+    return EvaluationJobResponse(
+        memo_id=memo_id,
+        queued_claim_ids=queued,
+        message=(
+            f"HERALD evaluation queued for {len(queued)} claim(s). "
+            "Poll GET /api/herald/memos/{memo_id}/evaluate/{claimId} for results."
+        ),
+    )
 
 
-@router.post("/evaluate")
-async def evaluate_claims() -> dict[str, str]:
-    raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail=_NOT_IMPLEMENTED_MSG)
+@router.get("/memos/{memo_id}/evaluate/{claim_id}", response_model=HeraldResultResponse)
+async def get_herald_result(
+    memo_id: str,
+    claim_id: str,
+    memo_repo: MemoRepo,
+    claim_repo: ClaimRepo,
+) -> HeraldResultResponse:
+    """
+    Get the latest HERALD evaluation result for a specific claim.
 
+    Returns 404 if the claim has not been evaluated yet (check ``status`` on
+    ``GET /api/memos/{id}/claims`` to know when evaluation has completed).
+    """
+    mid = _parse_memo_id(memo_id)
+    memo = await memo_repo.get_by_id(mid)
+    if memo is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Memo not found")
 
-@router.get("/results/{memo_id}")
-async def get_results(_memo_id: str) -> dict[str, str]:
-    raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail=_NOT_IMPLEMENTED_MSG)
+    claim = await claim_repo.get_claim_by_claim_id(mid, claim_id)
+    if claim is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Claim not found")
+
+    # Fetch most recent evaluation row for rich tier_details
+    evaluations = await claim_repo.get_evaluations_for_claim(claim.id)
+    latest_eval = evaluations[0] if evaluations else None
+
+    if latest_eval is None and claim.herald_result_json is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="This claim has not been evaluated yet.",
+        )
+
+    if latest_eval is not None:
+        return HeraldResultResponse(
+            claim_id=claim.claim_id,
+            claim_text=claim.claim_text,
+            claim_type=claim.claim_type,
+            tier_reached=latest_eval.tier_reached,
+            verdict=latest_eval.verdict,
+            confidence=latest_eval.confidence,
+            feedback=latest_eval.feedback,
+            suggested_revision=latest_eval.suggested_revision,
+            tier_details=latest_eval.tier_details_json
+            if isinstance(latest_eval.tier_details_json, dict)
+            else {},
+            evaluated_at=latest_eval.evaluated_at.isoformat(),
+        )
+
+    # Fall back to the denormalised herald_result_json on the claim row
+    hr: dict[str, Any] = claim.herald_result_json  # type: ignore[assignment]
+    return HeraldResultResponse(
+        claim_id=claim.claim_id,
+        claim_text=claim.claim_text,
+        claim_type=claim.claim_type,
+        tier_reached=hr.get("tier_reached", 0),
+        verdict=hr.get("verdict", "uncertain"),
+        confidence=hr.get("confidence", 0.0),
+        feedback=hr.get("feedback", ""),
+        suggested_revision=hr.get("suggested_revision"),
+        tier_details=hr.get("tier_details", {}),
+        evaluated_at=None,
+    )
