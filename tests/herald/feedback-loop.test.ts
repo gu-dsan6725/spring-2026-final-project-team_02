@@ -477,4 +477,126 @@ describe('reviseClaimsFromHerald', () => {
     const updatedEntry = result.notes_log.find((e) => e.claim_id === 'C-001');
     expect(updatedEntry?.derivation).toBe('cross_source');
   });
+
+  // ─── Concurrent revision ──────────────────────────────────────────────────
+
+  it('revises multiple invalid claims independently', async () => {
+    const claim1 = makeClaim({ claim_id: 'C-001', claim_text: 'Wrong figure: 2,000.' });
+    const claim2 = makeClaim({
+      claim_id: 'C-002',
+      claim_text: 'Another wrong figure: 5,000.',
+      sources: [{ ...SAMPLE_SOURCE, source_id: 'S-002' }],
+    });
+
+    const memo: MemoOutput = {
+      memo_markdown: `# Policy\n\n${claim1.claim_text}\n\n${claim2.claim_text}`,
+      notes_log: [claim1, claim2],
+      metadata: { generation_timestamp: '', token_usage: 0, tool_calls_count: 0 },
+    };
+
+    const heraldResults = [
+      makeHeraldResult({ claim_id: 'C-001', feedback: 'C-001 is wrong.' }),
+      makeHeraldResult({ claim_id: 'C-002', feedback: 'C-002 is wrong.' }),
+    ];
+
+    // Both claims need revision, both succeed on first attempt
+    mockGroqCreate
+      .mockResolvedValueOnce(makeGroqResponse(makeRevisionJson('Correct: 1,140.')))
+      .mockResolvedValueOnce(makeGroqResponse(makeRevisionJson('Correct: 4,200.')));
+    mockEvaluateClaim
+      .mockResolvedValueOnce(makePassingHeraldResult('C-001'))
+      .mockResolvedValueOnce(makePassingHeraldResult('C-002'));
+
+    const result = await reviseClaimsFromHerald(memo, heraldResults, {
+      max_tool_calls: 25,
+      max_research_tokens: 50000,
+      max_revision_attempts: 2,
+    });
+
+    expect(result.revision_states).toHaveLength(2);
+    expect(result.revision_states[0]?.status).toBe('revised');
+    expect(result.revision_states[1]?.status).toBe('revised');
+    expect(result.requires_human_intervention).toHaveLength(0);
+  });
+
+  it('handles mixed outcomes — one claim revised, one flagged for human review', async () => {
+    const claim1 = makeClaim({ claim_id: 'C-001', claim_text: 'Fixable wrong figure.' });
+    const claim2 = makeClaim({
+      claim_id: 'C-002',
+      claim_text: 'Unfixable claim.',
+      sources: [{ ...SAMPLE_SOURCE, source_id: 'S-002' }],
+    });
+
+    const memo: MemoOutput = {
+      memo_markdown: `# Policy\n\n${claim1.claim_text}\n\n${claim2.claim_text}`,
+      notes_log: [claim1, claim2],
+      metadata: { generation_timestamp: '', token_usage: 0, tool_calls_count: 0 },
+    };
+
+    const heraldResults = [
+      makeHeraldResult({ claim_id: 'C-001' }),
+      makeHeraldResult({ claim_id: 'C-002' }),
+    ];
+
+    // C-001 succeeds, C-002 fails both attempts
+    mockGroqCreate
+      .mockResolvedValueOnce(makeGroqResponse(makeRevisionJson('Fixed: 1,140.'))) // C-001 attempt 1
+      .mockResolvedValueOnce(makeGroqResponse(makeRevisionJson('Still wrong: 3,000.'))) // C-002 attempt 1
+      .mockResolvedValueOnce(makeGroqResponse(makeRevisionJson('Still wrong: 2,500.'))); // C-002 attempt 2
+    mockEvaluateClaim
+      .mockResolvedValueOnce(makePassingHeraldResult('C-001'))
+      .mockResolvedValueOnce(makeFailingHeraldResult('C-002', 'Attempt 1 failed.'))
+      .mockResolvedValueOnce(makeFailingHeraldResult('C-002', 'Attempt 2 failed.'));
+
+    const result = await reviseClaimsFromHerald(memo, heraldResults, {
+      max_tool_calls: 25,
+      max_research_tokens: 50000,
+      max_revision_attempts: 2,
+    });
+
+    const c001state = result.revision_states.find((s) => s.claim_id === 'C-001');
+    const c002state = result.revision_states.find((s) => s.claim_id === 'C-002');
+
+    expect(c001state?.status).toBe('revised');
+    expect(c002state?.status).toBe('failed_max_attempts');
+    expect(result.requires_human_intervention).toContain('C-002');
+    expect(result.requires_human_intervention).not.toContain('C-001');
+  });
+
+  // ─── reviseClaimWithAgent throws ─────────────────────────────────────────
+
+  it('counts a thrown error as a failed attempt (not infinite loop)', async () => {
+    const claim = makeClaim();
+    const memo = makeMemo(claim);
+    const heraldResult = makeHeraldResult();
+
+    // First Groq call throws, so revision loop breaks
+    mockGroqCreate.mockRejectedValueOnce(new Error('Groq internal server error'));
+
+    const result = await reviseClaimsFromHerald(memo, [heraldResult], {
+      max_tool_calls: 25,
+      max_research_tokens: 50000,
+      max_revision_attempts: 2,
+    });
+
+    // Throwing counts as a failed revision attempt — claim flagged for human review
+    expect(result.requires_human_intervention).toContain('C-001');
+    // Only 1 Groq call was made (the one that threw), not 2
+    expect(mockGroqCreate).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not count a throw against revision_count — state reflects 0 successful attempts', async () => {
+    const claim = makeClaim();
+    const memo = makeMemo(claim);
+    const heraldResult = makeHeraldResult();
+
+    mockGroqCreate.mockRejectedValueOnce(new Error('Network error'));
+
+    const result = await reviseClaimsFromHerald(memo, [heraldResult]);
+
+    const state = result.revision_states[0];
+    // Error breaks out of the loop before incrementing revision_count
+    expect(state?.revision_count).toBe(0);
+    expect(state?.attempts).toHaveLength(0);
+  });
 });
