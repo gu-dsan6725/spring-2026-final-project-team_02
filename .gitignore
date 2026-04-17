@@ -4,6 +4,7 @@ node_modules/
 dist/
 coverage/
 *.tsbuildinfo
+next-env.d.ts
 
 # ── Python ────────────────────────────────────────────────────────────────────
 # Byte-compiled / optimized / DLL files

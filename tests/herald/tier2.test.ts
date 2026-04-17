@@ -570,7 +570,77 @@ describe('evaluateWithLLMJudge — robustness', () => {
     await expect(evaluateWithLLMJudge(makeEntry())).rejects.toThrow(/submit_evaluation/);
   });
 
-  it('clamps confidence to [0, 1] range', async () => {
+  it('uses plain-text JSON fallback when model ignores tool_choice', async () => {
+    // Groq occasionally returns valid JSON in content instead of a tool call
+    const jsonBody = JSON.stringify({
+      verdict: 'valid',
+      confidence: 0.91,
+      reasoning: 'Source entails claim.',
+    });
+    mockCreate.mockResolvedValueOnce({
+      id: 'chatcmpl_fallback',
+      choices: [
+        {
+          index: 0,
+          message: { role: 'assistant', content: jsonBody, tool_calls: null },
+          finish_reason: 'stop',
+        },
+      ],
+      usage: { prompt_tokens: 150, completion_tokens: 40, total_tokens: 190 },
+    });
+
+    const result = await evaluateWithLLMJudge(makeEntry());
+
+    expect(result.verdict).toBe('valid');
+    expect(result.confidence).toBeCloseTo(0.91);
+    expect(result.tier_id).toBe(2);
+  });
+
+  it('uses plain-text JSON fallback when JSON is embedded in prose', async () => {
+    // Model wraps JSON in explanation text — regex extracts the JSON object
+    const content =
+      'Here is my evaluation:\n```json\n' +
+      JSON.stringify({ verdict: 'invalid', confidence: 0.88, reasoning: 'Mismatch found.' }) +
+      '\n```';
+    mockCreate.mockResolvedValueOnce({
+      id: 'chatcmpl_prose',
+      choices: [
+        {
+          index: 0,
+          message: { role: 'assistant', content, tool_calls: null },
+          finish_reason: 'stop',
+        },
+      ],
+      usage: { prompt_tokens: 120, completion_tokens: 60, total_tokens: 180 },
+    });
+
+    const result = await evaluateWithLLMJudge(makeEntry());
+
+    expect(result.verdict).toBe('invalid');
+    expect(result.confidence).toBeCloseTo(0.88);
+  });
+
+  it('throws when plain-text response contains no JSON object', async () => {
+    mockCreate.mockResolvedValueOnce({
+      id: 'chatcmpl_no_json',
+      choices: [
+        {
+          index: 0,
+          message: {
+            role: 'assistant',
+            content: 'I think this claim looks fine to me.',
+            tool_calls: null,
+          },
+          finish_reason: 'stop',
+        },
+      ],
+      usage: { prompt_tokens: 100, completion_tokens: 15, total_tokens: 115 },
+    });
+
+    await expect(evaluateWithLLMJudge(makeEntry())).rejects.toThrow(/submit_evaluation/);
+  });
+
+  it('clamps confidence above 1.0 to 1.0', async () => {
     mockCreate.mockResolvedValueOnce(
       mockJudgeResponse({ verdict: 'valid', confidence: 1.5, reasoning: 'Very sure.' }),
     );
@@ -578,6 +648,16 @@ describe('evaluateWithLLMJudge — robustness', () => {
     const result = await evaluateWithLLMJudge(makeEntry());
 
     expect(result.confidence).toBeLessThanOrEqual(1.0);
+  });
+
+  it('clamps confidence below 0.0 to 0.0', async () => {
+    mockCreate.mockResolvedValueOnce(
+      mockJudgeResponse({ verdict: 'invalid', confidence: -0.3, reasoning: 'Clearly wrong.' }),
+    );
+
+    const result = await evaluateWithLLMJudge(makeEntry());
+
+    expect(result.confidence).toBeGreaterThanOrEqual(0.0);
   });
 
   it('tier_id is always 2', async () => {
