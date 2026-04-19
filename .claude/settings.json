@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(*run-herald-benchmark*)",
+            "command": "jq -r 'select(.tool_input.command | test(\"run-herald-benchmark\")) | {hookSpecificOutput: {hookEventName: \"PostToolUse\", additionalContext: \"The HERALD benchmark just finished. You MUST now: (1) check what the highest-numbered file in docs/benchmark-notes/ is, (2) create the next sequential file (benchmark02.md, benchmark03.md, etc.) in that directory, (3) include a metadata header with the exact run timestamp and a summary of what changed/was calibrated since the previous benchmark run, (4) write a full assessment of the results covering overall metrics, per-claim-type breakdown, derivation method breakdown, tier distribution, diagnosis of gaps, and recommended next steps. Do this before responding to the user.\"}} | @json' 2>/dev/null || true",
+            "statusMessage": "Benchmark complete — preparing notes..."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -41,7 +41,7 @@ import type { TierOutput } from '../../src/types/herald';
 
 const mockCreate = vi.hoisted(() => vi.fn());
 
-vi.mock('groq-sdk', () => ({
+vi.mock('openai', () => ({
   default: vi.fn(function () {
     return { chat: { completions: { create: mockCreate } } };
   }),
@@ -227,10 +227,10 @@ describe('getJudgePrompt — prompt selection', () => {
 });
 
 // ---------------------------------------------------------------------------
-// evaluateWithLLMJudge: decision logic — confidence > 0.85
+// evaluateWithLLMJudge: decision logic — confidence > 0.80
 // ---------------------------------------------------------------------------
 
-describe('evaluateWithLLMJudge — high-confidence exit (> 0.85)', () => {
+describe('evaluateWithLLMJudge — high-confidence exit (> 0.80)', () => {
   it('returns "valid" verdict as-is when confidence is 0.92', async () => {
     mockCreate.mockResolvedValueOnce(
       mockJudgeResponse({ verdict: 'valid', confidence: 0.92, reasoning: 'Source matches.' }),
@@ -261,11 +261,11 @@ describe('evaluateWithLLMJudge — high-confidence exit (> 0.85)', () => {
     expect(result.suggested_revision).toBe('Change "5.2%" to "5.1%" to match source.');
   });
 
-  it('returns "needs_revision" at exactly 0.86 (above threshold)', async () => {
+  it('returns "needs_revision" at exactly 0.81 (above threshold)', async () => {
     mockCreate.mockResolvedValueOnce(
       mockJudgeResponse({
         verdict: 'needs_revision',
-        confidence: 0.86,
+        confidence: 0.81,
         reasoning: 'Missing qualifier.',
         suggested_revision: 'Add "approximately" before the statistic.',
       }),
@@ -274,12 +274,12 @@ describe('evaluateWithLLMJudge — high-confidence exit (> 0.85)', () => {
     const result = await evaluateWithLLMJudge(makeEntry());
 
     expect(result.verdict).toBe('needs_revision');
-    expect(result.confidence).toBeCloseTo(0.86);
+    expect(result.confidence).toBeCloseTo(0.81);
   });
 
-  it('escalates at exactly 0.85 (boundary is exclusive — 0.85 is NOT > 0.85)', async () => {
+  it('escalates at exactly 0.80 (boundary is exclusive — 0.80 is NOT > 0.80)', async () => {
     mockCreate.mockResolvedValueOnce(
-      mockJudgeResponse({ verdict: 'valid', confidence: 0.85, reasoning: 'Borderline.' }),
+      mockJudgeResponse({ verdict: 'valid', confidence: 0.8, reasoning: 'Borderline.' }),
     );
 
     const result = await evaluateWithLLMJudge(makeEntry());
@@ -289,10 +289,10 @@ describe('evaluateWithLLMJudge — high-confidence exit (> 0.85)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// evaluateWithLLMJudge: decision logic — mid-band (0.6–0.85)
+// evaluateWithLLMJudge: decision logic — mid-band (0.6–0.80)
 // ---------------------------------------------------------------------------
 
-describe('evaluateWithLLMJudge — mid-band escalation (0.6–0.85)', () => {
+describe('evaluateWithLLMJudge — mid-band escalation (0.6–0.80)', () => {
   it('overrides verdict to "uncertain" when model returns 0.75 confidence', async () => {
     mockCreate.mockResolvedValueOnce(
       mockJudgeResponse({ verdict: 'valid', confidence: 0.75, reasoning: 'Somewhat supported.' }),
@@ -470,7 +470,7 @@ describe('evaluateWithLLMJudge — Groq API call structure', () => {
     await evaluateWithLLMJudge(makeEntry());
 
     const [params] = mockCreate.mock.calls[0] as [Record<string, unknown>];
-    expect(params['model']).toBe('llama-3.3-70b-versatile');
+    expect(params['model']).toBe('gpt-4o-mini');
     expect(params['temperature']).toBe(0.2);
   });
 

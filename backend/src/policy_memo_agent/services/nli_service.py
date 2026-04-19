@@ -18,10 +18,10 @@ from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_HF_MODEL = "microsoft/deberta-v3-large-mnli"
+_DEFAULT_HF_MODEL = "cross-encoder/nli-deberta-v3-large"
 
 # Normalise labels that differ by case or by numeric LABEL_N scheme.
-# microsoft/deberta-v3-large-mnli id2label: {0: CONTRADICTION, 1: NEUTRAL, 2: ENTAILMENT}
+# cross-encoder/nli-deberta-v3-large id2label: {0: contradiction, 1: entailment, 2: neutral}
 _LABEL_NORMALISE: dict[str, str] = {
     "entailment": "entailment",
     "neutral": "neutral",
@@ -31,8 +31,8 @@ _LABEL_NORMALISE: dict[str, str] = {
     "CONTRADICTION": "contradiction",
     # Numeric labels used by some ONNX exports
     "LABEL_0": "contradiction",
-    "LABEL_1": "neutral",
-    "LABEL_2": "entailment",
+    "LABEL_1": "entailment",
+    "LABEL_2": "neutral",
 }
 
 

@@ -7,13 +7,13 @@
  *   - Claims that Tier 1 (NLI) returned 'uncertain' on (statistical, comparative, causal)
  *   - Claims that skip NLI entirely (predictive, normative, synthesis)
  *
- * Decision thresholds (from CLAUDE.md):
- *   confidence > 0.85   → exit with verdict (valid / invalid / needs_revision)
- *   confidence 0.6–0.85 → override to 'uncertain', escalate to Tier 3
+ * Decision thresholds (from CLAUDE.md, calibrated after benchmark01):
+ *   confidence > 0.80   → exit with verdict (valid / invalid / needs_revision)
+ *   confidence 0.6–0.80 → override to 'uncertain', escalate to Tier 3
  *   confidence < 0.6    → override to 'uncertain', escalate to Tier 3 (high-priority)
  */
 
-import Groq from 'groq-sdk';
+import OpenAI from 'openai';
 
 import { DERIVATION_CONFIG, type NotesLogEntry } from '../types/claims';
 import type { TierOutput, Verdict } from '../types/herald';
@@ -24,25 +24,25 @@ import { getJudgePrompt } from './prompts/judge-system';
 // Constants
 // ---------------------------------------------------------------------------
 
-const JUDGE_MODEL = 'llama-3.3-70b-versatile';
+const JUDGE_MODEL = 'gpt-4o-mini';
 const JUDGE_TEMPERATURE = 0.2;
 const JUDGE_MAX_TOKENS = 1024;
 
 /** Confidence at or above this value → exit with the model's verdict. */
-const CONFIDENCE_EXIT_THRESHOLD = 0.85;
+const CONFIDENCE_EXIT_THRESHOLD = 0.8;
 
 /** Confidence below this value → escalate to Tier 3 with high-priority flag. */
 const CONFIDENCE_HIGH_PRIORITY_THRESHOLD = 0.6;
 
 // ---------------------------------------------------------------------------
-// Groq client (lazy singleton)
+// OpenAI client (lazy singleton)
 // ---------------------------------------------------------------------------
 
-let _client: Groq | null = null;
+let _client: OpenAI | null = null;
 
-function getClient(): Groq {
+function getClient(): OpenAI {
   if (_client === null) {
-    _client = new Groq({ apiKey: process.env['GROQ_API_KEY'] });
+    _client = new OpenAI({ apiKey: process.env['OPENAI_API_KEY'] });
   }
   return _client;
 }
@@ -51,7 +51,7 @@ function getClient(): Groq {
 // Function definition for structured output (OpenAI-compatible tool calling)
 // ---------------------------------------------------------------------------
 
-const SUBMIT_EVALUATION_FUNCTION: Groq.Chat.ChatCompletionTool = {
+const SUBMIT_EVALUATION_FUNCTION: OpenAI.Chat.ChatCompletionTool = {
   type: 'function',
   function: {
     name: 'submit_evaluation',
@@ -78,7 +78,7 @@ const SUBMIT_EVALUATION_FUNCTION: Groq.Chat.ChatCompletionTool = {
             'For invalid/needs_revision verdicts, identify the specific mismatch.',
         },
         suggested_revision: {
-          type: 'string',
+          type: ['string', 'null'],
           description:
             'Concrete revised claim text that would be valid. ' +
             'Required for invalid and needs_revision verdicts; omit for valid/uncertain.',
@@ -210,7 +210,7 @@ function applyDecisionLogic(raw: JudgeToolInput): TierOutput {
     };
   }
 
-  // Mid-band confidence (0.6–0.85) — escalate to Tier 3 normally
+  // Mid-band confidence (0.6–0.80) — escalate to Tier 3 normally
   return {
     tier_id: 2,
     verdict: 'uncertain',
@@ -267,7 +267,7 @@ export async function evaluateWithLLMJudge(
 
     let parsed: unknown;
 
-    if (toolCall !== undefined) {
+    if (toolCall !== undefined && toolCall.type === 'function') {
       // Normal path: model called the function
       try {
         parsed = JSON.parse(toolCall.function.arguments) as unknown;
@@ -276,6 +276,8 @@ export async function evaluateWithLLMJudge(
           `submit_evaluation arguments JSON parse failed: ${toolCall.function.arguments.slice(0, 300)}`,
         );
       }
+    } else if (toolCall !== undefined) {
+      throw new Error(`submit_evaluation received unexpected tool_call type: ${toolCall.type}`);
     } else if (plainTextContent.length > 0) {
       // Fallback: Groq occasionally ignores tool_choice and returns plain text JSON
       const jsonMatch = /\{[\s\S]*\}/.exec(plainTextContent);
