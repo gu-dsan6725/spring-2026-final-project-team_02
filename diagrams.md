@@ -543,8 +543,8 @@ flowchart TB
         OB1["Braintrust\nLLM · tools · tiers"]:::obs ~~~ OB2["OpenTelemetry\nlatency · tokens"]:::obs
     end
 
-    N1          --> A1
-    A2          <-->|"tool calls / results"| M1
+    N1          -->|"topic + context"| A2
+    A3          <-->|"tool calls / results"| M1
     A4          --> R1 & R2
     R4          -->|"HTTP /api/herald"| B1
     B1          -->|"evaluation requests"| H1
