@@ -314,3 +314,30 @@ flowchart TD
 
     SCHEMA --> FL1
 ```
+
+---
+
+## Diagram 4b — HERALD Framework (Condensed)
+
+```mermaid
+flowchart TD
+    CLAIM["Claim + Sources"] --> ROUTER{{"Router\nclaim_type?"}}
+
+    ROUTER -->|"Statistical / Comparative\n(threshold 0.90)"| T1
+    ROUTER -->|"Causal\n(threshold 0.85)"| T1
+    ROUTER -->|"Predictive / Normative\nSynthesis"| T2
+
+    T1["Tier 1 — NLI\nDeBERTa entailment"] -->|"confident ✓/✗"| OUT
+    T1 -->|"uncertain"| T2
+
+    T2["Tier 2 — LLM Judge\nClaude Sonnet"] -->|"confidence > 0.85"| OUT
+    T2 -->|"uncertain"| T3
+
+    T3["Tier 3 — Debate\nExpert · Methodologist · Skeptic\n→ Judge"] -->|"consensus"| OUT
+    T3 -->|"no consensus"| T4["Tier 4 — Human Review"]
+    T4 --> OUT
+
+    OUT{{"Verdict"}} -->|"valid"| DONE(["Memo updated ✓"])
+    OUT -->|"invalid\n(attempt < 2)"| REVISE["Agent revises claim\n→ re-enter HERALD"]
+    OUT -->|"invalid\n(≥ 2 attempts)"| HUMAN(["Flag for human ⚠"])
+```
