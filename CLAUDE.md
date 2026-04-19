@@ -836,9 +836,7 @@ echo "All checks passed."
     "*.{ts,tsx}": ["eslint --fix --max-warnings 0", "prettier --write"],
     "*.{json,md,yml,yaml}": ["prettier --write"],
     "src/types/**/*.ts": ["bash -c 'npm run typecheck'"],
-    "src/herald/**/*.ts": [
-      "bash -c 'npm run test:herald -- --passWithNoTests'"
-    ],
+    "src/herald/**/*.ts": ["bash -c 'npm run test:herald -- --passWithNoTests'"],
     "src/agent/**/*.ts": ["bash -c 'npm run test:agent -- --passWithNoTests'"]
   }
 }
@@ -850,23 +848,23 @@ Key behavior: if you modify any file in `src/herald/`, the HERALD tests run auto
 
 ```javascript
 module.exports = {
-  extends: ["@commitlint/config-conventional"],
+  extends: ['@commitlint/config-conventional'],
   rules: {
-    "type-enum": [
+    'type-enum': [
       2,
-      "always",
+      'always',
       [
-        "checkpoint", // checkpoint-2.2: research agent with tool use
-        "feat", // feat: add World Bank MCP tool
-        "fix", // fix: HERALD routing for causal claims
-        "test", // test: add Tier 2 judge prompt tests
-        "refactor", // refactor: extract claim classification logic
-        "docs", // docs: update CLAUDE.md with new tool
-        "chore", // chore: update dependencies
-        "ci", // ci: add GitHub Actions workflow
+        'checkpoint', // checkpoint-2.2: research agent with tool use
+        'feat', // feat: add World Bank MCP tool
+        'fix', // fix: HERALD routing for causal claims
+        'test', // test: add Tier 2 judge prompt tests
+        'refactor', // refactor: extract claim classification logic
+        'docs', // docs: update CLAUDE.md with new tool
+        'chore', // chore: update dependencies
+        'ci', // ci: add GitHub Actions workflow
       ],
     ],
-    "subject-max-length": [2, "always", 100],
+    'subject-max-length': [2, 'always', 100],
   },
 };
 ```
@@ -875,20 +873,14 @@ module.exports = {
 
 ```json
 {
-  "extends": [
-    "next/core-web-vitals",
-    "plugin:@typescript-eslint/strict-type-checked"
-  ],
+  "extends": ["next/core-web-vitals", "plugin:@typescript-eslint/strict-type-checked"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "./tsconfig.json"
   },
   "rules": {
     "@typescript-eslint/no-explicit-any": "error",
-    "@typescript-eslint/no-unused-vars": [
-      "error",
-      { "argsIgnorePattern": "^_" }
-    ],
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     "@typescript-eslint/strict-boolean-expressions": "error",
     "no-console": ["warn", { "allow": ["warn", "error"] }],
     "no-unreachable": "error",

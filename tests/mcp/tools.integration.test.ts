@@ -39,9 +39,13 @@ import { callTool } from '../../src/mcp/tool-registry';
 
 /** Skip a test when the given env var is not set. */
 function requiresKey(varName: string): boolean {
-  const val = process.env[varName] ?? '';
-  if (val.length === 0) {
-    console.warn(`  [SKIPPED] ${varName} is not set — skipping this test.`);
+  const val = (process.env[varName] ?? '').trim();
+  const looksLikePlaceholder =
+    val.length === 0 ||
+    ['your_key_here', 'demo_key', 'changeme', 'replace_me'].includes(val.toLowerCase());
+
+  if (looksLikePlaceholder) {
+    console.warn(`  [SKIPPED] ${varName} is not configured with a real key — skipping this test.`);
     return false;
   }
   return true;

@@ -229,18 +229,38 @@ async function callPersona(
   });
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
-  if (toolCall === undefined || toolCall.type !== 'function') {
-    throw new Error(
-      `Persona '${persona}' did not call submit_debate_turn. finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
-    );
-  }
-
+  const plainTextContent = response.choices[0]?.message?.content ?? '';
   let parsed: unknown;
-  try {
-    parsed = JSON.parse(toolCall.function.arguments) as unknown;
-  } catch {
+
+  if (toolCall !== undefined && toolCall.type === 'function') {
+    try {
+      parsed = JSON.parse(toolCall.function.arguments) as unknown;
+    } catch {
+      throw new Error(
+        `Persona '${persona}' JSON parse failed: ${toolCall.function.arguments.slice(0, 200)}`,
+      );
+    }
+  } else if (toolCall !== undefined) {
+    throw new Error(`Persona '${persona}' received unexpected tool_call type: ${toolCall.type}`);
+  } else if (plainTextContent.length > 0) {
+    const jsonMatch = /\{[\s\S]*\}/.exec(plainTextContent);
+    if (jsonMatch === null) {
+      throw new Error(
+        `Persona '${persona}' did not call submit_debate_turn and response contains no JSON. ` +
+          `finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
+      );
+    }
+    try {
+      parsed = JSON.parse(jsonMatch[0]) as unknown;
+    } catch {
+      throw new Error(
+        `Persona '${persona}' plain-text JSON parse failed: ${plainTextContent.slice(0, 200)}`,
+      );
+    }
+  } else {
     throw new Error(
-      `Persona '${persona}' JSON parse failed: ${toolCall.function.arguments.slice(0, 200)}`,
+      `Persona '${persona}' did not call submit_debate_turn. ` +
+        `finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
     );
   }
 
@@ -324,17 +344,34 @@ async function callJudge(
   });
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
-  if (toolCall === undefined || toolCall.type !== 'function') {
+  const plainTextContent = response.choices[0]?.message?.content ?? '';
+  let parsed: unknown;
+
+  if (toolCall !== undefined && toolCall.type === 'function') {
+    try {
+      parsed = JSON.parse(toolCall.function.arguments) as unknown;
+    } catch {
+      throw new Error(`Judge JSON parse failed: ${toolCall.function.arguments.slice(0, 200)}`);
+    }
+  } else if (toolCall !== undefined) {
+    throw new Error(`Judge received unexpected tool_call type: ${toolCall.type}`);
+  } else if (plainTextContent.length > 0) {
+    const jsonMatch = /\{[\s\S]*\}/.exec(plainTextContent);
+    if (jsonMatch === null) {
+      throw new Error(
+        `Judge did not call submit_synthesis and response contains no JSON. ` +
+          `finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
+      );
+    }
+    try {
+      parsed = JSON.parse(jsonMatch[0]) as unknown;
+    } catch {
+      throw new Error(`Judge plain-text JSON parse failed: ${plainTextContent.slice(0, 200)}`);
+    }
+  } else {
     throw new Error(
       `Judge did not call submit_synthesis. finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
     );
-  }
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(toolCall.function.arguments) as unknown;
-  } catch {
-    throw new Error(`Judge JSON parse failed: ${toolCall.function.arguments.slice(0, 200)}`);
   }
 
   if (!isSynthesisInput(parsed)) {
