@@ -88,6 +88,25 @@ interface PerClaimResult {
   confidence: number;
   is_skeptic_trap: boolean;
   skeptic_false_invalid: boolean;
+  evaluation_error?: string;
+}
+
+function resolveBenchmarkOutputPath(outputDir: string, datestamp: string): string {
+  const baseName = `benchmark-${datestamp}`;
+  const firstCandidate = path.join(outputDir, `${baseName}.json`);
+
+  if (!fs.existsSync(path.resolve(firstCandidate))) {
+    return firstCandidate;
+  }
+
+  let suffix = 2;
+  while (true) {
+    const candidate = path.join(outputDir, `${baseName}.${suffix}.json`);
+    if (!fs.existsSync(path.resolve(candidate))) {
+      return candidate;
+    }
+    suffix++;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -447,16 +466,15 @@ async function main(): Promise<void> {
     );
 
     let result: HeraldResult;
+    let evaluationError: string | undefined;
     if (dryRun) {
       result = mockEvaluate(entry);
     } else {
       try {
         result = await evaluateWithRetry(entry);
       } catch (err) {
-        console.error(
-          `\n[ERROR] Failed to evaluate ${entry.claim_id}:`,
-          err instanceof Error ? err.message : String(err),
-        );
+        evaluationError = err instanceof Error ? err.message : String(err);
+        console.error(`\n[ERROR] Failed to evaluate ${entry.claim_id}:`, evaluationError);
         // Record as uncertain on error
         result = {
           claim_id: entry.claim_id,
@@ -509,6 +527,7 @@ async function main(): Promise<void> {
       confidence: result.confidence,
       is_skeptic_trap: isSkepticTrap,
       skeptic_false_invalid: isSkepticFalseInvalid,
+      ...(evaluationError !== undefined ? { evaluation_error: evaluationError } : {}),
     });
 
     return result;
@@ -544,7 +563,7 @@ async function main(): Promise<void> {
   // Write results
   fs.mkdirSync(path.resolve(outputDir), { recursive: true });
   const datestamp = new Date().toISOString().slice(0, 10);
-  const outFile = path.join(outputDir, `benchmark-${datestamp}.json`);
+  const outFile = resolveBenchmarkOutputPath(outputDir, datestamp);
   fs.writeFileSync(path.resolve(outFile), JSON.stringify(benchmarkResult, null, 2));
 
   // Print summary

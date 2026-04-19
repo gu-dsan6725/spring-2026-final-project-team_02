@@ -53,16 +53,25 @@ export async function govinfoHandler(
     return { error: 'GOVINFO_API_KEY is not set' };
   }
 
-  // Step 1: Search
+  // Step 1: Search. GovInfo's Search Service is a POST endpoint that accepts
+  // the same query syntax as the website, including collection filters.
   const searchUrl = new URL('https://api.govinfo.gov/search');
-  searchUrl.searchParams.set('query', query);
-  searchUrl.searchParams.set('pageSize', String(Math.min(maxResults, 10)));
-  searchUrl.searchParams.set('offsetMark', '*');
-  searchUrl.searchParams.set('collection', collection);
   searchUrl.searchParams.set('api_key', apiKey);
+  const pageSize = Math.min(maxResults, 10);
+  const searchBody = {
+    query: `collection:${collection} ${query}`,
+    pageSize: String(pageSize),
+    offsetMark: '*',
+    sorts: [{ field: 'dateIssued', sortOrder: 'DESC' }],
+  };
 
   const searchResponse = await fetch(searchUrl.toString(), {
-    headers: { Accept: 'application/json' },
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(searchBody),
   });
 
   if (!searchResponse.ok) {
