@@ -556,6 +556,97 @@ flowchart TB
 
 ---
 
+## Diagram 3e — Detailed Technical Architecture (Condensed & Balanced)
+
+```mermaid
+flowchart LR
+    classDef fe    fill:#2563eb,color:#fff,stroke:#1d4ed8
+    classDef agent fill:#059669,color:#fff,stroke:#047857
+    classDef mcp   fill:#0f172a,color:#94a3b8,stroke:#334155
+    classDef her   fill:#dc2626,color:#fff,stroke:#b91c1c
+    classDef py    fill:#7c3aed,color:#fff,stroke:#6d28d9
+    classDef obs   fill:#4b5563,color:#fff,stroke:#374151
+    classDef art   fill:#1e40af,color:#fff,stroke:#93c5fd,stroke-dasharray:4 2
+
+    subgraph IN["① Input  ·  Next.js"]
+        direction TB
+        N1["InputForm"]:::fe
+        N2["AgentProgress\nuseWebSocket"]:::fe
+        N3["useAgent"]:::fe
+        N1 ~~~ N2 ~~~ N3
+    end
+
+    subgraph AGT["② Research Agent  ·  Groq Llama 3.3 70B"]
+        direction TB
+        A1["prompt-assembler"]:::agent
+        A2["research-agent\nloop-controller  ·  max 25 calls"]:::agent
+        A3["claim-extractor\n6 types  ·  4 derivation methods"]:::agent
+        A4["memo-writer"]:::agent
+        A1 --> A2 --> A3 --> A4
+    end
+
+    subgraph MCP["MCP Tool Registry  ·  8 Tools  ·  retry + timeout"]
+        direction LR
+        M1["web-search  ·  arXiv\nWorld Bank  ·  Scholar"]:::mcp
+        M2["GovReport  ·  GovInfo\nFRED  ·  file-reader"]:::mcp
+        M1 ~~~ M2
+    end
+
+    subgraph REV["③ Memo Review  ·  Next.js"]
+        direction TB
+        R1["Policy Memo"]:::art
+        R2[("Notes Log")]:::art
+        R3["MemoViewer  ·  NotesLog"]:::fe
+        R4["ClaimSelector"]:::fe
+        R1 ~~~ R2
+        R1 & R2 --> R3 --> R4
+    end
+
+    subgraph BE["④ Python Backend  ·  FastAPI"]
+        direction TB
+        B1["/api/herald  ·  /api/memos\n/api/health"]:::py
+        B2[("PostgreSQL\nmemos  ·  claims  ·  evaluations")]:::py
+        B3["Redis  ·  Alembic"]:::py
+        B1 --> B2 & B3
+    end
+
+    subgraph HER["⑤ HERALD Pipeline  ·  TypeScript + Python"]
+        direction TB
+        H1["Router\n3 routing paths by claim type"]:::her
+        H2["T1  NLI  ·  DeBERTa\nentailment  ·  neutral  ·  contradiction"]:::her
+        H3["T2  LLM Judge  ·  Claude Sonnet\naccuracy  ·  completeness  ·  validity"]:::her
+        H4["T3  Debate  +  T4  Human Review\nfeedback-loop  ·  max 2 revisions"]:::her
+        H1 --> H2 --> H3 --> H4
+    end
+
+    subgraph OUT["⑥ Evaluation UI  ·  Next.js"]
+        direction TB
+        O1["HeraldResults\nTierProgress"]:::fe
+        O2["HumanReviewQueue"]:::fe
+        O3["useHerald"]:::fe
+        O1 ~~~ O2 ~~~ O3
+    end
+
+    subgraph OBS["Observability"]
+        direction LR
+        OB1["Braintrust\nLLM  ·  tools  ·  claims  ·  tiers"]:::obs
+        OB2["OpenTelemetry\nlatency  ·  token usage"]:::obs
+        OB1 -.- OB2
+    end
+
+    N1          -->|"topic + context"| A1
+    A2          <-->|"tool calls / results"| M1
+    A4          --> R1 & R2
+    R4          -->|"HTTP /api/herald"| B1
+    B1          -->|"evaluation requests"| H1
+    H4          --> O1
+    H4          -.->|"invalid + feedback\nmax 2 attempts"| A2
+    AGT & HER   -.->|"spans"| OB1
+    IN  & BE    -.->|"spans"| OB2
+```
+
+---
+
 ## Diagram 4 — HERALD Framework Deep Dive
 
 ```mermaid
