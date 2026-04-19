@@ -647,6 +647,71 @@ flowchart LR
 
 ---
 
+## Diagram 3f — Detailed Technical Architecture (Vertical & Concise)
+
+```mermaid
+flowchart TB
+    classDef fe    fill:#2563eb,color:#fff,stroke:#1d4ed8
+    classDef agent fill:#059669,color:#fff,stroke:#047857
+    classDef mcp   fill:#0f172a,color:#94a3b8,stroke:#334155
+    classDef her   fill:#dc2626,color:#fff,stroke:#b91c1c
+    classDef py    fill:#7c3aed,color:#fff,stroke:#6d28d9
+    classDef obs   fill:#4b5563,color:#fff,stroke:#374151
+    classDef art   fill:#1e40af,color:#fff,stroke:#93c5fd,stroke-dasharray:4 2
+
+    subgraph IN["① User Input"]
+        direction LR
+        N1["Input\nForm"]:::fe ~~~ N2["Agent\nProgress"]:::fe ~~~ N3["useAgent\nuseWebSocket"]:::fe
+    end
+
+    subgraph AGT["② Research Agent  ·  Groq Llama 3.3 70B"]
+        direction LR
+        A1["Prompt\nBuilder"]:::agent --> A2["Research\nLoop"]:::agent --> A3["Claim\nExtractor"]:::agent --> A4["Memo\nWriter"]:::agent
+    end
+
+    subgraph MCP["MCP Tools  ·  8 Sources"]
+        direction LR
+        M1["Web Search\narXiv"]:::mcp ~~~ M2["World Bank\nScholar"]:::mcp ~~~ M3["GovReport\nGovInfo"]:::mcp ~~~ M4["FRED\nFiles"]:::mcp
+    end
+
+    subgraph REV["③ Memo Review"]
+        direction LR
+        R1["Policy\nMemo"]:::art ~~~ R2[("Notes\nLog")]:::art ~~~ R3["Memo\nViewer"]:::fe ~~~ R4["Claim\nSelector"]:::fe
+    end
+
+    subgraph BE["④ Python Backend  ·  FastAPI"]
+        direction LR
+        B1["API\nRoutes"]:::py ~~~ B2[("PostgreSQL")]:::py ~~~ B3["Redis\nAlembic"]:::py
+    end
+
+    subgraph HER["⑤ HERALD Pipeline  ·  TypeScript + Python"]
+        direction LR
+        H1["Router"]:::her --> H2["T1  NLI\nDeBERTa"]:::her --> H3["T2  Judge\nClaude Sonnet"]:::her --> H4["T3 Debate\nT4 Human"]:::her
+    end
+
+    subgraph OUT["⑥ Evaluation UI"]
+        direction LR
+        O1["Herald\nResults"]:::fe ~~~ O2["Tier\nProgress"]:::fe ~~~ O3["Human\nQueue"]:::fe ~~~ O4["use\nHerald"]:::fe
+    end
+
+    subgraph OBS["Observability"]
+        direction LR
+        OB1["Braintrust\nAll LLM & Tool Traces"]:::obs ~~~ OB2["OpenTelemetry\nLatency & Tokens"]:::obs
+    end
+
+    N1          -->|"topic"| A1
+    A2          <-->|"tool calls"| M1
+    A4          --> R1 & R2
+    R4          -->|"/api/herald"| B1
+    B1          -->|"evaluate"| H1
+    H4          --> O1
+    H4          -.->|"feedback"| A2
+    AGT & HER   -.->|"spans"| OB1
+    IN  & BE    -.->|"spans"| OB2
+```
+
+---
+
 ## Diagram 4 — HERALD Framework Deep Dive
 
 ```mermaid
