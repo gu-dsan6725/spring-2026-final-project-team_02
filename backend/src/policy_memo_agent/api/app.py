@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from policy_memo_agent.api.middleware.error_handler import ErrorHandlerMiddleware
-from policy_memo_agent.api.routes import health, herald, memos
+from policy_memo_agent.api.routes import health, herald, memos, ws
 
 logger = logging.getLogger(__name__)
 
@@ -121,5 +121,6 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(memos.router)
     app.include_router(herald.router)
+    app.include_router(ws.router)
 
     return app

@@ -13,7 +13,7 @@
  *   - All uncertain or low judge confidence (≤ 0.80) → escalate to Tier 4 (human)
  */
 
-import Groq from 'groq-sdk';
+import OpenAI from 'openai';
 
 import type { NotesLogEntry } from '../types/claims';
 import type { TierOutput, Verdict, DebatePersona, DebateOutput } from '../types/herald';
@@ -27,21 +27,21 @@ import { getJudgeSynthesisPrompt } from './prompts/judge-synthesis';
 // Constants
 // ---------------------------------------------------------------------------
 
-const DEBATE_MODEL = 'llama-3.3-70b-versatile';
+const DEBATE_MODEL = 'gpt-4o-mini';
 const DEBATE_TEMPERATURE = 0.3;
 const DEBATE_MAX_TOKENS = 768;
 const JUDGE_MAX_TOKENS = 1024;
 const JUDGE_CONFIDENCE_THRESHOLD = 0.8;
 
 // ---------------------------------------------------------------------------
-// Groq client (lazy singleton)
+// OpenAI client (lazy singleton)
 // ---------------------------------------------------------------------------
 
-let _client: Groq | null = null;
+let _client: OpenAI | null = null;
 
-function getClient(): Groq {
+function getClient(): OpenAI {
   if (_client === null) {
-    _client = new Groq({ apiKey: process.env['GROQ_API_KEY'] });
+    _client = new OpenAI({ apiKey: process.env['OPENAI_API_KEY'] });
   }
   return _client;
 }
@@ -50,7 +50,7 @@ function getClient(): Groq {
 // Tool definitions
 // ---------------------------------------------------------------------------
 
-const DEBATE_TURN_TOOL: Groq.Chat.ChatCompletionTool = {
+const DEBATE_TURN_TOOL: OpenAI.Chat.ChatCompletionTool = {
   type: 'function',
   function: {
     name: 'submit_debate_turn',
@@ -80,7 +80,7 @@ const DEBATE_TURN_TOOL: Groq.Chat.ChatCompletionTool = {
   },
 };
 
-const SYNTHESIS_TOOL: Groq.Chat.ChatCompletionTool = {
+const SYNTHESIS_TOOL: OpenAI.Chat.ChatCompletionTool = {
   type: 'function',
   function: {
     name: 'submit_synthesis',
@@ -104,14 +104,14 @@ const SYNTHESIS_TOOL: Groq.Chat.ChatCompletionTool = {
             "Which reviewer's argument was most persuasive and why. Address major dissenting points.",
         },
         suggested_revision: {
-          type: 'string',
+          type: ['string', 'null'],
           description:
             'Required for invalid/needs_revision verdicts. A concrete revised claim text.',
         },
         dominant_persona: {
           type: 'string',
-          enum: ['domain_expert', 'methodologist', 'skeptic', 'unanimous'],
-          description: "Which persona's argument drove the decision.",
+          description:
+            "Which reviewer's argument drove the decision (domain_expert, methodologist, skeptic, or unanimous).",
         },
       },
       required: ['verdict', 'confidence', 'reasoning', 'dominant_persona'],
@@ -229,7 +229,7 @@ async function callPersona(
   });
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
-  if (toolCall === undefined) {
+  if (toolCall === undefined || toolCall.type !== 'function') {
     throw new Error(
       `Persona '${persona}' did not call submit_debate_turn. finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
     );
@@ -324,7 +324,7 @@ async function callJudge(
   });
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
-  if (toolCall === undefined) {
+  if (toolCall === undefined || toolCall.type !== 'function') {
     throw new Error(
       `Judge did not call submit_synthesis. finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
     );
