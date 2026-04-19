@@ -491,6 +491,71 @@ flowchart TB
 
 ---
 
+## Diagram 3d — Detailed Technical Architecture (Balanced)
+
+```mermaid
+flowchart TB
+    classDef fe    fill:#2563eb,color:#fff,stroke:#1d4ed8
+    classDef agent fill:#059669,color:#fff,stroke:#047857
+    classDef mcp   fill:#0f172a,color:#94a3b8,stroke:#334155
+    classDef her   fill:#dc2626,color:#fff,stroke:#b91c1c
+    classDef py    fill:#7c3aed,color:#fff,stroke:#6d28d9
+    classDef obs   fill:#4b5563,color:#fff,stroke:#374151
+    classDef art   fill:#1e40af,color:#fff,stroke:#93c5fd,stroke-dasharray:4 2
+
+    subgraph INPUT["① Input Phase  ·  Next.js Frontend"]
+        direction LR
+        N1["InputForm"]:::fe ~~~ N2["AgentProgress"]:::fe ~~~ N3["useAgent"]:::fe ~~~ N4["useWebSocket"]:::fe
+    end
+
+    subgraph AGT["② Research Agent  ·  Groq Llama 3.3 70B  ·  loop-controller"]
+        direction LR
+        A1["prompt-assembler"]:::agent --> A2["research-agent"]:::agent --> A3["claim-extractor\n6 types · 4 methods"]:::agent --> A4["memo-writer"]:::agent
+    end
+
+    subgraph MCP["MCP Tool Registry  ·  8 Tools  ·  retry + timeout"]
+        direction LR
+        M1["web-search · arXiv"]:::mcp ~~~ M2["World Bank · Scholar"]:::mcp ~~~ M3["GovReport · GovInfo"]:::mcp ~~~ M4["FRED · file-reader"]:::mcp
+    end
+
+    subgraph REV["③ Review Phase  ·  Artifacts & Selection"]
+        direction LR
+        R1["Policy Memo"]:::art ~~~ R2[("Notes Log")]:::art ~~~ R3["MemoViewer"]:::fe ~~~ R4["ClaimSelector"]:::fe
+    end
+
+    subgraph BE["④ Python Backend  ·  FastAPI"]
+        direction LR
+        B1["/api/herald · /api/memos"]:::py ~~~ B2[("PostgreSQL\nmemos · claims")]:::py ~~~ B3[(Redis\nsession state)]:::py ~~~ B4["Alembic\nmigrations"]:::py
+    end
+
+    subgraph HER["⑤ HERALD Pipeline  ·  TypeScript + Python"]
+        direction LR
+        H1["router.ts"]:::her --> H2["T1  NLI\nDeBERTa"]:::her --> H3["T2  Judge\nClaude Sonnet"]:::her --> H4["T3/T4  Debate\nfeedback-loop.ts"]:::her
+    end
+
+    subgraph OUT["⑥ Evaluation UI  ·  Next.js Frontend"]
+        direction LR
+        O1["HeraldResults"]:::fe ~~~ O2["TierProgress"]:::fe ~~~ O3["HumanReviewQueue"]:::fe ~~~ O4["useHerald"]:::fe
+    end
+
+    subgraph OBS["Observability"]
+        direction LR
+        OB1["Braintrust\nLLM · tools · tiers"]:::obs ~~~ OB2["OpenTelemetry\nlatency · tokens"]:::obs
+    end
+
+    N1          --> A1
+    A2          <-->|"tool calls / results"| M1
+    A4          --> R1 & R2
+    R4          -->|"HTTP /api/herald"| B1
+    B1          -->|"evaluation requests"| H1
+    H4          --> O1
+    H4          -.->|"invalid + feedback"| A2
+    AGT & HER   -.->|"spans"| OB1
+    INPUT & BE  -.->|"spans"| OB2
+```
+
+---
+
 ## Diagram 4 — HERALD Framework Deep Dive
 
 ```mermaid
