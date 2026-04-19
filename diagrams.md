@@ -137,79 +137,59 @@ flowchart LR
 
 ---
 
-## Diagram 2c — System Architecture (Layout-Optimized)
+## Diagram 2c — System Architecture (TB Layout)
 
 ```mermaid
-flowchart LR
+flowchart TB
     classDef ui     fill:#2563eb,color:#fff,stroke:#1d4ed8
     classDef agent  fill:#059669,color:#fff,stroke:#047857
-    classDef tools  fill:#0f172a,color:#94a3b8,stroke:#334155
     classDef herald fill:#dc2626,color:#fff,stroke:#b91c1c
     classDef obs    fill:#4b5563,color:#fff,stroke:#374151
     classDef art    fill:#1e40af,color:#fff,stroke:#93c5fd,stroke-dasharray:4 2
 
-    subgraph S1["① Input"]
-        direction TB
-        N1["Topic & Context"]:::ui
-        N2["Source Files"]:::ui
-        N1 ~~~ N2
-    end
-
-    subgraph S2["② Research Agent  ·  Groq Llama 3.3 70B"]
-        direction TB
-        N3["Prompt Builder"]:::agent
-        N4["Research Loop"]:::agent
-        N5["8 Research Tools\nweb-search · arXiv · World Bank\nScholar · GovReport · FRED"]:::tools
-        N6["Claim Extractor"]:::agent
-        N3 --> N4
-        N4 <-->|"tool calls & results"| N5
-        N4 --> N6
-    end
-
-    subgraph S3["③ Artifacts"]
-        direction TB
-        N7["Policy Memo"]:::art
-        N8[("Notes Log\nJSON provenance")]:::art
-        N7 ~~~ N8
-    end
-
-    subgraph S4["④ User Review"]
-        direction TB
-        N9["Memo Viewer"]:::ui
-        N10["Claim Selector"]:::ui
-        N9 --> N10
-    end
-
-    subgraph S5["⑤ HERALD  ·  4-Tier Evaluation"]
-        direction TB
-        N11["Router\nclaim type → tier"]:::herald
-        N12["T1  NLI Model\nDeBERTa"]:::herald
-        N13["T2  LLM Judge\nClaude Sonnet"]:::herald
-        N14["T3 / T4  Debate\nor Human Review"]:::herald
-        N11 --> N12 --> N13 --> N14
-    end
-
-    subgraph S6["⑥ Output"]
-        direction TB
-        N15["HERALD Results"]:::ui
-        N16["Memo Resolved"]:::ui
-        N15 ~~~ N16
-    end
-
-    subgraph OBS["Observability  ·  Braintrust"]
+    subgraph L1["① User Input"]
         direction LR
-        OA["LLM & Tool Traces"]:::obs
-        OB["Eval Spans"]:::obs
-        OA ~~~ OB
+        N1["Topic & Context"]:::ui ~~~ N2["Source Files"]:::ui
     end
 
-    S1          --> N3
-    N6          --> N7 & N8
-    N7 & N8     --> N9
-    N10         -->|"selected claims"| N11
-    N14         --> N15 & N16
-    S5          -.->|"invalid + feedback"| N4
-    S1 & S2 & S5 -.->|"spans"| OA
+    subgraph L2["② Research Agent  ·  Groq Llama 3.3 70B  ·  8 MCP Tools"]
+        direction LR
+        N3["Prompt Builder"]:::agent --> N4["Research Loop"]:::agent --> N5["Claim Extractor"]:::agent --> N6["Memo Writer"]:::agent
+    end
+
+    subgraph L3["③ Artifacts"]
+        direction LR
+        N7["Policy Memo"]:::art ~~~ N8[("Notes Log")]:::art
+    end
+
+    subgraph L4["④ User Review"]
+        direction LR
+        N9["Memo Viewer"]:::ui ~~~ N10["Claim Selector"]:::ui
+    end
+
+    subgraph L5["⑤ HERALD  ·  4-Tier Evaluation"]
+        direction LR
+        N11["Router"]:::herald --> N12["T1  NLI"]:::herald --> N13["T2  Judge"]:::herald --> N14["T3 / T4  Debate"]:::herald
+    end
+
+    subgraph L6["⑥ Output"]
+        direction LR
+        N15["HERALD Results"]:::ui ~~~ N16["Memo Resolved"]:::ui
+    end
+
+    subgraph L7["Observability  ·  Braintrust"]
+        direction LR
+        N17["LLM & Tool Traces"]:::obs ~~~ N18["Eval Spans"]:::obs
+    end
+
+    N1 & N2 --> N3
+    N6      --> N7 & N8
+    N7 & N8 --> N9
+    N10     -->|"selected claims"| N11
+    N14     --> N15 & N16
+    N14     -.->|"invalid + feedback"| N4
+    L2      -.->|"spans"| N17
+    L5      -.->|"spans"| N18
 ```
 
 ---
