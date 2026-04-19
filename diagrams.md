@@ -74,6 +74,69 @@ flowchart TD
 
 ---
 
+## Diagram 2b — System Architecture (Optimized)
+
+```mermaid
+flowchart LR
+    classDef ui      fill:#2563eb,color:#fff,stroke:#1d4ed8,rx:6
+    classDef agent   fill:#059669,color:#fff,stroke:#047857,rx:6
+    classDef tools   fill:#0f172a,color:#94a3b8,stroke:#334155,rx:6
+    classDef herald  fill:#dc2626,color:#fff,stroke:#b91c1c,rx:6
+    classDef obs     fill:#4b5563,color:#fff,stroke:#374151,rx:6
+    classDef artifact fill:#1d4ed8,color:#fff,stroke:#1e40af,rx:6,stroke-dasharray:4 2
+
+    %% UI
+    subgraph UI["  UI  ·  Next.js  "]
+        U1(["① Input\nForm"]):::ui
+        U2(["② Review\nMemo"]):::ui
+        U3(["③ Select\nClaims"]):::ui
+        U4(["④ HERALD\nResults"]):::ui
+    end
+
+    %% Agent
+    subgraph AG["  Research Agent  ·  Groq Llama 3.3 70B  "]
+        A1["Research\nLoop"]:::agent
+        A2[("Notes Log\nprovenance")]:::artifact
+        A3["Policy\nMemo"]:::artifact
+        A1 --> A2 & A3
+    end
+
+    %% Tools
+    subgraph MC["  8 Research Tools  ·  MCP Registry  "]
+        direction TB
+        MC1["Web Search  ·  arXiv  ·  World Bank\nSemantic Scholar  ·  GovReport\nGovInfo  ·  FRED  ·  User Files"]:::tools
+    end
+
+    %% HERALD
+    subgraph HE["  HERALD Pipeline  "]
+        H1["T1  NLI\nDeBERTa"]:::herald
+        H2["T2  LLM Judge\nClaude Sonnet"]:::herald
+        H3["T3  Debate\n3 Agents + Judge"]:::herald
+        H4["T4  Human\nReview"]:::herald
+        H1 -->|uncertain| H2 -->|uncertain| H3 -->|no consensus| H4
+    end
+
+    %% Observability
+    OBS(["Braintrust\nAll spans & traces"]):::obs
+
+    %% Main flow
+    U1 -->|"topic + context"| A1
+    A1 <-->|"tool calls / results"| MC1
+    A3 -->|"rendered"| U2
+    A2 -->|"provenance"| U2
+    U2 --> U3
+    U3 -->|"selected claims"| H1
+    H1 & H2 & H3 & H4 -->|"verdict"| U4
+
+    %% Feedback loop
+    HE -.->|"invalid + feedback\nmax 2 revisions"| A1
+
+    %% Observability
+    AG & HE & UI -.->|spans| OBS
+```
+
+---
+
 ## Diagram 2c — System Architecture (Layout-Optimized)
 
 ```mermaid
@@ -475,69 +538,6 @@ flowchart TD
     end
 
     SCHEMA --> FL1
-```
-
----
-
-## Diagram 2b — System Architecture (Optimized)
-
-```mermaid
-flowchart LR
-    classDef ui      fill:#2563eb,color:#fff,stroke:#1d4ed8,rx:6
-    classDef agent   fill:#059669,color:#fff,stroke:#047857,rx:6
-    classDef tools   fill:#0f172a,color:#94a3b8,stroke:#334155,rx:6
-    classDef herald  fill:#dc2626,color:#fff,stroke:#b91c1c,rx:6
-    classDef obs     fill:#4b5563,color:#fff,stroke:#374151,rx:6
-    classDef artifact fill:#1d4ed8,color:#fff,stroke:#1e40af,rx:6,stroke-dasharray:4 2
-
-    %% UI
-    subgraph UI["  UI  ·  Next.js  "]
-        U1(["① Input\nForm"]):::ui
-        U2(["② Review\nMemo"]):::ui
-        U3(["③ Select\nClaims"]):::ui
-        U4(["④ HERALD\nResults"]):::ui
-    end
-
-    %% Agent
-    subgraph AG["  Research Agent  ·  Groq Llama 3.3 70B  "]
-        A1["Research\nLoop"]:::agent
-        A2[("Notes Log\nprovenance")]:::artifact
-        A3["Policy\nMemo"]:::artifact
-        A1 --> A2 & A3
-    end
-
-    %% Tools
-    subgraph MC["  8 Research Tools  ·  MCP Registry  "]
-        direction TB
-        MC1["Web Search  ·  arXiv  ·  World Bank\nSemantic Scholar  ·  GovReport\nGovInfo  ·  FRED  ·  User Files"]:::tools
-    end
-
-    %% HERALD
-    subgraph HE["  HERALD Pipeline  "]
-        H1["T1  NLI\nDeBERTa"]:::herald
-        H2["T2  LLM Judge\nClaude Sonnet"]:::herald
-        H3["T3  Debate\n3 Agents + Judge"]:::herald
-        H4["T4  Human\nReview"]:::herald
-        H1 -->|uncertain| H2 -->|uncertain| H3 -->|no consensus| H4
-    end
-
-    %% Observability
-    OBS(["Braintrust\nAll spans & traces"]):::obs
-
-    %% Main flow
-    U1 -->|"topic + context"| A1
-    A1 <-->|"tool calls / results"| MC1
-    A3 -->|"rendered"| U2
-    A2 -->|"provenance"| U2
-    U2 --> U3
-    U3 -->|"selected claims"| H1
-    H1 & H2 & H3 & H4 -->|"verdict"| U4
-
-    %% Feedback loop
-    HE -.->|"invalid + feedback\nmax 2 revisions"| A1
-
-    %% Observability
-    AG & HE & UI -.->|spans| OBS
 ```
 
 ---
