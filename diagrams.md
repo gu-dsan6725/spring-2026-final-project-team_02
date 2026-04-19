@@ -414,6 +414,83 @@ flowchart LR
 
 ---
 
+## Diagram 3c — Detailed Technical Architecture (TB Layout)
+
+```mermaid
+flowchart TB
+    classDef fe    fill:#2563eb,color:#fff,stroke:#1d4ed8
+    classDef agent fill:#059669,color:#fff,stroke:#047857
+    classDef mcp   fill:#0f172a,color:#94a3b8,stroke:#334155
+    classDef her   fill:#dc2626,color:#fff,stroke:#b91c1c
+    classDef py    fill:#7c3aed,color:#fff,stroke:#6d28d9
+    classDef obs   fill:#4b5563,color:#fff,stroke:#374151
+    classDef art   fill:#1e40af,color:#fff,stroke:#93c5fd,stroke-dasharray:4 2
+
+    subgraph L1["① Frontend  ·  Input & Progress"]
+        direction LR
+        N1["InputForm"]:::fe ~~~ N2["AgentProgress"]:::fe ~~~ N3["useAgent"]:::fe ~~~ N4["useWebSocket"]:::fe
+    end
+
+    subgraph L2["② Research Agent  ·  TypeScript  ·  Groq SDK  ·  loop-controller  max 25 calls / 50K tokens"]
+        direction LR
+        N5["prompt-assembler.ts"]:::agent --> N6["research-agent.ts\nGroq Llama 3.3 70B"]:::agent --> N7["claim-extractor.ts\n6 types · 4 methods"]:::agent --> N8["memo-writer.ts"]:::agent
+    end
+
+    subgraph L3["③ MCP Tool Registry  ·  8 Tools  ·  retry + timeout"]
+        direction LR
+        N9["web-search · arXiv"]:::mcp ~~~ N10["World Bank · Scholar"]:::mcp ~~~ N11["GovReport · GovInfo"]:::mcp ~~~ N12["FRED · file-reader"]:::mcp
+    end
+
+    subgraph L4["④ Artifacts"]
+        direction LR
+        N13["Policy Memo"]:::art ~~~ N14[("Notes Log\nJSON provenance")]:::art
+    end
+
+    subgraph L5["⑤ Frontend  ·  Memo Review"]
+        direction LR
+        N15["MemoViewer"]:::fe ~~~ N16["NotesLog"]:::fe ~~~ N17["ClaimSelector"]:::fe
+    end
+
+    subgraph L6["⑥ Python Backend  ·  FastAPI"]
+        direction LR
+        N18["/api/memos\n/api/herald · /api/health"]:::py ~~~ N19[("PostgreSQL\nmemos · claims")]:::py ~~~ N20[(Redis\nsession state)]:::py ~~~ N21["Alembic\nmigrations"]:::py
+    end
+
+    subgraph L7["⑦ HERALD Pipeline  ·  TypeScript + Python"]
+        direction LR
+        N22["router.ts\nclaim type → tier"]:::her --> N23["T1  NLI\nDeBERTa"]:::her --> N24["T2  Judge\nClaude Sonnet"]:::her --> N25["T3 / T4  Debate\n+ feedback-loop.ts"]:::her
+    end
+
+    subgraph L8["⑧ Frontend  ·  Evaluation UI"]
+        direction LR
+        N26["HeraldResults"]:::fe ~~~ N27["TierProgress"]:::fe ~~~ N28["HumanReviewQueue"]:::fe ~~~ N29["useHerald"]:::fe
+    end
+
+    subgraph L9["Observability"]
+        direction LR
+        N30["Braintrust\nLLM · tools · tiers"]:::obs ~~~ N31["OpenTelemetry\nlatency · tokens"]:::obs
+    end
+
+    %% Main pipeline — top to bottom
+    N1          --> N5
+    N6          <-->|"tool calls / results"| N9
+    N8          --> N13 & N14
+    N13 & N14   --> N15
+    N17         -->|"HTTP /api/herald"| N18
+    N18         --> N19 & N20
+    N18         -->|"evaluation requests"| N22
+    N25         --> N26 & N28
+
+    %% Required backward arrow — feedback loop
+    N25         -.->|"invalid + feedback"| N6
+
+    %% Observability spans
+    L2 & L7     -.->|"spans"| N30
+    L1 & L6     -.->|"spans"| N31
+```
+
+---
+
 ## Diagram 4 — HERALD Framework Deep Dive
 
 ```mermaid
