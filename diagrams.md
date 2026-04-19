@@ -469,23 +469,42 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    CLAIM["Claim + Sources"] --> ROUTER{{"Router\nclaim_type?"}}
+    classDef entry   fill:#1e293b,color:#f8fafc,stroke:#475569
+    classDef router  fill:#334155,color:#f8fafc,stroke:#64748b
+    classDef t1      fill:#1d4ed8,color:#fff,stroke:#93c5fd
+    classDef t2      fill:#b45309,color:#fff,stroke:#fcd34d
+    classDef t3      fill:#065f46,color:#fff,stroke:#6ee7b7
+    classDef t4      fill:#7c2d12,color:#fff,stroke:#fca5a5
+    classDef valid   fill:#14532d,color:#fff,stroke:#86efac
+    classDef invalid fill:#7f1d1d,color:#fff,stroke:#fca5a5
+    classDef revise  fill:#1e3a5f,color:#fff,stroke:#93c5fd,stroke-dasharray:4 2
 
-    ROUTER -->|"Statistical / Comparative\n(threshold 0.90)"| T1
-    ROUTER -->|"Causal\n(threshold 0.85)"| T1
-    ROUTER -->|"Predictive / Normative\nSynthesis"| T2
+    CLAIM(["📋 Claim from Notes Log\nclaim_text · claim_type · sources"]):::entry
 
-    T1["Tier 1 — NLI\nDeBERTa entailment"] -->|"confident ✓/✗"| OUT
+    CLAIM --> ROUTER{{"🔀 Router\nroute by claim_type"}}:::router
+
+    ROUTER -->|"Statistical · Comparative\nthreshold 0.90"| T1
+    ROUTER -->|"Causal\nthreshold 0.85"| T1
+    ROUTER -->|"Predictive · Normative\nSynthesis — skip NLI"| T2
+
+    T1["🔵 Tier 1 — NLI Model\nDeBERTa-v3-large-mnli\nentailment · neutral · contradiction"]:::t1
+    T2["🟠 Tier 2 — LLM Judge\nClaude Sonnet\naccuracy · completeness · validity"]:::t2
+    T3["🟢 Tier 3 — Multi-Agent Debate\nExpert · Methodologist · Skeptic\n→ Judge synthesis"]:::t3
+    T4["🔴 Tier 4 — Human Review\nclaim + sources + prior tier outputs"]:::t4
+
+    T1 -->|"confident verdict"| VERDICT
     T1 -->|"uncertain"| T2
+    T2 -->|"confidence > 0.85"| VERDICT
+    T2 -->|"confidence ≤ 0.85"| T3
+    T3 -->|"consensus reached"| VERDICT
+    T3 -->|"no consensus"| T4
+    T4 --> VERDICT
 
-    T2["Tier 2 — LLM Judge\nClaude Sonnet"] -->|"confidence > 0.85"| OUT
-    T2 -->|"uncertain"| T3
+    VERDICT{{"⚖️ Verdict"}}:::router
 
-    T3["Tier 3 — Debate\nExpert · Methodologist · Skeptic\n→ Judge"] -->|"consensus"| OUT
-    T3 -->|"no consensus"| T4["Tier 4 — Human Review"]
-    T4 --> OUT
+    VERDICT -->|"✅ valid"| DONE(["Memo + Notes Log updated\nmark resolved"]):::valid
+    VERDICT -->|"❌ invalid · attempt < 2"| REVISE["Agent revision\noriginal claim + HERALD feedback\n→ re-enter HERALD"]:::revise
+    VERDICT -->|"❌ invalid · attempt ≥ 2"| FLAG(["requires_human_intervention\nsurface in UI ⚠"]):::invalid
 
-    OUT{{"Verdict"}} -->|"valid"| DONE(["Memo updated ✓"])
-    OUT -->|"invalid\n(attempt < 2)"| REVISE["Agent revises claim\n→ re-enter HERALD"]
-    OUT -->|"invalid\n(≥ 2 attempts)"| HUMAN(["Flag for human ⚠"])
+    REVISE -->|"revised claim"| ROUTER
 ```
