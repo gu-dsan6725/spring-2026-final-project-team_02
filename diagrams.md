@@ -209,6 +209,91 @@ flowchart TD
 
 ---
 
+## Diagram 3b — Detailed Technical Architecture (Optimized)
+
+```mermaid
+flowchart LR
+    classDef fe       fill:#2563eb,color:#fff,stroke:#1d4ed8
+    classDef agent    fill:#059669,color:#fff,stroke:#047857
+    classDef mcp      fill:#0f172a,color:#94a3b8,stroke:#334155
+    classDef herald   fill:#dc2626,color:#fff,stroke:#b91c1c
+    classDef py       fill:#7c3aed,color:#fff,stroke:#6d28d9
+    classDef obs      fill:#4b5563,color:#fff,stroke:#374151
+    classDef artifact fill:#1e40af,color:#fff,stroke:#93c5fd,stroke-dasharray:4 2
+
+    %% ── FRONTEND ───────────────────────────────────────────────────────────
+    subgraph FE["Frontend — Next.js / TypeScript"]
+        direction TB
+        FE1["① Input & Progress\nInputForm · AgentProgress\nuseAgent · useWebSocket"]:::fe
+        FE2["② Memo Review\nMemoViewer · NotesLog\nClaimSelector"]:::fe
+        FE3["③ Evaluation UI\nHeraldResults · TierProgress\nHumanReviewQueue · useHerald"]:::fe
+        FE1 --> FE2 --> FE3
+    end
+
+    %% ── RESEARCH AGENT ──────────────────────────────────────────────────────
+    subgraph AGT["Research Agent — TypeScript · Groq SDK"]
+        direction TB
+        PA["prompt-assembler.ts\n→ system prompt"]:::agent
+        RA["research-agent.ts\nGroq Llama 3.3 70B\nfunction-calling loop\n— loop-controller.ts —\nmax 25 calls · 50K tokens"]:::agent
+        CE["claim-extractor.ts\n6 claim types · 4 derivation methods"]:::agent
+        MW["memo-writer.ts\n→ synthesizes final memo"]:::agent
+        NL[("Notes Log\nJSON provenance")]:::artifact
+        MM["Policy Memo\nMarkdown"]:::artifact
+        PA --> RA --> CE --> NL --> MW --> MM
+    end
+
+    %% ── MCP TOOLS ───────────────────────────────────────────────────────────
+    subgraph MCP["MCP Tool Registry — 8 Tools · retry + timeout"]
+        MC1["web-search · arXiv · World Bank\nSemantic Scholar · GovReport\nGovInfo · FRED · file-reader"]:::mcp
+    end
+
+    %% ── HERALD ──────────────────────────────────────────────────────────────
+    subgraph HER["HERALD Pipeline — TypeScript + Python"]
+        direction TB
+        HR["router.ts\nStatistical/Comparative → T1 @0.90\nCausal → T1 @0.85\nPredictive/Normative/Synthesis → T2"]:::herald
+        T1H["Tier 1 — NLI\ntier1-nli.ts · tier1_nli.py\nDeBERTa-v3-large-mnli"]:::herald
+        T2H["Tier 2 — LLM Judge\ntier2-llm-judge.ts · tier2_judge.py\nClaude Sonnet"]:::herald
+        T3H["Tier 3 — Debate\ntier3-debate.ts · tier3_debate.py\nExpert · Methodologist · Skeptic + Judge"]:::herald
+        T4H["Tier 4 — Human Review\ntier4-human.ts"]:::herald
+        FL["feedback-loop.ts\nmax 2 revisions\n→ requires_human_intervention"]:::herald
+        HR --> T1H -->|uncertain| T2H -->|uncertain| T3H -->|no consensus| T4H
+        T1H & T2H & T3H & T4H --> FL
+    end
+
+    %% ── PYTHON BACKEND ──────────────────────────────────────────────────────
+    subgraph PY["Python Backend — FastAPI"]
+        direction TB
+        API["/api/memos\n/api/herald\n/api/health"]:::py
+        DB[("PostgreSQL\nmemos · claims · evaluations\nAlembic migrations")]:::py
+        RD[(Redis\nsession state)]:::py
+        API --> DB & RD
+    end
+
+    %% ── OBSERVABILITY ───────────────────────────────────────────────────────
+    subgraph OBS["Observability"]
+        direction LR
+        BT["Braintrust\nLLM · tools · claims · tiers"]:::obs
+        OT["OpenTelemetry\nlatency · token usage"]:::obs
+        BT -.- OT
+    end
+
+    %% ── CROSS-LAYER FLOWS ───────────────────────────────────────────────────
+    FE1 -->|"topic + context"| PA
+    FE1 -->|"HTTP /api/memos"| API
+    MM -->|"rendered memo"| FE2
+    NL  -->|"provenance"| FE2
+    FE2 -->|"HTTP /api/herald\nselected claims"| API
+    API <-->|"evaluation requests"| HER
+    FL  -->|"verdict + tier details"| FE3
+    FL  -.->|"invalid + feedback"| RA
+    RA  <-->|"tool calls / results"| MC1
+
+    AGT & HER -.->|spans| BT
+    FE  & PY  -.->|spans| OT
+```
+
+---
+
 ## Diagram 4 — HERALD Framework Deep Dive
 
 ```mermaid
@@ -313,6 +398,69 @@ flowchart TD
     end
 
     SCHEMA --> FL1
+```
+
+---
+
+## Diagram 2b — System Architecture (Optimized)
+
+```mermaid
+flowchart LR
+    classDef ui      fill:#2563eb,color:#fff,stroke:#1d4ed8,rx:6
+    classDef agent   fill:#059669,color:#fff,stroke:#047857,rx:6
+    classDef tools   fill:#0f172a,color:#94a3b8,stroke:#334155,rx:6
+    classDef herald  fill:#dc2626,color:#fff,stroke:#b91c1c,rx:6
+    classDef obs     fill:#4b5563,color:#fff,stroke:#374151,rx:6
+    classDef artifact fill:#1d4ed8,color:#fff,stroke:#1e40af,rx:6,stroke-dasharray:4 2
+
+    %% UI
+    subgraph UI["  UI  ·  Next.js  "]
+        U1(["① Input\nForm"]):::ui
+        U2(["② Review\nMemo"]):::ui
+        U3(["③ Select\nClaims"]):::ui
+        U4(["④ HERALD\nResults"]):::ui
+    end
+
+    %% Agent
+    subgraph AG["  Research Agent  ·  Groq Llama 3.3 70B  "]
+        A1["Research\nLoop"]:::agent
+        A2[("Notes Log\nprovenance")]:::artifact
+        A3["Policy\nMemo"]:::artifact
+        A1 --> A2 & A3
+    end
+
+    %% Tools
+    subgraph MC["  8 Research Tools  ·  MCP Registry  "]
+        direction TB
+        MC1["Web Search  ·  arXiv  ·  World Bank\nSemantic Scholar  ·  GovReport\nGovInfo  ·  FRED  ·  User Files"]:::tools
+    end
+
+    %% HERALD
+    subgraph HE["  HERALD Pipeline  "]
+        H1["T1  NLI\nDeBERTa"]:::herald
+        H2["T2  LLM Judge\nClaude Sonnet"]:::herald
+        H3["T3  Debate\n3 Agents + Judge"]:::herald
+        H4["T4  Human\nReview"]:::herald
+        H1 -->|uncertain| H2 -->|uncertain| H3 -->|no consensus| H4
+    end
+
+    %% Observability
+    OBS(["Braintrust\nAll spans & traces"]):::obs
+
+    %% Main flow
+    U1 -->|"topic + context"| A1
+    A1 <-->|"tool calls / results"| MC1
+    A3 -->|"rendered"| U2
+    A2 -->|"provenance"| U2
+    U2 --> U3
+    U3 -->|"selected claims"| H1
+    H1 & H2 & H3 & H4 -->|"verdict"| U4
+
+    %% Feedback loop
+    HE -.->|"invalid + feedback\nmax 2 revisions"| A1
+
+    %% Observability
+    AG & HE & UI -.->|spans| OBS
 ```
 
 ---
