@@ -379,16 +379,12 @@ describe('evaluateWithDebate — unanimous agreement', () => {
     expect(result.confidence).toBeCloseTo(0.92);
   });
 
-  it('exits with "needs_revision" when all 3 agree and judge confidence is high', async () => {
-    setupDebateMocks(
-      ['needs_revision', 'needs_revision', 'needs_revision'],
-      'needs_revision',
-      0.89,
-    );
+  it('exits with "invalid" when all 3 agree and judge confidence is high', async () => {
+    setupDebateMocks(['invalid', 'invalid', 'invalid'], 'invalid', 0.89);
 
     const result = await evaluateWithDebate(makeEntry(), TIER2_UNCERTAIN);
 
-    expect(result.verdict).toBe('needs_revision');
+    expect(result.verdict).toBe('invalid');
   });
 });
 
@@ -458,14 +454,9 @@ describe('evaluateWithDebate — suggested_revision', () => {
     expect(result.suggested_revision).toBe(revision);
   });
 
-  it('includes suggested_revision when verdict is needs_revision', async () => {
+  it('includes suggested_revision when verdict is invalid', async () => {
     const revision = 'Add "on average" qualifier before the statistic.';
-    setupDebateMocks(
-      ['needs_revision', 'needs_revision', 'needs_revision'],
-      'needs_revision',
-      0.88,
-      revision,
-    );
+    setupDebateMocks(['invalid', 'invalid', 'invalid'], 'invalid', 0.88, revision);
 
     const result = await evaluateWithDebate(makeEntry(), TIER2_UNCERTAIN);
 

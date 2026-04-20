@@ -61,13 +61,13 @@ const DEBATE_TURN_TOOL: OpenAI.Chat.ChatCompletionTool = {
       properties: {
         verdict: {
           type: 'string',
-          enum: ['valid', 'invalid', 'needs_revision', 'uncertain'],
+          enum: ['valid', 'invalid', 'uncertain'],
           description: 'Your verdict on the claim.',
         },
         reasoning: {
           type: 'string',
           description:
-            'Specific reasoning citing source text. For invalid/needs_revision, identify the exact problem.',
+            'Specific reasoning citing source text. For invalid verdicts, identify the exact problem.',
         },
         key_concern: {
           type: 'string',
@@ -91,7 +91,7 @@ const SYNTHESIS_TOOL: OpenAI.Chat.ChatCompletionTool = {
       properties: {
         verdict: {
           type: 'string',
-          enum: ['valid', 'invalid', 'needs_revision', 'uncertain'],
+          enum: ['valid', 'invalid', 'uncertain'],
           description: 'The synthesized verdict.',
         },
         confidence: {
@@ -105,8 +105,7 @@ const SYNTHESIS_TOOL: OpenAI.Chat.ChatCompletionTool = {
         },
         suggested_revision: {
           type: ['string', 'null'],
-          description:
-            'Required for invalid/needs_revision verdicts. A concrete revised claim text.',
+          description: 'Required for invalid verdicts. A concrete revised claim text.',
         },
         dominant_persona: {
           type: 'string',
@@ -143,7 +142,7 @@ interface SynthesisInput {
   verdict: string;
   confidence: number;
   reasoning: string;
-  suggested_revision?: string;
+  suggested_revision?: string | null;
   dominant_persona: string;
 }
 
@@ -159,9 +158,11 @@ function isSynthesisInput(obj: unknown): obj is SynthesisInput {
 }
 
 function parseVerdict(raw: string): Verdict {
-  if (raw === 'valid' || raw === 'invalid' || raw === 'needs_revision' || raw === 'uncertain') {
+  if (raw === 'valid' || raw === 'invalid' || raw === 'uncertain') {
     return raw;
   }
+  // Legacy 'needs_revision' from models that haven't seen the updated enum
+  if (raw === 'needs_revision') return 'invalid';
   return 'uncertain';
 }
 
@@ -229,18 +230,38 @@ async function callPersona(
   });
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
-  if (toolCall === undefined || toolCall.type !== 'function') {
-    throw new Error(
-      `Persona '${persona}' did not call submit_debate_turn. finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
-    );
-  }
-
+  const plainTextContent = response.choices[0]?.message?.content ?? '';
   let parsed: unknown;
-  try {
-    parsed = JSON.parse(toolCall.function.arguments) as unknown;
-  } catch {
+
+  if (toolCall !== undefined && toolCall.type === 'function') {
+    try {
+      parsed = JSON.parse(toolCall.function.arguments) as unknown;
+    } catch {
+      throw new Error(
+        `Persona '${persona}' JSON parse failed: ${toolCall.function.arguments.slice(0, 200)}`,
+      );
+    }
+  } else if (toolCall !== undefined) {
+    throw new Error(`Persona '${persona}' received unexpected tool_call type: ${toolCall.type}`);
+  } else if (plainTextContent.length > 0) {
+    const jsonMatch = /\{[\s\S]*\}/.exec(plainTextContent);
+    if (jsonMatch === null) {
+      throw new Error(
+        `Persona '${persona}' did not call submit_debate_turn and response contains no JSON. ` +
+          `finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
+      );
+    }
+    try {
+      parsed = JSON.parse(jsonMatch[0]) as unknown;
+    } catch {
+      throw new Error(
+        `Persona '${persona}' plain-text JSON parse failed: ${plainTextContent.slice(0, 200)}`,
+      );
+    }
+  } else {
     throw new Error(
-      `Persona '${persona}' JSON parse failed: ${toolCall.function.arguments.slice(0, 200)}`,
+      `Persona '${persona}' did not call submit_debate_turn. ` +
+        `finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
     );
   }
 
@@ -324,17 +345,34 @@ async function callJudge(
   });
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
-  if (toolCall === undefined || toolCall.type !== 'function') {
+  const plainTextContent = response.choices[0]?.message?.content ?? '';
+  let parsed: unknown;
+
+  if (toolCall !== undefined && toolCall.type === 'function') {
+    try {
+      parsed = JSON.parse(toolCall.function.arguments) as unknown;
+    } catch {
+      throw new Error(`Judge JSON parse failed: ${toolCall.function.arguments.slice(0, 200)}`);
+    }
+  } else if (toolCall !== undefined) {
+    throw new Error(`Judge received unexpected tool_call type: ${toolCall.type}`);
+  } else if (plainTextContent.length > 0) {
+    const jsonMatch = /\{[\s\S]*\}/.exec(plainTextContent);
+    if (jsonMatch === null) {
+      throw new Error(
+        `Judge did not call submit_synthesis and response contains no JSON. ` +
+          `finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
+      );
+    }
+    try {
+      parsed = JSON.parse(jsonMatch[0]) as unknown;
+    } catch {
+      throw new Error(`Judge plain-text JSON parse failed: ${plainTextContent.slice(0, 200)}`);
+    }
+  } else {
     throw new Error(
       `Judge did not call submit_synthesis. finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
     );
-  }
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(toolCall.function.arguments) as unknown;
-  } catch {
-    throw new Error(`Judge JSON parse failed: ${toolCall.function.arguments.slice(0, 200)}`);
   }
 
   if (!isSynthesisInput(parsed)) {
@@ -393,7 +431,10 @@ export async function evaluateWithDebate(
       reasoning: synthesis.reasoning,
     };
 
-    if (synthesis.suggested_revision !== undefined && synthesis.suggested_revision.length > 0) {
+    if (
+      typeof synthesis.suggested_revision === 'string' &&
+      synthesis.suggested_revision.length > 0
+    ) {
       output.suggested_revision = synthesis.suggested_revision;
     }
 

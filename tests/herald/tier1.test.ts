@@ -243,6 +243,39 @@ describe('evaluateWithNLI verdicts', () => {
     expect(result.verdict).toBe('uncertain');
   });
 
+  it('returns uncertain when entailment clears threshold but the margin over neutral is too small', async () => {
+    fetchMock.mockReturnValueOnce(
+      mockNLIBatch([{ label: 'entailment', entailment: 0.93, neutral: 0.84, contradiction: 0.04 }]),
+    );
+
+    const result = await evaluateWithNLI(makeEntry({ claim_type: ClaimType.Statistical }));
+
+    expect(result.verdict).toBe('uncertain');
+    expect(result.reasoning).toMatch(/Signal margin/i);
+  });
+
+  it('returns uncertain for causal paraphrases that strengthen hedged source language', async () => {
+    fetchMock.mockReturnValueOnce(
+      mockNLIBatch([{ label: 'entailment', entailment: 0.95, neutral: 0.03, contradiction: 0.02 }]),
+    );
+
+    const result = await evaluateWithNLI(
+      makeEntry({
+        claim_type: ClaimType.Causal,
+        derivation: DerivationMethod.Paraphrase,
+        claim_text: 'Rainfall variability intensified drought cycles across the region.',
+        sources: [
+          makeSource(
+            'Rainfall variability coincided with more frequent failed rainy seasons across the region.',
+          ),
+        ],
+      }),
+    );
+
+    expect(result.verdict).toBe('uncertain');
+    expect(result.reasoning).toMatch(/hedging mismatch/i);
+  });
+
   it('returns invalid with suggested_revision when contradiction > 0.7', async () => {
     fetchMock.mockReturnValueOnce(
       mockNLIBatch([
@@ -286,7 +319,7 @@ describe('evaluateWithNLI verdicts', () => {
 // ---------------------------------------------------------------------------
 
 describe('evaluateWithNLI multi-source aggregation', () => {
-  it('all sources entail → valid (uses min entailment score)', async () => {
+  it('all sources entail → valid (uses strongest supporting chunk)', async () => {
     fetchMock.mockReturnValueOnce(
       mockNLIBatch([
         { label: 'entailment', entailment: 0.95, neutral: 0.03, contradiction: 0.02 },
@@ -301,8 +334,7 @@ describe('evaluateWithNLI multi-source aggregation', () => {
     const result = await evaluateWithNLI(claim);
 
     expect(result.verdict).toBe('valid');
-    // Confidence should be the min entailment (0.91)
-    expect(result.confidence).toBeCloseTo(0.91);
+    expect(result.confidence).toBeCloseTo(0.95);
   });
 
   it('any source contradicts → contradiction wins (all-entail + one contradiction)', async () => {
@@ -322,7 +354,7 @@ describe('evaluateWithNLI multi-source aggregation', () => {
     expect(result.verdict).toBe('invalid');
   });
 
-  it('mixed entail + neutral → uncertain', async () => {
+  it('mixed entail + neutral still exits valid when one chunk strongly supports and none strongly contradict', async () => {
     fetchMock.mockReturnValueOnce(
       mockNLIBatch([
         { label: 'entailment', entailment: 0.92, neutral: 0.05, contradiction: 0.03 },
@@ -336,7 +368,37 @@ describe('evaluateWithNLI multi-source aggregation', () => {
     });
     const result = await evaluateWithNLI(claim);
 
-    expect(result.verdict).toBe('uncertain');
+    expect(result.verdict).toBe('valid');
+    expect(result.confidence).toBeCloseTo(0.92);
+  });
+
+  it('uses canonicalized paraphrase text to recover entailment without requiring all chunks to match literally', async () => {
+    fetchMock
+      .mockReturnValueOnce(
+        mockNLIBatch([
+          { label: 'neutral', entailment: 0.46, neutral: 0.49, contradiction: 0.05 },
+          { label: 'neutral', entailment: 0.31, neutral: 0.63, contradiction: 0.06 },
+        ]),
+      )
+      .mockReturnValueOnce(
+        mockNLIBatch([
+          { label: 'entailment', entailment: 0.91, neutral: 0.06, contradiction: 0.03 },
+          { label: 'neutral', entailment: 0.28, neutral: 0.65, contradiction: 0.07 },
+        ]),
+      );
+
+    const claim = makeEntry({
+      claim_type: ClaimType.Causal,
+      derivation: DerivationMethod.Paraphrase,
+      claim_text: 'Around drought seasons intensified as rainfall variability increased.',
+      sources: [makeSource('Chunk A', 'S-001'), makeSource('Chunk B', 'S-002')],
+    });
+
+    const result = await evaluateWithNLI(claim);
+
+    expect(result.verdict).toBe('valid');
+    expect(result.confidence).toBeCloseTo(0.91);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });
 

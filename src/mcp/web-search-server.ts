@@ -41,11 +41,14 @@ export async function webSearchHandler(
   const url = new URL('https://api.search.brave.com/res/v1/web/search');
   url.searchParams.set('q', query);
   url.searchParams.set('count', String(Math.min(maxResults, 20)));
+  url.searchParams.set('country', 'US');
+  url.searchParams.set('search_lang', 'en');
 
   const response = await fetch(url.toString(), {
     headers: {
       Accept: 'application/json',
       'Accept-Encoding': 'gzip',
+      'User-Agent': 'policy-memo-agent/0.1.0',
       'X-Subscription-Token': apiKey,
     },
   });

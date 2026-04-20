@@ -176,6 +176,11 @@ function makeFailingHeraldResult(claimId = 'C-001', feedback = 'Still incorrect.
 describe('reviseClaimsFromHerald', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env['GROQ_API_KEY'] = 'test-groq-key';
+    delete process.env['OPENAI_API_KEY'];
+    delete process.env['REVISION_LLM_PROVIDER'];
+    delete process.env['REVISION_GROQ_MODEL'];
+    delete process.env['REVISION_OPENAI_MODEL'];
   });
 
   // ─── Happy path ───────────────────────────────────────────────────────────
@@ -448,10 +453,10 @@ describe('reviseClaimsFromHerald', () => {
     // Should not throw
   });
 
-  it('revises a needs_revision verdict the same as invalid', async () => {
+  it('triggers revision for invalid verdict', async () => {
     const claim = makeClaim();
     const memo = makeMemo(claim);
-    const heraldResult = makeHeraldResult({ verdict: 'needs_revision' });
+    const heraldResult = makeHeraldResult({ verdict: 'invalid' });
 
     const correctedText = 'Revised to match source.';
     mockGroqCreate.mockResolvedValueOnce(makeGroqResponse(makeRevisionJson(correctedText)));
