@@ -11,7 +11,12 @@
  * also throw here to catch bugs early.
  */
 
-import { CLAIM_TYPE_CONFIG, type NotesLogEntry } from '../types/claims';
+import {
+  CLAIM_TYPE_CONFIG,
+  ClaimType,
+  DerivationMethod,
+  type NotesLogEntry,
+} from '../types/claims';
 import type { TierOutput } from '../types/herald';
 
 // ---------------------------------------------------------------------------
@@ -46,50 +51,92 @@ interface NLIBatchResponse {
 // Aggregation logic
 // ---------------------------------------------------------------------------
 
-type AggregatedLabel = 'entailment' | 'neutral' | 'contradiction';
-
 interface AggregatedResult {
-  label: AggregatedLabel;
-  /** Confidence of the winning label, averaged across sources. */
-  confidence: number;
-  /** Raw scores per source, for reasoning. */
-  perSourceScores: NLIScores[];
+  bestEntailment: number;
+  bestContradiction: number;
+  bestNeutral: number;
+  supportingSources: number;
+  contradictingSources: number;
+  neutralSources: number;
 }
 
-/**
- * Aggregate NLI results across multiple sources for a single claim.
- *
- * Rules (in priority order):
- * 1. Any source returns contradiction → aggregate = contradiction
- *    (confidence = max contradiction score across all sources)
- * 2. All sources return entailment → aggregate = entailment
- *    (confidence = min entailment score — weakest link)
- * 3. Mixed → aggregate = neutral
- *    (confidence = average neutral score)
- */
-function aggregateResults(items: NLIResponseItem[]): AggregatedResult {
-  const perSourceScores = items.map((i) => i.scores);
+const CONTRADICTION_THRESHOLD = 0.7;
+const DEFAULT_ENTAILMENT_MARGIN = 0.12;
+const CAUSAL_PARAPHRASE_ENTAILMENT_MARGIN = 0.2;
+const HEDGED_CAUSAL_SOURCE_PATTERN =
+  /\b(associated with|association|correlated with|correlation|linked to|coincided with|may|might|could|suggests?|contributed to)\b/i;
+const STRONG_CAUSAL_CLAIM_PATTERN =
+  /\b(caused?|causing|drives?|driving|led to|results? in|intensif(?:y|ies|ied)|triggered?)\b/i;
 
-  const contradictionScores = items
-    .filter((i) => i.label === 'contradiction')
-    .map((i) => i.scores.contradiction);
+function normalizeClaimForNLI(claimText: string): string {
+  return claimText
+    .replace(/[“”]/g, '"')
+    .replace(/[’]/g, "'")
+    .replace(/\b(approximately|roughly|about|around|nearly)\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([,.;:])/g, '$1')
+    .trim();
+}
 
-  if (contradictionScores.length > 0) {
-    const maxContradiction = Math.max(...contradictionScores);
-    return { label: 'contradiction', confidence: maxContradiction, perSourceScores };
+function requiredEntailmentMargin(claim: NotesLogEntry): number {
+  if (claim.claim_type === ClaimType.Causal && claim.derivation === DerivationMethod.Paraphrase) {
+    return CAUSAL_PARAPHRASE_ENTAILMENT_MARGIN;
+  }
+  return DEFAULT_ENTAILMENT_MARGIN;
+}
+
+function hasCausalHedgingMismatch(claim: NotesLogEntry): boolean {
+  if (claim.claim_type !== ClaimType.Causal || claim.derivation !== DerivationMethod.Paraphrase) {
+    return false;
   }
 
-  const allEntail = items.every((i) => i.label === 'entailment');
-  if (allEntail) {
-    // Use the minimum entailment score (weakest-link aggregation)
-    const minEntailment = Math.min(...items.map((i) => i.scores.entailment));
-    return { label: 'entailment', confidence: minEntailment, perSourceScores };
+  const sourceText = claim.sources.map((src) => src.relevant_chunk).join('\n');
+  return (
+    HEDGED_CAUSAL_SOURCE_PATTERN.test(sourceText) &&
+    STRONG_CAUSAL_CLAIM_PATTERN.test(claim.claim_text)
+  );
+}
+
+function aggregateResults(
+  originalItems: NLIResponseItem[],
+  canonicalItems: NLIResponseItem[],
+): AggregatedResult {
+  const sourceCount = originalItems.length;
+  let bestEntailment = 0;
+  let bestContradiction = 0;
+  let bestNeutral = 0;
+  let supportingSources = 0;
+  let contradictingSources = 0;
+  let neutralSources = 0;
+
+  for (let i = 0; i < sourceCount; i++) {
+    const original = originalItems[i];
+    const canonical = canonicalItems[i] ?? original;
+    const entailment = Math.max(original.scores.entailment, canonical.scores.entailment);
+    const contradiction = original.scores.contradiction;
+    const neutral = Math.max(original.scores.neutral, canonical.scores.neutral);
+
+    bestEntailment = Math.max(bestEntailment, entailment);
+    bestContradiction = Math.max(bestContradiction, contradiction);
+    bestNeutral = Math.max(bestNeutral, neutral);
+
+    if (contradiction >= entailment && contradiction >= neutral) {
+      contradictingSources++;
+    } else if (entailment >= contradiction && entailment >= neutral) {
+      supportingSources++;
+    } else {
+      neutralSources++;
+    }
   }
 
-  // Mixed signals → neutral
-  const avgNeutral =
-    perSourceScores.reduce((sum, s) => sum + s.neutral, 0) / perSourceScores.length;
-  return { label: 'neutral', confidence: avgNeutral, perSourceScores };
+  return {
+    bestEntailment,
+    bestContradiction,
+    bestNeutral,
+    supportingSources,
+    contradictingSources,
+    neutralSources,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -136,43 +183,72 @@ export async function evaluateWithNLI(claim: NotesLogEntry): Promise<TierOutput>
   }
 
   const threshold = config.nliEscalationThreshold ?? 0.9;
+  const entailmentMargin = requiredEntailmentMargin(claim);
 
   // Build premise–hypothesis pairs: one per source chunk
-  const pairs = claim.sources.map((src) => ({
+  const originalPairs = claim.sources.map((src) => ({
     premise: src.relevant_chunk,
     hypothesis: claim.claim_text,
   }));
+  const canonicalHypothesis =
+    claim.derivation === DerivationMethod.Paraphrase
+      ? normalizeClaimForNLI(claim.claim_text)
+      : claim.claim_text;
+  const useCanonicalHypothesis =
+    claim.derivation === DerivationMethod.Paraphrase && canonicalHypothesis !== claim.claim_text;
+  const canonicalPairs = useCanonicalHypothesis
+    ? claim.sources.map((src) => ({
+        premise: src.relevant_chunk,
+        hypothesis: canonicalHypothesis,
+      }))
+    : originalPairs;
 
-  const batchResponse = await callNLIBatch(pairs);
-  const agg = aggregateResults(batchResponse.results);
+  const [batchResponse, canonicalBatchResponse] = await Promise.all([
+    callNLIBatch(originalPairs),
+    useCanonicalHypothesis
+      ? callNLIBatch(canonicalPairs)
+      : Promise.resolve<NLIBatchResponse>({ results: [] }),
+  ]);
+  const canonicalResults =
+    canonicalBatchResponse.results.length > 0
+      ? canonicalBatchResponse.results
+      : batchResponse.results;
+  const agg = aggregateResults(batchResponse.results, canonicalResults);
+  const bestSignalMargin = agg.bestEntailment - Math.max(agg.bestContradiction, agg.bestNeutral);
+  const hedgingMismatch = hasCausalHedgingMismatch(claim);
 
   // ---------------------------------------------------------------------------
   // Decision logic
   // ---------------------------------------------------------------------------
 
-  if (agg.label === 'entailment' && agg.confidence >= threshold) {
+  if (
+    agg.bestEntailment >= threshold &&
+    agg.bestContradiction < CONTRADICTION_THRESHOLD &&
+    bestSignalMargin >= entailmentMargin &&
+    !hedgingMismatch
+  ) {
     return {
       tier_id: 1,
       verdict: 'valid',
-      confidence: agg.confidence,
+      confidence: agg.bestEntailment,
       reasoning:
-        `All ${String(pairs.length)} source(s) entail the claim with confidence ` +
-        `${(agg.confidence * 100).toFixed(1)}% (threshold: ${(threshold * 100).toFixed(0)}%).`,
+        `Strong support found in ${String(agg.supportingSources)} of ${String(originalPairs.length)} ` +
+        `source chunk(s); best entailment ${(agg.bestEntailment * 100).toFixed(1)}% ` +
+        `with signal margin ${(bestSignalMargin * 100).toFixed(1)} points and no strong contradiction ` +
+        `(max contradiction ${(agg.bestContradiction * 100).toFixed(1)}%, ` +
+        `threshold ${(threshold * 100).toFixed(0)}%).`,
     };
   }
 
-  if (agg.label === 'contradiction' && agg.confidence > 0.7) {
-    const contradictingCount = batchResponse.results.filter(
-      (r) => r.label === 'contradiction',
-    ).length;
+  if (agg.bestContradiction >= CONTRADICTION_THRESHOLD) {
     return {
       tier_id: 1,
       verdict: 'invalid',
-      confidence: agg.confidence,
+      confidence: agg.bestContradiction,
       reasoning:
         `NLI detected a contradiction between the claim and ` +
-        `${String(contradictingCount)} of ${String(pairs.length)} source chunk(s). ` +
-        `Contradiction confidence: ${(agg.confidence * 100).toFixed(1)}%.`,
+        `${String(agg.contradictingSources)} of ${String(originalPairs.length)} source chunk(s). ` +
+        `Best contradiction confidence: ${(agg.bestContradiction * 100).toFixed(1)}%.`,
       suggested_revision:
         'Verify the claim against the cited source. The claim may misrepresent the direction ' +
         'or magnitude of the finding. Consider quoting directly or paraphrasing more carefully.',
@@ -180,18 +256,23 @@ export async function evaluateWithNLI(claim: NotesLogEntry): Promise<TierOutput>
   }
 
   // Neutral, mixed signals, or confidence below threshold → escalate
-  const entailCount = batchResponse.results.filter((r) => r.label === 'entailment').length;
-  const neutralCount = batchResponse.results.filter((r) => r.label === 'neutral').length;
-  const contraCount = batchResponse.results.filter((r) => r.label === 'contradiction').length;
-
+  const escalationReason = hedgingMismatch
+    ? 'Causal hedging mismatch detected between source language and claim phrasing.'
+    : bestSignalMargin < entailmentMargin
+      ? `Signal margin ${(bestSignalMargin * 100).toFixed(1)} points is below the ${(entailmentMargin * 100).toFixed(0)}-point requirement.`
+      : 'Entailment remains below the acceptance threshold.';
   return {
     tier_id: 1,
     verdict: 'uncertain',
-    confidence: agg.confidence,
+    confidence: agg.bestEntailment,
     reasoning:
-      `NLI result inconclusive across ${String(pairs.length)} source(s): ` +
-      `${String(entailCount)} entailment, ${String(neutralCount)} neutral, ${String(contraCount)} contradiction. ` +
-      `Aggregate label '${agg.label}' with confidence ${(agg.confidence * 100).toFixed(1)}% ` +
-      `(threshold: ${(threshold * 100).toFixed(0)}%). Escalating to Tier 2.`,
+      `${escalationReason} ` +
+      `NLI result inconclusive across ${String(originalPairs.length)} source(s): ` +
+      `${String(agg.supportingSources)} support-leading, ${String(agg.neutralSources)} neutral-leading, ` +
+      `${String(agg.contradictingSources)} contradiction-leading. Best entailment ` +
+      `${(agg.bestEntailment * 100).toFixed(1)}%, best contradiction ` +
+      `${(agg.bestContradiction * 100).toFixed(1)}%, best neutral ${(agg.bestNeutral * 100).toFixed(1)}%, ` +
+      `threshold ${(threshold * 100).toFixed(0)}%. ` +
+      `Escalating to Tier 2.`,
   };
 }

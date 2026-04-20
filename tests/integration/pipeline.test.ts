@@ -191,6 +191,14 @@ function makeTierOutput(tier: 1 | 2 | 3 | 4, verdict: HeraldResult['verdict'], c
 beforeEach(() => {
   vi.clearAllMocks();
   clearQueue();
+  process.env['GROQ_API_KEY'] = 'test-groq-key';
+  delete process.env['OPENAI_API_KEY'];
+  delete process.env['RESEARCH_LLM_PROVIDER'];
+  delete process.env['RESEARCH_GROQ_MODEL'];
+  delete process.env['RESEARCH_OPENAI_MODEL'];
+  delete process.env['REVISION_LLM_PROVIDER'];
+  delete process.env['REVISION_GROQ_MODEL'];
+  delete process.env['REVISION_OPENAI_MODEL'];
 });
 
 // ---------------------------------------------------------------------------
@@ -478,14 +486,14 @@ describe('Pipeline Phase 4 Tier 4: Human review queue', () => {
 
     // Step 4: Human submits verdict
     const submission: HumanVerdictSubmission = {
-      verdict: 'needs_revision',
+      verdict: 'invalid',
       notes: 'The claim omits important qualifiers about population scope.',
     };
     const reviewResult = submitHumanVerdict('C-002', submission, 'memo-full-test');
     const finalResult = reviewResult.resolved_herald_result!;
 
     expect(finalResult.tier_reached).toBe(4);
-    expect(finalResult.verdict).toBe('needs_revision');
+    expect(finalResult.verdict).toBe('invalid');
     expect(finalResult.claim_id).toBe('C-002');
 
     // Queue entry is now marked reviewed
@@ -543,8 +551,8 @@ describe('Pipeline: HeraldResult schema compliance across all paths', () => {
     }
   });
 
-  it('verdict is always one of the 4 valid values across all tier exits', async () => {
-    const validVerdicts = new Set(['valid', 'invalid', 'needs_revision', 'uncertain']);
+  it('verdict is always one of the 3 valid values across all tier exits', async () => {
+    const validVerdicts = new Set(['valid', 'invalid', 'uncertain']);
 
     // Tier 1
     mockEvaluateWithNLI.mockResolvedValueOnce(makeTierOutput(1, 'valid', 0.97));
@@ -558,7 +566,7 @@ describe('Pipeline: HeraldResult schema compliance across all paths', () => {
 
     // Tier 4
     submitForHumanReview(STATISTICAL_CLAIM, [], 'memo-verdict-test');
-    const sub4: HumanVerdictSubmission = { verdict: 'needs_revision', notes: 'Review notes.' };
+    const sub4: HumanVerdictSubmission = { verdict: 'invalid', notes: 'Review notes.' };
     const rr4 = submitHumanVerdict('C-001', sub4, 'memo-verdict-test');
     const r4 = rr4.resolved_herald_result!;
     expect(validVerdicts.has(r4.verdict)).toBe(true);

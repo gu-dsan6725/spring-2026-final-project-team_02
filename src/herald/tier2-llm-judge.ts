@@ -8,15 +8,15 @@
  *   - Claims that skip NLI entirely (predictive, normative, synthesis)
  *
  * Decision thresholds (from CLAUDE.md, calibrated after benchmark01):
- *   confidence > 0.80   → exit with verdict (valid / invalid / needs_revision)
+ *   confidence > 0.80   → exit with verdict (valid / invalid)
  *   confidence 0.6–0.80 → override to 'uncertain', escalate to Tier 3
  *   confidence < 0.6    → override to 'uncertain', escalate to Tier 3 (high-priority)
  */
 
 import OpenAI from 'openai';
 
-import { DERIVATION_CONFIG, type NotesLogEntry } from '../types/claims';
-import type { TierOutput, Verdict } from '../types/herald';
+import { DERIVATION_CONFIG, DerivationMethod, type NotesLogEntry } from '../types/claims';
+import type { MeaningDriftLabel, TierOutput, Verdict } from '../types/herald';
 import { logError, startSpan } from '../observability/braintrust';
 import { getJudgePrompt } from './prompts/judge-system';
 
@@ -63,7 +63,7 @@ const SUBMIT_EVALUATION_FUNCTION: OpenAI.Chat.ChatCompletionTool = {
       properties: {
         verdict: {
           type: 'string',
-          enum: ['valid', 'invalid', 'needs_revision', 'uncertain'],
+          enum: ['valid', 'invalid', 'uncertain'],
           description: 'The evaluation verdict for this claim.',
         },
         confidence: {
@@ -75,13 +75,30 @@ const SUBMIT_EVALUATION_FUNCTION: OpenAI.Chat.ChatCompletionTool = {
           type: 'string',
           description:
             'Clear, specific reasoning citing source material. ' +
-            'For invalid/needs_revision verdicts, identify the specific mismatch.',
+            'For invalid verdicts, identify the specific mismatch.',
         },
         suggested_revision: {
           type: ['string', 'null'],
           description:
             'Concrete revised claim text that would be valid. ' +
-            'Required for invalid and needs_revision verdicts; omit for valid/uncertain.',
+            'Required for invalid verdicts; omit for valid/uncertain.',
+        },
+        meaning_drift_label: {
+          type: ['string', 'null'],
+          enum: [
+            'no_drift',
+            'hedging_drift',
+            'scope_drift',
+            'attribution_drift',
+            'causal_strength_drift',
+            'normative_strength_drift',
+            'quantification_drift',
+            null,
+          ],
+          description:
+            'For paraphrase claims, classify whether any meaning drift occurred. ' +
+            'Use no_drift when the paraphrase is faithful; otherwise choose the main drift type. ' +
+            'Use null for non-paraphrase claims.',
         },
       },
       required: ['verdict', 'confidence', 'reasoning'],
@@ -98,6 +115,7 @@ interface JudgeToolInput {
   confidence: number;
   reasoning: string;
   suggested_revision?: string;
+  meaning_drift_label?: MeaningDriftLabel | null;
 }
 
 function isJudgeToolInput(input: unknown): input is JudgeToolInput {
@@ -111,10 +129,11 @@ function isJudgeToolInput(input: unknown): input is JudgeToolInput {
 }
 
 function parseVerdict(raw: string): Verdict {
-  if (raw === 'valid' || raw === 'invalid' || raw === 'needs_revision' || raw === 'uncertain') {
+  if (raw === 'valid' || raw === 'invalid' || raw === 'uncertain') {
     return raw;
   }
-  // Unknown value from model — treat as uncertain rather than crash
+  // Unknown value from model (including legacy 'needs_revision') — treat as invalid
+  if (raw === 'needs_revision') return 'invalid';
   return 'uncertain';
 }
 
@@ -167,6 +186,24 @@ function buildUserMessage(claim: NotesLogEntry, tier1Result?: TierOutput): strin
     lines.push('');
   }
 
+  if (claim.derivation === DerivationMethod.Paraphrase) {
+    lines.push('## Paraphrase Fidelity Checklist');
+    lines.push('');
+    lines.push(
+      'This is a paraphrase claim. Compare the claim against the source for proposition, scope, ' +
+        'timeframe, attribution, modality/hedging, and strength of causal or normative language.',
+    );
+    lines.push(
+      'If those elements are preserved, treat wording differences as a faithful paraphrase and ' +
+        'prefer `valid` over `invalid`.',
+    );
+    lines.push(
+      'If there is drift, classify the primary issue using one label: no_drift, hedging_drift, ' +
+        'scope_drift, attribution_drift, causal_strength_drift, normative_strength_drift, or quantification_drift.',
+    );
+    lines.push('');
+  }
+
   lines.push(
     'Please evaluate the claim against the source material and call `submit_evaluation` ' +
       'with your structured assessment.',
@@ -194,6 +231,9 @@ function applyDecisionLogic(raw: JudgeToolInput): TierOutput {
     if (raw.suggested_revision !== undefined && raw.suggested_revision.length > 0) {
       output.suggested_revision = raw.suggested_revision;
     }
+    if (raw.meaning_drift_label !== undefined) {
+      output.meaning_drift_label = raw.meaning_drift_label;
+    }
     return output;
   }
 
@@ -203,6 +243,7 @@ function applyDecisionLogic(raw: JudgeToolInput): TierOutput {
       tier_id: 2,
       verdict: 'uncertain',
       confidence,
+      meaning_drift_label: raw.meaning_drift_label,
       reasoning:
         `[HIGH-PRIORITY ESCALATION: confidence ${(confidence * 100).toFixed(1)}% < ` +
         `${(CONFIDENCE_HIGH_PRIORITY_THRESHOLD * 100).toFixed(0)}% threshold] ` +
@@ -215,6 +256,7 @@ function applyDecisionLogic(raw: JudgeToolInput): TierOutput {
     tier_id: 2,
     verdict: 'uncertain',
     confidence,
+    meaning_drift_label: raw.meaning_drift_label,
     reasoning:
       `[ESCALATING TO TIER 3: confidence ${(confidence * 100).toFixed(1)}% is below ` +
       `the ${(CONFIDENCE_EXIT_THRESHOLD * 100).toFixed(0)}% exit threshold] ` +
