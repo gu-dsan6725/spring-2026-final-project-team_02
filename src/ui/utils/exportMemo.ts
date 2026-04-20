@@ -146,7 +146,7 @@ export interface HeraldReportExport {
   total_claims: number;
   valid_count: number;
   invalid_count: number;
-  needs_revision_count: number;
+  invalid_with_revision_count: number;
   uncertain_count: number;
   results: HeraldResult[];
 }
@@ -160,7 +160,9 @@ export function buildHeraldReport(results: HeraldResult[]): HeraldReportExport {
     total_claims: results.length,
     valid_count: results.filter((r) => r.verdict === 'valid').length,
     invalid_count: results.filter((r) => r.verdict === 'invalid').length,
-    needs_revision_count: results.filter((r) => r.verdict === 'needs_revision').length,
+    invalid_with_revision_count: results.filter(
+      (r) => r.verdict === 'invalid' && r.suggested_revision !== null,
+    ).length,
     uncertain_count: results.filter((r) => r.verdict === 'uncertain').length,
     results,
   };

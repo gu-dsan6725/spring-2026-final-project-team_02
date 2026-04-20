@@ -158,6 +158,17 @@ export function logError(context: string, error: unknown, attributes?: SpanAttri
 /** Log a warning. */
 export function logWarn(context: string, attributes?: SpanAttributes): void {
   logStderr('warn', context, attributes);
+
+  const logger = getLogger();
+  if (logger !== null) {
+    try {
+      void logger.log({
+        metadata: { level: 'warn', context, ...attributes },
+      });
+    } catch {
+      // swallow — observability must never break the app
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------

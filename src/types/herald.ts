@@ -3,7 +3,15 @@
  * backend/src/policy_memo_agent/models/herald.py
  */
 
-export type Verdict = 'valid' | 'invalid' | 'needs_revision' | 'uncertain';
+export type Verdict = 'valid' | 'invalid' | 'uncertain';
+export type MeaningDriftLabel =
+  | 'no_drift'
+  | 'hedging_drift'
+  | 'scope_drift'
+  | 'attribution_drift'
+  | 'causal_strength_drift'
+  | 'normative_strength_drift'
+  | 'quantification_drift';
 
 export type DebatePersona = 'domain_expert' | 'methodologist' | 'skeptic';
 
@@ -13,6 +21,7 @@ export interface TierOutput {
   confidence: number;
   reasoning: string;
   suggested_revision?: string;
+  meaning_drift_label?: MeaningDriftLabel | null;
 }
 
 export interface DebateOutput {

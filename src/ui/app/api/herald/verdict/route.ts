@@ -18,7 +18,7 @@ interface VerdictRequest {
   memo_id?: string;
 }
 
-const VALID_VERDICTS: Verdict[] = ['valid', 'invalid', 'needs_revision', 'uncertain'];
+const VALID_VERDICTS: Verdict[] = ['valid', 'invalid', 'uncertain'];
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   let body: VerdictRequest;

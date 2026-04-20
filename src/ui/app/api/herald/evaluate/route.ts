@@ -44,7 +44,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       selectedNotes.map((claim) => evaluateClaim(claim)),
     );
 
-    // Phase 2: Run feedback loop on invalid/needs_revision claims
+    // Phase 2: Run feedback loop on invalid claims
     const revisedOutput = await reviseClaimsFromHerald(
       {
         memo_markdown,
