@@ -1,0 +1,83 @@
+[
+  {
+    "claim_id": "C-001",
+    "claim_text": "Despite some improvements in rates of vitamin A deficiency, micronutrient malnutrition remains widespread in sub-Saharan Africa.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-001",
+        "source_title": "Micronutrient gaps during the complementary feeding period in 6 countries in Eastern and Southern Africa: a Comprehensive Nutrient Gap Assessment - PMC",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7947982/",
+        "relevant_chunk": "For example, although prevalence of vitamin A deficiency (VAD) in children younger than 5 years in low- and middle-income countries declined from 39% to 29% between 1991 and 2013, no progress was achieved in sub-Saharan Africa: VAD prevalence was 45% in 1991 and is 48% today."
+      }
+    ],
+    "reasoning": "This claim was derived directly from a study indicating the persistence of vitamin A deficiency in sub-Saharan Africa despite overall improvements in other regions."
+  },
+  {
+    "claim_id": "C-002",
+    "claim_text": "School-based nutrition interventions have shown effectiveness in improving micronutrient status among children.",
+    "claim_type": "causal",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-002",
+        "source_title": "Effectiveness of school-based nutrition interventions in sub-Saharan Africa: a systematic review - PMC",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10200642/",
+        "relevant_chunk": "SBNI, school-based nutrition interventions; SSA, sub-Saharan Africa; RCT, randomised controlled trials; PICO, participants, intervention, comparators, outcomes."
+      }
+    ],
+    "reasoning": "The source asserts the effectiveness of school-based nutritional interventions in improving children's micronutrient status, but emphasizes the need for broader implementation."
+  },
+  {
+    "claim_id": "C-003",
+    "claim_text": "Only a fraction of eligible countries have iron supplementation programs fully functional.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-003",
+        "source_title": "Micronutrient Interventions: Options for Africa",
+        "source_url": "https://journals.sagepub.com/doi/pdf/10.1177/156482650002100437",
+        "relevant_chunk": "Iron supplementation programmes for children exist in only four (10%) of the countries."
+      }
+    ],
+    "reasoning": "The statistic shows the inadequate coverage of iron supplementation programs across sub-Saharan African countries."
+  },
+  {
+    "claim_id": "C-004",
+    "claim_text": "Significant policy interventions are required to address both nutrient availability and soil fertility.",
+    "claim_type": "normative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-004",
+        "source_title": "Micronutrient deficiencies in African soils and the human nutritional nexus: opportunities with staple crops - PubMed",
+        "source_url": "https://pubmed.ncbi.nlm.nih.gov/31902042/",
+        "relevant_chunk": "To make region-wide nutritional changes using agronomic biofortification, major policy interventions are needed."
+      }
+    ],
+    "reasoning": "This claim highlights a recognized consensus in the literature about the need for policy interventions focused on agricultural practices to improve micronutrient availability."
+  },
+  {
+    "claim_id": "C-005",
+    "claim_text": "Current interventions are often hampered by inadequate funding and governance structures.",
+    "claim_type": "synthesis",
+    "derivation": "cross_source",
+    "sources": [
+      {
+        "source_id": "S-005",
+        "source_title": "Food fortification technologies: Influence on iron, zinc and vitamin A bioavailability and potential implications on micronutrient deficiency in sub-Saharan Africa - ScienceDirect",
+        "source_url": "https://www.sciencedirect.com/science/article/pii/S2468227620304038",
+        "relevant_chunk": "The prohibitive cost of fortified foods, technological demands, and ethical concerns impede the widespread adoption and effectiveness of this strategy in sub-Saharan Africa."
+      },
+      {
+        "source_id": "S-006",
+        "source_title": "Micronutrient deficiencies in African soils and the human nutritional nexus: opportunities with staple crops - PubMed",
+        "source_url": "https://pubmed.ncbi.nlm.nih.gov/31902042/",
+        "relevant_chunk": "Micronutrient use efficiency can be improved by adapting the rates and types of fertilizers to site-specific soil and management conditions."
+      }
+    ],
+    "reasoning": "The conclusion synthesizes claims from multiple sources indicating that funding and structural issues hinder the effectiveness of micronutrient interventions."
+  }
+]

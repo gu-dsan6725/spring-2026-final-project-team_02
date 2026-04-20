@@ -42,8 +42,22 @@ vi.mock('groq-sdk', () => {
   return { default: MockGroq };
 });
 
+vi.mock('openai', () => {
+  const create = vi.fn();
+  function MockOpenAI(_opts?: unknown) {
+    return { chat: { completions: { create } } };
+  }
+  (MockOpenAI as unknown as Record<string, unknown>)._create = create;
+  return { default: MockOpenAI };
+});
+
 async function getCreate(): Promise<ReturnType<typeof vi.fn>> {
   const mod = await import('groq-sdk');
+  return (mod.default as unknown as Record<string, ReturnType<typeof vi.fn>>)['_create'];
+}
+
+async function getOpenAiCreate(): Promise<ReturnType<typeof vi.fn>> {
+  const mod = await import('openai');
   return (mod.default as unknown as Record<string, ReturnType<typeof vi.fn>>)['_create'];
 }
 
@@ -90,6 +104,14 @@ const VALID_FINAL_JSON = JSON.stringify({
     ],
   },
   notes_log: [VALID_NOTES_LOG_ENTRY],
+});
+
+beforeEach(() => {
+  process.env['GROQ_API_KEY'] = 'test-groq-key';
+  delete process.env['OPENAI_API_KEY'];
+  delete process.env['RESEARCH_LLM_PROVIDER'];
+  delete process.env['RESEARCH_GROQ_MODEL'];
+  delete process.env['RESEARCH_OPENAI_MODEL'];
 });
 
 /** Build a minimal Groq ChatCompletion response. */
@@ -139,10 +161,13 @@ function makeToolCall(id: string, name: string, args: Record<string, unknown>) {
 
 describe('runResearchAgent — happy path', () => {
   let create: ReturnType<typeof vi.fn>;
+  let openAiCreate: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     create = await getCreate();
+    openAiCreate = await getOpenAiCreate();
     create.mockReset();
+    openAiCreate.mockReset();
   });
 
   it('completes after a single tool call and returns memo + notes_log', async () => {
@@ -193,6 +218,22 @@ describe('runResearchAgent — happy path', () => {
     };
     expect(callArgs.messages[0]?.role).toBe('system');
     expect(callArgs.messages[0]?.content).toContain(testInput.topic);
+  });
+
+  it('falls back to OpenAI when Groq quota is exhausted', async () => {
+    process.env['OPENAI_API_KEY'] = 'test-openai-key';
+    create.mockRejectedValueOnce(
+      new Error(
+        '429 {"error":{"message":"Rate limit reached on tokens per day","code":"rate_limit_exceeded"}}',
+      ),
+    );
+    openAiCreate.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
+
+    const output = await runResearchAgent(testInput, testConfig);
+
+    expect(output.notes_log).toHaveLength(1);
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(openAiCreate).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -344,6 +385,40 @@ describe('runResearchAgent — budget enforcement', () => {
 
     const output = await runResearchAgent(testInput, tightConfig);
     expect(output.metadata.token_usage).toBeGreaterThan(tightConfig.max_research_tokens);
+  });
+
+  it('responds to every tool_call_id even after the budget is exceeded mid-batch', async () => {
+    const tightConfig: AgentConfig = { ...testConfig, max_research_tokens: 100 };
+
+    create
+      .mockResolvedValueOnce(
+        makeGroqResponse(
+          'tool_calls',
+          null,
+          [
+            makeToolCall('tc_1', 'arxiv_search', { query: 'test a' }),
+            makeToolCall('tc_2', 'web_search', { query: 'test b' }),
+          ],
+          60,
+          60,
+        ),
+      )
+      .mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
+
+    await runResearchAgent(testInput, tightConfig);
+
+    const secondMessages = (
+      create.mock.calls[1]?.[0] as {
+        messages: Array<{ role: string; tool_call_id?: string; content?: string }>;
+      }
+    ).messages;
+
+    const toolMessages = secondMessages.filter((m) => m.role === 'tool');
+    expect(toolMessages).toHaveLength(2);
+    expect(toolMessages.map((m) => m.tool_call_id)).toEqual(['tc_1', 'tc_2']);
+    expect(toolMessages[1]?.content).toContain(
+      'Research budget exceeded before this tool call could run',
+    );
   });
 });
 

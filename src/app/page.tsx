@@ -301,7 +301,7 @@ export default function Page() {
   const handleRunEvaluation = (selectedIds: string[]): void => {
     // Stub: produce mock HERALD results for selected claims
     const mockResults: HeraldResult[] = selectedIds.map((id, idx) => {
-      const verdicts = ['valid', 'invalid', 'needs_revision', 'uncertain'] as const;
+      const verdicts = ['valid', 'invalid', 'uncertain'] as const;
       const verdict = verdicts[idx % verdicts.length] ?? 'uncertain';
       const tierReached = ([1, 2, 2, 3] as const)[idx % 4] ?? 2;
       return {
@@ -312,7 +312,7 @@ export default function Page() {
         feedback:
           'Mock feedback from HERALD pipeline. Replace with real evaluation in checkpoint 5.x.',
         suggested_revision:
-          verdict === 'needs_revision'
+          verdict === 'invalid'
             ? 'Consider softening the causal language to "is associated with" rather than "causes".'
             : null,
         tier_details: {

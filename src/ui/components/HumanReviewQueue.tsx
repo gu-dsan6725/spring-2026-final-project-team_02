@@ -201,7 +201,6 @@ function VerdictForm({ claimId, isSubmitting, onSubmit }: VerdictFormProps) {
   const verdictOptions: { value: Verdict; label: string; color: string }[] = [
     { value: 'valid', label: 'Valid — claim is accurate', color: '#15803d' },
     { value: 'invalid', label: 'Invalid — claim cannot stand', color: '#dc2626' },
-    { value: 'needs_revision', label: 'Needs Revision — revise as suggested', color: '#d97706' },
   ];
 
   return (
@@ -263,8 +262,8 @@ function VerdictForm({ claimId, isSubmitting, onSubmit }: VerdictFormProps) {
         />
       </div>
 
-      {/* Suggested revision (shown when verdict is needs_revision) */}
-      {verdict === 'needs_revision' && (
+      {/* Suggested revision (shown when verdict is invalid) */}
+      {verdict === 'invalid' && (
         <div>
           <label
             htmlFor={`revision-${claimId}`}

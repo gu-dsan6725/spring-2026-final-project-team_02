@@ -95,10 +95,10 @@ describe('Health check system', () => {
   });
 
   it('marks a tool healthy when health_check_url returns 200', async () => {
-    fetchSpy.mockResolvedValueOnce(new Response('ok', { status: 200 }));
+    fetchSpy.mockImplementation(() => Promise.resolve(new Response('ok', { status: 200 })));
 
     const summary = await runHealthChecks();
-    // arxiv_search should be among healthy tools (fetch returns 200 for all calls in this test)
+    // arxiv_search should be among healthy tools when every external health check returns 200.
     expect(summary.available).toContain('arxiv_search');
     expect(summary.reports.find((r) => r.name === 'arxiv_search')?.status).toBe('healthy');
   });
