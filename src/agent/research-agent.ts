@@ -64,16 +64,36 @@ function parseAgentOutput(rawText: string): { memoMarkdown: string; notesLog: No
     .replace(/\s*```\s*$/m, '')
     .trim();
 
-  // Find the outermost JSON object
-  const firstBrace = fenceStripped.indexOf('{');
   const lastBrace = fenceStripped.lastIndexOf('}');
+  if (lastBrace === -1) {
+    throw new Error('Agent output does not contain a JSON object');
+  }
 
-  if (firstBrace === -1 || lastBrace === -1) {
+  // The model often outputs a research plan JSON first, then the final memo JSON in the same
+  // message. Anchor on the last {"memo" occurrence so we always pick the memo object, not the
+  // research plan or any earlier embedded JSON.
+  const memoAnchorMatch = /\{\s*"memo"\s*:/g;
+  let memoStart = -1;
+  let m: RegExpExecArray | null;
+  while ((m = memoAnchorMatch.exec(fenceStripped)) !== null) {
+    memoStart = m.index;
+  }
+
+  const firstBrace = memoStart !== -1 ? memoStart : fenceStripped.indexOf('{');
+  if (firstBrace === -1) {
     throw new Error('Agent output does not contain a JSON object');
   }
 
   const jsonStr = fenceStripped.slice(firstBrace, lastBrace + 1);
-  const parsed = JSON.parse(jsonStr) as RawAgentOutput;
+  let parsed: RawAgentOutput;
+  try {
+    parsed = JSON.parse(jsonStr) as RawAgentOutput;
+  } catch {
+    throw new Error(
+      'The agent stopped before producing a complete memo. ' +
+        'Please try again — the model may have run out of budget before writing the final output.',
+    );
+  }
 
   // Build memo markdown from the structured memo object
   const rawMemo = parsed.memo;
@@ -139,6 +159,7 @@ type GroqMessage = Groq.Chat.Completions.ChatCompletionMessageParam;
 async function callGroqWithRateLimitRetry(
   messages: GroqMessage[],
   tools: ReturnType<typeof getToolDefinitions>,
+  toolChoice: 'auto' | 'required' = 'auto',
 ): Promise<Groq.Chat.Completions.ChatCompletion> {
   const groq = getGroqClient();
 
@@ -147,26 +168,46 @@ async function callGroqWithRateLimitRetry(
       model: MODEL,
       messages,
       tools,
-      tool_choice: 'auto',
-      max_tokens: 8192,
+      tool_choice: toolChoice,
+      max_tokens: 8000,
     });
   } catch (error) {
-    // Groq rate limit: wait 60s and retry once
-    const isRateLimit =
-      error instanceof Error &&
-      (error.message.includes('429') || error.message.toLowerCase().includes('rate limit'));
+    const msg = error instanceof Error ? error.message : String(error);
 
+    // Groq rate limit — distinguish TPD (daily) from TPM (per-minute).
+    const isRateLimit = msg.includes('429') || msg.toLowerCase().includes('rate limit');
     if (isRateLimit) {
+      const isDailyLimit = msg.includes('per day') || msg.includes('TPD');
+      if (isDailyLimit) {
+        const retryIn = /try again in ([^\\.,"]+)/i.exec(msg)?.[1] ?? 'several hours';
+        throw new Error(`Groq daily token limit exhausted. Try again in ${retryIn}.`);
+      }
+      // TPM (per-minute): wait 60s and retry once
       logWarn('groq:rate_limit:waiting', { wait_ms: RATE_LIMIT_WAIT_MS });
       await new Promise((resolve) => setTimeout(resolve, RATE_LIMIT_WAIT_MS));
-
       return groq.chat.completions.create({
         model: MODEL,
         messages,
         tools,
-        tool_choice: 'auto',
-        max_tokens: 8192,
+        tool_choice: toolChoice,
+        max_tokens: 8000,
       });
+    }
+
+    // Groq tool_use_failed (400): surface as a typed error so the main loop can inject a
+    // recovery message into conversation history and retry — simple retry here causes the
+    // model to write the research plan as prose and stop instead of making tool calls.
+    const isToolUseFailed = msg.includes('tool_use_failed') || msg.includes('failed_generation');
+    if (isToolUseFailed) {
+      throw Object.assign(new Error('tool_use_failed'), { isToolUseFailed: true });
+    }
+
+    // Groq 413: request too large for TPM limit — not retryable, surface a clear message.
+    if (msg.includes('413') || msg.includes('Request too large')) {
+      throw new Error(
+        `Groq request exceeded token limit (${msg.match(/Requested (\d+)/)?.[1] ?? '?'} tokens). ` +
+          'Tool results have been truncated — if this persists, reduce max_results per tool call.',
+      );
     }
 
     throw error;
@@ -185,10 +226,24 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
   const systemPrompt = assembleSystemPrompt(input);
   const userMessage = assembleUserMessage(input);
 
+  // Build research plan and append to user message so the agent follows it.
+  const plan = controller.buildResearchPlan(input.topic);
+  const planLines = plan.planned_queries
+    .map((q, i) => `${String(i + 1)}. ${q.tool} — "${q.query}" [${q.expected_claim_types.join(', ')}]`)
+    .join('\n');
+  const planSection =
+    `\n\nResearch Plan — follow this tool sequence in order. ` +
+    `If a tool returns an error, skip it and move to the next step. Do NOT retry a failed tool.\n\n` +
+    planLines +
+    `\n\nBudget: ${String(plan.budget.max_tool_calls)} tool calls total. ` +
+    `Use max_results: 3 for all search tools to conserve token budget.\n\n` +
+    `IMPORTANT: Do NOT output the research plan JSON in your final response. ` +
+    `Your final response must be a single JSON object with ONLY "memo" and "notes_log" fields.`;
+
   // Groq uses OpenAI-style message format: system prompt as first message
   const messages: GroqMessage[] = [
     { role: 'system', content: systemPrompt },
-    { role: 'user', content: userMessage },
+    { role: 'user', content: userMessage + planSection },
   ];
 
   const tools = getToolDefinitions();
@@ -204,7 +259,29 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
         messages.push({ role: 'user', content: controller.buildBudgetExceededMessage() });
       }
 
-      const response = await callGroqWithRateLimitRetry(messages, tools);
+      let response: Groq.Chat.Completions.ChatCompletion;
+      try {
+        // Force tool use until at least one tool call has been made — prevents the model
+        // from writing its research plan as prose and stopping without doing any research.
+        const toolChoice = controller.getState().toolCallsUsed === 0 ? 'required' : 'auto';
+        response = await callGroqWithRateLimitRetry(messages, tools, toolChoice);
+      } catch (callError) {
+        const isToolUseFailed =
+          callError instanceof Error &&
+          (callError as Error & { isToolUseFailed?: boolean }).isToolUseFailed === true;
+        if (isToolUseFailed) {
+          logWarn('groq:tool_use_failed:recovery', { iteration });
+          messages.push({
+            role: 'user',
+            content:
+              'Your previous response had a tool call formatting error. ' +
+              'Please continue your research plan — make a tool call now to begin researching.',
+          });
+          iterSpan.end({ outcome: 'tool_use_failed_recovery' });
+          continue;
+        }
+        throw callError;
+      }
       const choice = response.choices[0];
       // choices is always non-empty per the Groq SDK contract
       const { message, finish_reason: finishReason } = choice;
@@ -233,6 +310,7 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
 
       if (finishReason === 'tool_calls') {
         const toolCalls = message.tool_calls ?? [];
+        const failedToolNames: string[] = [];
 
         for (const toolCall of toolCalls) {
           const toolName = toolCall.function.name;
@@ -255,6 +333,10 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
 
           controller.recordToolCall(0); // tokens already tracked above
 
+          if ('error' in result) {
+            failedToolNames.push(toolName);
+          }
+
           toolCallLogs.push({
             tool_name: toolName,
             query: toolCall.function.arguments,
@@ -264,18 +346,31 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
             timestamp: new Date().toISOString(),
           });
 
+          // Truncate tool results to ~2000 chars to stay within Groq's TPM limits.
+          const truncated =
+            resultStr.length > 2000 ? resultStr.slice(0, 2000) + '… [truncated]' : resultStr;
+
           // Append tool result message
           messages.push({
             role: 'tool',
             tool_call_id: toolCall.id,
-            content: resultStr,
+            content: truncated,
           });
 
           if (controller.isBudgetExceeded()) {
-            // Still need to send results for any remaining tool calls in this batch
-            // before breaking — already handled by appending above; loop will catch excess
             break;
           }
+        }
+
+        // Nudge the model past any tools that errored — prevents it from retrying the same call.
+        if (failedToolNames.length > 0) {
+          messages.push({
+            role: 'user',
+            content:
+              `${failedToolNames.join(', ')} returned an error. ` +
+              `Do not retry ${failedToolNames.length === 1 ? 'it' : 'them'} — ` +
+              `proceed to the next tool in your research plan.`,
+          });
         }
 
         iterSpan.end({ outcome: 'tool_calls_sent', count: toolCalls.length });

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -12,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from policy_memo_agent.api.middleware.error_handler import ErrorHandlerMiddleware
 from policy_memo_agent.api.routes import health, herald, memos
+from policy_memo_agent.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     # ------------------------------------------------------------------
     # Database
     # ------------------------------------------------------------------
-    database_url = os.getenv("DATABASE_URL", "")
+    database_url = settings.database_url
     if database_url:
         from policy_memo_agent.db.database import init_db
 
@@ -48,7 +48,7 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     # ------------------------------------------------------------------
     # Redis
     # ------------------------------------------------------------------
-    redis_url = os.getenv("REDIS_URL", "")
+    redis_url = settings.redis_url
     if redis_url:
         from policy_memo_agent.services.session_service import init_redis
 

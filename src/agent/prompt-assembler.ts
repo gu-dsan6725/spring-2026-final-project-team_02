@@ -11,6 +11,9 @@
 
 import type { MemoInput } from '../types/memo';
 
+// Cap injected document content to keep system prompt within reason (~750 tokens per doc)
+const MAX_DOC_CHARS = 3_000;
+
 // ---------------------------------------------------------------------------
 // Claim taxonomy — authoritative definitions embedded in the system prompt
 // ---------------------------------------------------------------------------
@@ -155,7 +158,7 @@ final output — this is for your internal organisation):
   "topic": "...",
   "queries": [
     {
-      "tool": "web_search | arxiv | world_bank | file_reader",
+      "tool": "web_search | arxiv_search | worldbank_data | semantic_scholar_search | govreport_search | govinfo_search | fred_data | read_uploaded_file",
       "query": "...",
       "expected_claim_types": ["statistical", "causal"],
       "rationale": "Why this query is relevant to the memo."
@@ -192,10 +195,16 @@ const MEMO_WRITING_INSTRUCTIONS = `
 After completing research, write the memo using ONLY claims from the notes log.
 
 Rules:
+- Minimum length: 600 words of prose. Target 700–900 words. Do NOT stop writing until you
+  have reached at least 600 words of substantive prose (excluding headings and [C-XXX] markers).
+  A memo under 600 words is incomplete — expand each section with analysis and context until
+  the minimum is met.
+- If a template structure was provided, you MUST follow it exactly — use its section headings
+  verbatim and fill each section. Do not invent different sections.
+- If no template was given, use standard memo sections:
+  Executive Summary, Background, Key Findings, Policy Recommendations, Conclusion.
 - Reference every factual claim with its [C-XXX] marker inline in the prose.
-- Follow the provided template structure if one was given; otherwise use standard memo sections
-  (Executive Summary, Background, Key Findings, Policy Recommendations, Conclusion).
-- Write at the policy-analyst level: concise, evidence-grounded, and action-oriented.
+- Write at the policy-analyst level: precise, evidence-grounded, and action-oriented.
 - Do not introduce any claim that does not have a notes-log entry.
 - Synthesis claims (claim_type = "synthesis") must be clearly framed as analytical inference,
   not as established fact.
@@ -221,12 +230,17 @@ export function assembleSystemPrompt(input: MemoInput): string {
 
   const knownSourcesSection =
     input.known_sources !== undefined && input.known_sources.length > 0
-      ? `\n## Known Sources Provided by the User\n\nConsult these sources first before using search tools:\n${input.known_sources.map((s, i) => `${String(i + 1)}. ${s}`).join('\n')}\n`
+      ? `\n## Known Sources (REQUIRED — consult these before any search tools)\n\nYou MUST retrieve and cite these sources. Use read_uploaded_file or web search to access them. Do not skip them.\n${input.known_sources.map((s, i) => `${String(i + 1)}. ${s}`).join('\n')}\n`
+      : '';
+
+  const sourceDocsSection =
+    input.source_document_texts !== undefined && input.source_document_texts.length > 0
+      ? `\n## Uploaded Source Documents (REQUIRED — cite these directly)\n\nThe user has uploaded the following documents. You MUST extract claims from them and include them in the notes log before doing any external searches.\n\n${input.source_document_texts.map((d) => `### ${d.name}\n\`\`\`\n${d.content.slice(0, MAX_DOC_CHARS)}${d.content.length > MAX_DOC_CHARS ? '\n[... truncated]' : ''}\n\`\`\``).join('\n\n')}\n`
       : '';
 
   const templateSection =
     input.template !== undefined && input.template.trim().length > 0
-      ? `\n## Memo Template\n\nThe user has provided the following structural template. Follow it exactly:\n\n${input.template}\n`
+      ? `\n## Memo Template (REQUIRED — use these exact section headings)\n\nYou MUST structure the memo using the following template. Use each heading verbatim. Do not add, rename, or omit sections.\n\n${input.template}\n`
       : '';
 
   const backgroundSection =
@@ -240,7 +254,7 @@ and produce a well-sourced policy memo with full claim provenance.
 ## Topic
 
 ${input.topic}
-${backgroundSection}${knownSourcesSection}${templateSection}
+${backgroundSection}${knownSourcesSection}${sourceDocsSection}${templateSection}
 ## Research Budget
 
 ${budgetLines}

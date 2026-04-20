@@ -18,10 +18,10 @@ from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_HF_MODEL = "microsoft/deberta-v3-large-mnli"
+_DEFAULT_HF_MODEL = "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli"
 
 # Normalise labels that differ by case or by numeric LABEL_N scheme.
-# microsoft/deberta-v3-large-mnli id2label: {0: CONTRADICTION, 1: NEUTRAL, 2: ENTAILMENT}
+# MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli id2label: {0: entailment, 1: neutral, 2: contradiction}
 _LABEL_NORMALISE: dict[str, str] = {
     "entailment": "entailment",
     "neutral": "neutral",

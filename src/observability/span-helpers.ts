@@ -6,9 +6,9 @@
  * directly in business-logic modules.
  */
 
-import { type ClaimType, type DerivationMethod } from '../types/claims.js';
-import { type HeraldResult, type Verdict } from '../types/herald.js';
-import { logToolCall, logWarn, startSpan, type Span, type SpanAttributes } from './braintrust.js';
+import { type ClaimType, type DerivationMethod } from '../types/claims';
+import { type HeraldResult, type Verdict } from '../types/herald';
+import { logToolCall, logWarn, startSpan, type Span, type SpanAttributes } from './braintrust';
 
 // ---------------------------------------------------------------------------
 // Agent loop

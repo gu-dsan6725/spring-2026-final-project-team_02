@@ -126,9 +126,8 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
       required: ['query'],
     },
     handler: webSearchHandler,
-    timeout_ms: 30_000,
-    max_retries: 3,
-    // Anthropic API reachability: use the public models endpoint (no auth needed for 401 vs network error)
+    timeout_ms: 8_000,
+    max_retries: 1,
     health_check_url: 'https://api.anthropic.com/v1/models',
   },
 
@@ -146,8 +145,8 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
       required: ['query'],
     },
     handler: arxivHandler,
-    timeout_ms: 30_000,
-    max_retries: 3,
+    timeout_ms: 8_000,
+    max_retries: 1,
     health_check_url: 'https://export.arxiv.org/api/query?search_query=test&max_results=1',
   },
 
@@ -177,8 +176,8 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
       required: ['indicator', 'country'],
     },
     handler: worldbankHandler,
-    timeout_ms: 30_000,
-    max_retries: 3,
+    timeout_ms: 8_000,
+    max_retries: 1,
     health_check_url:
       'https://api.worldbank.org/v2/country/US/indicator/NY.GDP.MKTP.CD?format=json&per_page=1',
   },
@@ -197,8 +196,8 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
       required: ['query'],
     },
     handler: govreportHandler,
-    timeout_ms: 30_000,
-    max_retries: 3,
+    timeout_ms: 8_000,
+    max_retries: 1,
     health_check_url: 'https://huggingface.co/datasets/launch/gov_report',
   },
 
@@ -223,8 +222,8 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
       required: ['query'],
     },
     handler: govinfoHandler,
-    timeout_ms: 30_000,
-    max_retries: 3,
+    timeout_ms: 8_000,
+    max_retries: 1,
     health_check_url: 'https://api.govinfo.gov/collections?api_key=DEMO_KEY',
   },
 
@@ -254,8 +253,8 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
       required: ['series_id'],
     },
     handler: fredHandler,
-    timeout_ms: 30_000,
-    max_retries: 3,
+    timeout_ms: 8_000,
+    max_retries: 1,
     health_check_url:
       'https://api.stlouisfed.org/fred/series?series_id=UNRATE&api_key=&file_type=json',
   },
@@ -282,8 +281,8 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
       required: ['query'],
     },
     handler: semanticScholarHandler,
-    timeout_ms: 30_000,
-    max_retries: 3,
+    timeout_ms: 8_000,
+    max_retries: 1,
     health_check_url: 'https://api.semanticscholar.org/graph/v1/paper/search?query=test&limit=1',
   },
 

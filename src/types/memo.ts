@@ -12,6 +12,8 @@ export interface MemoInput {
   template?: string;
   uploaded_files?: File[];
   uploaded_file_paths?: string[];
+  /** File contents read client-side and sent as text — avoids File serialization loss */
+  source_document_texts?: { name: string; content: string }[];
   max_tool_calls?: number;
   max_research_tokens?: number;
 }

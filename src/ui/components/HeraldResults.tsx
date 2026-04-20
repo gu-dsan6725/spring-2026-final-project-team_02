@@ -114,7 +114,9 @@ function ResultCard({ result, entry }: { result: HeraldResult; entry: NotesLogEn
         onClick={() => {
           setExpanded((e) => !e);
         }}
-        className="w-full text-left px-5 py-4 flex items-start gap-4 hover:bg-gray-50 transition-colors"
+        className="w-full text-left px-5 py-4 flex items-start gap-4 transition-colors"
+        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-paper)'; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent'; }}
         aria-expanded={expanded}
       >
         {/* Verdict icon */}
@@ -248,19 +250,19 @@ function ResultCard({ result, entry }: { result: HeraldResult; entry: NotesLogEn
             <div
               className="rounded p-4 border-l-4"
               style={{
-                backgroundColor: '#fffbeb',
-                borderLeftColor: '#f59e0b',
+                backgroundColor: 'var(--color-paper-dark)',
+                borderLeftColor: 'var(--color-gold)',
               }}
             >
               <p
                 className="text-xs font-semibold tracking-widest uppercase mb-2"
-                style={{ color: '#92400e', fontFamily: 'var(--font-sans)' }}
+                style={{ color: 'var(--color-navy)', fontFamily: 'var(--font-sans)' }}
               >
                 Suggested Revision
               </p>
               <p
                 className="text-sm leading-relaxed italic"
-                style={{ color: '#78350f', fontFamily: 'var(--font-body)' }}
+                style={{ color: 'var(--color-navy)', fontFamily: 'var(--font-body)' }}
               >
                 {result.suggested_revision}
               </p>

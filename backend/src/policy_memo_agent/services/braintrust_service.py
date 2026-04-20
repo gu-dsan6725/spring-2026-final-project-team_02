@@ -15,10 +15,11 @@ bt.log_nli_inference(...)
 from __future__ import annotations
 
 import logging
-import os
 import time
 from dataclasses import dataclass, field
 from typing import Any
+
+from policy_memo_agent.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -86,8 +87,8 @@ class BraintrustService:
         self._init()
 
     def _init(self) -> None:
-        api_key = os.getenv("BRAINTRUST_API_KEY")
-        project = os.getenv("BRAINTRUST_PROJECT_NAME", "policy-memo-agent")
+        api_key = settings.braintrust_api_key
+        project = settings.braintrust_project_name
 
         if not api_key:
             logger.warning("BRAINTRUST_API_KEY not set — Braintrust logging disabled (stderr only)")

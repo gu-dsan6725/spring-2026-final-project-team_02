@@ -68,11 +68,32 @@ function updateStep(steps: AgentStep[], id: string, patch: Partial<AgentStep>): 
 // API call
 // ---------------------------------------------------------------------------
 
+const MAX_FILE_CHARS = 4_000;
+
+async function readFileAsText(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve((reader.result as string).slice(0, MAX_FILE_CHARS));
+    reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
+    reader.readAsText(file);
+  });
+}
+
 async function callAgentApi(input: MemoInput): Promise<MemoOutput> {
+  // File objects can't survive JSON.stringify — read them as text first.
+  let serializable = input;
+  if (input.uploaded_files !== undefined && input.uploaded_files.length > 0) {
+    const texts = await Promise.all(
+      input.uploaded_files.map(async (f) => ({ name: f.name, content: await readFileAsText(f) })),
+    );
+    const { uploaded_files: _dropped, ...rest } = input; // eslint-disable-line @typescript-eslint/no-unused-vars
+    serializable = { ...rest, source_document_texts: texts };
+  }
+
   const response = await fetch('/api/agent/run', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
+    body: JSON.stringify(serializable),
   });
 
   if (!response.ok) {
@@ -154,10 +175,10 @@ export function useAgent(): UseAgentReturn {
         const msg = err instanceof Error ? err.message : String(err);
         setError(msg);
         setPhase('error');
-        // Mark the currently running step as error
         setSteps((prev) =>
           prev.map((s) => (s.status === 'running' ? { ...s, status: 'error' } : s)),
         );
+        throw err; // re-throw so callers know the run failed
       }
     },
     [setStepStatus],

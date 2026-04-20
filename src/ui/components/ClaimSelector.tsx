@@ -90,32 +90,6 @@ export default function ClaimSelector({ entries, onRunEvaluation }: ClaimSelecto
 
   return (
     <div className="space-y-6">
-      {/* Legend */}
-      <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--color-paper-dark)' }}>
-        <p
-          className="text-xs font-semibold tracking-widest uppercase mb-3"
-          style={{ color: 'var(--color-muted)', fontFamily: 'var(--font-sans)' }}
-        >
-          Claim Type Legend
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {Object.entries(CLAIM_TYPE_CONFIG).map(([type, cfg]) => (
-            <span
-              key={type}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
-              style={{
-                backgroundColor: `${cfg.color}18`,
-                color: cfg.color,
-                fontFamily: 'var(--font-sans)',
-              }}
-            >
-              {cfg.icon} {cfg.label}
-              {cfg.skipNLI && <span className="ml-1 opacity-60">→ Tier 2</span>}
-            </span>
-          ))}
-        </div>
-      </div>
-
       {/* Controls */}
       <div className="flex items-center gap-3 flex-wrap">
         <button

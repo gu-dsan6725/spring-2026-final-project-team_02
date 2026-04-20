@@ -1,15 +1,5 @@
 'use client';
 
-/**
- * Main application page — Policy Memo Writing Agent with HERALD Evaluation.
- *
- * Phases:
- *   1. Input    — user fills InputForm
- *   2. Research — agent runs (progress in AgentProgress)
- *   3. Review   — user reads memo + selects claims for HERALD
- *   4. Herald   — evaluation + feedback loop + human review queue
- */
-
 import { useState, useCallback } from 'react';
 
 import InputForm from '@/ui/components/InputForm';
@@ -32,167 +22,186 @@ import {
   exportAsZip,
 } from '@/ui/utils/exportMemo';
 
+type AppPhase = 'input' | 'generating' | 'review' | 'evaluating' | 'results';
+
 // ---------------------------------------------------------------------------
-// Phase type
+// Shared primitives
 // ---------------------------------------------------------------------------
 
-type AppPhase = 'input' | 'generating' | 'review' | 'evaluating' | 'results';
+const btn: React.CSSProperties = {
+  fontFamily: 'var(--font-sans)',
+  cursor: 'pointer',
+  border: 'none',
+  background: 'none',
+};
 
 // ---------------------------------------------------------------------------
 // Header
 // ---------------------------------------------------------------------------
 
-function Header(): React.ReactElement {
+function Header({
+  onNewMemo,
+  showNewMemo,
+}: {
+  onNewMemo: () => void;
+  showNewMemo: boolean;
+}): React.ReactElement {
   return (
     <header
-      className="w-full border-b px-6 py-4 flex items-center justify-between"
-      style={{
-        backgroundColor: 'var(--color-navy, #0b2545)',
-        borderColor: 'var(--color-navy-dark, #071b38)',
-      }}
+      className="py-5 px-8 flex items-center justify-between flex-shrink-0"
+      style={{ backgroundColor: 'var(--color-navy)' }}
     >
-      <div className="flex items-center gap-3">
-        <span
-          className="text-xl font-bold tracking-wide"
-          style={{ color: 'var(--color-gold, #d4af37)', fontFamily: 'var(--font-serif, serif)' }}
+      <div>
+        <h1
+          className="text-xl font-bold tracking-tight"
+          style={{ fontFamily: 'var(--font-display)', color: 'var(--color-gold)' }}
         >
-          HERALD
-        </span>
-        <span className="text-sm opacity-60" style={{ color: 'white' }}>
           Policy Memo Agent
-        </span>
-      </div>
-      <nav className="flex items-center gap-2 text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>
-        <a
-          href="https://github.com/gu-dsan6725"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:opacity-100 transition-opacity"
+        </h1>
+        <p
+          className="text-xs mt-0.5 tracking-wide"
+          style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-sans)' }}
         >
-          GitHub
-        </a>
-        <span>•</span>
-        <span>DSAN 6725</span>
-      </nav>
+          HERALD Claim Evaluation
+        </p>
+      </div>
+      {showNewMemo && (
+        <button
+          type="button"
+          onClick={onNewMemo}
+          className="text-xs tracking-wide hover:opacity-80 transition-opacity"
+          style={{ ...btn, color: 'rgba(255,255,255,0.55)' }}
+        >
+          ← New Memo
+        </button>
+      )}
     </header>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Export toolbar
+// Post-generation nav (gold-underline tabs)
 // ---------------------------------------------------------------------------
 
-interface ExportToolbarProps {
-  onExportMd: () => void;
-  onExportDocx: () => void;
-  onExportNotes: () => void;
-  onExportHerald: () => void;
-  onExportZip: () => void;
-  hasHerald: boolean;
+function NavTabBar({
+  tabs,
+  active,
+  onSelect,
+}: {
+  tabs: { id: string; label: string }[];
+  active: string;
+  onSelect: (id: string) => void;
+}): React.ReactElement {
+  return (
+    <nav
+      className="flex flex-shrink-0"
+      style={{
+        backgroundColor: 'var(--color-navy-light)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
+      }}
+    >
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          type="button"
+          onClick={() => { onSelect(tab.id); }}
+          className="px-6 py-3 text-sm font-medium tracking-wide transition-colors"
+          style={{
+            ...btn,
+            color: active === tab.id ? 'var(--color-gold)' : 'rgba(255,255,255,0.5)',
+            borderBottom: `2px solid ${active === tab.id ? 'var(--color-gold)' : 'transparent'}`,
+          }}
+          aria-current={active === tab.id ? 'page' : undefined}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </nav>
+  );
 }
 
-function ExportToolbar({
+// ---------------------------------------------------------------------------
+// Export row
+// ---------------------------------------------------------------------------
+
+function ExportRow({
   onExportMd,
   onExportDocx,
   onExportNotes,
   onExportHerald,
   onExportZip,
   hasHerald,
-}: ExportToolbarProps): React.ReactElement {
-  const btnStyle: React.CSSProperties = {
-    padding: '0.4rem 0.85rem',
-    borderRadius: '0.375rem',
-    border: '1px solid var(--color-paper-dark, #ddd)',
-    backgroundColor: 'white',
-    cursor: 'pointer',
-    fontSize: '0.8125rem',
-    fontFamily: 'var(--font-sans, sans-serif)',
-    color: 'var(--color-navy, #0b2545)',
-    transition: 'background-color 0.15s',
+}: {
+  onExportMd: () => void;
+  onExportDocx: () => void;
+  onExportNotes: () => void;
+  onExportHerald: () => void;
+  onExportZip: () => void;
+  hasHerald: boolean;
+}): React.ReactElement {
+  const ghost: React.CSSProperties = {
+    ...btn,
+    padding: '0.3rem 0.7rem',
+    borderRadius: '4px',
+    border: '1px solid var(--color-paper-dark)',
+    backgroundColor: 'var(--color-paper)',
+    fontSize: '0.75rem',
+    color: 'var(--color-navy)',
+    transition: 'opacity 0.15s',
+  };
+  const solid: React.CSSProperties = {
+    ...ghost,
+    backgroundColor: 'var(--color-navy)',
+    color: 'var(--color-gold)',
+    borderColor: 'transparent',
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2 mb-5">
       <span
-        className="text-xs font-medium opacity-60 mr-1"
-        style={{ fontFamily: 'var(--font-sans, sans-serif)' }}
+        className="text-xs mr-1"
+        style={{ color: 'var(--color-muted)', fontFamily: 'var(--font-sans)' }}
       >
         Export:
       </span>
-      <button style={btnStyle} onClick={onExportMd} type="button">
-        .md
-      </button>
-      <button style={btnStyle} onClick={onExportDocx} type="button">
-        .docx
-      </button>
-      <button style={btnStyle} onClick={onExportNotes} type="button">
-        notes.json
-      </button>
+      <button style={ghost} onClick={onExportMd} type="button">.md</button>
+      <button style={ghost} onClick={onExportDocx} type="button">.docx</button>
+      <button style={ghost} onClick={onExportNotes} type="button">notes.json</button>
       {hasHerald && (
-        <button style={btnStyle} onClick={onExportHerald} type="button">
-          HERALD.json
-        </button>
+        <button style={ghost} onClick={onExportHerald} type="button">HERALD.json</button>
       )}
-      <button
-        style={{
-          ...btnStyle,
-          backgroundColor: 'var(--color-navy, #0b2545)',
-          color: 'white',
-          borderColor: 'transparent',
-        }}
-        onClick={onExportZip}
-        type="button"
-      >
-        Bundle .zip
-      </button>
+      <button style={solid} onClick={onExportZip} type="button">Bundle .zip</button>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Phase step indicator
+// Section heading used inside phases
 // ---------------------------------------------------------------------------
 
-const PHASE_STEPS: { id: AppPhase; label: string }[] = [
-  { id: 'input', label: '1. Input' },
-  { id: 'generating', label: '2. Generate' },
-  { id: 'review', label: '3. Review' },
-  { id: 'evaluating', label: '4. Evaluate' },
-  { id: 'results', label: '5. Results' },
-];
-
-function PhaseIndicator({ current }: { current: AppPhase }): React.ReactElement {
-  const order: AppPhase[] = ['input', 'generating', 'review', 'evaluating', 'results'];
-  const currentIdx = order.indexOf(current);
-
+function PhaseHeading({
+  title,
+  subtitle,
+}: {
+  title: string;
+  subtitle?: string;
+}): React.ReactElement {
   return (
-    <div className="flex items-center gap-0">
-      {PHASE_STEPS.map((step, i) => {
-        const idx = order.indexOf(step.id);
-        const done = idx < currentIdx;
-        const active = idx === currentIdx;
-
-        return (
-          <div key={step.id} className="flex items-center">
-            <span
-              className="px-3 py-1 text-xs rounded-full font-medium transition-all"
-              style={{
-                backgroundColor: active
-                  ? 'var(--color-gold, #d4af37)'
-                  : done
-                    ? 'var(--color-navy, #0b2545)'
-                    : 'var(--color-paper-dark, #e5e0d5)',
-                color: active ? 'var(--color-navy, #0b2545)' : done ? 'white' : '#6b7280',
-                fontFamily: 'var(--font-sans, sans-serif)',
-              }}
-            >
-              {done ? '✓ ' : ''}
-              {step.label}
-            </span>
-            {i < PHASE_STEPS.length - 1 && <span className="mx-1 text-gray-300 text-xs">›</span>}
-          </div>
-        );
-      })}
+    <div className="mb-8">
+      <h2
+        className="text-3xl font-bold mb-2 leading-tight"
+        style={{ fontFamily: 'var(--font-display)', color: 'var(--color-navy)' }}
+      >
+        {title}
+      </h2>
+      {subtitle !== undefined && subtitle.length > 0 && (
+        <p
+          className="text-base italic"
+          style={{ color: 'var(--color-muted)', fontFamily: 'var(--font-body)' }}
+        >
+          &ldquo;{subtitle}&rdquo;
+        </p>
+      )}
     </div>
   );
 }
@@ -203,6 +212,7 @@ function PhaseIndicator({ current }: { current: AppPhase }): React.ReactElement 
 
 export default function HomePage(): React.ReactElement {
   const [appPhase, setAppPhase] = useState<AppPhase>('input');
+  const [memoTopic, setMemoTopic] = useState('');
   const [selectedClaimId, setSelectedClaimId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'memo' | 'notes' | 'herald' | 'queue'>('memo');
 
@@ -210,21 +220,27 @@ export default function HomePage(): React.ReactElement {
   const herald = useHerald();
   const { toasts, addToast, removeToast } = useToast();
 
-  // ── Memo sections (extracted from raw markdown for MemoViewer) ──────────
   const memoSections = agent.memo !== null ? parseMemoSections(agent.memo.memo_markdown) : [];
+  const isPostGeneration =
+    appPhase === 'review' || appPhase === 'evaluating' || appPhase === 'results';
 
-  // ── Agent submit ─────────────────────────────────────────────────────────
+  // ── Handlers ─────────────────────────────────────────────────────────────
+
   const handleSubmit = useCallback(
     async (input: MemoInput): Promise<void> => {
+      setMemoTopic(input.topic);
       setAppPhase('generating');
-      await agent.run(input);
-      setAppPhase('review');
-      addToast({ variant: 'success', message: 'Memo generated. Select claims to evaluate.' });
+      try {
+        await agent.run(input);
+        setAppPhase('review');
+        addToast({ variant: 'success', message: 'Memo generated. Select claims to evaluate.' });
+      } catch {
+        // agent.run already set agent.error — stay in 'generating' so the error is visible
+      }
     },
     [agent, addToast],
   );
 
-  // ── HERALD evaluation ────────────────────────────────────────────────────
   const handleRunEvaluation = useCallback(
     async (selectedIds: string[]): Promise<void> => {
       if (agent.memo === null) return;
@@ -237,7 +253,6 @@ export default function HomePage(): React.ReactElement {
     [agent.memo, herald, addToast],
   );
 
-  // ── Human verdict submission ─────────────────────────────────────────────
   const handleVerdictSubmit = useCallback(
     async (
       claimId: string,
@@ -258,7 +273,6 @@ export default function HomePage(): React.ReactElement {
     [herald, addToast],
   );
 
-  // ── Export handlers ──────────────────────────────────────────────────────
   const handleExportMd = useCallback((): void => {
     if (agent.memo === null) return;
     exportAsMarkdown(agent.memo);
@@ -300,76 +314,81 @@ export default function HomePage(): React.ReactElement {
     }
   }, [agent.memo, herald.results, addToast]);
 
-  // ── Reset ────────────────────────────────────────────────────────────────
   const handleReset = useCallback((): void => {
     agent.reset();
     herald.reset();
     setAppPhase('input');
+    setMemoTopic('');
     setSelectedClaimId(null);
     setActiveTab('memo');
   }, [agent, herald]);
 
+  // ── Tabs ─────────────────────────────────────────────────────────────────
+
+  const navTabs = [
+    { id: 'memo', label: 'Memo' },
+    { id: 'notes', label: 'Notes Log' },
+    ...(appPhase === 'results'
+      ? [
+          { id: 'herald', label: 'HERALD Results' },
+          ...(herald.humanQueue.filter((e) => e.status === 'pending').length > 0
+            ? [{ id: 'queue', label: `Human Review (${herald.humanQueue.filter((e) => e.status === 'pending').length.toString()})` }]
+            : []),
+        ]
+      : []),
+  ];
+
   // ── Render ───────────────────────────────────────────────────────────────
+
   return (
     <div
       className="min-h-screen flex flex-col"
-      style={{ backgroundColor: 'var(--color-paper, #faf8f5)' }}
+      style={{ backgroundColor: 'var(--color-paper)' }}
     >
-      <Header />
+      <Header onNewMemo={handleReset} showNewMemo={appPhase !== 'input'} />
 
-      {/* Phase indicator */}
-      <div
-        className="w-full border-b px-6 py-2 flex items-center justify-between"
-        style={{
-          backgroundColor: 'var(--color-paper, #faf8f5)',
-          borderColor: 'var(--color-paper-dark, #e5e0d5)',
-        }}
-      >
-        <PhaseIndicator current={appPhase} />
-        {appPhase !== 'input' && (
-          <button
-            onClick={handleReset}
-            className="text-xs opacity-50 hover:opacity-100 transition-opacity cursor-pointer"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--color-navy, #0b2545)',
-              fontFamily: 'var(--font-sans, sans-serif)',
-            }}
-            type="button"
-          >
-            ← Start over
-          </button>
-        )}
-      </div>
+      {isPostGeneration && agent.memo !== null && (
+        <NavTabBar
+          tabs={navTabs}
+          active={activeTab}
+          onSelect={(id) => { setActiveTab(id as typeof activeTab); }}
+        />
+      )}
 
-      {/* Main content */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
-        {/* Phase 1: Input */}
+      <main className="flex-1 w-full px-6">
+
+        {/* ── Phase 1: Input ── */}
         {appPhase === 'input' && (
-          <ErrorBoundary label="Input Form">
-            <InputForm
-              onSubmit={(input) => {
-                void handleSubmit(input);
-              }}
-              isDisabled={false}
-            />
-          </ErrorBoundary>
+          <div className="max-w-2xl mx-auto py-12">
+            <div className="mb-10">
+              <h2
+                className="text-4xl font-bold mb-3 leading-tight"
+                style={{ fontFamily: 'var(--font-display)', color: 'var(--color-navy)' }}
+              >
+                Write a Policy Memo
+              </h2>
+              <p
+                className="text-base"
+                style={{ color: 'var(--color-muted)', fontFamily: 'var(--font-body)' }}
+              >
+                Describe your topic and the agent will research it, classify every claim by type,
+                and produce a sourced memo you can evaluate through the HERALD pipeline.
+              </p>
+            </div>
+            <ErrorBoundary label="Input Form">
+              <InputForm
+                onSubmit={(input) => { void handleSubmit(input); }}
+                isDisabled={false}
+              />
+            </ErrorBoundary>
+          </div>
         )}
 
-        {/* Phase 2: Generating */}
+        {/* ── Phase 2: Generating ── */}
         {appPhase === 'generating' && (
-          <ErrorBoundary label="Agent Progress">
-            <div className="max-w-2xl mx-auto">
-              <h2
-                className="text-xl font-semibold mb-4"
-                style={{
-                  color: 'var(--color-navy, #0b2545)',
-                  fontFamily: 'var(--font-serif, serif)',
-                }}
-              >
-                Generating Policy Memo…
-              </h2>
+          <div className="max-w-lg mx-auto py-12">
+            <ErrorBoundary label="Agent Progress">
+              <PhaseHeading title="Researching" subtitle={memoTopic} />
               <AgentProgress
                 steps={agent.steps}
                 toolCallsUsed={agent.toolCallsUsed}
@@ -380,187 +399,133 @@ export default function HomePage(): React.ReactElement {
               {agent.error !== null && (
                 <div
                   role="alert"
-                  className="mt-4 p-4 rounded-lg text-sm"
-                  style={{ backgroundColor: '#fee2e2', color: '#991b1b' }}
+                  className="mt-6 p-4 rounded-lg text-sm"
+                  style={{
+                    backgroundColor: '#fff5f5',
+                    border: '1px solid #fecaca',
+                    color: '#991b1b',
+                    fontFamily: 'var(--font-sans)',
+                  }}
                 >
                   {agent.error}
                 </div>
               )}
-            </div>
-          </ErrorBoundary>
+            </ErrorBoundary>
+          </div>
         )}
 
-        {/* Phases 3–5: Review / Evaluate / Results */}
-        {(appPhase === 'review' || appPhase === 'evaluating' || appPhase === 'results') &&
-          agent.memo !== null && (
-            <div className="flex flex-col gap-4">
-              {/* Tab bar + export toolbar */}
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div
-                  className="flex gap-1 rounded-lg p-1"
-                  style={{ backgroundColor: 'var(--color-paper-dark, #e5e0d5)' }}
-                >
-                  {(
-                    [
-                      { id: 'memo', label: 'Memo' },
-                      { id: 'notes', label: 'Notes Log' },
-                      ...(appPhase === 'results'
-                        ? [
-                            { id: 'herald', label: 'HERALD Results' },
-                            ...(herald.humanQueue.length > 0
-                              ? [
-                                  {
-                                    id: 'queue',
-                                    label: `Human Review (${herald.humanQueue.filter((e) => e.status === 'pending').length.toString()})`,
-                                  },
-                                ]
-                              : []),
-                          ]
-                        : []),
-                    ] as { id: string; label: string }[]
-                  ).map(({ id, label }) => (
-                    <button
-                      key={id}
-                      onClick={() => {
-                        setActiveTab(id as typeof activeTab);
-                      }}
-                      type="button"
-                      className="px-4 py-1.5 text-sm rounded-md transition-all cursor-pointer"
-                      style={{
-                        backgroundColor: activeTab === id ? 'white' : 'transparent',
-                        color: activeTab === id ? 'var(--color-navy, #0b2545)' : 'rgba(0,0,0,0.5)',
-                        fontFamily: 'var(--font-sans, sans-serif)',
-                        fontWeight: activeTab === id ? 600 : 400,
-                        border: 'none',
-                        boxShadow: activeTab === id ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                      }}
-                    >
-                      {label}
-                    </button>
-                  ))}
+        {/* ── Phases 3–5: Review / Evaluate / Results ── */}
+        {isPostGeneration && agent.memo !== null && (
+          <div className="max-w-6xl mx-auto py-6">
+            <ExportRow
+              onExportMd={handleExportMd}
+              onExportDocx={() => { void handleExportDocx(); }}
+              onExportNotes={handleExportNotes}
+              onExportHerald={handleExportHerald}
+              onExportZip={() => { void handleExportZip(); }}
+              hasHerald={herald.results.length > 0}
+            />
+
+            {activeTab === 'memo' && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <ErrorBoundary label="Memo Viewer" resetKey={activeTab}>
+                    <MemoViewer
+                      title="Policy Memo"
+                      sections={memoSections}
+                      notesLog={agent.memo.notes_log}
+                      selectedClaimId={selectedClaimId}
+                      onClaimClick={setSelectedClaimId}
+                    />
+                  </ErrorBoundary>
                 </div>
-
-                <ExportToolbar
-                  onExportMd={handleExportMd}
-                  onExportDocx={() => {
-                    void handleExportDocx();
-                  }}
-                  onExportNotes={handleExportNotes}
-                  onExportHerald={handleExportHerald}
-                  onExportZip={() => {
-                    void handleExportZip();
-                  }}
-                  hasHerald={herald.results.length > 0}
-                />
-              </div>
-
-              {/* Tab content */}
-              {activeTab === 'memo' && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                  <div className="lg:col-span-2">
-                    <ErrorBoundary label="Memo Viewer" resetKey={activeTab}>
-                      <MemoViewer
-                        title="Policy Memo"
-                        sections={memoSections}
-                        notesLog={agent.memo.notes_log}
-                        selectedClaimId={selectedClaimId}
-                        onClaimClick={setSelectedClaimId}
+                <div>
+                  {appPhase === 'review' ? (
+                    <ErrorBoundary label="Claim Selector">
+                      <ClaimSelector
+                        entries={agent.memo.notes_log}
+                        onRunEvaluation={(ids) => { void handleRunEvaluation(ids); }}
                       />
                     </ErrorBoundary>
-                  </div>
-                  <div>
-                    {appPhase === 'review' ? (
-                      <ErrorBoundary label="Claim Selector">
-                        <ClaimSelector
-                          entries={agent.memo.notes_log}
-                          onRunEvaluation={(ids) => {
-                            void handleRunEvaluation(ids);
-                          }}
-                        />
-                      </ErrorBoundary>
-                    ) : (
-                      <ErrorBoundary label="Notes Log">
-                        <NotesLog
-                          entries={agent.memo.notes_log}
-                          selectedClaimId={selectedClaimId}
-                          onClaimSelect={setSelectedClaimId}
-                        />
-                      </ErrorBoundary>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'notes' && (
-                <ErrorBoundary label="Notes Log">
-                  <NotesLog
-                    entries={agent.memo.notes_log}
-                    selectedClaimId={selectedClaimId}
-                    onClaimSelect={setSelectedClaimId}
-                  />
-                </ErrorBoundary>
-              )}
-
-              {activeTab === 'herald' && appPhase === 'results' && (
-                <ErrorBoundary label="HERALD Results">
-                  {herald.results.length > 0 ? (
-                    <HeraldResults results={herald.results} notesLog={agent.memo.notes_log} />
                   ) : (
-                    <div
-                      className="text-center py-12 text-sm opacity-50"
-                      style={{ fontFamily: 'var(--font-sans, sans-serif)' }}
-                    >
-                      No HERALD results yet. Select claims and run evaluation.
-                    </div>
+                    <ErrorBoundary label="Notes Log">
+                      <NotesLog
+                        entries={agent.memo.notes_log}
+                        selectedClaimId={selectedClaimId}
+                        onClaimSelect={setSelectedClaimId}
+                      />
+                    </ErrorBoundary>
                   )}
-                </ErrorBoundary>
-              )}
+                </div>
+              </div>
+            )}
 
-              {activeTab === 'queue' && appPhase === 'results' && (
-                <ErrorBoundary label="Human Review Queue">
-                  <HumanReviewQueue
-                    entries={herald.humanQueue}
-                    onSubmitVerdict={handleVerdictSubmit}
-                  />
-                </ErrorBoundary>
-              )}
-            </div>
-          )}
+            {activeTab === 'notes' && (
+              <ErrorBoundary label="Notes Log">
+                <NotesLog
+                  entries={agent.memo.notes_log}
+                  selectedClaimId={selectedClaimId}
+                  onClaimSelect={setSelectedClaimId}
+                />
+              </ErrorBoundary>
+            )}
 
-        {/* Evaluation loading overlay */}
-        {appPhase === 'evaluating' && (
+            {activeTab === 'herald' && appPhase === 'results' && (
+              <ErrorBoundary label="HERALD Results">
+                {herald.results.length > 0 ? (
+                  <HeraldResults results={herald.results} notesLog={agent.memo.notes_log} />
+                ) : (
+                  <div
+                    className="text-center py-16 text-sm"
+                    style={{ color: 'var(--color-muted)', fontFamily: 'var(--font-sans)' }}
+                  >
+                    No HERALD results yet. Select claims in the Memo tab and run evaluation.
+                  </div>
+                )}
+              </ErrorBoundary>
+            )}
+
+            {activeTab === 'queue' && appPhase === 'results' && (
+              <ErrorBoundary label="Human Review Queue">
+                <HumanReviewQueue
+                  entries={herald.humanQueue}
+                  onSubmitVerdict={handleVerdictSubmit}
+                />
+              </ErrorBoundary>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* HERALD evaluation overlay */}
+      {appPhase === 'evaluating' && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-40"
+          style={{ backgroundColor: 'rgba(26,26,46,0.55)' }}
+        >
           <div
-            className="fixed inset-0 flex items-center justify-center z-40"
-            style={{ backgroundColor: 'rgba(11,37,69,0.4)' }}
+            className="rounded-xl p-8 flex flex-col items-center gap-4 shadow-2xl"
+            style={{ backgroundColor: 'white', minWidth: '20rem' }}
           >
-            <div
-              className="rounded-xl p-8 flex flex-col items-center gap-4 shadow-xl"
-              style={{ backgroundColor: 'white', minWidth: '18rem' }}
-            >
-              <span
-                className="inline-block w-8 h-8 rounded-full border-4 border-t-transparent animate-spin"
-                style={{
-                  borderColor: 'var(--color-gold, #d4af37)',
-                  borderTopColor: 'transparent',
-                }}
-                aria-label="Evaluating"
-              />
+            <span
+              className="inline-block w-9 h-9 rounded-full border-4 animate-spin"
+              style={{ borderColor: 'var(--color-gold)', borderTopColor: 'transparent' }}
+              aria-label="Evaluating"
+            />
+            <div className="text-center">
               <p
-                className="text-sm font-medium"
-                style={{
-                  color: 'var(--color-navy, #0b2545)',
-                  fontFamily: 'var(--font-sans, sans-serif)',
-                }}
+                className="text-sm font-semibold mb-1"
+                style={{ color: 'var(--color-navy)', fontFamily: 'var(--font-sans)' }}
               >
                 Running HERALD evaluation…
               </p>
-              <p className="text-xs opacity-50">
+              <p className="text-xs" style={{ color: 'var(--color-muted)', fontFamily: 'var(--font-sans)' }}>
                 {herald.progress.completed.toString()} / {herald.progress.total.toString()} claims
               </p>
             </div>
           </div>
-        )}
-      </main>
+        </div>
+      )}
 
       <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </div>
@@ -568,7 +533,7 @@ export default function HomePage(): React.ReactElement {
 }
 
 // ---------------------------------------------------------------------------
-// Markdown → MemoSection parser (minimal, matches what the agent produces)
+// Markdown → MemoSection parser
 // ---------------------------------------------------------------------------
 
 import type { MemoSection } from '@/types/memo';
@@ -591,27 +556,22 @@ function parseMemoSections(markdown: string): MemoSection[] {
     const h2 = /^## (.+)$/.exec(line);
     const h1 = /^# (.+)$/.exec(line);
     if (h1 !== null && sections.length === 0 && current === null) {
-      // Treat H1 as the title section
       flushSection();
       current = { title: h1[1], content: '', claim_ids: [] };
     } else if (h2 !== null) {
       flushSection();
       current = { title: h2[1], content: '', claim_ids: [] };
     } else {
-      // Extract claim IDs from this line
       const claimMatches = [...line.matchAll(/\[C-(\d{3,})\]/g)];
       if (current !== null && claimMatches.length > 0) {
         for (const m of claimMatches) {
           const id = `C-${m[1]}`;
-          if (!current.claim_ids.includes(id)) {
-            current.claim_ids.push(id);
-          }
+          if (!current.claim_ids.includes(id)) current.claim_ids.push(id);
         }
       }
       contentBuffer.push(line);
     }
   }
   flushSection();
-
   return sections;
 }

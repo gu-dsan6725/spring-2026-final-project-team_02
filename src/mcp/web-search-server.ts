@@ -1,9 +1,11 @@
 /**
- * Brave Search API tool server.
+ * Web search tool server.
  *
- * Wraps the Brave Search web API with input validation and structured output.
- * Requires: BRAVE_SEARCH_API_KEY in environment.
+ * Primary: Brave Search API (BRAVE_SEARCH_API_KEY).
+ * Fallback: Gemini grounding search (GEMINI_API_KEY) when Brave key is absent.
  */
+
+import { geminiSearchHandler } from './gemini-search-server';
 
 interface WebSearchResult {
   title: string;
@@ -35,7 +37,7 @@ export async function webSearchHandler(
 
   const apiKey = process.env.BRAVE_SEARCH_API_KEY ?? '';
   if (apiKey.length === 0) {
-    return { error: 'BRAVE_SEARCH_API_KEY is not set' };
+    return geminiSearchHandler(input);
   }
 
   const url = new URL('https://api.search.brave.com/res/v1/web/search');
