@@ -229,6 +229,34 @@ Individual claim failures are recorded but do not abort the run. Check the `erro
 
 ---
 
+## Known Issues
+
+### Issue 1 — Eval set too small for reliable per-type metrics
+
+`data/eval-set.json` currently has **50 claims** (not the 104 minimum specified in `experiment-design.md`). Several per-type cells are as small as n=3:
+
+| Claim Type | Valid | Invalid |
+|------------|-------|---------|
+| causal | 3 | 6 |
+| comparative | 3 | 5 |
+| synthesis | 5 | 3 |
+
+With n=3 in a cell, per-type precision/recall figures are statistically meaningless. Until the eval set is expanded, treat per-type breakdowns in the analysis report as directional only. Overall metrics (across all 50 claims) are still valid for a first-pass comparison.
+
+**Fix**: add more ground-truth entries to `data/eval-set.json` following the existing format, targeting at least 8 valid and 8 invalid per claim type.
+
+---
+
+### Issue 2 — System B silently drops low-confidence verdicts (methodological bug)
+
+`tier2_judge.py` applies the confidence threshold **inside** `run_tier2()` before returning — responses with confidence ≤ 0.85 are already converted to `Verdict.UNCERTAIN` before `_run_system_b` sees them. The analyzer maps `UNCERTAIN` to `None` and excludes those claims from metrics.
+
+This means System B (LLM-as-Judge baseline) does not commit to a verdict for ~30–40% of claims, making it look weaker than a true single-call judge would be. A fair baseline should force the model to commit to whichever verdict it leaned toward, regardless of confidence.
+
+**Fix**: refactor `_run_system_b` in `run_experiment.py` to call the Anthropic API directly (bypassing `run_tier2`) and use the raw `verdict` field from the JSON response before any threshold filtering is applied.
+
+---
+
 ## Interpreting the analysis report
 
 The report uses this decision framework (from `experiment-design.md`):
