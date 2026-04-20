@@ -73,8 +73,8 @@ const MAX_FILE_CHARS = 4_000;
 async function readFileAsText(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve((reader.result as string).slice(0, MAX_FILE_CHARS));
-    reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
+    reader.onload = () => { resolve((reader.result as string).slice(0, MAX_FILE_CHARS)); };
+    reader.onerror = () => { reject(new Error(`Failed to read ${file.name}`)); };
     reader.readAsText(file);
   });
 }
