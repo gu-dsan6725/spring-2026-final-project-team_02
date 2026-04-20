@@ -61,13 +61,13 @@ const DEBATE_TURN_TOOL: OpenAI.Chat.ChatCompletionTool = {
       properties: {
         verdict: {
           type: 'string',
-          enum: ['valid', 'invalid', 'needs_revision', 'uncertain'],
+          enum: ['valid', 'invalid', 'uncertain'],
           description: 'Your verdict on the claim.',
         },
         reasoning: {
           type: 'string',
           description:
-            'Specific reasoning citing source text. For invalid/needs_revision, identify the exact problem.',
+            'Specific reasoning citing source text. For invalid verdicts, identify the exact problem.',
         },
         key_concern: {
           type: 'string',
@@ -91,7 +91,7 @@ const SYNTHESIS_TOOL: OpenAI.Chat.ChatCompletionTool = {
       properties: {
         verdict: {
           type: 'string',
-          enum: ['valid', 'invalid', 'needs_revision', 'uncertain'],
+          enum: ['valid', 'invalid', 'uncertain'],
           description: 'The synthesized verdict.',
         },
         confidence: {
@@ -105,8 +105,7 @@ const SYNTHESIS_TOOL: OpenAI.Chat.ChatCompletionTool = {
         },
         suggested_revision: {
           type: ['string', 'null'],
-          description:
-            'Required for invalid/needs_revision verdicts. A concrete revised claim text.',
+          description: 'Required for invalid verdicts. A concrete revised claim text.',
         },
         dominant_persona: {
           type: 'string',
@@ -143,7 +142,7 @@ interface SynthesisInput {
   verdict: string;
   confidence: number;
   reasoning: string;
-  suggested_revision?: string;
+  suggested_revision?: string | null;
   dominant_persona: string;
 }
 
@@ -159,9 +158,11 @@ function isSynthesisInput(obj: unknown): obj is SynthesisInput {
 }
 
 function parseVerdict(raw: string): Verdict {
-  if (raw === 'valid' || raw === 'invalid' || raw === 'needs_revision' || raw === 'uncertain') {
+  if (raw === 'valid' || raw === 'invalid' || raw === 'uncertain') {
     return raw;
   }
+  // Legacy 'needs_revision' from models that haven't seen the updated enum
+  if (raw === 'needs_revision') return 'invalid';
   return 'uncertain';
 }
 
@@ -430,7 +431,10 @@ export async function evaluateWithDebate(
       reasoning: synthesis.reasoning,
     };
 
-    if (synthesis.suggested_revision !== undefined && synthesis.suggested_revision.length > 0) {
+    if (
+      typeof synthesis.suggested_revision === 'string' &&
+      synthesis.suggested_revision.length > 0
+    ) {
       output.suggested_revision = synthesis.suggested_revision;
     }
 

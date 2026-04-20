@@ -1,12 +1,12 @@
 /**
  * HERALD Feedback Loop — Revision Pipeline (Checkpoint 7.1)
  *
- * Takes invalid/needs_revision HERALD verdicts and sends claims back to the
- * LLM for revision.  Enforces convergence: at most 2 revision attempts per
- * claim (configurable via AgentConfig.max_revision_attempts).
+ * Takes invalid HERALD verdicts and sends claims back to a configurable
+ * OpenAI-compatible LLM for revision. Enforces convergence: at most 2
+ * revision attempts per claim (configurable via AgentConfig.max_revision_attempts).
  *
  * Flow:
- *   invalid/needs_revision claim
+ *   invalid claim
  *     → buildRevisionPrompt (includes HERALD feedback, sources, suggested revision)
  *     → Groq Llama 3.3 70B produces a revised claim + updated notes log entry
  *     → re-run HERALD on revised claim
@@ -16,6 +16,7 @@
  */
 
 import Groq from 'groq-sdk';
+import OpenAI from 'openai';
 
 import {
   CLAIM_TYPE_CONFIG,
@@ -66,6 +67,7 @@ export interface RevisedMemoOutput {
 // ---------------------------------------------------------------------------
 
 let _groqClient: Groq | null = null;
+let _openAiClient: OpenAI | null = null;
 
 function getGroqClient(): Groq {
   if (_groqClient === null) {
@@ -74,16 +76,120 @@ function getGroqClient(): Groq {
   return _groqClient;
 }
 
-const REVISION_MODEL = 'llama-3.3-70b-versatile';
+function getOpenAiClient(): OpenAI {
+  if (_openAiClient === null) {
+    _openAiClient = new OpenAI({ apiKey: process.env['OPENAI_API_KEY'] });
+  }
+  return _openAiClient;
+}
+
+type RevisionProvider = 'groq' | 'openai';
+
+interface RevisionProviderConfig {
+  provider: RevisionProvider;
+  model: string;
+}
+
+const DEFAULT_GROQ_REVISION_MODEL = 'llama-3.3-70b-versatile';
+const DEFAULT_OPENAI_REVISION_MODEL = 'gpt-4o-mini';
 const REVISION_MAX_TOKENS = 1024;
 const REVISION_TEMPERATURE = 0.3;
+
+function getTrimmedEnv(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value !== undefined && value.length > 0 ? value : undefined;
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
+function isQuotaExhaustedError(error: unknown): boolean {
+  const message = getErrorMessage(error).toLowerCase();
+  return (
+    message.includes('tokens per day') ||
+    message.includes('quota') ||
+    message.includes('insufficient_quota') ||
+    message.includes('rate_limit_exceeded')
+  );
+}
+
+function resolveRevisionProvider(): RevisionProviderConfig {
+  const requested = getTrimmedEnv('REVISION_LLM_PROVIDER')?.toLowerCase();
+  const hasGroq = Boolean(process.env['GROQ_API_KEY']);
+  const hasOpenAi = Boolean(process.env['OPENAI_API_KEY']);
+
+  if (requested === 'groq') {
+    if (!hasGroq) {
+      throw new Error('REVISION_LLM_PROVIDER=groq but GROQ_API_KEY is not set.');
+    }
+    return {
+      provider: 'groq',
+      model: getTrimmedEnv('REVISION_GROQ_MODEL') ?? DEFAULT_GROQ_REVISION_MODEL,
+    };
+  }
+
+  if (requested === 'openai') {
+    if (!hasOpenAi) {
+      throw new Error('REVISION_LLM_PROVIDER=openai but OPENAI_API_KEY is not set.');
+    }
+    return {
+      provider: 'openai',
+      model: getTrimmedEnv('REVISION_OPENAI_MODEL') ?? DEFAULT_OPENAI_REVISION_MODEL,
+    };
+  }
+
+  if (hasGroq) {
+    return {
+      provider: 'groq',
+      model: getTrimmedEnv('REVISION_GROQ_MODEL') ?? DEFAULT_GROQ_REVISION_MODEL,
+    };
+  }
+
+  if (hasOpenAi) {
+    return {
+      provider: 'openai',
+      model: getTrimmedEnv('REVISION_OPENAI_MODEL') ?? DEFAULT_OPENAI_REVISION_MODEL,
+    };
+  }
+
+  throw new Error(
+    'No revision LLM credentials found. Set GROQ_API_KEY or OPENAI_API_KEY before running HERALD revisions.',
+  );
+}
+
+function getFallbackRevisionProvider(
+  current: RevisionProviderConfig,
+  error: unknown,
+): RevisionProviderConfig | null {
+  if (!isQuotaExhaustedError(error)) {
+    return null;
+  }
+
+  if (current.provider === 'groq' && getTrimmedEnv('OPENAI_API_KEY') !== undefined) {
+    return {
+      provider: 'openai',
+      model: getTrimmedEnv('REVISION_OPENAI_MODEL') ?? DEFAULT_OPENAI_REVISION_MODEL,
+    };
+  }
+
+  if (current.provider === 'openai' && getTrimmedEnv('GROQ_API_KEY') !== undefined) {
+    return {
+      provider: 'groq',
+      model: getTrimmedEnv('REVISION_GROQ_MODEL') ?? DEFAULT_GROQ_REVISION_MODEL,
+    };
+  }
+
+  return null;
+}
 
 // ---------------------------------------------------------------------------
 // Verdict predicate helpers
 // ---------------------------------------------------------------------------
 
 function needsRevision(verdict: HeraldResult['verdict']): boolean {
-  return verdict === 'invalid' || verdict === 'needs_revision';
+  return verdict === 'invalid';
 }
 
 function isPassingVerdict(verdict: HeraldResult['verdict']): boolean {
@@ -208,15 +314,51 @@ function isRevisionOutput(obj: unknown): obj is RevisionOutput {
 }
 
 async function callRevisionAgent(prompt: string): Promise<RevisionOutput> {
-  const response = await getGroqClient().chat.completions.create({
-    model: REVISION_MODEL,
+  const provider = resolveRevisionProvider();
+  const request = {
+    model: provider.model,
     max_tokens: REVISION_MAX_TOKENS,
     temperature: REVISION_TEMPERATURE,
     messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: prompt },
+      { role: 'system' as const, content: SYSTEM_PROMPT },
+      { role: 'user' as const, content: prompt },
     ],
-  });
+  };
+
+  let response:
+    | Awaited<ReturnType<Groq['chat']['completions']['create']>>
+    | Awaited<ReturnType<OpenAI['chat']['completions']['create']>>;
+
+  try {
+    response =
+      provider.provider === 'groq'
+        ? await getGroqClient().chat.completions.create(request)
+        : await getOpenAiClient().chat.completions.create(request);
+  } catch (error) {
+    const fallback = getFallbackRevisionProvider(provider, error);
+    if (fallback === null) {
+      throw new Error(getErrorMessage(error));
+    }
+
+    logWarn('feedback_loop.provider_fallback', {
+      from_provider: provider.provider,
+      from_model: provider.model,
+      to_provider: fallback.provider,
+      to_model: fallback.model,
+      reason: getErrorMessage(error),
+    });
+
+    response =
+      fallback.provider === 'groq'
+        ? await getGroqClient().chat.completions.create({
+            ...request,
+            model: fallback.model,
+          })
+        : await getOpenAiClient().chat.completions.create({
+            ...request,
+            model: fallback.model,
+          });
+  }
 
   const content = response.choices[0]?.message?.content ?? '';
 
@@ -380,7 +522,7 @@ async function reviseSingleClaim(
 // ---------------------------------------------------------------------------
 
 /**
- * Run the HERALD revision pipeline for all invalid/needs_revision claims.
+ * Run the HERALD revision pipeline for all invalid claims.
  *
  * @param memo         - The generated memo (markdown + notes log)
  * @param heraldResults - HERALD evaluation results for the memo's claims

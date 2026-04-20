@@ -176,6 +176,11 @@ function makeFailingHeraldResult(claimId = 'C-001', feedback = 'Still incorrect.
 describe('reviseClaimsFromHerald', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env['GROQ_API_KEY'] = 'test-groq-key';
+    delete process.env['OPENAI_API_KEY'];
+    delete process.env['REVISION_LLM_PROVIDER'];
+    delete process.env['REVISION_GROQ_MODEL'];
+    delete process.env['REVISION_OPENAI_MODEL'];
   });
 
   // ─── Happy path ───────────────────────────────────────────────────────────

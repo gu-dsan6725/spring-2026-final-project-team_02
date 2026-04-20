@@ -92,9 +92,9 @@ You are evaluating a **normative or prescriptive claim**. Apply these criteria i
    institutional consensus, or is it the position of one institution, researcher, or school
    of thought? Claims of "best practice" must reflect broad consensus. **If the sole source
    is a single NGO, think tank, or non-intergovernmental body, the consensus criterion is
-   not satisfied and the claim must be at minimum "needs_revision" — unless the claim itself
-   explicitly attributes the view to that specific body (e.g., "According to [org]..." rather
-   than "Best practice is..." or "Experts recommend...").**
+   not satisfied and the claim is invalid — unless the claim itself explicitly attributes
+   the view to that specific body (e.g., "According to [org]..." rather than "Best
+   practice is..." or "Experts recommend...").**
 2. **Credible dissenting views**: Are there credible dissenting perspectives in the field
    that the claim ignores? If dissent is substantial, the claim must acknowledge it.
 3. **Scope of recommendation**: Is the recommendation scoped to the same context the source
@@ -130,7 +130,7 @@ Apply these criteria in order:
    explicitly identify and then refute at least one plausible alternative explanation for
    the observed pattern. If you cannot think of an alternative explanation, that is evidence
    the synthesis is well-grounded; document this explicitly. If an alternative explanation
-   exists and the synthesis does not address it, the claim is at minimum "needs_revision".
+   exists and the synthesis does not address it, the claim is invalid.
 2. **Logical validity**: Does the conclusion follow logically from the stated premises?
    Identify any logical gaps, missing steps, or invalid inferences.
 3. **Role of each source**: Does each cited source actually support the role assigned to
@@ -182,27 +182,38 @@ knowledge — evaluate only what the provided source material supports.
 **General principles that apply to all claim types:**
 - A claim is VALID if the source material faithfully supports it with appropriate precision
   and scope.
-- A claim is INVALID if it materially misrepresents the source (wrong number, wrong
-  direction, unsupported causal language, fabricated projection, etc.).
-- A claim NEEDS_REVISION if it is directionally correct but contains fixable errors
-  (e.g., imprecise hedging, minor scope mismatch, missing qualifier).
+- A claim is INVALID if it does not faithfully represent the source — this includes
+  material misrepresentations (wrong number, wrong direction, unsupported causal language,
+  fabricated projection) as well as fixable issues (imprecise hedging, minor scope mismatch,
+  missing qualifier). Always include a suggested_revision for invalid claims.
 - Mark UNCERTAIN only if you genuinely cannot determine validity from the provided
   sources — for example, the source chunk is too short to evaluate the claim fully.
 - High-risk derivation methods (cross_source, agent_inference) warrant heightened scrutiny:
   the burden of proof is on the claim to be clearly supported, not merely plausible.
+- For paraphrase claims, evaluate semantic fidelity rather than surface wording. If the
+  proposition, scope, timeframe, attribution, and modality are preserved, the paraphrase
+  should usually be marked VALID even when the wording is more polished than the source.
+- Do not penalize faithful paraphrases for stylistic differences alone. Only mark
+  NEEDS_REVISION or INVALID when wording changes the underlying meaning, such as stronger
+  causal force, stronger normative force, altered attribution, altered quantities, or
+  broader scope than the source supports.
 `.trim();
 
 const OUTPUT_INSTRUCTIONS = `
 Use the submit_evaluation tool to return your structured assessment. Include:
-- verdict: one of "valid", "invalid", "needs_revision", or "uncertain"
+- verdict: one of "valid", "invalid", or "uncertain"
 - confidence: a float from 0.0 to 1.0 reflecting how certain you are in your verdict
   - 0.9–1.0: very confident (clear evidence for or against)
   - 0.7–0.89: moderately confident (evidence leans one way but has gaps)
   - 0.5–0.69: uncertain (evidence is ambiguous or incomplete)
   - below 0.5: very uncertain (cannot meaningfully evaluate from provided material)
 - reasoning: a clear, specific explanation citing the source material
-- suggested_revision: if verdict is "invalid" or "needs_revision", provide a concrete
+- suggested_revision: if verdict is "invalid", provide a concrete
   revision that would make the claim valid. Omit for "valid" or "uncertain" verdicts.
+- meaning_drift_label: for paraphrase claims, classify the main semantic drift as one of
+  "no_drift", "hedging_drift", "scope_drift", "attribution_drift",
+  "causal_strength_drift", "normative_strength_drift", or "quantification_drift".
+  Use "no_drift" when the paraphrase is faithful. Use null for non-paraphrase claims.
 `.trim();
 
 // ---------------------------------------------------------------------------
