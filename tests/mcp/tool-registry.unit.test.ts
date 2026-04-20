@@ -18,7 +18,7 @@
  *     - callTool() returns structured error after all retries exhausted
  *     - callTool() returns error for unknown tool name
  *     - callTool() returns { source_unavailable: true } on final failure
- *     - callTool() uses exponential backoff delays (1s, 2s, 4s)
+ *     - callTool() uses exponential backoff delay (1s between attempts)
  *     - callTool() handles handler timeout (AbortController)
  *
  *   executeTool()
@@ -300,19 +300,19 @@ describe('callTool() — retry logic', () => {
     const tool = TOOL_REGISTRY['web_search'];
     if (tool === undefined) throw new Error('web_search not in registry');
 
-    // web_search has max_retries: 3, so 4 total attempts.
+    // web_search has max_retries: 1, so 2 total attempts.
     vi.mocked(tool.handler).mockRejectedValue(new Error('persistent failure'));
 
     const callPromise = callTool('web_search', { query: 'test' });
 
-    // Advance through all backoff windows: 1s + 2s + 4s = 7s total
-    await vi.advanceTimersByTimeAsync(10_000);
+    // Advance through the single backoff window (1s).
+    await vi.advanceTimersByTimeAsync(5_000);
 
     const result = await callPromise;
     expect(result).toHaveProperty('error');
     expect(result).toHaveProperty('source_unavailable', true);
     expect(result['error'] as string).toContain('persistent failure');
-    expect(result['error'] as string).toContain('4 attempts');
+    expect(result['error'] as string).toContain('2 attempts');
 
     vi.useRealTimers();
   });
@@ -339,7 +339,7 @@ describe('callTool() — retry logic', () => {
     vi.useRealTimers();
   });
 
-  it('uses exponential backoff: delays are 1s, 2s, 4s between attempts', async () => {
+  it('uses exponential backoff: delay is 1s between attempts', async () => {
     vi.useFakeTimers();
 
     const tool = TOOL_REGISTRY['arxiv_search'];
@@ -353,17 +353,15 @@ describe('callTool() — retry logic', () => {
 
     const callPromise = callTool('arxiv_search', { query: 'test' });
 
-    // Advance through all backoffs.
-    await vi.advanceTimersByTimeAsync(20_000);
+    // Advance through the single backoff window (1s).
+    await vi.advanceTimersByTimeAsync(5_000);
     await callPromise;
 
-    // Should have been called 4 times (1 initial + 3 retries).
-    expect(callOrder.length).toBe(4);
+    // Should have been called 2 times (1 initial + 1 retry) with max_retries: 1.
+    expect(callOrder.length).toBe(2);
 
-    // Gaps between calls should follow 1s, 2s, 4s pattern.
+    // Gap between calls should be ~1s.
     expect(callOrder[1]! - callOrder[0]!).toBeGreaterThanOrEqual(1_000);
-    expect(callOrder[2]! - callOrder[1]!).toBeGreaterThanOrEqual(2_000);
-    expect(callOrder[3]! - callOrder[2]!).toBeGreaterThanOrEqual(4_000);
 
     vi.useRealTimers();
   });

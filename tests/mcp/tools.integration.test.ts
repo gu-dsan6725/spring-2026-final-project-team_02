@@ -417,15 +417,19 @@ describe('[requires-key] web_search', () => {
     expect(result).toHaveProperty('error');
   });
 
-  it('returns error when BRAVE_SEARCH_API_KEY is missing', async () => {
-    const saved = process.env['BRAVE_SEARCH_API_KEY'];
+  it('returns error when both BRAVE_SEARCH_API_KEY and GEMINI_API_KEY are missing', async () => {
+    const savedBrave = process.env['BRAVE_SEARCH_API_KEY'];
+    const savedGemini = process.env['GEMINI_API_KEY'];
     delete process.env['BRAVE_SEARCH_API_KEY'];
+    delete process.env['GEMINI_API_KEY'];
 
     const result = await callTool('web_search', { query: 'test' });
     expect(result).toHaveProperty('error');
-    expect((result['error'] as string).toLowerCase()).toContain('brave_search_api_key');
+    // Brave is absent → falls through to Gemini fallback → Gemini key check fires
+    expect((result['error'] as string).toLowerCase()).toContain('gemini_api_key');
 
-    if (saved !== undefined) process.env['BRAVE_SEARCH_API_KEY'] = saved;
+    if (savedBrave !== undefined) process.env['BRAVE_SEARCH_API_KEY'] = savedBrave;
+    if (savedGemini !== undefined) process.env['GEMINI_API_KEY'] = savedGemini;
   });
 });
 
