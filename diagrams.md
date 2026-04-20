@@ -863,3 +863,125 @@ flowchart TD
 
     REVISE -->|"revised claim"| ROUTER
 ```
+
+---
+
+## Diagram 2d — System Architecture (Polished)
+
+```mermaid
+flowchart TB
+    classDef ui     fill:#2563eb,color:#fff,stroke:#93c5fd
+    classDef agent  fill:#059669,color:#fff,stroke:#6ee7b7
+    classDef herald fill:#dc2626,color:#fff,stroke:#fca5a5
+    classDef obs    fill:#4b5563,color:#fff,stroke:#9ca3af
+    classDef art    fill:#1e40af,color:#fff,stroke:#93c5fd,stroke-dasharray:4 2
+
+    subgraph L1["📝 User Input"]
+        direction LR
+        N1(["Topic &\nContext"]):::ui ~~~ N2(["Source\nFiles"]):::ui
+    end
+
+    subgraph L2["🤖 Research Agent  ·  Groq Llama 3.3 70B  ·  max 25 calls / 50K tokens"]
+        direction LR
+        N3["🏗️ Prompt Builder"]:::agent --> N4["🔄 Research Loop"]:::agent --> N5["🔍 Claim Extractor\n6 types · 4 methods"]:::agent --> N6["✍️ Memo Writer"]:::agent
+    end
+
+    subgraph L3["📄 Artifacts"]
+        direction LR
+        N7(["📄 Policy\nMemo"]):::art ~~~ N8(["🗒️ Notes\nLog"]):::art
+    end
+
+    subgraph L4["👁️ User Review"]
+        direction LR
+        N9["📖 Memo Viewer"]:::ui ~~~ N10["✅ Claim Selector"]:::ui
+    end
+
+    subgraph L5["⚖️ HERALD  ·  4-Tier Evaluation"]
+        direction LR
+        N11["🔀 Router\nclaim type → tier"]:::herald --> N12["🔵 T1  NLI\nDeBERTa"]:::herald --> N13["🟠 T2  Judge\nClaude Sonnet"]:::herald --> N14["🔴 T3 / T4\nDebate + Human"]:::herald
+    end
+
+    subgraph L6["📊 Output"]
+        direction LR
+        N15(["Herald\nResults"]):::ui ~~~ N16(["Memo\nResolved"]):::ui
+    end
+
+    subgraph L7["📡 Observability  ·  Braintrust + OpenTelemetry"]
+        direction LR
+        N17(["🧠 LLM & Tool\nTraces"]):::obs ~~~ N18(["📡 Eval\nSpans"]):::obs
+    end
+
+    N1 & N2     --> N3
+    N6          --> N7 & N8
+    N7 & N8     --> N9
+    N10         -->|"selected claims"| N11
+    N14         --> N15 & N16
+    N14         -.->|"❌ invalid + feedback"| N4
+    L2          -.->|"spans"| N17
+    L5          -.->|"spans"| N18
+```
+
+---
+
+## Diagram 3g — Detailed Technical Architecture (Polished)
+
+```mermaid
+flowchart TB
+    classDef fe    fill:#2563eb,color:#fff,stroke:#93c5fd
+    classDef agent fill:#059669,color:#fff,stroke:#6ee7b7
+    classDef mcp   fill:#0f172a,color:#94a3b8,stroke:#64748b
+    classDef her   fill:#dc2626,color:#fff,stroke:#fca5a5
+    classDef py    fill:#7c3aed,color:#fff,stroke:#c4b5fd
+    classDef obs   fill:#4b5563,color:#fff,stroke:#9ca3af
+    classDef art   fill:#1e40af,color:#fff,stroke:#93c5fd,stroke-dasharray:4 2
+
+    subgraph IN["📝 User Input"]
+        direction LR
+        N1(["📝 Input\nForm"]):::fe ~~~ N2(["📈 Agent\nProgress"]):::fe ~~~ N3(["🔌 useAgent\nuseWebSocket"]):::fe
+    end
+
+    subgraph AGT["🤖 Research Agent  ·  Groq Llama 3.3 70B"]
+        direction LR
+        A1["🏗️ Prompt\nBuilder"]:::agent --> A2["🔄 Research\nLoop"]:::agent --> A3["🔍 Claim\nExtractor"]:::agent --> A4["✍️ Memo\nWriter"]:::agent
+    end
+
+    subgraph MCP["🔧 MCP Tools  ·  8 Sources"]
+        direction LR
+        M1["🌐 Web Search\narXiv"]:::mcp ~~~ M2["📚 World Bank\nScholar"]:::mcp ~~~ M3["🏛️ GovReport\nGovInfo"]:::mcp ~~~ M4["📁 FRED\nFiles"]:::mcp
+    end
+
+    subgraph REV["👁️ Memo Review"]
+        direction LR
+        R1(["📄 Policy\nMemo"]):::art ~~~ R2(["🗒️ Notes\nLog"]):::art ~~~ R3["📖 Memo\nViewer"]:::fe ~~~ R4["✅ Claim\nSelector"]:::fe
+    end
+
+    subgraph BE["🗄️ Python Backend  ·  FastAPI"]
+        direction LR
+        B1["🔌 API\nRoutes"]:::py ~~~ B2(["🐘 PostgreSQL"]):::py ~~~ B3["⚡ Redis\nAlembic"]:::py
+    end
+
+    subgraph HER["⚖️ HERALD Pipeline  ·  TypeScript + Python"]
+        direction LR
+        H1["🔀 Router"]:::her --> H2["🔵 T1  NLI\nDeBERTa"]:::her --> H3["🟠 T2  Judge\nClaude Sonnet"]:::her --> H4["🔴 T3 Debate\nT4 Human"]:::her
+    end
+
+    subgraph OUT["📊 Evaluation UI"]
+        direction LR
+        O1(["Herald\nResults"]):::fe ~~~ O2(["Tier\nProgress"]):::fe ~~~ O3(["Human\nQueue"]):::fe ~~~ O4(["useHerald"]):::fe
+    end
+
+    subgraph OBS["📡 Observability"]
+        direction LR
+        OB1(["🧠 Braintrust\nLLM & Tool Traces"]):::obs ~~~ OB2(["📡 OpenTelemetry\nLatency & Tokens"]):::obs
+    end
+
+    N1          -->|"topic"| A1
+    A2          <-->|"🔧 tool calls"| M1
+    A4          --> R1 & R2
+    R4          -->|"/api/herald"| B1
+    B1          -->|"evaluate"| H1
+    H4          --> O1
+    H4          -.->|"❌ feedback"| A2
+    AGT & HER   -.->|"spans"| OB1
+    IN  & BE    -.->|"spans"| OB2
+```
