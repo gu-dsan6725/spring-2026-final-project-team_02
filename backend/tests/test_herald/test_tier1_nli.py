@@ -87,6 +87,19 @@ class TestParseHFOutput:
         result = _parse_hf_output(raw)
         assert result.label == "neutral"
 
+    def test_nested_single_example_input(self) -> None:
+        """Some HF pipeline calls wrap one example in an extra list."""
+        raw = [
+            [
+                {"label": "entailment", "score": 0.9},
+                {"label": "neutral", "score": 0.08},
+                {"label": "contradiction", "score": 0.02},
+            ]
+        ]
+        result = _parse_hf_output(raw)
+        assert result.label == "entailment"
+        assert result.scores["entailment"] == pytest.approx(0.9)
+
     def test_all_three_keys_always_present(self) -> None:
         raw = [{"label": "ENTAILMENT", "score": 1.0}]
         result = _parse_hf_output(raw)
