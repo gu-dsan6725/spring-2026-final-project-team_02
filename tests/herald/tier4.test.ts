@@ -22,7 +22,7 @@
  *
  *   Integration with revision pipeline:
  *   - After valid verdict, resolved_herald_result has verdict='valid'
- *   - After needs_revision verdict, resolved_herald_result carries suggested_revision
+ *   - After invalid verdict, resolved_herald_result carries suggested_revision
  *   - getPendingCount reflects pending/reviewed state transitions
  */
 
@@ -215,7 +215,7 @@ describe('submitHumanVerdict', () => {
     const result = submitHumanVerdict(
       'C-001',
       {
-        verdict: 'needs_revision',
+        verdict: 'invalid',
         notes: 'Source says 1,140 not 2,000.',
         suggested_revision: 'Maternal mortality in Chad stands at 1,140 per 100,000 live births.',
       },
@@ -291,20 +291,20 @@ describe('integration with revision pipeline verdicts', () => {
     expect(resolved_herald_result?.verdict).toBe('valid');
   });
 
-  it('needs_revision verdict carries suggested_revision through', () => {
+  it('invalid verdict with suggested_revision carries it through', () => {
     submitForHumanReview(makeClaim(), [], 'memo-001');
 
     const { resolved_herald_result } = submitHumanVerdict(
       'C-001',
       {
-        verdict: 'needs_revision',
+        verdict: 'invalid',
         notes: 'Change the number.',
         suggested_revision: 'Mortality is 1,140 per 100,000.',
       },
       'memo-001',
     );
 
-    expect(resolved_herald_result?.verdict).toBe('needs_revision');
+    expect(resolved_herald_result?.verdict).toBe('invalid');
     expect(resolved_herald_result?.suggested_revision).toBe('Mortality is 1,140 per 100,000.');
   });
 });

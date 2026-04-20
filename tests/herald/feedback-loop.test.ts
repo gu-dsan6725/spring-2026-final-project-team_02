@@ -448,10 +448,10 @@ describe('reviseClaimsFromHerald', () => {
     // Should not throw
   });
 
-  it('revises a needs_revision verdict the same as invalid', async () => {
+  it('triggers revision for invalid verdict', async () => {
     const claim = makeClaim();
     const memo = makeMemo(claim);
-    const heraldResult = makeHeraldResult({ verdict: 'needs_revision' });
+    const heraldResult = makeHeraldResult({ verdict: 'invalid' });
 
     const correctedText = 'Revised to match source.';
     mockGroqCreate.mockResolvedValueOnce(makeGroqResponse(makeRevisionJson(correctedText)));

@@ -37,14 +37,11 @@ interface EvalEntry extends NotesLogEntry {
 
 interface ClaimMetrics {
   total: number;
-  correct: number; // exact match (all 4 verdicts)
-  bucketCorrect: number; // same operational bucket: valid vs {invalid, needs_revision}
-  hardErrors: number; // valid ↔ {invalid, needs_revision} — claim skips revision or gets wrong treatment
-  softErrors: number; // invalid ↔ needs_revision — revision still triggered, just framed differently
+  correct: number; // exact match
   truePositives: number; // predicted valid, ground truth valid
-  falsePositives: number; // predicted valid, ground truth invalid/needs_revision
-  falseNegatives: number; // predicted invalid/needs_revision, ground truth valid
-  trueNegatives: number; // predicted invalid/needs_revision, ground truth invalid/needs_revision
+  falsePositives: number; // predicted valid, ground truth invalid
+  falseNegatives: number; // predicted invalid, ground truth valid
+  trueNegatives: number; // predicted invalid, ground truth invalid
   skepticFalseInvalids: number; // valid claim marked invalid (skeptic over-fire signal)
   tierCounts: Record<1 | 2 | 3 | 4, number>;
 }
@@ -65,10 +62,8 @@ interface BenchmarkResult {
 
 interface Metrics {
   total: number;
-  accuracy: number; // strict: exact verdict match
-  bucket_accuracy: number; // operational: same bucket (valid vs needs-action)
-  hard_error_rate: number; // valid ↔ {invalid, needs_revision} — the errors that matter
-  soft_error_rate: number; // invalid ↔ needs_revision — low-consequence confusion
+  accuracy: number; // exact verdict match (valid vs invalid vs uncertain)
+  error_rate: number; // valid ↔ invalid — the errors that matter
   precision: number;
   recall: number;
   f1: number;
@@ -81,9 +76,7 @@ interface PerClaimResult {
   derivation: string;
   ground_truth_verdict: Verdict;
   predicted_verdict: Verdict;
-  correct: boolean; // exact match
-  bucket_correct: boolean; // same operational bucket
-  error_type: 'none' | 'soft' | 'hard'; // none=correct, soft=invalid↔needs_revision, hard=valid↔needs-action
+  correct: boolean;
   tier_reached: number;
   confidence: number;
   is_skeptic_trap: boolean;
@@ -155,7 +148,7 @@ function parseArgs(argv: string[]): {
 
 const VALID_CLAIM_TYPES = new Set(Object.values(ClaimType));
 const VALID_DERIVATIONS = new Set(Object.values(DerivationMethod));
-const VALID_VERDICTS = new Set<string>(['valid', 'invalid', 'needs_revision', 'uncertain']);
+const VALID_VERDICTS = new Set<string>(['valid', 'invalid', 'uncertain']);
 
 function loadEvalSet(filePath: string, claimTypeFilter: string[] | null): EvalEntry[] {
   const abs = path.resolve(filePath);
@@ -322,27 +315,16 @@ async function runWithConcurrency<T>(
 // Metrics computation
 // ---------------------------------------------------------------------------
 
-/** Treat valid as "positive", invalid/needs_revision as "negative". */
+/** Treat valid as "positive", invalid/uncertain as "negative". */
 function isPositive(verdict: Verdict): boolean {
   return verdict === 'valid';
 }
 
 function computeMetrics(claimMetrics: ClaimMetrics): Metrics {
-  const {
-    total,
-    correct,
-    bucketCorrect,
-    hardErrors,
-    softErrors,
-    truePositives,
-    falsePositives,
-    falseNegatives,
-    skepticFalseInvalids,
-  } = claimMetrics;
+  const { total, correct, truePositives, falsePositives, falseNegatives, skepticFalseInvalids } =
+    claimMetrics;
   const accuracy = total === 0 ? 0 : correct / total;
-  const bucketAccuracy = total === 0 ? 0 : bucketCorrect / total;
-  const hardErrorRate = total === 0 ? 0 : hardErrors / total;
-  const softErrorRate = total === 0 ? 0 : softErrors / total;
+  const errorRate = total === 0 ? 0 : (total - correct) / total;
   const precision =
     truePositives + falsePositives === 0 ? 0 : truePositives / (truePositives + falsePositives);
   const recall =
@@ -353,9 +335,7 @@ function computeMetrics(claimMetrics: ClaimMetrics): Metrics {
   return {
     total,
     accuracy: round(accuracy),
-    bucket_accuracy: round(bucketAccuracy),
-    hard_error_rate: round(hardErrorRate),
-    soft_error_rate: round(softErrorRate),
+    error_rate: round(errorRate),
     precision: round(precision),
     recall: round(recall),
     f1: round(f1),
@@ -371,9 +351,6 @@ function emptyMetrics(): ClaimMetrics {
   return {
     total: 0,
     correct: 0,
-    bucketCorrect: 0,
-    hardErrors: 0,
-    softErrors: 0,
     truePositives: 0,
     falsePositives: 0,
     falseNegatives: 0,
@@ -381,19 +358,6 @@ function emptyMetrics(): ClaimMetrics {
     skepticFalseInvalids: 0,
     tierCounts: { 1: 0, 2: 0, 3: 0, 4: 0 },
   };
-}
-
-/** Returns which operational bucket a verdict falls into. */
-function verdictBucket(v: Verdict): 'valid' | 'needs-action' {
-  return v === 'valid' ? 'valid' : 'needs-action';
-}
-
-function classifyError(gt: Verdict, pred: Verdict): 'none' | 'soft' | 'hard' {
-  if (gt === pred) return 'none';
-  // Both in needs-action bucket (invalid ↔ needs_revision) — soft
-  if (verdictBucket(gt) === 'needs-action' && verdictBucket(pred) === 'needs-action') return 'soft';
-  // Crossed the valid / needs-action boundary — hard
-  return 'hard';
 }
 
 function updateMetrics(
@@ -406,13 +370,9 @@ function updateMetrics(
   m.total++;
   m.tierCounts[tierReached]++;
 
-  const errorType = classifyError(groundTruth, predicted);
-  if (errorType === 'none') m.correct++;
-  if (verdictBucket(groundTruth) === verdictBucket(predicted)) m.bucketCorrect++;
-  if (errorType === 'hard') m.hardErrors++;
-  if (errorType === 'soft') m.softErrors++;
+  if (groundTruth === predicted) m.correct++;
 
-  // Precision/recall: valid = positive class, needs-action = negative
+  // Precision/recall: valid = positive class, invalid/uncertain = negative
   if (isPositive(groundTruth) && isPositive(predicted)) m.truePositives++;
   if (!isPositive(groundTruth) && isPositive(predicted)) m.falsePositives++;
   if (isPositive(groundTruth) && !isPositive(predicted)) m.falseNegatives++;
@@ -489,9 +449,6 @@ async function main(): Promise<void> {
     }
 
     const correct = result.verdict === entry.ground_truth_verdict;
-    const bucketCorrect =
-      verdictBucket(entry.ground_truth_verdict) === verdictBucket(result.verdict);
-    const errorType = classifyError(entry.ground_truth_verdict, result.verdict);
     const isSkepticFalseInvalid =
       (entry.ground_truth_verdict === 'valid' && result.verdict === 'invalid') ||
       (isSkepticTrap && result.verdict === 'invalid');
@@ -521,8 +478,6 @@ async function main(): Promise<void> {
       ground_truth_verdict: gt,
       predicted_verdict: pred,
       correct,
-      bucket_correct: bucketCorrect,
-      error_type: errorType,
       tier_reached: tier,
       confidence: result.confidence,
       is_skeptic_trap: isSkepticTrap,
@@ -588,16 +543,8 @@ function printSummary(result: BenchmarkResult): void {
   console.log('');
 
   console.log('Overall Metrics:');
-  console.log(`  Strict accuracy (exact match):      ${pct(overall.accuracy)}`);
-  console.log(
-    `  Operational accuracy (bucket match): ${pct(overall.bucket_accuracy)}  ← the number that matters`,
-  );
-  console.log(
-    `  Hard error rate (valid↔needs-action): ${pct(overall.hard_error_rate)}  ← claim skips or mis-routes revision`,
-  );
-  console.log(
-    `  Soft error rate (invalid↔needs_rev):  ${pct(overall.soft_error_rate)}  ← revision still triggered, framing differs`,
-  );
+  console.log(`  Accuracy:                   ${pct(overall.accuracy)}  ← the number that matters`);
+  console.log(`  Error rate (valid↔invalid): ${pct(overall.error_rate)}`);
   console.log(
     `  Precision: ${pct(overall.precision)}  Recall: ${pct(overall.recall)}  F1: ${pct(overall.f1)}`,
   );
@@ -605,12 +552,12 @@ function printSummary(result: BenchmarkResult): void {
   console.log('');
 
   console.log('By Claim Type:');
-  const typeHeader = '  Type           Total  StrictAcc  BucketAcc  HardErr  SoftErr  F1';
+  const typeHeader = '  Type           Total  Accuracy  ErrorRate  F1';
   console.log(typeHeader);
   console.log('  ' + '-'.repeat(typeHeader.length - 2));
   for (const [type, m] of Object.entries(by_claim_type)) {
     console.log(
-      `  ${type.padEnd(14)} ${String(m.total).padStart(5)}  ${pct(m.accuracy).padEnd(10)} ${pct(m.bucket_accuracy).padEnd(10)} ${pct(m.hard_error_rate).padEnd(8)} ${pct(m.soft_error_rate).padEnd(8)} ${pct(m.f1)}`,
+      `  ${type.padEnd(14)} ${String(m.total).padStart(5)}  ${pct(m.accuracy).padEnd(9)} ${pct(m.error_rate).padEnd(10)} ${pct(m.f1)}`,
     );
   }
   console.log('');
@@ -631,12 +578,10 @@ function printSummary(result: BenchmarkResult): void {
   } else {
     console.log('  ✓ Skeptic false-invalid rate within acceptable range');
   }
-  if (overall.hard_error_rate > 0.15) {
-    console.log(
-      `  ⚠ Hard error rate ${pct(overall.hard_error_rate)} > 15% — valid claims being mis-routed`,
-    );
+  if (overall.error_rate > 0.15) {
+    console.log(`  ⚠ Error rate ${pct(overall.error_rate)} > 15% — valid claims being mis-routed`);
   } else {
-    console.log(`  ✓ Hard error rate ${pct(overall.hard_error_rate)} — pipeline routing is sound`);
+    console.log(`  ✓ Error rate ${pct(overall.error_rate)} — pipeline routing is sound`);
   }
   if (overall.f1 < 0.75) {
     console.log(

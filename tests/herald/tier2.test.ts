@@ -9,7 +9,7 @@
  *   - Prompts for different claim types are not identical
  *
  *   Decision logic (confidence thresholds):
- *   - confidence > 0.85 → verdict returned as-is (valid / invalid / needs_revision)
+ *   - confidence > 0.85 → verdict returned as-is (valid / invalid)
  *   - confidence 0.6–0.85 → verdict overridden to 'uncertain', reasoning notes escalation
  *   - confidence < 0.6 → verdict overridden to 'uncertain', reasoning notes HIGH-PRIORITY
  *
@@ -94,6 +94,7 @@ function mockJudgeResponse(input: {
   confidence: number;
   reasoning: string;
   suggested_revision?: string;
+  meaning_drift_label?: string | null;
 }) {
   return {
     id: 'chatcmpl_test',
@@ -200,12 +201,11 @@ describe('getJudgePrompt — prompt selection', () => {
     expect(prompt).toContain('premises');
   });
 
-  it('all prompts include base instructions about valid/invalid/needs_revision/uncertain', () => {
+  it('all prompts include base instructions about valid/invalid/uncertain', () => {
     for (const claimType of Object.values(ClaimType)) {
       const prompt = getJudgePrompt(claimType);
       expect(prompt).toContain('VALID');
       expect(prompt).toContain('INVALID');
-      expect(prompt).toContain('NEEDS_REVISION');
       expect(prompt).toContain('UNCERTAIN');
     }
   });
@@ -215,6 +215,13 @@ describe('getJudgePrompt — prompt selection', () => {
       const prompt = getJudgePrompt(claimType);
       expect(prompt).toContain('submit_evaluation');
     }
+  });
+
+  it('base prompt includes paraphrase meaning-drift guidance', () => {
+    const prompt = getJudgePrompt(ClaimType.Causal);
+    expect(prompt).toContain('semantic fidelity');
+    expect(prompt).toContain('meaning_drift_label');
+    expect(prompt).toContain('causal_strength_drift');
   });
 
   it('_CLAIM_CRITERIA exposes all 6 claim types', () => {
@@ -261,10 +268,10 @@ describe('evaluateWithLLMJudge — high-confidence exit (> 0.80)', () => {
     expect(result.suggested_revision).toBe('Change "5.2%" to "5.1%" to match source.');
   });
 
-  it('returns "needs_revision" at exactly 0.81 (above threshold)', async () => {
+  it('returns "invalid" at exactly 0.81 (above threshold)', async () => {
     mockCreate.mockResolvedValueOnce(
       mockJudgeResponse({
-        verdict: 'needs_revision',
+        verdict: 'invalid',
         confidence: 0.81,
         reasoning: 'Missing qualifier.',
         suggested_revision: 'Add "approximately" before the statistic.',
@@ -273,7 +280,7 @@ describe('evaluateWithLLMJudge — high-confidence exit (> 0.80)', () => {
 
     const result = await evaluateWithLLMJudge(makeEntry());
 
-    expect(result.verdict).toBe('needs_revision');
+    expect(result.verdict).toBe('invalid');
     expect(result.confidence).toBeCloseTo(0.81);
   });
 
@@ -454,6 +461,57 @@ describe('evaluateWithLLMJudge — Tier 1 context injection', () => {
     expect(userContent).toContain('agent_inference');
     expect(userContent).toContain('Urban poverty rose sharply over the decade.');
     expect(userContent).toContain('S-007');
+  });
+
+  it('adds a paraphrase fidelity checklist for paraphrase claims', async () => {
+    mockCreate.mockResolvedValueOnce(
+      mockJudgeResponse({
+        verdict: 'valid',
+        confidence: 0.92,
+        reasoning: 'Faithful paraphrase.',
+        meaning_drift_label: 'no_drift',
+      }),
+    );
+
+    await evaluateWithLLMJudge(
+      makeEntry({
+        derivation: DerivationMethod.Paraphrase,
+        claim_text: 'Rainfall variability intensified drought cycles.',
+      }),
+    );
+
+    const [params] = mockCreate.mock.calls[0] as [
+      { messages: Array<{ role: string; content: string }> },
+    ];
+    const userContent = params.messages[1]?.content ?? '';
+
+    expect(userContent).toContain('Paraphrase Fidelity Checklist');
+    expect(userContent).toContain('no_drift');
+    expect(userContent).toContain('causal_strength_drift');
+  });
+});
+
+describe('evaluateWithLLMJudge — meaning drift propagation', () => {
+  it('preserves meaning_drift_label on high-confidence paraphrase verdicts', async () => {
+    mockCreate.mockResolvedValueOnce(
+      mockJudgeResponse({
+        verdict: 'invalid',
+        confidence: 0.86,
+        reasoning: 'The claim overstates the source recommendation.',
+        suggested_revision: 'According to the source, this approach is recommended best practice.',
+        meaning_drift_label: 'normative_strength_drift',
+      }),
+    );
+
+    const result = await evaluateWithLLMJudge(
+      makeEntry({
+        claim_type: ClaimType.Normative,
+        derivation: DerivationMethod.Paraphrase,
+      }),
+    );
+
+    expect(result.verdict).toBe('invalid');
+    expect(result.meaning_drift_label).toBe('normative_strength_drift');
   });
 });
 
