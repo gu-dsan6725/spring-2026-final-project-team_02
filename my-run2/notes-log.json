@@ -1,129 +1,62 @@
 [
   {
     "claim_id": "C-001",
-    "claim_text": "The Housing Choice Voucher program is critical for low-income families seeking affordable housing.",
-    "claim_type": "normative",
-    "derivation": "direct_extraction",
+    "claim_text": "Rural residents can benefit tremendously from the homeownership program, but issues such as housing affordability, shortage of units, and inadequate social service linkages inhibit the use of and access to Section 8 vouchers in rural communities.",
+    "claim_type": "synthesis",
+    "derivation": "paraphrase",
     "sources": [
       {
         "source_id": "S-001",
-        "source_title": "The Housing Choice Voucher Program",
-        "source_url": "https://www.cbpp.org/research/housing/the-housing-choice-voucher-program",
-        "relevant_chunk": "The Section 8 Housing Choice Voucher program is critical for low-income families seeking affordable housing."
+        "source_title": "Housing Assistance Council SECTION 8 HOMEOWNERSHIP: A GUIDE FOR RURAL HOUSING",
+        "source_url": "https://ruralhome.org/wp-content/uploads/storage/documents/sec8ownership.pdf",
+        "relevant_chunk": "Rural · residents can benefit tremendously from the homeownership program. However, issues such · as housing affordability, shortage of units, and inadequate social service linkages inhibit the · use of and access to Section 8 vouchers in rural communities (HAC 2001)."
       }
     ],
-    "reasoning": "This source explicitly states the importance of the program for low-income families."
+    "reasoning": "The source provides information on the challenges faced by rural residents in accessing Section 8 vouchers."
   },
   {
     "claim_id": "C-002",
-    "claim_text": "Nationally, only one in four income-eligible households receives a voucher due to constrained funding.",
-    "claim_type": "statistical",
-    "derivation": "direct_extraction",
+    "claim_text": "Voucher holders face significant choice, and recipients often encounter issues such as limited payment standards, landlord reluctance in higher-opportunity areas, and administrative burdens that inhibit mobility.",
+    "claim_type": "synthesis",
+    "derivation": "paraphrase",
     "sources": [
       {
         "source_id": "S-002",
         "source_title": "Section 8 (housing) - Wikipedia",
         "source_url": "https://en.wikipedia.org/wiki/Section_8_(housing)",
-        "relevant_chunk": "Nationally, only one in four income-eligible households receives a voucher due to constrained funding."
+        "relevant_chunk": "Voucher holders also face significant ... choice, recipients often encounter issues such as limited payment standards, landlord reluctance in higher‑opportunity areas, and administrative burdens that inhibit mobility."
       }
     ],
-    "reasoning": "This statistic was directly extracted from the source which discusses the allocation of vouchers."
+    "reasoning": "The source provides information on the challenges faced by voucher holders in terms of mobility and access to higher-opportunity areas."
   },
   {
     "claim_id": "C-003",
-    "claim_text": "In rural areas and smaller cities, the Section 8 waiting list may be as short as six months.",
+    "claim_text": "Waiting lists and long waiting periods for vouchers are common because HUD and local PHAs have limited resources.",
     "claim_type": "statistical",
-    "derivation": "direct_extraction",
+    "derivation": "paraphrase",
     "sources": [
       {
         "source_id": "S-003",
-        "source_title": "Section 8 Waiting List 2026: Best Free Guide to Getting Housing Faster",
-        "source_url": "https://usbenefitguide.com/section-8-waiting-list/",
-        "relevant_chunk": "In rural areas and smaller cities, the section 8 waiting list may be as short as six months."
+        "source_title": "Section 8 housing choice vouchers",
+        "source_url": "https://www.usa.gov/housing-voucher-section-8",
+        "relevant_chunk": "Waiting lists and long waiting periods for vouchers are common because HUD and local PHAs have limited resources."
       }
     ],
-    "reasoning": "The specific claim about the waiting list duration in rural areas is stated explicitly in the source."
+    "reasoning": "The source provides information on the waiting lists and periods for vouchers."
   },
   {
     "claim_id": "C-004",
-    "claim_text": "Voucher holders face significant barriers to geographic mobility, which limit access to neighborhoods with higher-performing schools and lower crime rates.",
-    "claim_type": "causal",
-    "derivation": "direct_extraction",
-    "sources": [
-      {
-        "source_id": "S-004",
-        "source_title": "Section 8 (housing) - Wikipedia",
-        "source_url": "https://en.wikipedia.org/wiki/Section_8_(housing)",
-        "relevant_chunk": "Voucher holders also face significant barriers to geographic mobility, which may limit access to neighborhoods with higher-performing schools, lower crime rates, and greater economic opportunity."
-      }
-    ],
-    "reasoning": "This claim outlines the causal relationship between voucher access and geographic mobility based on the direct findings of the source."
-  },
-  {
-    "claim_id": "C-005",
-    "claim_text": "A significant number of voucher recipients lose their vouchers before they can be fully utilized, although the exact percentage is not specified in the source.",
+    "claim_text": "At least 75% of the households admitted to the Housing Choice Voucher Program have incomes at or below 30% of the AMI.",
     "claim_type": "statistical",
     "derivation": "paraphrase",
     "sources": [
       {
-        "source_id": "S-005",
-        "source_title": "Voucher program is supposed to help poor families rent a home. Nearly half the time, it fails.",
-        "source_url": "https://eu.usatoday.com/story/news/investigations/2024/08/13/federal-housing-vouchers-fail-low-income-families/74499904007/",
-        "relevant_chunk": "In every corner of the country, from rural Nevada to small-town North Carolina to the nation’s largest cities, people are losing their vouchers before they can use them at staggering rates."
-      }
-    ],
-    "reasoning": "The original claim implied a specific statistic ('nearly half') that was not supported by the source. The revised claim removes this implication and instead conveys the general trend mentioned in the source, which is that a significant number of voucher recipients lose their vouchers, without providing an exact percentage."
-  },
-  {
-    "claim_id": "C-006",
-    "claim_text": "Geographic mobility barriers exist that may affect families' ability to relocate to areas with better economic and educational prospects, but the extent of this impact is not clearly established by the sources.",
-    "claim_type": "causal",
-    "derivation": "paraphrase",
-    "sources": [
-      {
         "source_id": "S-004",
-        "source_title": "Section 8 (housing) - Wikipedia",
-        "source_url": "https://en.wikipedia.org/wiki/Section_8_(housing)",
-        "relevant_chunk": "Voucher holders also face significant barriers to geographic mobility."
-      },
-      {
-        "source_id": "S-006",
-        "source_title": "Housing Assistance Council SECTION 8 HOMEOWNERSHIP: A GUIDE FOR RURAL HOUSING",
-        "source_url": "https://ruralhome.org/wp-content/uploads/storage/documents/sec8ownership.pdf",
-        "relevant_chunk": "Issues such as housing affordability, shortage of units, and inadequate social service linkages inhibit the use of and access to Section 8 vouchers in rural communities."
+        "source_title": "Housing Choice Voucher (Section 8) - Rural Resources",
+        "source_url": "https://ruralresources.org/program/housing-choice-voucher-section-8/",
+        "relevant_chunk": "SHA is also required to ensure that at least 75% of the households admitted to the Housing Choice Voucher Program have incomes at or below 30% of the AMI."
       }
     ],
-    "reasoning": "The revision aims to address the feedback by using more precise language that reflects the indirect nature of the relationship between geographic mobility barriers and families' ability to relocate. It acknowledges the existence of barriers and their potential effect on relocation opportunities while clearly stating that the extent of this impact is not established by the sources."
-  },
-  {
-    "claim_id": "C-007",
-    "claim_text": "Section 8 agencies face challenges in serving the same number of families and may need to find savings to address current shortfalls.",
-    "claim_type": "normative",
-    "derivation": "direct_extraction",
-    "sources": [
-      {
-        "source_id": "S-007",
-        "source_title": "Housing Choice Voucher Funding—Dealing with Shortfalls",
-        "source_url": "https://www.housingfinance.com/finance/section-8-voucher-funding-dealing-shortfalls",
-        "relevant_chunk": "In order to serve the same number of families, Section 8 agencies were going to have to look for ways to find savings."
-      }
-    ],
-    "reasoning": "The revision removes the unsubstantiated claim about increasing funding for the HCV program being necessary to address shortfalls and instead focuses on the supported fact that Section 8 agencies need to find savings to serve the same number of families, as stated in the source material."
-  },
-  {
-    "claim_id": "C-008",
-    "claim_text": "Targeted outreach programs to educate landlords in rural areas about the benefits of accepting vouchers can mitigate discrimination.",
-    "claim_type": "normative",
-    "derivation": "agent_inference",
-    "sources": [],
-    "reasoning": "This recommendation is drawn from the observed barriers in accepting vouchers as reported across various sources."
-  },
-  {
-    "claim_id": "C-009",
-    "claim_text": "Creating incentives for developers to build more affordable rental units in rural areas can help alleviate the documented shortage.",
-    "claim_type": "normative",
-    "derivation": "agent_inference",
-    "sources": [],
-    "reasoning": "This conclusion follows logically from the need to increase available housing options for voucher holders in rural settings."
+    "reasoning": "The source provides information on the income eligibility for the Housing Choice Voucher Program."
   }
 ]

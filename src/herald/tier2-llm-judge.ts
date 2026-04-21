@@ -241,7 +241,7 @@ function applyDecisionLogic(raw: JudgeToolInput): TierOutput {
       confidence,
       reasoning: raw.reasoning,
     };
-    if (raw.suggested_revision !== undefined && raw.suggested_revision.length > 0) {
+    if (raw.suggested_revision != null && raw.suggested_revision.length > 0) {
       output.suggested_revision = raw.suggested_revision;
     }
     if (raw.meaning_drift_label !== undefined) {

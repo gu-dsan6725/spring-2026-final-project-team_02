@@ -704,7 +704,66 @@ npm run test:integration # Full pipeline integration tests
 # Observability
 npm run braintrust:view  # Open Braintrust dashboard
 npm run telemetry:view   # View OpenTelemetry traces
+
+# HERALD Benchmark
+npx tsx --env-file=.env scripts/run-herald-benchmark.ts --concurrency 1
 ```
+
+---
+
+## HERALD Benchmark Logging — Required Protocol
+
+**Every time you run the benchmark, you MUST update `docs/benchmark-notes/changelog.md`.**
+
+This is not optional. The changelog is the primary record of what has been tried, what
+worked, and what didn't. A teammate is continuing this work and needs the full history.
+
+### After every benchmark run, add a new entry to `docs/benchmark-notes/changelog.md` with:
+
+1. **Result file** — the exact filename written to `results/` (e.g. `results/benchmark-2026-04-21.json`)
+2. **Timestamp** — from the `run_timestamp` field in the JSON
+3. **Accuracy** — the `overall.accuracy` value as a percentage
+4. **Changes before this run** — every file you modified since the last benchmark run,
+   with a 1-sentence description of what changed and why. Be specific: name the prompt
+   block, the function, the threshold value.
+5. **What the results revealed** — per-claim-type breakdown, tier distribution, which
+   claims are still wrong and what pattern they share
+6. **Wrong claims table** — list every claim ID that is still wrong, with its type,
+   derivation, and a brief diagnosis of why it failed
+
+### The changelog entry format is:
+
+```markdown
+### Run N — [brief description]
+
+**Result file:** `results/benchmark-YYYY-MM-DD.N.json`
+**Timestamp:** ...
+**Accuracy: XX%** (N/50)
+
+#### Changes before this run
+
+- `path/to/file.ts`: what changed and why
+
+#### What the results revealed
+
+...
+
+#### Wrong claims (N wrong)
+
+| Claim  | Type | Derivation | Error |
+| ------ | ---- | ---------- | ----- |
+| GT-XXX | ...  | ...        | ...   |
+```
+
+### Key rules:
+
+- The benchmark uses the **TypeScript** files in `src/herald/`. Changes to
+  `backend/src/policy_memo_agent/herald/prompts/` (the Python backend) have **no effect**
+  on benchmark results.
+- Always diff the new result against the previous one to identify which specific claims
+  changed verdict. Use the per_claim_results arrays in both JSON files.
+- If accuracy did not change, diagnose _why_ — look at tier distribution shifts and
+  confidence score changes even when verdicts are the same.
 
 ---
 
