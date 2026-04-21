@@ -1,30 +1,13 @@
 /**
- * GovReport tool server.
+ * Government report search — queries GAO, CBO, and CRS directly via web search
+ * filtered to authoritative government domains.
  *
- * Searches the launch/gov_report dataset on HuggingFace Datasets Server.
- * Contains ~19,000 US government reports (GAO, CRS, CDC, OMB).
- * No authentication required for public datasets.
+ * Replaces the defunct HuggingFace gov_report dataset endpoint.
  */
 
-interface GovReportRow {
-  title?: string;
-  input?: string; // full report text
-  output?: string; // human-written summary
-}
+import { geminiSearchHandler } from './gemini-search-server';
 
-interface HFSearchResponse {
-  rows?: Array<{ row?: GovReportRow }>;
-  num_rows_total?: number;
-}
-
-interface GovReportResult {
-  title: string;
-  summary: string;
-  full_text_excerpt: string;
-  source_url: string;
-}
-
-const DATASET_SOURCE_URL = 'https://huggingface.co/datasets/launch/gov_report';
+const GOV_REPORT_SITES = 'site:gao.gov OR site:cbo.gov OR site:crs.gov OR site:huduser.gov OR site:nlihc.org';
 
 export async function govreportHandler(
   input: Record<string, unknown>,
@@ -36,53 +19,11 @@ export async function govreportHandler(
     return { error: 'query is required' };
   }
 
-  const url = new URL('https://datasets-server.huggingface.co/search');
-  url.searchParams.set('dataset', 'launch/gov_report');
-  url.searchParams.set('config', 'default');
-  url.searchParams.set('split', 'train');
-  url.searchParams.set('query', query);
-  url.searchParams.set('limit', String(Math.min(maxResults, 10)));
-
-  const response = await fetch(url.toString(), {
-    headers: { Accept: 'application/json' },
+  // Delegate to web search with a government-site filter
+  const result = await geminiSearchHandler({
+    query: `${query} ${GOV_REPORT_SITES}`,
+    max_results: maxResults,
   });
 
-  // Gracefully handle non-200 (e.g. dataset index not ready)
-  if (!response.ok) {
-    return {
-      results: [],
-      query,
-      total: 0,
-      note: `HuggingFace search returned ${String(response.status)}`,
-    };
-  }
-
-  let data: HFSearchResponse;
-  try {
-    data = (await response.json()) as HFSearchResponse;
-  } catch {
-    return { results: [], query, total: 0, note: 'Failed to parse HuggingFace response' };
-  }
-
-  const rows = data.rows ?? [];
-
-  const results: GovReportResult[] = rows
-    .map((r) => r.row)
-    .filter((row): row is GovReportRow => row !== undefined)
-    .map((row) => {
-      const inputText = row.input ?? '';
-      const title =
-        typeof row.title === 'string' && row.title.length > 0
-          ? row.title
-          : inputText.slice(0, 80).replace(/\n/g, ' ').trim();
-
-      return {
-        title,
-        summary: row.output ?? '',
-        full_text_excerpt: inputText.slice(0, 2000),
-        source_url: DATASET_SOURCE_URL,
-      };
-    });
-
-  return { results, query, total: results.length };
+  return { ...result, source: 'gov_report_search' };
 }

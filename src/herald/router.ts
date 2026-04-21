@@ -34,14 +34,14 @@ export interface RouteDecision {
 
 /** Determine which tier a claim should start evaluation at. */
 export function routeClaim(claim: NotesLogEntry): RouteDecision {
-  const config = CLAIM_TYPE_CONFIG[claim.claim_type];
-  if (config.skipNLI) {
-    return {
-      startTier: 2,
-      skipNLI: true,
-      nliThreshold: null,
-      rationale: `Claim type '${claim.claim_type}' skips NLI — starting at Tier 2.`,
-    };
+  const config = CLAIM_TYPE_CONFIG[claim.claim_type as keyof typeof CLAIM_TYPE_CONFIG];
+  // Unknown/hallucinated claim types skip NLI and go to Tier 2 for human-style review
+  if (config == null || config.skipNLI) {
+    const rationale =
+      config == null
+        ? `Unknown claim type '${claim.claim_type}' — defaulting to Tier 2.`
+        : `Claim type '${claim.claim_type}' skips NLI — starting at Tier 2.`;
+    return { startTier: 2, skipNLI: true, nliThreshold: null, rationale };
   }
   return {
     startTier: 1,

@@ -348,17 +348,17 @@ Use the available tools to gather evidence. For each tool call:
 `;
 
 // ---------------------------------------------------------------------------
-// Memo writing instructions
+// Memo writing instructions (default, used only when no template is provided)
 // ---------------------------------------------------------------------------
 
-const MEMO_WRITING_INSTRUCTIONS = `
+const MEMO_WRITING_INSTRUCTIONS_DEFAULT = `
 ## Step 3 — Write the Policy Memo
 
 After completing research, write the memo using ONLY claims from the notes log.
 
 Rules:
 - Reference every factual claim with its [C-XXX] marker inline in the prose.
-- Follow the provided template structure if one was given; otherwise use standard memo sections:
+- Use the following standard memo sections:
 
   Executive Summary —
   - Open by acknowledging shared ground with the audience: a value, commitment, or prior action they have already taken. This disarms resistance before the ask.
@@ -367,34 +367,32 @@ Rules:
 
   Problem and Context (40–50%) —
   - Use only cited claims [C-XXX].
-  - Build the argument in layers: move from the concrete opening example outward to the pattern, then to the institutional failure, then to the systemic cost. Each layer should make the previous one feel like evidence of a larger, solvable problem.
+  - Build the argument in layers: move from the concrete opening example outward to the pattern, then to the institutional failure, then to the systemic cost.
   - Explain causes, consequences, and trends. Emphasize scale and urgency.
   - Include only background that directly supports decision-making.
 
   Options and Analysis (40–50%) —
   - Present options in prose; evaluate each using the same criteria; explicitly compare trade-offs.
-  - Align the recommendation with the audience's existing commitments wherever possible — prior statements, signed orders, public positions, or stated goals. Frame the ask as follow-through, not a new demand.
-  - Include a steelman counterargument to the recommendation and explain why it is weaker under the criteria.
+  - Align the recommendation with the audience's existing commitments wherever possible.
+  - Include a steelman counterargument to the recommendation and explain why it is weaker.
 
   Recommendation —
   - Justify the selected option using an evidence chain.
-  - Clearly explain why it is superior to alternatives according to the evaluation criteria.
+  - Clearly explain why it is superior to alternatives.
   - Include implementation realism, feasibility constraints, and risks.
 
   Conclusion —
   - Reaffirm urgency.
-  - End with a specific, bounded call to action: name the precise action, the relevant parties, and any deadline or consequence of delay. The reader must finish knowing exactly what they are being asked to do.
+  - End with a specific, bounded call to action: name the precise action, the relevant parties, and any deadline or consequence of delay.
 
 Writing standards:
-- Policy-analyst level: concise (500 words), evidence-grounded, action-oriented.
-- Active voice throughout. Let facts carry the argument — strong verbs and specific numbers over strong adjectives. The reader should feel urgency, not be told to feel it.
+- Policy-analyst level: concise (600+ words), evidence-grounded, action-oriented.
+- Active voice throughout. Strong verbs and specific numbers over strong adjectives.
 - Do not introduce any claim that does not have a notes-log entry.
 - Do not use unsupported generalizations.
 - Clearly distinguish: fact (cited) | inference (synthesis) | prediction (conditional).
-- Synthesis claims (claim_type = "synthesis") must be framed as analytical inference, not established fact.
-- Predictive claims must include the source and conditionality (e.g., "according to X, under assumption Y, ...").
-
-
+- Synthesis claims must be framed as analytical inference, not established fact.
+- Predictive claims must include source and conditionality.
 `;
 
 // ---------------------------------------------------------------------------
@@ -413,15 +411,32 @@ export function assembleSystemPrompt(input: MemoInput): string {
     `- Maximum research tokens: ${String(input.max_research_tokens ?? 100000)}`,
   ].join('\n');
 
-  const knownSourcesSection =
-    input.known_sources !== undefined && input.known_sources.length > 0
-      ? `\n## Known Sources Provided by the User\n\nConsult these sources first before using search tools:\n${input.known_sources.map((s, i) => `${String(i + 1)}. ${s}`).join('\n')}\n`
-      : '';
+  const hasKnownSources =
+    input.known_sources !== undefined && input.known_sources.length > 0;
+  const hasTemplate =
+    input.template !== undefined && input.template.trim().length > 0;
 
-  const templateSection =
-    input.template !== undefined && input.template.trim().length > 0
-      ? `\n## Memo Template\n\nThe user has provided the following structural template. Follow it exactly:\n\n${input.template}\n`
-      : '';
+  // Known sources: mandate fetch_url as the first tool calls
+  const knownSourcesSection = hasKnownSources
+    ? `\n## Known Sources — MANDATORY FIRST STEP\n\n` +
+      `The user has provided these specific source URLs. ` +
+      `Your FIRST tool calls MUST be fetch_url for each URL below, in order, ` +
+      `before making any other tool calls. Do not skip this step.\n\n` +
+      (input.known_sources ?? []).map((s, i) => `${String(i + 1)}. ${s}`).join('\n') +
+      `\n\nFor each URL: call fetch_url, read the content carefully, and extract all ` +
+      `relevant claims into the notes log before moving on.\n`
+    : '';
+
+  // Template: hard constraint replacing default memo structure
+  const templateSection = hasTemplate
+    ? `\n## REQUIRED Memo Structure — YOU MUST FOLLOW THIS EXACTLY\n\n` +
+      `The output memo MUST contain exactly the following sections, in this order, ` +
+      `with exactly these headings. Do NOT add, remove, rename, or reorder sections. ` +
+      `Do NOT use the default memo structure — this template completely overrides it.\n\n` +
+      (input.template ?? '') +
+      `\n\nEach section heading in your output JSON sections array must match the headings ` +
+      `above verbatim. Subsections (e.g. 3a, 3b) must appear as separate entries.\n`
+    : '';
 
   const backgroundSection =
     input.background !== undefined && input.background.trim().length > 0
@@ -430,6 +445,22 @@ export function assembleSystemPrompt(input: MemoInput): string {
 
   const scope = detectTopicScope(input.topic + ' ' + (input.background ?? ''));
   const toolPrioritySection = buildToolPriorityInstructions(scope);
+
+  // Use template-aware writing instructions
+  const memoWritingInstructions = hasTemplate
+    ? `\n## Step 3 — Write the Policy Memo\n\n` +
+      `After completing research, write the memo using ONLY claims from the notes log.\n\n` +
+      `CRITICAL: You MUST use the section structure defined in "REQUIRED Memo Structure" above. ` +
+      `Do not invent new sections or collapse subsections.\n\n` +
+      `Rules:\n` +
+      `- Reference every factual claim with its [C-XXX] marker inline in the prose.\n` +
+      `- Each section must have substantive content — at least 2–3 cited claims per section.\n` +
+      `- Minimum 600 words total across all sections.\n` +
+      `- Active voice. Specific numbers from sources, not vague generalizations.\n` +
+      `- Do not introduce any claim that does not have a notes-log entry.\n` +
+      `- Synthesis claims must be framed as analytical inference, not established fact.\n` +
+      `- Predictive claims must include the source and conditionality.\n`
+    : MEMO_WRITING_INSTRUCTIONS_DEFAULT;
 
   return `You are an expert policy researcher and writer. Your task is to research the topic below
 and produce a well-sourced policy memo with full claim provenance.
@@ -455,7 +486,7 @@ ${RESEARCH_PLAN_INSTRUCTIONS}
 ---
 ${TOOL_USE_INSTRUCTIONS}
 ---
-${MEMO_WRITING_INSTRUCTIONS}
+${memoWritingInstructions}
 ---
 ${OUTPUT_SCHEMA}
 
@@ -468,7 +499,7 @@ ${OUTPUT_SCHEMA}
 4. Never exceed the tool-call or token budget.
 5. Never fabricate a source. If a source is unavailable, record it as such.
 6. Never use console.log or print statements — all output must be structured JSON.
-`;
+${hasKnownSources ? '7. You MUST call fetch_url for each known source URL before any other tool calls.\n' : ''}${hasTemplate ? `${hasKnownSources ? '8' : '7'}. The memo sections MUST match the REQUIRED Memo Structure headings exactly.\n` : ''}`;
 }
 
 /**

@@ -27,21 +27,23 @@ import { getJudgeSynthesisPrompt } from './prompts/judge-synthesis';
 // Constants
 // ---------------------------------------------------------------------------
 
-const DEBATE_MODEL = 'gpt-4o-mini';
+const DEBATE_MODEL = 'gpt-4o';
 const DEBATE_TEMPERATURE = 0.3;
 const DEBATE_MAX_TOKENS = 768;
 const JUDGE_MAX_TOKENS = 1024;
 const JUDGE_CONFIDENCE_THRESHOLD = 0.8;
 
 // ---------------------------------------------------------------------------
-// OpenAI client (lazy singleton)
+// Groq client via OpenAI-compatible SDK (lazy singleton)
 // ---------------------------------------------------------------------------
 
 let _client: OpenAI | null = null;
 
 function getClient(): OpenAI {
   if (_client === null) {
-    _client = new OpenAI({ apiKey: process.env['OPENAI_API_KEY'] });
+    _client = new OpenAI({
+      apiKey: process.env['OPENAI_API_KEY'],
+    });
   }
   return _client;
 }

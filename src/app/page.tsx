@@ -1,507 +1,619 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+/**
+ * Main application page — Policy Memo Writing Agent with HERALD Evaluation.
+ *
+ * Phases:
+ *   1. Input    — user fills InputForm
+ *   2. Research — agent runs (progress in AgentProgress)
+ *   3. Review   — user reads memo + selects claims for HERALD
+ *   4. Herald   — evaluation + feedback loop + human review queue
+ */
+
+import { useState, useCallback } from 'react';
+
 import InputForm from '@/ui/components/InputForm';
-import AgentProgress, { type AgentStep } from '@/ui/components/AgentProgress';
+import AgentProgress from '@/ui/components/AgentProgress';
 import MemoViewer from '@/ui/components/MemoViewer';
 import NotesLog from '@/ui/components/NotesLog';
 import ClaimSelector from '@/ui/components/ClaimSelector';
 import HeraldResults from '@/ui/components/HeraldResults';
-import { ClaimType, DerivationMethod } from '@/types/claims';
-import type { NotesLogEntry } from '@/types/claims';
-import type { MemoInput, MemoSection } from '@/types/memo';
-import type { HeraldResult } from '@/types/herald';
+import HumanReviewQueue from '@/ui/components/HumanReviewQueue';
+import ErrorBoundary from '@/ui/components/ErrorBoundary';
+import { ToastContainer, useToast } from '@/ui/components/Toast';
+import { useAgent } from '@/ui/hooks/useAgent';
+import { useHerald } from '@/ui/hooks/useHerald';
+import type { MemoInput } from '@/types/memo';
+import {
+  exportAsMarkdown,
+  exportAsDocx,
+  exportNotesLog,
+  exportHeraldReport,
+  exportAsZip,
+} from '@/ui/utils/exportMemo';
 
 // ---------------------------------------------------------------------------
-// Phase types
+// Phase type
 // ---------------------------------------------------------------------------
 
-type AppPhase = 'input' | 'generating' | 'memo' | 'notes-log' | 'evaluate' | 'herald';
+type AppPhase = 'input' | 'generating' | 'review' | 'evaluating' | 'results';
 
-interface Tab {
-  id: Extract<AppPhase, 'memo' | 'notes-log' | 'evaluate' | 'herald'>;
-  label: string;
+// ---------------------------------------------------------------------------
+// Header
+// ---------------------------------------------------------------------------
+
+function Header(): React.ReactElement {
+  return (
+    <header
+      className="w-full border-b px-6 py-4 flex items-center justify-between"
+      style={{
+        backgroundColor: 'var(--color-navy, #0b2545)',
+        borderColor: 'var(--color-navy-dark, #071b38)',
+      }}
+    >
+      <div className="flex items-center gap-3">
+        <span
+          className="text-xl font-bold tracking-wide"
+          style={{ color: 'var(--color-gold, #d4af37)', fontFamily: 'var(--font-serif, serif)' }}
+        >
+          HERALD
+        </span>
+        <span className="text-sm opacity-60" style={{ color: 'white' }}>
+          Policy Memo Agent
+        </span>
+      </div>
+      <nav className="flex items-center gap-2 text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>
+        <a
+          href="https://github.com/gu-dsan6725"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:opacity-100 transition-opacity"
+        >
+          GitHub
+        </a>
+        <span>•</span>
+        <span>DSAN 6725</span>
+      </nav>
+    </header>
+  );
 }
 
-const POST_GENERATION_TABS: Tab[] = [
-  { id: 'memo', label: 'Memo' },
-  { id: 'notes-log', label: 'Notes Log' },
-  { id: 'evaluate', label: 'Evaluate Claims' },
-  { id: 'herald', label: 'HERALD Results' },
+// ---------------------------------------------------------------------------
+// Export toolbar
+// ---------------------------------------------------------------------------
+
+interface ExportToolbarProps {
+  onExportMd: () => void;
+  onExportDocx: () => void;
+  onExportNotes: () => void;
+  onExportHerald: () => void;
+  onExportZip: () => void;
+  hasHerald: boolean;
+}
+
+function ExportToolbar({
+  onExportMd,
+  onExportDocx,
+  onExportNotes,
+  onExportHerald,
+  onExportZip,
+  hasHerald,
+}: ExportToolbarProps): React.ReactElement {
+  const btnStyle: React.CSSProperties = {
+    padding: '0.4rem 0.85rem',
+    borderRadius: '0.375rem',
+    border: '1px solid var(--color-paper-dark, #ddd)',
+    backgroundColor: 'white',
+    cursor: 'pointer',
+    fontSize: '0.8125rem',
+    fontFamily: 'var(--font-sans, sans-serif)',
+    color: 'var(--color-navy, #0b2545)',
+    transition: 'background-color 0.15s',
+  };
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span
+        className="text-xs font-medium opacity-60 mr-1"
+        style={{ fontFamily: 'var(--font-sans, sans-serif)' }}
+      >
+        Export:
+      </span>
+      <button style={btnStyle} onClick={onExportMd} type="button">
+        .md
+      </button>
+      <button style={btnStyle} onClick={onExportDocx} type="button">
+        .docx
+      </button>
+      <button style={btnStyle} onClick={onExportNotes} type="button">
+        notes.json
+      </button>
+      {hasHerald && (
+        <button style={btnStyle} onClick={onExportHerald} type="button">
+          HERALD.json
+        </button>
+      )}
+      <button
+        style={{
+          ...btnStyle,
+          backgroundColor: 'var(--color-navy, #0b2545)',
+          color: 'white',
+          borderColor: 'transparent',
+        }}
+        onClick={onExportZip}
+        type="button"
+      >
+        Bundle .zip
+      </button>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Phase step indicator
+// ---------------------------------------------------------------------------
+
+const PHASE_STEPS: { id: AppPhase; label: string }[] = [
+  { id: 'input', label: '1. Input' },
+  { id: 'generating', label: '2. Generate' },
+  { id: 'review', label: '3. Review' },
+  { id: 'evaluating', label: '4. Evaluate' },
+  { id: 'results', label: '5. Results' },
 ];
 
-// ---------------------------------------------------------------------------
-// Default agent steps
-// ---------------------------------------------------------------------------
+function PhaseIndicator({ current }: { current: AppPhase }): React.ReactElement {
+  const order: AppPhase[] = ['input', 'generating', 'review', 'evaluating', 'results'];
+  const currentIdx = order.indexOf(current);
 
-const INITIAL_STEPS: AgentStep[] = [
-  { id: 'plan', label: 'Research Plan', detail: 'Waiting to start…', status: 'pending' },
-  { id: 'research', label: 'Executing Research', detail: 'Tool calls pending…', status: 'pending' },
-  { id: 'extract', label: 'Extracting Claims', detail: 'Building notes log…', status: 'pending' },
-  { id: 'write', label: 'Writing Memo', detail: 'Synthesising findings…', status: 'pending' },
-];
+  return (
+    <div className="flex items-center gap-0">
+      {PHASE_STEPS.map((step, i) => {
+        const idx = order.indexOf(step.id);
+        const done = idx < currentIdx;
+        const active = idx === currentIdx;
 
-// ---------------------------------------------------------------------------
-// Mock output — replaced by real API response in checkpoint 5.1
-// ---------------------------------------------------------------------------
-
-function buildMockOutput(topic: string): {
-  sections: MemoSection[];
-  notesLog: NotesLogEntry[];
-} {
-  const sections: MemoSection[] = [
-    {
-      title: 'Executive Summary',
-      content: `This memo examines ${topic}. Evidence suggests significant gaps in policy implementation [C-001]. Cross-country comparisons reveal divergent outcomes depending on institutional capacity [C-002].`,
-      claim_ids: ['C-001', 'C-002'],
-    },
-    {
-      title: 'Key Findings',
-      content: `Program reach remains limited, with coverage rates below 40% in rural areas [C-003]. Causal analysis indicates that inadequate targeting contributes to persistent exclusion [C-004]. Projections suggest demand will outpace current supply by 2032 [C-005].`,
-      claim_ids: ['C-003', 'C-004', 'C-005'],
-    },
-    {
-      title: 'Recommendations',
-      content: `Evidence-based targeting frameworks are considered best practice for programme design [C-006]. Strengthening monitoring systems and community feedback loops should be prioritised to improve accountability [C-007].`,
-      claim_ids: ['C-006', 'C-007'],
-    },
-  ];
-
-  const notesLog: NotesLogEntry[] = [
-    {
-      claim_id: 'C-001',
-      claim_text: 'Significant gaps in policy implementation',
-      claim_type: ClaimType.Statistical,
-      derivation: DerivationMethod.DirectExtraction,
-      sources: [
-        {
-          source_id: 'S-001',
-          source_title: 'World Bank Policy Review 2023',
-          source_url: 'https://worldbank.org/policy-review-2023',
-          relevant_chunk:
-            'Implementation gaps persist across 63% of reviewed programmes in low-income countries.',
-        },
-      ],
-      reasoning: 'Directly lifted from World Bank programme review.',
-    },
-    {
-      claim_id: 'C-002',
-      claim_text:
-        'Cross-country comparisons reveal divergent outcomes depending on institutional capacity',
-      claim_type: ClaimType.Comparative,
-      derivation: DerivationMethod.CrossSource,
-      sources: [
-        {
-          source_id: 'S-002',
-          source_title: 'IMF Working Paper WP/23/041',
-          source_url: 'https://imf.org/en/Publications/WP/2023',
-          relevant_chunk:
-            'Countries with strong public financial management systems showed 2.3x better programme outcomes.',
-        },
-        {
-          source_id: 'S-003',
-          source_title: 'OECD Development Co-operation Report',
-          source_url: 'https://oecd.org/dac/development-co-operation-report',
-          relevant_chunk:
-            'Institutional capacity is the primary predictor of programme success across peer countries.',
-        },
-      ],
-      reasoning: 'Combined two sources showing institutional capacity as the key differentiator.',
-    },
-    {
-      claim_id: 'C-003',
-      claim_text: 'Coverage rates below 40% in rural areas',
-      claim_type: ClaimType.Statistical,
-      derivation: DerivationMethod.DirectExtraction,
-      sources: [
-        {
-          source_id: 'S-004',
-          source_title: 'UNICEF Rural Coverage Survey 2022',
-          source_url: 'https://unicef.org/reports/rural-coverage-2022',
-          relevant_chunk: 'Rural coverage remained at 37.4% nationally, down from 41.2% in 2020.',
-        },
-      ],
-      reasoning: 'Direct extraction of the 37.4% figure.',
-    },
-    {
-      claim_id: 'C-004',
-      claim_text: 'Inadequate targeting contributes to persistent exclusion',
-      claim_type: ClaimType.Causal,
-      derivation: DerivationMethod.AgentInference,
-      sources: [
-        {
-          source_id: 'S-004',
-          source_title: 'UNICEF Rural Coverage Survey 2022',
-          source_url: 'https://unicef.org/reports/rural-coverage-2022',
-          relevant_chunk: 'Targeting errors accounted for 58% of exclusion errors in the sample.',
-        },
-      ],
-      reasoning:
-        'Inferred causal link from exclusion error data; source shows correlation, not causation.',
-    },
-    {
-      claim_id: 'C-005',
-      claim_text: 'Demand will outpace current supply by 2032',
-      claim_type: ClaimType.Predictive,
-      derivation: DerivationMethod.DirectExtraction,
-      sources: [
-        {
-          source_id: 'S-005',
-          source_title: 'UN Population Division Projection 2023',
-          source_url: 'https://population.un.org/wpp/2023',
-          relevant_chunk:
-            'Under the medium fertility scenario, demand for social services is projected to exceed supply capacity by 2031–2033.',
-        },
-      ],
-      reasoning: 'Projection lifted directly from UN medium-fertility scenario.',
-    },
-    {
-      claim_id: 'C-006',
-      claim_text:
-        'Evidence-based targeting frameworks are considered best practice for programme design',
-      claim_type: ClaimType.Normative,
-      derivation: DerivationMethod.Paraphrase,
-      sources: [
-        {
-          source_id: 'S-006',
-          source_title: 'OECD DAC Peer Learning Guidelines 2023',
-          source_url: 'https://oecd.org/dac/peer-learning-guidelines',
-          relevant_chunk:
-            'Best practice guidance identifies evidence-based targeting as the highest-priority design feature for social protection programmes.',
-        },
-      ],
-      reasoning: 'Paraphrased from OECD best-practice guidance.',
-    },
-    {
-      claim_id: 'C-007',
-      claim_text:
-        'Strengthening monitoring systems and community feedback loops should be prioritised to improve accountability',
-      claim_type: ClaimType.Synthesis,
-      derivation: DerivationMethod.CrossSource,
-      sources: [
-        {
-          source_id: 'S-003',
-          source_title: 'OECD Development Co-operation Report',
-          source_url: 'https://oecd.org/dac/development-co-operation-report',
-          relevant_chunk: 'Monitoring systems are a key lever for programme improvement.',
-        },
-        {
-          source_id: 'S-007',
-          source_title: 'Accountability in Social Protection — ODI Briefing',
-          source_url: 'https://odi.org/briefings/accountability-social-protection',
-          relevant_chunk:
-            'Community feedback mechanisms are strongly associated with improved accountability outcomes.',
-        },
-      ],
-      reasoning: 'Synthesised from two sources: OECD on monitoring and ODI on community feedback.',
-    },
-  ];
-
-  return { sections, notesLog };
+        return (
+          <div key={step.id} className="flex items-center">
+            <span
+              className="px-3 py-1 text-xs rounded-full font-medium transition-all"
+              style={{
+                backgroundColor: active
+                  ? 'var(--color-gold, #d4af37)'
+                  : done
+                    ? 'var(--color-navy, #0b2545)'
+                    : 'var(--color-paper-dark, #e5e0d5)',
+                color: active ? 'var(--color-navy, #0b2545)' : done ? 'white' : '#6b7280',
+                fontFamily: 'var(--font-sans, sans-serif)',
+              }}
+            >
+              {done ? '✓ ' : ''}
+              {step.label}
+            </span>
+            {i < PHASE_STEPS.length - 1 && <span className="mx-1 text-gray-300 text-xs">›</span>}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 
-export default function Page() {
-  const [phase, setPhase] = useState<AppPhase>('input');
-  const [memoInput, setMemoInput] = useState<MemoInput | null>(null);
-  const [steps, setSteps] = useState<AgentStep[]>(INITIAL_STEPS);
-  const [toolCallsUsed, setToolCallsUsed] = useState(0);
-  const [tokensUsed, setTokensUsed] = useState(0);
-  const [memoSections, setMemoSections] = useState<MemoSection[]>([]);
-  const [notesLog, setNotesLog] = useState<NotesLogEntry[]>([]);
+export default function HomePage(): React.ReactElement {
+  const [appPhase, setAppPhase] = useState<AppPhase>('input');
   const [selectedClaimId, setSelectedClaimId] = useState<string | null>(null);
-  const [heraldResults, setHeraldResults] = useState<HeraldResult[]>([]);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [activeTab, setActiveTab] = useState<'memo' | 'notes' | 'herald' | 'queue'>('memo');
 
-  const memoTitle = useMemo(
-    () => (memoInput !== null ? `Policy Memo: ${memoInput.topic}` : 'Policy Memo'),
-    [memoInput],
+  const agent = useAgent();
+  const herald = useHerald();
+  const { toasts, addToast, removeToast } = useToast();
+
+  // ── Memo sections (extracted from raw markdown for MemoViewer) ──────────
+  const memoSections = agent.memo !== null ? parseMemoSections(agent.memo.memo_markdown) : [];
+
+  // ── Agent submit ─────────────────────────────────────────────────────────
+  const handleSubmit = useCallback(
+    async (input: MemoInput): Promise<void> => {
+      setAppPhase('generating');
+      try {
+        await agent.run(input);
+        setAppPhase('review');
+        addToast({ variant: 'success', message: 'Memo generated. Select claims to evaluate.' });
+      } catch {
+        // agent.run already set agent.error — stay in 'generating' so the error is visible
+      }
+    },
+    [agent, addToast],
   );
 
-  // Polling stub — swap for WebSocket in checkpoint 5.1
-  const startPolling = (input: MemoInput): void => {
-    setSteps((prev) =>
-      prev.map((s, i) => (i === 0 ? { ...s, status: 'running', detail: 'Planning queries…' } : s)),
-    );
+  // ── HERALD evaluation ────────────────────────────────────────────────────
+  const handleRunEvaluation = useCallback(
+    async (selectedIds: string[]): Promise<void> => {
+      if (agent.memo === null) return;
+      setAppPhase('evaluating');
+      await herald.evaluate(selectedIds, agent.memo.notes_log, agent.memo.memo_markdown);
+      setAppPhase('results');
+      setActiveTab('herald');
+      addToast({ variant: 'info', message: 'HERALD evaluation complete.' });
+    },
+    [agent.memo, herald, addToast],
+  );
 
-    let tick = 0;
-    pollRef.current = setInterval(() => {
-      tick += 1;
-      setToolCallsUsed((n) => Math.min(n + 2, 25));
-      setTokensUsed((n) => Math.min(n + 1500, 50000));
+  // ── Human verdict submission ─────────────────────────────────────────────
+  const handleVerdictSubmit = useCallback(
+    async (
+      claimId: string,
+      submission: {
+        verdict: 'valid' | 'invalid' | 'uncertain' | 'needs_revision';
+        notes: string;
+        suggested_revision?: string;
+      },
+    ): Promise<void> => {
+      await herald.submitVerdict(
+        claimId,
+        submission.verdict,
+        submission.notes,
+        submission.suggested_revision,
+      );
+      addToast({ variant: 'success', message: `Verdict recorded for ${claimId}.` });
+    },
+    [herald, addToast],
+  );
 
-      if (tick === 3) {
-        setSteps((prev) =>
-          prev.map((s, i) => {
-            if (i === 0) return { ...s, status: 'complete', detail: 'Plan created.' };
-            if (i === 1)
-              return {
-                ...s,
-                status: 'running',
-                detail: `Searching: "${input.topic.slice(0, 40)}…"`,
-              };
-            return s;
-          }),
-        );
-      }
-      if (tick === 6) {
-        setSteps((prev) =>
-          prev.map((s, i) => {
-            if (i === 1) return { ...s, status: 'complete', detail: 'Research complete.' };
-            if (i === 2) return { ...s, status: 'running', detail: 'Classifying claims…' };
-            return s;
-          }),
-        );
-      }
-      if (tick === 9) {
-        setSteps((prev) =>
-          prev.map((s, i) => {
-            if (i === 2) return { ...s, status: 'complete', detail: 'Notes log built.' };
-            if (i === 3) return { ...s, status: 'running', detail: 'Writing memo…' };
-            return s;
-          }),
-        );
-      }
-      if (tick >= 12) {
-        setSteps((prev) =>
-          prev.map((s, i) => (i === 3 ? { ...s, status: 'complete', detail: 'Memo ready.' } : s)),
-        );
-        if (pollRef.current !== null) clearInterval(pollRef.current);
-        const { sections, notesLog: log } = buildMockOutput(input.topic);
-        setMemoSections(sections);
-        setNotesLog(log);
-        setPhase('memo');
-      }
-    }, 1000);
-  };
+  // ── Export handlers ──────────────────────────────────────────────────────
+  const handleExportMd = useCallback((): void => {
+    if (agent.memo === null) return;
+    exportAsMarkdown(agent.memo);
+    addToast({ variant: 'success', message: 'Markdown exported.' });
+  }, [agent.memo, addToast]);
 
-  const handleFormSubmit = (input: MemoInput): void => {
-    setMemoInput(input);
-    setPhase('generating');
-    setSteps(INITIAL_STEPS);
-    setToolCallsUsed(0);
-    setTokensUsed(0);
+  const handleExportDocx = useCallback(async (): Promise<void> => {
+    if (agent.memo === null) return;
+    try {
+      await exportAsDocx(agent.memo);
+      addToast({ variant: 'success', message: 'Word document exported.' });
+    } catch {
+      addToast({ variant: 'error', message: 'Failed to export .docx.' });
+    }
+  }, [agent.memo, addToast]);
+
+  const handleExportNotes = useCallback((): void => {
+    if (agent.memo === null) return;
+    exportNotesLog(agent.memo.notes_log);
+    addToast({ variant: 'success', message: 'Notes log exported.' });
+  }, [agent.memo, addToast]);
+
+  const handleExportHerald = useCallback((): void => {
+    if (herald.results.length === 0) return;
+    exportHeraldReport(herald.results);
+    addToast({ variant: 'success', message: 'HERALD report exported.' });
+  }, [herald.results, addToast]);
+
+  const handleExportZip = useCallback(async (): Promise<void> => {
+    if (agent.memo === null) return;
+    try {
+      await exportAsZip({
+        memo: agent.memo,
+        heraldResults: herald.results.length > 0 ? herald.results : undefined,
+      });
+      addToast({ variant: 'success', message: 'Bundle downloaded.' });
+    } catch {
+      addToast({ variant: 'error', message: 'Failed to create zip bundle.' });
+    }
+  }, [agent.memo, herald.results, addToast]);
+
+  // ── Reset ────────────────────────────────────────────────────────────────
+  const handleReset = useCallback((): void => {
+    agent.reset();
+    herald.reset();
+    setAppPhase('input');
     setSelectedClaimId(null);
-    setHeraldResults([]);
-    startPolling(input);
-  };
+    setActiveTab('memo');
+  }, [agent, herald]);
 
-  const handleClaimClick = (claimId: string): void => {
-    setSelectedClaimId(claimId);
-    setPhase('notes-log');
-  };
-
-  const handleNotesLogSelect = (claimId: string): void => {
-    setSelectedClaimId(claimId);
-  };
-
-  const handleRunEvaluation = (selectedIds: string[]): void => {
-    // Stub: produce mock HERALD results for selected claims
-    const mockResults: HeraldResult[] = selectedIds.map((id, idx) => {
-      const verdicts = ['valid', 'invalid', 'uncertain'] as const;
-      const verdict = verdicts[idx % verdicts.length] ?? 'uncertain';
-      const tierReached = ([1, 2, 2, 3] as const)[idx % 4] ?? 2;
-      return {
-        claim_id: id,
-        tier_reached: tierReached,
-        verdict,
-        confidence: 0.55 + (idx % 5) * 0.09,
-        feedback:
-          'Mock feedback from HERALD pipeline. Replace with real evaluation in checkpoint 5.x.',
-        suggested_revision:
-          verdict === 'invalid'
-            ? 'Consider softening the causal language to "is associated with" rather than "causes".'
-            : null,
-        tier_details: {
-          tier_1: null,
-          tier_2: { tier_id: 2, verdict, confidence: 0.7, reasoning: 'LLM judge evaluation.' },
-          tier_3: null,
-          tier_4: null,
-        },
-      };
-    });
-    setHeraldResults(mockResults);
-    setPhase('herald');
-  };
-
-  const handleNewMemo = (): void => {
-    if (pollRef.current !== null) clearInterval(pollRef.current);
-    setPhase('input');
-    setMemoInput(null);
-    setMemoSections([]);
-    setNotesLog([]);
-    setSelectedClaimId(null);
-    setHeraldResults([]);
-    setSteps(INITIAL_STEPS);
-    setToolCallsUsed(0);
-    setTokensUsed(0);
-  };
-
-  const handleTabClick = (
-    tab: Extract<AppPhase, 'memo' | 'notes-log' | 'evaluate' | 'herald'>,
-  ): void => {
-    setPhase(tab);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (pollRef.current !== null) clearInterval(pollRef.current);
-    };
-  }, []);
-
-  const isPostGeneration =
-    phase === 'memo' || phase === 'notes-log' || phase === 'evaluate' || phase === 'herald';
-
+  // ── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-paper)' }}>
-      {/* ── Header ── */}
-      <header
-        className="py-5 px-8 flex items-center justify-between"
-        style={{ backgroundColor: 'var(--color-navy)' }}
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ backgroundColor: 'var(--color-paper, #faf8f5)' }}
+    >
+      <Header />
+
+      {/* Phase indicator */}
+      <div
+        className="w-full border-b px-6 py-2 flex items-center justify-between"
+        style={{
+          backgroundColor: 'var(--color-paper, #faf8f5)',
+          borderColor: 'var(--color-paper-dark, #e5e0d5)',
+        }}
       >
-        <div>
-          <h1
-            className="text-xl font-bold tracking-tight"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--color-gold)' }}
-          >
-            Policy Memo Agent
-          </h1>
-          <p
-            className="text-xs mt-0.5 tracking-wide"
-            style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-sans)' }}
-          >
-            HERALD Claim Evaluation
-          </p>
-        </div>
-        {memoInput !== null && (
+        <PhaseIndicator current={appPhase} />
+        {appPhase !== 'input' && (
           <button
+            onClick={handleReset}
+            className="text-xs opacity-50 hover:opacity-100 transition-opacity cursor-pointer"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--color-navy, #0b2545)',
+              fontFamily: 'var(--font-sans, sans-serif)',
+            }}
             type="button"
-            onClick={handleNewMemo}
-            className="text-xs tracking-wide hover:opacity-80 transition-opacity"
-            style={{ color: 'rgba(255,255,255,0.6)', fontFamily: 'var(--font-sans)' }}
           >
-            ← New Memo
+            ← Start over
           </button>
         )}
-      </header>
+      </div>
 
-      {/* ── Tab bar ── */}
-      {isPostGeneration && (
-        <nav
-          className="flex border-b"
-          style={{
-            backgroundColor: 'var(--color-navy-light)',
-            borderColor: 'rgba(255,255,255,0.08)',
-          }}
-          aria-label="Memo sections"
-        >
-          {POST_GENERATION_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => {
-                handleTabClick(tab.id);
+      {/* Main content */}
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
+        {/* Phase 1: Input */}
+        {appPhase === 'input' && (
+          <ErrorBoundary label="Input Form">
+            <InputForm
+              onSubmit={(input) => {
+                void handleSubmit(input);
               }}
-              className="px-6 py-3 text-sm font-medium tracking-wide transition-colors"
-              style={{
-                fontFamily: 'var(--font-sans)',
-                color: phase === tab.id ? 'var(--color-gold)' : 'rgba(255,255,255,0.55)',
-                borderBottom:
-                  phase === tab.id ? '2px solid var(--color-gold)' : '2px solid transparent',
-                backgroundColor: 'transparent',
-              }}
-              aria-current={phase === tab.id ? 'page' : undefined}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-      )}
-
-      {/* ── Main content ── */}
-      <main className="flex-1 w-full max-w-3xl mx-auto px-6 py-12">
-        {/* Input */}
-        {phase === 'input' && (
-          <div>
-            <div className="mb-10">
-              <h2
-                className="text-4xl font-bold mb-3"
-                style={{ fontFamily: 'var(--font-display)', color: 'var(--color-navy)' }}
-              >
-                Write a Policy Memo
-              </h2>
-              <p
-                className="text-base"
-                style={{ color: 'var(--color-muted)', fontFamily: 'var(--font-body)' }}
-              >
-                The agent researches your topic, extracts and classifies claims, then produces a
-                sourced memo. Evaluate claims through the HERALD pipeline.
-              </p>
-            </div>
-            <InputForm onSubmit={handleFormSubmit} isDisabled={false} />
-          </div>
+              isDisabled={false}
+            />
+          </ErrorBoundary>
         )}
 
-        {/* Generating */}
-        {phase === 'generating' && (
-          <div>
-            <div className="mb-10">
+        {/* Phase 2: Generating */}
+        {appPhase === 'generating' && (
+          <ErrorBoundary label="Agent Progress">
+            <div className="max-w-2xl mx-auto">
               <h2
-                className="text-3xl font-bold mb-2"
-                style={{ fontFamily: 'var(--font-display)', color: 'var(--color-navy)' }}
+                className="text-xl font-semibold mb-4"
+                style={{
+                  color: 'var(--color-navy, #0b2545)',
+                  fontFamily: 'var(--font-serif, serif)',
+                }}
               >
-                Researching
+                Generating Policy Memo…
               </h2>
-              {memoInput !== null && (
-                <p
-                  className="text-base italic"
-                  style={{ color: 'var(--color-muted)', fontFamily: 'var(--font-body)' }}
+              <AgentProgress
+                steps={agent.steps}
+                toolCallsUsed={agent.toolCallsUsed}
+                toolCallsBudget={25}
+                tokensUsed={agent.tokensUsed}
+                tokensBudget={50000}
+              />
+              {agent.error !== null && (
+                <div
+                  role="alert"
+                  className="mt-4 p-4 rounded-lg text-sm"
+                  style={{ backgroundColor: '#fee2e2', color: '#991b1b' }}
                 >
-                  &ldquo;{memoInput.topic}&rdquo;
-                </p>
+                  {agent.error}
+                </div>
               )}
             </div>
-            <AgentProgress
-              steps={steps}
-              toolCallsUsed={toolCallsUsed}
-              toolCallsBudget={25}
-              tokensUsed={tokensUsed}
-              tokensBudget={50000}
-            />
+          </ErrorBoundary>
+        )}
+
+        {/* Phases 3–5: Review / Evaluate / Results */}
+        {(appPhase === 'review' || appPhase === 'evaluating' || appPhase === 'results') &&
+          agent.memo !== null && (
+            <div className="flex flex-col gap-4">
+              {/* Tab bar + export toolbar */}
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div
+                  className="flex gap-1 rounded-lg p-1"
+                  style={{ backgroundColor: 'var(--color-paper-dark, #e5e0d5)' }}
+                >
+                  {(
+                    [
+                      { id: 'memo', label: 'Memo' },
+                      { id: 'notes', label: 'Notes Log' },
+                      ...(appPhase === 'results'
+                        ? [
+                            { id: 'herald', label: 'HERALD Results' },
+                            ...(herald.humanQueue.length > 0
+                              ? [
+                                  {
+                                    id: 'queue',
+                                    label: `Human Review (${herald.humanQueue.filter((e) => e.status === 'pending').length.toString()})`,
+                                  },
+                                ]
+                              : []),
+                          ]
+                        : []),
+                    ] as { id: string; label: string }[]
+                  ).map(({ id, label }) => (
+                    <button
+                      key={id}
+                      onClick={() => {
+                        setActiveTab(id as typeof activeTab);
+                      }}
+                      type="button"
+                      className="px-4 py-1.5 text-sm rounded-md transition-all cursor-pointer"
+                      style={{
+                        backgroundColor: activeTab === id ? 'white' : 'transparent',
+                        color: activeTab === id ? 'var(--color-navy, #0b2545)' : 'rgba(0,0,0,0.5)',
+                        fontFamily: 'var(--font-sans, sans-serif)',
+                        fontWeight: activeTab === id ? 600 : 400,
+                        border: 'none',
+                        boxShadow: activeTab === id ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                <ExportToolbar
+                  onExportMd={handleExportMd}
+                  onExportDocx={() => {
+                    void handleExportDocx();
+                  }}
+                  onExportNotes={handleExportNotes}
+                  onExportHerald={handleExportHerald}
+                  onExportZip={() => {
+                    void handleExportZip();
+                  }}
+                  hasHerald={herald.results.length > 0}
+                />
+              </div>
+
+              {/* Tab content */}
+              {activeTab === 'memo' && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <div className="lg:col-span-2">
+                    <ErrorBoundary label="Memo Viewer" resetKey={activeTab}>
+                      <MemoViewer
+                        title="Policy Memo"
+                        sections={memoSections}
+                        notesLog={agent.memo.notes_log}
+                        selectedClaimId={selectedClaimId}
+                        onClaimClick={setSelectedClaimId}
+                      />
+                    </ErrorBoundary>
+                  </div>
+                  <div>
+                    {appPhase === 'review' ? (
+                      <ErrorBoundary label="Claim Selector">
+                        <ClaimSelector
+                          entries={agent.memo.notes_log}
+                          onRunEvaluation={(ids) => {
+                            void handleRunEvaluation(ids);
+                          }}
+                        />
+                      </ErrorBoundary>
+                    ) : (
+                      <ErrorBoundary label="Notes Log">
+                        <NotesLog
+                          entries={agent.memo.notes_log}
+                          selectedClaimId={selectedClaimId}
+                          onClaimSelect={setSelectedClaimId}
+                        />
+                      </ErrorBoundary>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'notes' && (
+                <ErrorBoundary label="Notes Log">
+                  <NotesLog
+                    entries={agent.memo.notes_log}
+                    selectedClaimId={selectedClaimId}
+                    onClaimSelect={setSelectedClaimId}
+                  />
+                </ErrorBoundary>
+              )}
+
+              {activeTab === 'herald' && appPhase === 'results' && (
+                <ErrorBoundary label="HERALD Results">
+                  {herald.results.length > 0 ? (
+                    <HeraldResults results={herald.results} notesLog={agent.memo.notes_log} />
+                  ) : (
+                    <div
+                      className="text-center py-12 text-sm opacity-50"
+                      style={{ fontFamily: 'var(--font-sans, sans-serif)' }}
+                    >
+                      No HERALD results yet. Select claims and run evaluation.
+                    </div>
+                  )}
+                </ErrorBoundary>
+              )}
+
+              {activeTab === 'queue' && appPhase === 'results' && (
+                <ErrorBoundary label="Human Review Queue">
+                  <HumanReviewQueue
+                    entries={herald.humanQueue}
+                    onSubmitVerdict={handleVerdictSubmit}
+                  />
+                </ErrorBoundary>
+              )}
+            </div>
+          )}
+
+        {/* Evaluation loading overlay */}
+        {appPhase === 'evaluating' && (
+          <div
+            className="fixed inset-0 flex items-center justify-center z-40"
+            style={{ backgroundColor: 'rgba(11,37,69,0.4)' }}
+          >
+            <div
+              className="rounded-xl p-8 flex flex-col items-center gap-4 shadow-xl"
+              style={{ backgroundColor: 'white', minWidth: '18rem' }}
+            >
+              <span
+                className="inline-block w-8 h-8 rounded-full border-4 border-t-transparent animate-spin"
+                style={{
+                  borderColor: 'var(--color-gold, #d4af37)',
+                  borderTopColor: 'transparent',
+                }}
+                aria-label="Evaluating"
+              />
+              <p
+                className="text-sm font-medium"
+                style={{
+                  color: 'var(--color-navy, #0b2545)',
+                  fontFamily: 'var(--font-sans, sans-serif)',
+                }}
+              >
+                Running HERALD evaluation…
+              </p>
+              <p className="text-xs opacity-50">
+                {herald.progress.completed.toString()} / {herald.progress.total.toString()} claims
+              </p>
+            </div>
           </div>
         )}
-
-        {/* Memo */}
-        {phase === 'memo' && (
-          <MemoViewer
-            title={memoTitle}
-            sections={memoSections}
-            notesLog={notesLog}
-            selectedClaimId={selectedClaimId}
-            onClaimClick={handleClaimClick}
-          />
-        )}
-
-        {/* Notes Log */}
-        {phase === 'notes-log' && (
-          <NotesLog
-            entries={notesLog}
-            selectedClaimId={selectedClaimId}
-            onClaimSelect={handleNotesLogSelect}
-          />
-        )}
-
-        {/* Evaluate */}
-        {phase === 'evaluate' && (
-          <ClaimSelector entries={notesLog} onRunEvaluation={handleRunEvaluation} />
-        )}
-
-        {/* HERALD Results */}
-        {phase === 'herald' && <HeraldResults results={heraldResults} notesLog={notesLog} />}
       </main>
+
+      <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </div>
   );
+}
+
+// ---------------------------------------------------------------------------
+// Markdown → MemoSection parser (minimal, matches what the agent produces)
+// ---------------------------------------------------------------------------
+
+import type { MemoSection } from '@/types/memo';
+
+function parseMemoSections(markdown: string): MemoSection[] {
+  const lines = markdown.split('\n');
+  const sections: MemoSection[] = [];
+  let current: MemoSection | null = null;
+  const contentBuffer: string[] = [];
+
+  function flushSection(): void {
+    if (current !== null) {
+      current.content = contentBuffer.join('\n').trim();
+      sections.push(current);
+    }
+    contentBuffer.length = 0;
+  }
+
+  for (const line of lines) {
+    const h2 = /^## (.+)$/.exec(line);
+    const h1 = /^# (.+)$/.exec(line);
+    if (h1 !== null && sections.length === 0 && current === null) {
+      flushSection();
+      current = { title: h1[1], content: '', claim_ids: [] };
+    } else if (h2 !== null) {
+      flushSection();
+      current = { title: h2[1], content: '', claim_ids: [] };
+    } else {
+      const claimMatches = [...line.matchAll(/\[C-(\d{3,})\]/g)];
+      if (current !== null && claimMatches.length > 0) {
+        for (const m of claimMatches) {
+          const id = `C-${m[1]}`;
+          if (!current.claim_ids.includes(id)) {
+            current.claim_ids.push(id);
+          }
+        }
+      }
+      contentBuffer.push(line);
+    }
+  }
+  flushSection();
+
+  return sections;
 }

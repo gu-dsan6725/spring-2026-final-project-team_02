@@ -21,7 +21,7 @@ import type { MemoInput, MemoOutput } from '../types/memo';
 // Constants
 // ---------------------------------------------------------------------------
 
-const DEFAULT_GROQ_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
+const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile';
 const DEFAULT_OPENAI_MODEL = 'gpt-4o';
 
 /** ms to wait after a transient 429 before retrying */
@@ -171,6 +171,94 @@ function buildProviderFailureMessage(provider: ProviderConfig, error: unknown): 
 }
 
 // ---------------------------------------------------------------------------
+// Message compression — strip failed/empty tool results before final synthesis
+// ---------------------------------------------------------------------------
+
+/**
+ * Replaces failed or empty tool result messages with a compact stub before the
+ * final synthesis pass. This removes 404s, 429s, and zero-result responses from
+ * the model's context window so it focuses on evidence, not noise.
+ *
+ * Successful results are passed through untouched.
+ * The assistant tool_call messages that preceded each failure are also removed
+ * so the conversation structure stays valid (no dangling tool_call references).
+ */
+function compressToolResults(messages: LlmMessage[]): LlmMessage[] {
+  // First pass: identify tool_call_ids whose results were failures or empty,
+  // and map each id to the tool name so we can produce a useful stub.
+  const failedIds = new Map<string, string>(); // id → tool_name
+
+  // Build a map of tool_call id → function name from assistant messages
+  const idToName = new Map<string, string>();
+  for (const msg of messages) {
+    if (msg['role'] !== 'assistant' || !Array.isArray(msg['tool_calls'])) continue;
+    for (const tc of msg['tool_calls'] as LlmMessage[]) {
+      const id = typeof tc['id'] === 'string' ? tc['id'] : '';
+      const fn = tc['function'] as Record<string, unknown> | undefined;
+      const name = typeof fn?.['name'] === 'string' ? fn['name'] : 'unknown_tool';
+      if (id.length > 0) idToName.set(id, name);
+    }
+  }
+
+  for (const msg of messages) {
+    if (msg['role'] !== 'tool') continue;
+    const id = typeof msg['tool_call_id'] === 'string' ? msg['tool_call_id'] : '';
+    const content = typeof msg['content'] === 'string' ? msg['content'] : '';
+    let parsed: Record<string, unknown> | null = null;
+    try {
+      parsed = JSON.parse(content) as Record<string, unknown>;
+    } catch {
+      // unparseable — keep as-is
+    }
+    if (parsed === null) continue;
+
+    const isError = typeof parsed['error'] === 'string';
+    const isEmptyResults =
+      Array.isArray(parsed['results']) && (parsed['results'] as unknown[]).length === 0;
+    const isEmptyData =
+      Array.isArray(parsed['data']) && (parsed['data'] as unknown[]).length === 0;
+
+    if ((isError || isEmptyResults || isEmptyData) && id.length > 0) {
+      failedIds.set(id, idToName.get(id) ?? 'unknown_tool');
+    }
+  }
+
+  if (failedIds.size === 0) return messages;
+
+  // Second pass: replace failed tool results with a short stub so the agent
+  // retains signal about what it tried (and can pivot to other tools), but
+  // the full error/empty payload doesn't consume context.
+  const out: LlmMessage[] = [];
+
+  for (const msg of messages) {
+    if (msg['role'] === 'tool') {
+      const id = typeof msg['tool_call_id'] === 'string' ? msg['tool_call_id'] : '';
+      if (failedIds.has(id)) {
+        const toolName = failedIds.get(id) ?? 'tool';
+        out.push({
+          role: 'tool',
+          tool_call_id: id,
+          content: JSON.stringify({
+            status: 'no_results',
+            tool: toolName,
+            note: 'This call returned no useful data. Try a different tool or search query.',
+          }),
+        });
+        continue;
+      }
+      out.push(msg);
+      continue;
+    }
+
+    // Keep all assistant messages intact (including their tool_calls array) so
+    // the conversation structure remains valid — we only swap the result stubs.
+    out.push(msg);
+  }
+
+  return out;
+}
+
+// ---------------------------------------------------------------------------
 // Output parser
 // ---------------------------------------------------------------------------
 
@@ -230,10 +318,36 @@ function parseAgentOutput(rawText: string): { memoMarkdown: string; notesLog: No
     memoMarkdown = rawText;
   }
 
-  // Parse notes log
+  // Parse notes log and normalise any hallucinated claim types
+  const VALID_CLAIM_TYPES = new Set([
+    'statistical', 'causal', 'comparative', 'predictive', 'normative', 'synthesis',
+  ]);
+  const CLAIM_TYPE_ALIASES: Record<string, string> = {
+    conditional: 'predictive',
+    hypothetical: 'predictive',
+    correlational: 'causal',
+    descriptive: 'statistical',
+    evaluative: 'normative',
+    prescriptive: 'normative',
+    inferential: 'synthesis',
+    analytical: 'synthesis',
+  };
+
   const rawNotesLog = parsed.notes_log;
   const notesLog: NotesLogEntry[] = Array.isArray(rawNotesLog)
-    ? (rawNotesLog as NotesLogEntry[])
+    ? (rawNotesLog as NotesLogEntry[]).map((entry) => {
+        const rawType = typeof entry.claim_type === 'string' ? entry.claim_type.toLowerCase() : '';
+        if (!VALID_CLAIM_TYPES.has(rawType)) {
+          const mapped = CLAIM_TYPE_ALIASES[rawType] ?? 'synthesis';
+          logWarn('output_parser:unknown_claim_type_normalized', {
+            claim_id: entry.claim_id,
+            original_type: entry.claim_type,
+            normalized_to: mapped,
+          });
+          return { ...entry, claim_type: mapped } as NotesLogEntry;
+        }
+        return entry;
+      })
     : [];
 
   return { memoMarkdown: memoMarkdown.trim(), notesLog };
@@ -400,6 +514,11 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
 
   const tools = getToolDefinitions();
   const maxIterations = (input.max_tool_calls ?? config.max_tool_calls) + 5;
+  const calledTools = new Set<string>();
+
+  // US-domestic priority tools that should fire before the agent wraps up
+  const PRIORITY_TOOLS_US = ['govinfo_search', 'fred_data', 'govreport_search', 'arxiv_search', 'semantic_scholar_search'];
+  const PRIORITY_TOOLS_INTL = ['worldbank_data', 'arxiv_search', 'semantic_scholar_search', 'govreport_search'];
 
   try {
     for (let iteration = 0; iteration < maxIterations; iteration++) {
@@ -451,6 +570,36 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
         finishReason === 'tool_calls' && validToolCalls.length === 0 ? 'stop' : finishReason;
 
       if (effectiveFinishReason === 'stop') {
+        // Quality gate: if the agent stops early without having used key research tools,
+        // push it to continue — but only once per session.
+        if (!controller.isBudgetExceeded() && !controller.hasUsedExtraRound) {
+          const topicLower = input.topic.toLowerCase() + ' ' + (input.background ?? '').toLowerCase();
+          const isUsDomestic = /section 8|housing voucher|federal|hud|gao|crs|fred|us |u\.s\./i.test(topicLower);
+          const priorityTools = isUsDomestic ? PRIORITY_TOOLS_US : PRIORITY_TOOLS_INTL;
+          const unusedPriorityTools = priorityTools.filter((t) => !calledTools.has(t));
+          const toolCallsLeft = config.max_tool_calls - controller.getState().toolCallsUsed;
+
+          if (unusedPriorityTools.length > 0 && toolCallsLeft >= 3) {
+            logWarn('quality_gate:early_stop_with_unused_tools', {
+              called_tools: [...calledTools],
+              unused_priority_tools: unusedPriorityTools,
+              tool_calls_left: toolCallsLeft,
+            });
+            // Mark extra round used so we don't loop forever
+            controller.checkQualityGate([]); // triggers extraRoundTriggered flag via side effect
+            messages.push({
+              role: 'user',
+              content:
+                `You stopped research early. You still have ${String(toolCallsLeft)} tool calls remaining ` +
+                `and have NOT yet used these important research tools: ${unusedPriorityTools.join(', ')}. ` +
+                `You MUST continue researching. Call each of these tools now to find additional ` +
+                `statistical data, policy analysis, and evidence before writing the memo. ` +
+                `Do NOT write the memo yet.`,
+            });
+            iterSpan.end({ outcome: 'quality_gate_continue', unused_tools: unusedPriorityTools });
+            continue;
+          }
+        }
         iterSpan.end({ outcome: 'stop' });
         break;
       }
@@ -486,6 +635,7 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
 
             logToolCall(toolName, parsedInput, resultStr, latencyMs);
             toolSpan.end({ latency_ms: latencyMs });
+            calledTools.add(toolName);
 
             controller.recordToolCall(0); // tokens already tracked above
 
@@ -519,7 +669,7 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
     // Final synthesis pass: disable tool calling so the provider does not try to
     // reinterpret the memo JSON as a function call during structured output.
     const finalMessages = [
-      ...messages,
+      ...compressToolResults(messages),
       {
         role: 'user',
         content:

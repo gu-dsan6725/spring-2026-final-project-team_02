@@ -48,6 +48,7 @@ function parseArgs(argv: string[]): {
   topic: string | null;
   background: string | null;
   sources: string[];
+  template: string | null;
   memoPath: string | null;
   outputDir: string;
   dryRun: boolean;
@@ -55,6 +56,7 @@ function parseArgs(argv: string[]): {
   let topic: string | null = null;
   let background: string | null = null;
   let sources: string[] = [];
+  let template: string | null = null;
   let memoPath: string | null = null;
   let outputDir = 'pipeline-output';
   let dryRun = false;
@@ -72,6 +74,12 @@ function parseArgs(argv: string[]): {
         .map((s) => s.trim())
         .filter(Boolean);
       i++;
+    } else if (argv[i] === '--template' && argv[i + 1] !== undefined) {
+      // Pipe-separated section headings: "Exec Summary|Problem|Option A|Rec|Conclusion"
+      // or a multi-line string with ## headings
+      template = (argv[i + 1] ?? '').replace(/\|/g, '\n## ');
+      if (!template.startsWith('## ')) template = '## ' + template;
+      i++;
     } else if (argv[i] === '--memo' && argv[i + 1] !== undefined) {
       memoPath = argv[i + 1] ?? null;
       i++;
@@ -83,7 +91,7 @@ function parseArgs(argv: string[]): {
     }
   }
 
-  return { topic, background, sources, memoPath, outputDir, dryRun };
+  return { topic, background, sources, template, memoPath, outputDir, dryRun };
 }
 
 // ---------------------------------------------------------------------------
@@ -302,7 +310,7 @@ function verdictSymbol(verdict: HeraldResult['verdict']): string {
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
-  const { topic, background, sources, memoPath, outputDir, dryRun } = parseArgs(process.argv);
+  const { topic, background, sources, template, memoPath, outputDir, dryRun } = parseArgs(process.argv);
 
   log('');
   log('╔══════════════════════════════════════════════════════════╗');
@@ -331,6 +339,7 @@ async function main(): Promise<void> {
       topic,
       ...(background !== null ? { background } : {}),
       ...(sources.length > 0 ? { known_sources: sources } : {}),
+      ...(template !== null ? { template } : {}),
     };
 
     log('  Running research agent… (this may take a few minutes)');
