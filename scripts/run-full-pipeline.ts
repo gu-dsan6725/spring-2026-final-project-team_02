@@ -4,14 +4,18 @@
  * Demonstrates the complete evaluation + revision + human-review pipeline.
  *
  * Usage:
- *   npx tsx scripts/run-full-pipeline.ts [--memo <path>] [--output <dir>]
+ *   npx tsx scripts/run-full-pipeline.ts [--topic <str>] [--memo <path>] [--output <dir>]
  *
  * Flags:
- *   --memo <path>   Path to a JSON file containing { memo_markdown, notes_log }.
- *                   If omitted, built-in sample data is used.
- *   --output <dir>  Directory to write HERALD-report.json and notes-log.json.
- *                   Defaults to ./pipeline-output/
- *   --dry-run       Skip actual LLM calls; use placeholder verdicts.
+ *   --topic <str>       Research topic; triggers real agent memo generation.
+ *   --background <str>  Optional background/framing for the agent (use with --topic).
+ *   --sources <url,...> Comma-separated list of known source URLs (use with --topic).
+ *   --memo <path>       Path to a JSON file containing { memo_markdown, notes_log }.
+ *                       Skips agent generation; evaluates the provided memo directly.
+ *                       If neither --topic nor --memo is provided, built-in sample data is used.
+ *   --output <dir>      Directory to write HERALD-report.json and notes-log.json.
+ *                       Defaults to ./pipeline-output/
+ *   --dry-run           Skip actual LLM calls; use placeholder verdicts.
  *
  * Exit codes:
  *   0  All claims resolved (valid or revised)
@@ -23,7 +27,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { ClaimType, DerivationMethod, type NotesLogEntry } from '../src/types/claims';
-import type { MemoOutput } from '../src/types/memo';
+import type { MemoInput, MemoOutput } from '../src/types/memo';
 import type { HeraldResult } from '../src/types/herald';
 import { evaluateClaim } from '../src/herald/router';
 import { reviseClaimsFromHerald } from '../src/herald/feedback-loop';
@@ -34,22 +38,41 @@ import {
 } from '../src/herald/tier4-human';
 import type { AgentConfig } from '../src/types/agent';
 import { DEFAULT_AGENT_CONFIG } from '../src/types/agent';
+import { runResearchAgent } from '../src/agent/research-agent';
 
 // ---------------------------------------------------------------------------
 // CLI arg parsing
 // ---------------------------------------------------------------------------
 
 function parseArgs(argv: string[]): {
+  topic: string | null;
+  background: string | null;
+  sources: string[];
   memoPath: string | null;
   outputDir: string;
   dryRun: boolean;
 } {
+  let topic: string | null = null;
+  let background: string | null = null;
+  let sources: string[] = [];
   let memoPath: string | null = null;
   let outputDir = 'pipeline-output';
   let dryRun = false;
 
   for (let i = 2; i < argv.length; i++) {
-    if (argv[i] === '--memo' && argv[i + 1] !== undefined) {
+    if (argv[i] === '--topic' && argv[i + 1] !== undefined) {
+      topic = argv[i + 1] ?? null;
+      i++;
+    } else if (argv[i] === '--background' && argv[i + 1] !== undefined) {
+      background = argv[i + 1] ?? null;
+      i++;
+    } else if (argv[i] === '--sources' && argv[i + 1] !== undefined) {
+      sources = (argv[i + 1] ?? '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      i++;
+    } else if (argv[i] === '--memo' && argv[i + 1] !== undefined) {
       memoPath = argv[i + 1] ?? null;
       i++;
     } else if (argv[i] === '--output' && argv[i + 1] !== undefined) {
@@ -60,7 +83,7 @@ function parseArgs(argv: string[]): {
     }
   }
 
-  return { memoPath, outputDir, dryRun };
+  return { topic, background, sources, memoPath, outputDir, dryRun };
 }
 
 // ---------------------------------------------------------------------------
@@ -212,7 +235,7 @@ async function evaluateClaimDryRun(claim: NotesLogEntry): Promise<HeraldResult> 
     'C-001': 'valid',
     'C-002': 'invalid',
     'C-003': 'valid',
-    'C-004': 'needs_revision',
+    'C-004': 'invalid',
     'C-005': 'valid',
   };
   const verdict = mockVerdicts[claim.claim_id] ?? 'uncertain';
@@ -271,7 +294,6 @@ function logSection(title: string): void {
 function verdictSymbol(verdict: HeraldResult['verdict']): string {
   if (verdict === 'valid') return '✓';
   if (verdict === 'invalid') return '✕';
-  if (verdict === 'needs_revision') return '!';
   return '?';
 }
 
@@ -280,7 +302,7 @@ function verdictSymbol(verdict: HeraldResult['verdict']): string {
 // ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
-  const { memoPath, outputDir, dryRun } = parseArgs(process.argv);
+  const { topic, background, sources, memoPath, outputDir, dryRun } = parseArgs(process.argv);
 
   log('');
   log('╔══════════════════════════════════════════════════════════╗');
@@ -291,9 +313,39 @@ async function main(): Promise<void> {
     log('  [DRY RUN] LLM calls are stubbed with placeholder verdicts.');
   }
 
-  // Load memo
+  const config: AgentConfig = {
+    ...DEFAULT_AGENT_CONFIG,
+    max_revision_attempts: 2,
+  };
+
+  // Load or generate memo
   let memo: MemoOutput;
-  if (memoPath !== null) {
+  if (topic !== null) {
+    logSection('Phase 0 — Research Agent (memo generation)');
+    log(`  Topic:      ${topic}`);
+    if (background !== null) log(`  Background: ${background}`);
+    if (sources.length > 0) log(`  Sources:    ${sources.join(', ')}`);
+    log('');
+
+    const input: MemoInput = {
+      topic,
+      ...(background !== null ? { background } : {}),
+      ...(sources.length > 0 ? { known_sources: sources } : {}),
+    };
+
+    log('  Running research agent… (this may take a few minutes)');
+    memo = await runResearchAgent(input, config);
+    log(`  Agent complete. ${memo.notes_log.length.toString()} claims extracted.`);
+    log(
+      `  Tokens used: ${memo.metadata.token_usage.toString()}, tool calls: ${memo.metadata.tool_calls_count.toString()}`,
+    );
+
+    // Persist the generated memo so it can be re-evaluated later with --memo
+    fs.mkdirSync(outputDir, { recursive: true });
+    const generatedMemoPath = path.join(outputDir, 'memo-input.json');
+    fs.writeFileSync(generatedMemoPath, JSON.stringify(memo, null, 2));
+    log(`  Saved generated memo → ${generatedMemoPath}`);
+  } else if (memoPath !== null) {
     log(`\nLoading memo from: ${memoPath}`);
     const raw = fs.readFileSync(memoPath, 'utf-8');
     memo = JSON.parse(raw) as MemoOutput;
@@ -301,11 +353,6 @@ async function main(): Promise<void> {
     log('\nUsing built-in sample memo (5 claims across all types).');
     memo = SAMPLE_MEMO;
   }
-
-  const config: AgentConfig = {
-    ...DEFAULT_AGENT_CONFIG,
-    max_revision_attempts: 2,
-  };
 
   log(`\nClaims to evaluate: ${memo.notes_log.length.toString()}`);
   log(`Max revision attempts: ${config.max_revision_attempts.toString()}`);
@@ -435,7 +482,9 @@ function writeOutputs(
     total_claims: heraldResults.length,
     valid_count: heraldResults.filter((r) => r.verdict === 'valid').length,
     invalid_count: heraldResults.filter((r) => r.verdict === 'invalid').length,
-    needs_revision_count: heraldResults.filter((r) => r.verdict === 'needs_revision').length,
+    invalid_with_revision_count: heraldResults.filter(
+      (r) => r.verdict === 'invalid' && r.suggested_revision !== null,
+    ).length,
     uncertain_count: heraldResults.filter((r) => r.verdict === 'uncertain').length,
     requires_human_intervention: requiresIntervention,
     results: heraldResults,
@@ -453,7 +502,7 @@ function writeOutputs(
     `Total claims evaluated: ${heraldResults.length.toString()}`,
     `  Valid:              ${heraldReport.valid_count.toString()}`,
     `  Invalid:            ${heraldReport.invalid_count.toString()}`,
-    `  Needs revision:     ${heraldReport.needs_revision_count.toString()}`,
+    `  Invalid w/revision: ${heraldReport.invalid_with_revision_count.toString()}`,
     `  Uncertain:          ${heraldReport.uncertain_count.toString()}`,
     `  Human intervention: ${requiresIntervention.length.toString()}`,
     '',

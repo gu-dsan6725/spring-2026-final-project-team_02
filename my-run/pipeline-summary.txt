@@ -1,0 +1,16 @@
+HERALD Pipeline Summary
+Generated: 2026-04-20T01:02:53.067Z
+
+Total claims evaluated: 5
+  Valid:              1
+  Invalid:            4
+  Invalid w/revision: 3
+  Uncertain:          0
+  Human intervention: 4
+
+Claim Results:
+  [C-001] ✕ invalid        Tier 3 — All three reviewers agree that the claim is invalid due to i
+  [C-002] ✕ invalid        Tier 3 — The most persuasive argument comes from the Domain Expert an
+  [C-003] ✓ valid          Tier 1 — Strong support found in 1 of 1 source chunk(s); best entailm
+  [C-004] ✕ invalid        Tier 3 — All three reviewers agree that the claim is invalid due to a
+  [C-005] ✕ invalid        Tier 3 — All three reviewers unanimously agree that the claim is inva

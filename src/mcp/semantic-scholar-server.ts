@@ -35,9 +35,20 @@ export async function semanticScholarHandler(
 ): Promise<Record<string, unknown>> {
   const query = typeof input.query === 'string' ? input.query : '';
   const maxResults = typeof input.max_results === 'number' ? input.max_results : 10;
-  const fieldsOfStudy = Array.isArray(input.fields_of_study)
-    ? (input.fields_of_study as string[]).join(',')
-    : '';
+  let fieldsOfStudy = '';
+  if (Array.isArray(input.fields_of_study)) {
+    fieldsOfStudy = (input.fields_of_study as string[]).join(',');
+  } else if (typeof input.fields_of_study === 'string' && input.fields_of_study.length > 0) {
+    // LLMs sometimes JSON-encode array parameters as a string — parse and recover
+    try {
+      const parsed: unknown = JSON.parse(input.fields_of_study);
+      if (Array.isArray(parsed)) {
+        fieldsOfStudy = (parsed as string[]).join(',');
+      }
+    } catch {
+      // unparseable string — ignore the filter
+    }
+  }
 
   if (query.length === 0) {
     return { error: 'query is required' };

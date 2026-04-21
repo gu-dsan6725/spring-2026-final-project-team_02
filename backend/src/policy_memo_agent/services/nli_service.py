@@ -64,6 +64,10 @@ def _parse_hf_output(raw: object) -> NLIResult:
         items: list[dict[str, object]] = [raw]
     else:
         items = list(raw)  # type: ignore[call-overload]
+        # Some pipeline configurations wrap a single example as:
+        # [[{"label": ...}, {"label": ...}, ...]]
+        if items and isinstance(items[0], list):
+            items = items[0]
 
     scores: dict[str, float] = {}
     for item in items:

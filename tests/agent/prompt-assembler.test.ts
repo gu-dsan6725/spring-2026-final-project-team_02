@@ -197,9 +197,9 @@ describe('assembleSystemPrompt — budget interpolation', () => {
     expect(prompt).toContain('Maximum tool calls: 25');
   });
 
-  it('falls back to default max_research_tokens (50000) when not provided', () => {
+  it('falls back to default max_research_tokens (100000) when not provided', () => {
     const prompt = assembleSystemPrompt(minimalInput);
-    expect(prompt).toContain('Maximum research tokens: 50000');
+    expect(prompt).toContain('Maximum research tokens: 100000');
   });
 });
 

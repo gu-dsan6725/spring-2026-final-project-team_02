@@ -242,7 +242,7 @@ export default function HomePage(): React.ReactElement {
     async (
       claimId: string,
       submission: {
-        verdict: 'valid' | 'invalid' | 'needs_revision' | 'uncertain';
+        verdict: 'valid' | 'invalid' | 'uncertain' | 'needs_revision';
         notes: string;
         suggested_revision?: string;
       },

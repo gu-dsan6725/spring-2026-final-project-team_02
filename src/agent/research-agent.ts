@@ -1,12 +1,14 @@
 /**
- * Core research agent loop — powered by Groq (Llama 3.3 70B).
+ * Core research agent loop — powered by a configurable OpenAI-compatible LLM.
  *
- * Uses the Groq SDK (OpenAI-compatible interface) with function calling.
- * All tool handlers live in src/mcp/ and are routed through the tool registry.
- * Budget enforcement, Braintrust logging, and rate-limit retry are built in.
+ * Uses Groq by default, with optional fallback to OpenAI when Groq quota/rate
+ * limits are exhausted. All tool handlers live in src/mcp/ and are routed
+ * through the tool registry. Budget enforcement, Braintrust logging, and
+ * recoverable provider fallback are built in.
  */
 
 import Groq from 'groq-sdk';
+import OpenAI from 'openai';
 import { assembleSystemPrompt, assembleUserMessage } from './prompt-assembler';
 import { LoopController } from './loop-controller';
 import { logError, logToolCall, logWarn, startSpan } from '../observability/braintrust';
@@ -19,9 +21,10 @@ import type { MemoInput, MemoOutput } from '../types/memo';
 // Constants
 // ---------------------------------------------------------------------------
 
-const MODEL = 'llama-3.3-70b-versatile';
+const DEFAULT_GROQ_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
+const DEFAULT_OPENAI_MODEL = 'gpt-4o';
 
-/** ms to wait after a 429 before retrying */
+/** ms to wait after a transient 429 before retrying */
 const RATE_LIMIT_WAIT_MS = 60_000;
 
 // ---------------------------------------------------------------------------
@@ -29,12 +32,142 @@ const RATE_LIMIT_WAIT_MS = 60_000;
 // ---------------------------------------------------------------------------
 
 let _groqClient: Groq | null = null;
+let _openAiClient: OpenAI | null = null;
 
 function getGroqClient(): Groq {
   if (_groqClient === null) {
-    _groqClient = new Groq({ apiKey: process.env.GROQ_API_KEY });
+    _groqClient = new Groq({ apiKey: process.env['GROQ_API_KEY'] });
   }
   return _groqClient;
+}
+
+function getOpenAiClient(): OpenAI {
+  if (_openAiClient === null) {
+    _openAiClient = new OpenAI({ apiKey: process.env['OPENAI_API_KEY'] });
+  }
+  return _openAiClient;
+}
+
+type ResearchProvider = 'groq' | 'openai';
+
+interface ProviderConfig {
+  provider: ResearchProvider;
+  model: string;
+}
+
+type ToolDefinition = ReturnType<typeof getToolDefinitions>[number];
+type LlmMessage = Record<string, unknown>;
+
+function getTrimmedEnv(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value !== undefined && value.length > 0 ? value : undefined;
+}
+
+function resolveProviderConfig(): ProviderConfig {
+  const requested = getTrimmedEnv('RESEARCH_LLM_PROVIDER')?.toLowerCase();
+  const hasGroq = Boolean(process.env['GROQ_API_KEY']);
+  const hasOpenAi = Boolean(process.env['OPENAI_API_KEY']);
+
+  if (requested === 'groq') {
+    if (!hasGroq) {
+      throw new Error('RESEARCH_LLM_PROVIDER=groq but GROQ_API_KEY is not set.');
+    }
+    return {
+      provider: 'groq',
+      model: getTrimmedEnv('RESEARCH_GROQ_MODEL') ?? DEFAULT_GROQ_MODEL,
+    };
+  }
+
+  if (requested === 'openai') {
+    if (!hasOpenAi) {
+      throw new Error('RESEARCH_LLM_PROVIDER=openai but OPENAI_API_KEY is not set.');
+    }
+    return {
+      provider: 'openai',
+      model: getTrimmedEnv('RESEARCH_OPENAI_MODEL') ?? DEFAULT_OPENAI_MODEL,
+    };
+  }
+
+  if (hasGroq) {
+    return {
+      provider: 'groq',
+      model: getTrimmedEnv('RESEARCH_GROQ_MODEL') ?? DEFAULT_GROQ_MODEL,
+    };
+  }
+
+  if (hasOpenAi) {
+    return {
+      provider: 'openai',
+      model: getTrimmedEnv('RESEARCH_OPENAI_MODEL') ?? DEFAULT_OPENAI_MODEL,
+    };
+  }
+
+  throw new Error(
+    'No research LLM credentials found. Set GROQ_API_KEY or OPENAI_API_KEY before running the pipeline.',
+  );
+}
+
+function getFallbackProvider(current: ProviderConfig, error: unknown): ProviderConfig | null {
+  const hasOpenAi = Boolean(process.env['OPENAI_API_KEY']);
+  const hasGroq = Boolean(process.env['GROQ_API_KEY']);
+
+  if (current.provider === 'groq' && hasOpenAi && isQuotaExhaustedError(error)) {
+    return {
+      provider: 'openai',
+      model: getTrimmedEnv('RESEARCH_OPENAI_MODEL') ?? DEFAULT_OPENAI_MODEL,
+    };
+  }
+
+  if (current.provider === 'openai' && hasGroq && isQuotaExhaustedError(error)) {
+    return {
+      provider: 'groq',
+      model: getTrimmedEnv('RESEARCH_GROQ_MODEL') ?? DEFAULT_GROQ_MODEL,
+    };
+  }
+
+  return null;
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
+function isRateLimitError(error: unknown): boolean {
+  const message = getErrorMessage(error).toLowerCase();
+  return message.includes('429') || message.includes('rate limit');
+}
+
+function isQuotaExhaustedError(error: unknown): boolean {
+  const message = getErrorMessage(error).toLowerCase();
+  return (
+    message.includes('tokens per day') ||
+    message.includes('quota') ||
+    message.includes('insufficient_quota') ||
+    message.includes('rate_limit_exceeded')
+  );
+}
+
+function buildProviderFailureMessage(provider: ProviderConfig, error: unknown): string {
+  const baseMessage = getErrorMessage(error);
+
+  if (provider.provider === 'groq' && isQuotaExhaustedError(error)) {
+    const hasOpenAi = Boolean(process.env['OPENAI_API_KEY']);
+    const fallbackHint = hasOpenAi
+      ? 'OPENAI_API_KEY is set, so the agent should automatically fall back if possible.'
+      : 'Set OPENAI_API_KEY to enable automatic fallback, or wait for Groq quota reset.';
+    return `Groq research model ${provider.model} hit a quota limit. ${fallbackHint} Original error: ${baseMessage}`;
+  }
+
+  if (provider.provider === 'openai' && isQuotaExhaustedError(error)) {
+    const hasGroq = Boolean(process.env['GROQ_API_KEY']);
+    const fallbackHint = hasGroq
+      ? 'GROQ_API_KEY is set, so the agent should automatically fall back if possible.'
+      : 'Set GROQ_API_KEY to enable automatic fallback, or wait for OpenAI quota reset.';
+    return `OpenAI research model ${provider.model} hit a quota limit. ${fallbackHint} Original error: ${baseMessage}`;
+  }
+
+  return baseMessage;
 }
 
 // ---------------------------------------------------------------------------
@@ -134,43 +267,117 @@ function checkCompleteness(memoMarkdown: string, notesLog: NotesLogEntry[]): Com
 // Groq API call with rate-limit retry
 // ---------------------------------------------------------------------------
 
-type GroqMessage = Groq.Chat.Completions.ChatCompletionMessageParam;
+interface LlmChatCompletion {
+  choices: Array<{
+    message: {
+      content?: string | null;
+      tool_calls?: Array<{
+        id: string;
+        function: {
+          name: string;
+          arguments: string;
+        };
+      }>;
+    };
+    finish_reason?: string | null;
+  }>;
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+  };
+}
 
-async function callGroqWithRateLimitRetry(
-  messages: GroqMessage[],
-  tools: ReturnType<typeof getToolDefinitions>,
-): Promise<Groq.Chat.Completions.ChatCompletion> {
-  const groq = getGroqClient();
+interface CompletionOptions {
+  toolsEnabled?: boolean;
+}
+
+function buildSkippedToolResult(toolName: string, reason: string): Record<string, string> {
+  return {
+    error: 'Tool call skipped',
+    tool: toolName,
+    reason,
+  };
+}
+
+async function createCompletion(
+  provider: ProviderConfig,
+  messages: LlmMessage[],
+  tools: ToolDefinition[],
+  options: CompletionOptions = {},
+): Promise<LlmChatCompletion> {
+  const { toolsEnabled = true } = options;
+  // OpenAI needs more output tokens to avoid truncating the final JSON memo.
+  // Groq is generous with output speed so 4096 is fine there.
+  const maxTokens = provider.provider === 'openai' ? 8192 : 4096;
+
+  const request: Record<string, unknown> = {
+    model: provider.model,
+    messages,
+    max_tokens: maxTokens,
+  };
+
+  if (toolsEnabled) {
+    request['tools'] = tools;
+    request['tool_choice'] = 'auto';
+  }
+
+  if (provider.provider === 'groq') {
+    return (await getGroqClient().chat.completions.create(
+      request as unknown as Parameters<Groq['chat']['completions']['create']>[0],
+    )) as LlmChatCompletion;
+  }
+
+  return (await getOpenAiClient().chat.completions.create(
+    request as unknown as Parameters<OpenAI['chat']['completions']['create']>[0],
+  )) as LlmChatCompletion;
+}
+
+async function callLlmWithRetryAndFallback(
+  messages: LlmMessage[],
+  tools: ToolDefinition[],
+  options: CompletionOptions = {},
+): Promise<LlmChatCompletion> {
+  const primary = resolveProviderConfig();
 
   try {
-    return await groq.chat.completions.create({
-      model: MODEL,
-      messages,
-      tools,
-      tool_choice: 'auto',
-      max_tokens: 8192,
-    });
+    return await createCompletion(primary, messages, tools, options);
   } catch (error) {
-    // Groq rate limit: wait 60s and retry once
-    const isRateLimit =
-      error instanceof Error &&
-      (error.message.includes('429') || error.message.toLowerCase().includes('rate limit'));
-
-    if (isRateLimit) {
-      logWarn('groq:rate_limit:waiting', { wait_ms: RATE_LIMIT_WAIT_MS });
-      await new Promise((resolve) => setTimeout(resolve, RATE_LIMIT_WAIT_MS));
-
-      return groq.chat.completions.create({
-        model: MODEL,
-        messages,
-        tools,
-        tool_choice: 'auto',
-        max_tokens: 8192,
+    if (isToolUseFailedError(error) && options.toolsEnabled !== false) {
+      logWarn('research_agent:tool_use_failed_retry_without_tools', {
+        model: primary.model,
+        reason: getErrorMessage(error),
       });
+      return createCompletion(primary, messages, tools, { ...options, toolsEnabled: false });
     }
 
-    throw error;
+    if (isRateLimitError(error) && !isQuotaExhaustedError(error)) {
+      logWarn(`${primary.provider}:rate_limit:waiting`, {
+        model: primary.model,
+        wait_ms: RATE_LIMIT_WAIT_MS,
+      });
+      await new Promise((resolve) => setTimeout(resolve, RATE_LIMIT_WAIT_MS));
+      return createCompletion(primary, messages, tools, options);
+    }
+
+    const fallback = getFallbackProvider(primary, error);
+    if (fallback !== null) {
+      logWarn('research_agent:provider_fallback', {
+        from_provider: primary.provider,
+        from_model: primary.model,
+        to_provider: fallback.provider,
+        to_model: fallback.model,
+        reason: getErrorMessage(error),
+      });
+      return createCompletion(fallback, messages, tools, options);
+    }
+
+    throw new Error(buildProviderFailureMessage(primary, error));
   }
+}
+
+function isToolUseFailedError(error: unknown): boolean {
+  const message = getErrorMessage(error).toLowerCase();
+  return message.includes('tool_use_failed') || message.includes('failed to call a function');
 }
 
 // ---------------------------------------------------------------------------
@@ -186,7 +393,7 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
   const userMessage = assembleUserMessage(input);
 
   // Groq uses OpenAI-style message format: system prompt as first message
-  const messages: GroqMessage[] = [
+  const messages: LlmMessage[] = [
     { role: 'system', content: systemPrompt },
     { role: 'user', content: userMessage },
   ];
@@ -204,7 +411,7 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
         messages.push({ role: 'user', content: controller.buildBudgetExceededMessage() });
       }
 
-      const response = await callGroqWithRateLimitRetry(messages, tools);
+      const response = await callLlmWithRetryAndFallback(messages, tools);
       const choice = response.choices[0];
       // choices is always non-empty per the Groq SDK contract
       const { message, finish_reason: finishReason } = choice;
@@ -216,53 +423,81 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
 
       iterSpan.log({ finish_reason: finishReason, tokens: tokensUsed });
 
-      // Append assistant message to history
+      // Separate known tool calls from unknown ones (e.g. model hallucinating a notes-log entry
+      // as a function call). Unknown tool calls must NOT be appended to message history —
+      // Groq rejects subsequent requests that reference function names not in the tool registry.
+      const knownToolNames = new Set(tools.map((t) => t.function.name));
+      const rawToolCalls = message.tool_calls ?? [];
+      const validToolCalls = rawToolCalls.filter((tc) => knownToolNames.has(tc.function.name));
+      const unknownToolCalls = rawToolCalls.filter((tc) => !knownToolNames.has(tc.function.name));
+
+      if (unknownToolCalls.length > 0) {
+        logWarn('research_agent:unknown_tool_calls', {
+          names: unknownToolCalls.map((tc) => tc.function.name),
+          count: unknownToolCalls.length,
+        });
+      }
+
+      // Append assistant message to history — only include validated tool_calls
       messages.push({
         role: 'assistant',
         content: message.content ?? '',
-        // tool_calls must be included if present so Groq can match tool results
-        ...(message.tool_calls !== undefined && message.tool_calls.length > 0
-          ? { tool_calls: message.tool_calls }
-          : {}),
+        ...(validToolCalls.length > 0 ? { tool_calls: validToolCalls } : {}),
       });
 
-      if (finishReason === 'stop') {
+      // If the model only made unknown tool calls, treat this turn as a stop so the loop
+      // doesn't stall waiting for tool results that will never arrive.
+      const effectiveFinishReason =
+        finishReason === 'tool_calls' && validToolCalls.length === 0 ? 'stop' : finishReason;
+
+      if (effectiveFinishReason === 'stop') {
         iterSpan.end({ outcome: 'stop' });
         break;
       }
 
-      if (finishReason === 'tool_calls') {
-        const toolCalls = message.tool_calls ?? [];
+      if (effectiveFinishReason === 'tool_calls') {
+        const toolCalls = validToolCalls;
 
         for (const toolCall of toolCalls) {
           const toolName = toolCall.function.name;
-          const callStart = Date.now();
-          let parsedInput: Record<string, unknown> = {};
+          let resultStr = '';
 
-          try {
-            parsedInput = JSON.parse(toolCall.function.arguments) as Record<string, unknown>;
-          } catch {
-            // malformed JSON — pass empty input, tool will return an error
+          if (controller.isBudgetExceeded()) {
+            resultStr = JSON.stringify(
+              buildSkippedToolResult(
+                toolName,
+                'Research budget exceeded before this tool call could run. Synthesize from the evidence already collected.',
+              ),
+            );
+          } else {
+            const callStart = Date.now();
+            let parsedInput: Record<string, unknown> = {};
+
+            try {
+              parsedInput = JSON.parse(toolCall.function.arguments) as Record<string, unknown>;
+            } catch {
+              // malformed JSON — pass empty input, tool will return an error
+            }
+
+            const toolSpan = startSpan(`tool:${toolName}`, { tool_call_id: toolCall.id });
+            const result = await callTool(toolName, parsedInput);
+            const latencyMs = Date.now() - callStart;
+            resultStr = JSON.stringify(result);
+
+            logToolCall(toolName, parsedInput, resultStr, latencyMs);
+            toolSpan.end({ latency_ms: latencyMs });
+
+            controller.recordToolCall(0); // tokens already tracked above
+
+            toolCallLogs.push({
+              tool_name: toolName,
+              query: toolCall.function.arguments,
+              raw_response: resultStr,
+              extracted_claims: [],
+              latency_ms: latencyMs,
+              timestamp: new Date().toISOString(),
+            });
           }
-
-          const toolSpan = startSpan(`tool:${toolName}`, { tool_call_id: toolCall.id });
-          const result = await callTool(toolName, parsedInput);
-          const latencyMs = Date.now() - callStart;
-          const resultStr = JSON.stringify(result);
-
-          logToolCall(toolName, parsedInput, resultStr, latencyMs);
-          toolSpan.end({ latency_ms: latencyMs });
-
-          controller.recordToolCall(0); // tokens already tracked above
-
-          toolCallLogs.push({
-            tool_name: toolName,
-            query: toolCall.function.arguments,
-            raw_response: resultStr,
-            extracted_claims: [],
-            latency_ms: latencyMs,
-            timestamp: new Date().toISOString(),
-          });
 
           // Append tool result message
           messages.push({
@@ -270,12 +505,6 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
             tool_call_id: toolCall.id,
             content: resultStr,
           });
-
-          if (controller.isBudgetExceeded()) {
-            // Still need to send results for any remaining tool calls in this batch
-            // before breaking — already handled by appending above; loop will catch excess
-            break;
-          }
         }
 
         iterSpan.end({ outcome: 'tool_calls_sent', count: toolCalls.length });
@@ -283,19 +512,24 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
       }
 
       // length, content_filter, or unexpected — stop
-      iterSpan.end({ outcome: `stop_reason:${finishReason}` });
+      iterSpan.end({ outcome: `stop_reason:${finishReason ?? 'unknown'}` });
       break;
     }
 
-    // Extract final assistant text
-    let finalText = '';
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const msg = messages[i];
-      if (msg.role === 'assistant' && typeof msg.content === 'string' && msg.content.length > 0) {
-        finalText = msg.content;
-        break;
-      }
-    }
+    // Final synthesis pass: disable tool calling so the provider does not try to
+    // reinterpret the memo JSON as a function call during structured output.
+    const finalMessages = [
+      ...messages,
+      {
+        role: 'user',
+        content:
+          'Research is complete. Do not call any tools. Return only the final JSON object with keys "memo" and "notes_log". Ensure the JSON is complete and valid.',
+      },
+    ];
+    const finalResponse = await callLlmWithRetryAndFallback(finalMessages, tools, {
+      toolsEnabled: false,
+    });
+    const finalText = finalResponse.choices[0]?.message?.content ?? '';
 
     const { memoMarkdown, notesLog } = parseAgentOutput(finalText);
     const { orphanedClaimIds, unreferencedLogIds } = checkCompleteness(memoMarkdown, notesLog);

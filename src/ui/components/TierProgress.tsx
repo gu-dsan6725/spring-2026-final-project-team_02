@@ -55,7 +55,7 @@ function tierBackground(state: TierState, verdict: Verdict): string {
       return '#22c55e';
     case 'reached-final':
       if (verdict === 'valid') return '#22c55e';
-      if (verdict === 'invalid' || verdict === 'needs_revision') return '#f59e0b';
+      if (verdict === 'invalid') return '#f59e0b';
       return '#9ca3af';
     case 'skipped':
       return '#e5e7eb';

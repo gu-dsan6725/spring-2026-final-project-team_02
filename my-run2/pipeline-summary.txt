@@ -1,0 +1,15 @@
+HERALD Pipeline Summary
+Generated: 2026-04-21T00:34:37.951Z
+
+Total claims evaluated: 4
+  Valid:              4
+  Invalid:            0
+  Invalid w/revision: 0
+  Uncertain:          0
+  Human intervention: 0
+
+Claim Results:
+  [C-001] ✓ valid          Tier 2 — The claim accurately reflects the content of Source 1, which
+  [C-002] ✓ valid          Tier 2 — The claim accurately reflects the content of the cited sourc
+  [C-003] ✓ valid          Tier 1 — Strong support found in 1 of 1 source chunk(s); best entailm
+  [C-004] ✓ valid          Tier 1 — Strong support found in 1 of 1 source chunk(s); best entailm

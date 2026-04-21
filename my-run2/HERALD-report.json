@@ -1,0 +1,89 @@
+{
+  "generated_at": "2026-04-21T00:34:37.950Z",
+  "total_claims": 4,
+  "valid_count": 4,
+  "invalid_count": 0,
+  "invalid_with_revision_count": 0,
+  "uncertain_count": 0,
+  "requires_human_intervention": [],
+  "results": [
+    {
+      "claim_id": "C-001",
+      "tier_reached": 2,
+      "verdict": "valid",
+      "confidence": 0.95,
+      "feedback": "The claim accurately reflects the content of Source 1, which states that rural residents can benefit from the homeownership program but face challenges such as housing affordability, a shortage of units, and inadequate social service linkages that inhibit access to Section 8 vouchers. The paraphrase maintains the original proposition, scope, and causal relationships without introducing any significant changes or inaccuracies.",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "valid",
+          "confidence": 0.95,
+          "reasoning": "The claim accurately reflects the content of Source 1, which states that rural residents can benefit from the homeownership program but face challenges such as housing affordability, a shortage of units, and inadequate social service linkages that inhibit access to Section 8 vouchers. The paraphrase maintains the original proposition, scope, and causal relationships without introducing any significant changes or inaccuracies.",
+          "meaning_drift_label": "no_drift"
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-002",
+      "tier_reached": 2,
+      "verdict": "valid",
+      "confidence": 0.95,
+      "feedback": "The claim accurately reflects the content of the cited source, which states that voucher holders face significant choice and encounter issues such as limited payment standards, landlord reluctance in higher-opportunity areas, and administrative burdens that inhibit mobility. The paraphrase maintains the original meaning and scope without introducing any significant changes or misrepresentations.",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "valid",
+          "confidence": 0.95,
+          "reasoning": "The claim accurately reflects the content of the cited source, which states that voucher holders face significant choice and encounter issues such as limited payment standards, landlord reluctance in higher-opportunity areas, and administrative burdens that inhibit mobility. The paraphrase maintains the original meaning and scope without introducing any significant changes or misrepresentations.",
+          "meaning_drift_label": "no_drift"
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-003",
+      "tier_reached": 1,
+      "verdict": "valid",
+      "confidence": 0.9893888831138611,
+      "feedback": "Strong support found in 1 of 1 source chunk(s); best entailment 98.9% with signal margin 98.0 points and no strong contradiction (max contradiction 0.1%, threshold 90%).",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "valid",
+          "confidence": 0.9893888831138611,
+          "reasoning": "Strong support found in 1 of 1 source chunk(s); best entailment 98.9% with signal margin 98.0 points and no strong contradiction (max contradiction 0.1%, threshold 90%)."
+        },
+        "tier_2": null,
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-004",
+      "tier_reached": 1,
+      "verdict": "valid",
+      "confidence": 0.9915097951889038,
+      "feedback": "Strong support found in 1 of 1 source chunk(s); best entailment 99.2% with signal margin 98.3 points and no strong contradiction (max contradiction 0.0%, threshold 90%).",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "valid",
+          "confidence": 0.9915097951889038,
+          "reasoning": "Strong support found in 1 of 1 source chunk(s); best entailment 99.2% with signal margin 98.3 points and no strong contradiction (max contradiction 0.0%, threshold 90%)."
+        },
+        "tier_2": null,
+        "tier_3": null,
+        "tier_4": null
+      }
+    }
+  ]
+}

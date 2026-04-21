@@ -88,6 +88,15 @@ You are evaluating a **predictive or projective claim**. Apply these criteria in
 const CRITERIA_NORMATIVE = `
 You are evaluating a **normative or prescriptive claim**. Apply these criteria in order:
 
+**IMPORTANT — Paraphrase carve-out**: If the derivation method is "paraphrase", a normative
+claim that faithfully restates a valid recommendation from its source is VALID even if worded
+differently. Do not mark a paraphrased normative claim invalid simply because it is not a
+verbatim quote. The test is semantic fidelity: does the paraphrase preserve the substance,
+scope, conditionality, and attribution of the original recommendation? Only mark invalid if
+the paraphrase materially distorts the original — e.g., overstates consensus ("universally
+agreed" when source says "recommended by"), drops important conditionality, or attributes
+a view to a broader consensus than the source establishes.
+
 1. **Genuine consensus vs. one viewpoint**: Does the claim represent genuine expert or
    institutional consensus, or is it the position of one institution, researcher, or school
    of thought? Claims of "best practice" must reflect broad consensus. **If the sole source
@@ -113,11 +122,18 @@ You are evaluating a **normative or prescriptive claim**. Apply these criteria i
 const CRITERIA_SYNTHESIS = `
 You are evaluating a **synthesis claim** — a conclusion drawn by combining multiple sources.
 
-**IMPORTANT — Default posture for synthesis claims:**
-Synthesis claims carry the highest epistemic risk in the HERALD framework because no single
-source entails them. Your default posture must be **skeptical**. The burden of proof is on
-the claim to be clearly and unambiguously supported — not merely plausible or consistent with
-the sources.
+**CRITICAL — Correct standard for synthesis claims:**
+A synthesis claim combines evidence from multiple sources to reach a conclusion that no single
+source states verbatim. This is by design, not a flaw. Do NOT reject a synthesis claim
+merely because no single source states the conclusion. The correct validity standard is:
+does the conclusion follow logically from the combined sources, with no major inferential
+leaps or missing premises? If the reasoning is sound and the sources collectively support
+the conclusion, the synthesis claim is VALID.
+
+Reserve INVALID for claims where the logical inference itself is broken — e.g., the
+conclusion does not follow from the premises, sources are misrepresented, or a critical
+population/temporal mismatch makes the combination illegitimate. The existence of
+theoretical alternative explanations alone is NOT sufficient to mark a synthesis invalid.
 
 **CRITICAL — Agent reasoning is not evidence:**
 The agent's "reasoning" field explains how the agent constructed the synthesis. Do not treat
@@ -126,29 +142,26 @@ for it. Evaluate the claim solely against the cited source chunks.
 
 Apply these criteria in order:
 
-1. **Alternative explanations — required step**: Before you can return "valid", you MUST
-   explicitly identify and then refute at least one plausible alternative explanation for
-   the observed pattern. If you cannot think of an alternative explanation, that is evidence
-   the synthesis is well-grounded; document this explicitly. If an alternative explanation
-   exists and the synthesis does not address it, the claim is invalid.
-2. **Logical validity**: Does the conclusion follow logically from the stated premises?
-   Identify any logical gaps, missing steps, or invalid inferences.
-3. **Role of each source**: Does each cited source actually support the role assigned to
+1. **Logical validity**: Does the conclusion follow logically from the stated premises?
+   Identify any logical gaps, missing steps, or invalid inferences. A sound logical chain
+   from the combined sources to the conclusion means the claim is VALID.
+2. **Role of each source**: Does each cited source actually support the role assigned to
    it in the synthesis? Verify that each source contributes the specific piece of evidence
    the synthesis claims it does.
-4. **Population overlap**: Does the synthesis assume the same populations appear in
+3. **Population overlap**: Does the synthesis assume the same populations appear in
    multiple sources when they may differ? (e.g., combining enrollment data from one
    country with child labor data from another and treating them as one group). If the
-   populations differ and the synthesis does not disclose this, the claim is invalid.
-5. **Temporal consistency**: Are the sources from comparable time periods? A synthesis
-   combining data points from different eras without disclosure is invalid.
-6. **Strength of conclusion**: Is the strength of the conclusion proportional to the
+   populations differ AND this mismatch materially undermines the conclusion, the claim
+   is invalid. If populations are similar enough that the synthesis holds, it is valid.
+4. **Temporal consistency**: Are the sources from comparable time periods? A synthesis
+   combining data points from different eras without disclosure is invalid only if the
+   temporal gap materially affects the conclusion.
+5. **Strength of conclusion**: Is the strength of the conclusion proportional to the
    strength of the evidence? A synthesis concluding causality from correlational sources
-   is invalid; a synthesis concluding association is likely valid.
-7. **Agent inference scrutiny**: If the derivation method is "agent_inference", apply
-   maximum scrutiny. The agent has gone beyond what any source states. Require that the
-   logical chain from sources to conclusion is explicit, short, and unambiguous. If the
-   inferential leap is more than one step, the claim needs revision.
+   is invalid; a synthesis concluding association or pattern is likely valid.
+6. **Agent inference scrutiny**: If the derivation method is "agent_inference", verify
+   that the logical chain from sources to conclusion is explicit and the inferential leap
+   is no more than one step. Multi-step leaps without intermediate evidence need revision.
 `.trim();
 
 const CLAIM_CRITERIA: Record<ClaimType, string> = {
@@ -224,17 +237,24 @@ Use the submit_evaluation tool to return your structured assessment. Include:
  * Build a claim-type-specific system prompt for the LLM judge.
  *
  * The returned string combines:
- *   1. Base instructions (role, general principles)
+ *   1. Base instructions (role, general principles) — optionally topic-aware
  *   2. Claim-type-specific evaluation criteria
  *   3. Output format instructions (submit_evaluation tool usage)
  *
- * This is the cacheable part of the Tier 2 prompt — it does not contain
- * any claim-specific data, so it can be cached per claim type.
+ * @param claimType   - Determines which criteria block to include.
+ * @param policyTopic - Optional policy domain (e.g. 'maternal health policy in sub-Saharan
+ *                      Africa'). When provided, calibrates the judge's stated expertise.
+ *                      Defaults to 'public policy'.
  */
-export function getJudgePrompt(claimType: ClaimType): string {
+export function getJudgePrompt(claimType: ClaimType, policyTopic?: string): string {
+  const topic = policyTopic ?? 'public policy';
+  const baseInstructions = BASE_INSTRUCTIONS.replace(
+    'You are an expert policy claim evaluator working within the HERALD',
+    `You are an expert policy claim evaluator with deep familiarity with ${topic}, working within the HERALD`,
+  );
   const criteria = CLAIM_CRITERIA[claimType];
   return [
-    BASE_INSTRUCTIONS,
+    baseInstructions,
     `## Evaluation Criteria for ${claimType} Claims\n\n${criteria}`,
     OUTPUT_INSTRUCTIONS,
   ].join('\n\n---\n\n');

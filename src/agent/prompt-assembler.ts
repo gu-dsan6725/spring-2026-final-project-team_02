@@ -145,27 +145,187 @@ Do NOT include claims in the memo that are not in the notes_log.
 // ---------------------------------------------------------------------------
 
 const RESEARCH_PLAN_INSTRUCTIONS = `
-## Step 1 — Create a Research Plan
+## Step 1 — Create a Research Plan (internal only)
 
-Before making any tool calls, output a research plan as a JSON object (not included in the
-final output — this is for your internal organisation):
-
-\`\`\`json
-{
-  "topic": "...",
-  "queries": [
-    {
-      "tool": "web_search | arxiv | world_bank | file_reader",
-      "query": "...",
-      "expected_claim_types": ["statistical", "causal"],
-      "rationale": "Why this query is relevant to the memo."
-    }
-  ],
-  "target_source_count": 8,
-  "notes": "Any constraints or framing to keep in mind."
-}
-\`\`\`
+Before making any tool calls, mentally plan your research strategy: what tools to call,
+in what order, and what claim types you expect to find. Do NOT output this plan as text.
+Go directly to making your first tool call.
 `;
+
+// ---------------------------------------------------------------------------
+// Topic scope detection
+// ---------------------------------------------------------------------------
+
+/**
+ * Detects whether a topic is US-domestic, international, or ambiguous.
+ * Returns the detected scope and a tool priority recommendation to embed
+ * in the system prompt.
+ */
+function detectTopicScope(topic: string): 'us_domestic' | 'international' | 'ambiguous' {
+  const lower = topic.toLowerCase();
+
+  // Strong US-domestic signals
+  const usDomesticSignals = [
+    'united states',
+    'u.s.',
+    'us ',
+    ' us ',
+    'american',
+    'america',
+    'federal',
+    'congress',
+    'senate',
+    'house of representatives',
+    'hud',
+    'fha',
+    'fannie mae',
+    'freddie mac',
+    'medicare',
+    'medicaid',
+    'snap',
+    'tanf',
+    'eitc',
+    'irs',
+    'cbo',
+    'gao',
+    'crs',
+    'california',
+    'texas',
+    'new york',
+    'florida',
+    'illinois',
+    // add state abbreviations as word boundaries would be better but these cover common cases
+    ' ny ',
+    ' ca ',
+    ' tx ',
+    ' fl ',
+    'subsidy',
+    'subsidies', // housing subsidies, farm subsidies — overwhelmingly US policy debates
+    'section 8',
+    'housing voucher',
+    'low-income housing tax credit',
+    'lihtc',
+    'obamacare',
+    'aca',
+    'affordable care act',
+    'dodd-frank',
+    'sarbanes-oxley',
+  ];
+
+  // Strong international / non-US signals
+  const internationalSignals = [
+    'global',
+    'international',
+    'developing countr',
+    'low-income countr',
+    'world bank',
+    'imf ',
+    'international monetary fund',
+    'sahel',
+    'sub-saharan',
+    'latin america',
+    'southeast asia',
+    'south asia',
+    'oecd',
+    'g20',
+    'g7',
+    'united nations',
+    ' un ',
+    'unicef',
+    'who ',
+    'world health organization',
+    'eu ',
+    'european union',
+    'eurozone',
+  ];
+
+  const usScore = usDomesticSignals.filter((s) => lower.includes(s)).length;
+  const intlScore = internationalSignals.filter((s) => lower.includes(s)).length;
+
+  if (usScore > intlScore && usScore >= 1) return 'us_domestic';
+  if (intlScore > usScore && intlScore >= 1) return 'international';
+  return 'ambiguous';
+}
+
+function buildToolPriorityInstructions(
+  scope: 'us_domestic' | 'international' | 'ambiguous',
+): string {
+  if (scope === 'us_domestic') {
+    return `
+## Tool Priority — US Domestic Policy Topic
+
+This topic has been identified as a US domestic policy issue. Apply the following tool
+priority order for your research plan. Within your budget, you MUST use each tier before
+exhausting calls on any single tool:
+
+**Tier 1 — Primary (use first, use most):**
+- govinfo_search: Congressional Research Service (CRS) and GAO reports are the authoritative
+  source for US federal policy analysis. Search here first for any legislative, regulatory,
+  or budgetary claim.
+- fred_data: For any economic or statistical claim (housing prices, unemployment, income,
+  inflation, federal spending), pull the relevant FRED series. Prefer FRED over web search
+  for quantitative US data.
+- govreport_search: GAO, CBO, and OMB government reports. Use for program evaluations,
+  cost estimates, and agency findings.
+
+**Tier 2 — Secondary (use after Tier 1 for each sub-topic):**
+- semantic_scholar_search: Peer-reviewed US policy research, economics papers.
+- arxiv_search: Quantitative policy analysis, economics preprints.
+- web_search: Recent news, agency announcements, legislation not yet in govinfo.
+  Use for recency, not as a primary source of evidence.
+
+**Tier 3 — Avoid for US domestic topics unless explicitly relevant:**
+- worldbank_data: Only if comparing US to international benchmarks.
+
+**Distribution rule:** No single tool should account for more than 40% of your total tool
+calls. If you have used web_search 3 or more times, switch to a Tier 1 tool before
+making another web_search call.
+`;
+  }
+
+  if (scope === 'international') {
+    return `
+## Tool Priority — International Policy Topic
+
+This topic has been identified as an international or cross-country policy issue. Apply the
+following tool priority order. Within your budget, you MUST use each tier before
+exhausting calls on any single tool:
+
+**Tier 1 — Primary (use first, use most):**
+- worldbank_data: World Bank indicators are the gold standard for cross-country development
+  statistics. Always check here first for any quantitative country-level claim.
+- semantic_scholar_search: Development economics, global health, and international
+  political economy research.
+- arxiv_search: Quantitative economics and policy analysis preprints.
+
+**Tier 2 — Secondary:**
+- web_search: Recent reports from multilateral agencies (UN, WHO, IMF, OECD).
+  Use for recency; prefer primary sources where possible.
+- govreport_search: US government analyses of international topics (GAO, CRS).
+
+**Tier 3 — Avoid for international topics unless relevant:**
+- fred_data: Only if US economic data is a direct comparison point.
+- govinfo_search: Only for US foreign policy / aid legislation.
+
+**Distribution rule:** No single tool should account for more than 40% of your total tool
+calls. If you have used web_search 3 or more times, switch to a Tier 1 tool before
+making another web_search call.
+`;
+  }
+
+  // ambiguous
+  return `
+## Tool Priority — General / Mixed-Scope Policy Topic
+
+The scope of this topic is unclear. Distribute your tool calls evenly across available tools.
+Do NOT default to web_search for more than 2 consecutive calls. After every 2 web_search
+calls, make at least 1 call to a specialised database (govinfo_search, fred_data,
+worldbank_data, arxiv_search, semantic_scholar_search, or govreport_search).
+
+**Distribution rule:** No single tool should account for more than 35% of your total tool
+calls.
+`;
+}
 
 // ---------------------------------------------------------------------------
 // Tool use instructions
@@ -180,6 +340,7 @@ Use the available tools to gather evidence. For each tool call:
   relevant_chunk = "Source unavailable — retrieval failed.") and continue.
 - Stop tool calls once you reach the budget limit. Do not exceed it.
 - Log progress by updating the notes log incrementally as you research.
+- Follow the Tool Priority instructions above. Do not concentrate calls on web_search.
 `;
 
 // ---------------------------------------------------------------------------
@@ -216,7 +377,7 @@ Rules:
 export function assembleSystemPrompt(input: MemoInput): string {
   const budgetLines = [
     `- Maximum tool calls: ${String(input.max_tool_calls ?? 25)}`,
-    `- Maximum research tokens: ${String(input.max_research_tokens ?? 50000)}`,
+    `- Maximum research tokens: ${String(input.max_research_tokens ?? 100000)}`,
   ].join('\n');
 
   const knownSourcesSection =
@@ -233,6 +394,9 @@ export function assembleSystemPrompt(input: MemoInput): string {
     input.background !== undefined && input.background.trim().length > 0
       ? `\n## Background / Framing Provided by the User\n\n${input.background}\n`
       : '';
+
+  const scope = detectTopicScope(input.topic + ' ' + (input.background ?? ''));
+  const toolPrioritySection = buildToolPriorityInstructions(scope);
 
   return `You are an expert policy researcher and writer. Your task is to research the topic below
 and produce a well-sourced policy memo with full claim provenance.
@@ -251,6 +415,8 @@ ${CLAIM_TAXONOMY}
 ${DERIVATION_METHODS}
 ---
 ${NOTES_LOG_SCHEMA}
+---
+${toolPrioritySection}
 ---
 ${RESEARCH_PLAN_INSTRUCTIONS}
 ---

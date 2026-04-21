@@ -65,7 +65,11 @@ export function routeClaim(claim: NotesLogEntry): RouteDecision {
  *
  * Returns a full HeraldResult suitable for agent revision feedback.
  */
-export async function evaluateClaim(claim: NotesLogEntry): Promise<HeraldResult> {
+export async function evaluateClaim(
+  claim: NotesLogEntry,
+  policyTopic?: string,
+  memoSummary?: string,
+): Promise<HeraldResult> {
   const route = routeClaim(claim);
   const tierDetails: HeraldResult['tier_details'] = {
     tier_1: null,
@@ -100,7 +104,12 @@ export async function evaluateClaim(claim: NotesLogEntry): Promise<HeraldResult>
   }
 
   // -- Tier 2 --
-  tier2Output = await evaluateWithLLMJudge(claim, tier1Output !== null ? tier1Output : undefined);
+  tier2Output = await evaluateWithLLMJudge(
+    claim,
+    tier1Output !== null ? tier1Output : undefined,
+    policyTopic,
+    memoSummary,
+  );
   tierDetails.tier_2 = tier2Output;
 
   if (tier2Output.verdict !== 'uncertain') {
