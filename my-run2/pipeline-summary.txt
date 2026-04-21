@@ -1,0 +1,20 @@
+HERALD Pipeline Summary
+Generated: 2026-04-21T00:05:26.476Z
+
+Total claims evaluated: 9
+  Valid:              4
+  Invalid:            5
+  Invalid w/revision: 5
+  Uncertain:          0
+  Human intervention: 2
+
+Claim Results:
+  [C-001] ✓ valid          Tier 2 — The claim that "The Housing Choice Voucher program is critic
+  [C-002] ✓ valid          Tier 1 — Strong support found in 1 of 1 source chunk(s); best entailm
+  [C-003] ✓ valid          Tier 1 — Strong support found in 1 of 1 source chunk(s); best entailm
+  [C-004] ✓ valid          Tier 1 — Strong support found in 1 of 1 source chunk(s); best entailm
+  [C-005] ✕ invalid        Tier 3 — All three reviewers agree that the claim is invalid due to t
+  [C-006] ✕ invalid        Tier 3 — All three reviewers agree that the claim overstates the caus
+  [C-007] ✕ invalid        Tier 2 — The claim suggests that increasing funding for the HCV progr
+  [C-008] ✕ invalid        Tier 3 — All three reviewers unanimously agree that the claim is inva
+  [C-009] ✕ invalid        Tier 3 — All three reviewers agree that the claim lacks direct eviden

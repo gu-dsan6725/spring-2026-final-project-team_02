@@ -145,26 +145,11 @@ Do NOT include claims in the memo that are not in the notes_log.
 // ---------------------------------------------------------------------------
 
 const RESEARCH_PLAN_INSTRUCTIONS = `
-## Step 1 — Create a Research Plan
+## Step 1 — Create a Research Plan (internal only)
 
-Before making any tool calls, output a research plan as a JSON object (not included in the
-final output — this is for your internal organisation):
-
-\`\`\`json
-{
-  "topic": "...",
-  "queries": [
-    {
-      "tool": "web_search | arxiv | world_bank | file_reader",
-      "query": "...",
-      "expected_claim_types": ["statistical", "causal"],
-      "rationale": "Why this query is relevant to the memo."
-    }
-  ],
-  "target_source_count": 8,
-  "notes": "Any constraints or framing to keep in mind."
-}
-\`\`\`
+Before making any tool calls, mentally plan your research strategy: what tools to call,
+in what order, and what claim types you expect to find. Do NOT output this plan as text.
+Go directly to making your first tool call.
 `;
 
 // ---------------------------------------------------------------------------

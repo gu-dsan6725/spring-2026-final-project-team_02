@@ -1,0 +1,223 @@
+{
+  "generated_at": "2026-04-21T00:05:26.476Z",
+  "total_claims": 9,
+  "valid_count": 4,
+  "invalid_count": 5,
+  "invalid_with_revision_count": 5,
+  "uncertain_count": 0,
+  "requires_human_intervention": ["C-008", "C-009"],
+  "results": [
+    {
+      "claim_id": "C-001",
+      "tier_reached": 2,
+      "verdict": "valid",
+      "confidence": 0.95,
+      "feedback": "The claim that \"The Housing Choice Voucher program is critical for low-income families seeking affordable housing\" is directly supported by the cited source, which explicitly states the same point. The source material clearly identifies the program's significance for low-income families, aligning perfectly with the claim's assertion.",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "valid",
+          "confidence": 0.95,
+          "reasoning": "The claim that \"The Housing Choice Voucher program is critical for low-income families seeking affordable housing\" is directly supported by the cited source, which explicitly states the same point. The source material clearly identifies the program's significance for low-income families, aligning perfectly with the claim's assertion.",
+          "meaning_drift_label": null
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-002",
+      "tier_reached": 1,
+      "verdict": "valid",
+      "confidence": 0.9643446803092957,
+      "feedback": "Strong support found in 1 of 1 source chunk(s); best entailment 96.4% with signal margin 94.0 points and no strong contradiction (max contradiction 1.1%, threshold 90%).",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "valid",
+          "confidence": 0.9643446803092957,
+          "reasoning": "Strong support found in 1 of 1 source chunk(s); best entailment 96.4% with signal margin 94.0 points and no strong contradiction (max contradiction 1.1%, threshold 90%)."
+        },
+        "tier_2": null,
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-003",
+      "tier_reached": 1,
+      "verdict": "valid",
+      "confidence": 0.9936608076095581,
+      "feedback": "Strong support found in 1 of 1 source chunk(s); best entailment 99.4% with signal margin 98.8 points and no strong contradiction (max contradiction 0.1%, threshold 90%).",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "valid",
+          "confidence": 0.9936608076095581,
+          "reasoning": "Strong support found in 1 of 1 source chunk(s); best entailment 99.4% with signal margin 98.8 points and no strong contradiction (max contradiction 0.1%, threshold 90%)."
+        },
+        "tier_2": null,
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-004",
+      "tier_reached": 1,
+      "verdict": "valid",
+      "confidence": 0.9953486323356628,
+      "feedback": "Strong support found in 1 of 1 source chunk(s); best entailment 99.5% with signal margin 99.1 points and no strong contradiction (max contradiction 0.0%, threshold 85%).",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "valid",
+          "confidence": 0.9953486323356628,
+          "reasoning": "Strong support found in 1 of 1 source chunk(s); best entailment 99.5% with signal margin 99.1 points and no strong contradiction (max contradiction 0.0%, threshold 85%)."
+        },
+        "tier_2": null,
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-005",
+      "tier_reached": 3,
+      "verdict": "invalid",
+      "confidence": 0.95,
+      "feedback": "All three reviewers agree that the claim is invalid due to the lack of specific statistical evidence in the cited source. The source mentions 'staggering rates' of voucher loss but does not quantify this loss, making the claim of 'nearly half' unsupported and misleading. The reviewers highlight that the claim inaccurately represents the evidence by implying a specific statistic that is not present in the source material.",
+      "suggested_revision": "\"A significant number of voucher recipients lose their vouchers before they can be fully utilized, although the exact percentage is not specified in the source.\"",
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "uncertain",
+          "confidence": 0.000208175610168837,
+          "reasoning": "Signal margin -100.0 points is below the 12-point requirement. NLI result inconclusive across 1 source(s): 0 support-leading, 1 neutral-leading, 0 contradiction-leading. Best entailment 0.0%, best contradiction 0.0%, best neutral 100.0%, threshold 90%. Escalating to Tier 2."
+        },
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "uncertain",
+          "confidence": 0.8,
+          "meaning_drift_label": null,
+          "reasoning": "[ESCALATING TO TIER 3: confidence 80.0% is below the 80% exit threshold] The claim states that 'nearly half of voucher recipients lose their vouchers before they can be fully utilized.' However, the source only mentions that people are losing their vouchers at 'staggering rates' without providing a specific percentage or quantifying what 'nearly half' means. The lack of a specific statistic or percentage makes the claim unsupported by the source material, as it does not provide the necessary precision to validate the claim."
+        },
+        "tier_3": {
+          "tier_id": 3,
+          "verdict": "invalid",
+          "confidence": 0.95,
+          "reasoning": "All three reviewers agree that the claim is invalid due to the lack of specific statistical evidence in the cited source. The source mentions 'staggering rates' of voucher loss but does not quantify this loss, making the claim of 'nearly half' unsupported and misleading. The reviewers highlight that the claim inaccurately represents the evidence by implying a specific statistic that is not present in the source material.",
+          "suggested_revision": "\"A significant number of voucher recipients lose their vouchers before they can be fully utilized, although the exact percentage is not specified in the source.\""
+        },
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-006",
+      "tier_reached": 3,
+      "verdict": "invalid",
+      "confidence": 0.95,
+      "feedback": "All three reviewers agree that the claim overstates the causal relationship between geographic mobility barriers and families' opportunities to relocate to better economic and educational areas. The sources cited indicate barriers to mobility but do not establish a direct link to the opportunities mentioned in the claim. The claim would benefit from more precise language that acknowledges the indirect nature of this relationship.",
+      "suggested_revision": "\"Geographic mobility barriers may hinder families' ability to relocate to areas with better economic and educational prospects, though the extent of this impact is not clearly established by the sources.\"",
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "uncertain",
+          "confidence": 0.0005427527357824147,
+          "reasoning": "Signal margin -99.9 points is below the 12-point requirement. NLI result inconclusive across 2 source(s): 0 support-leading, 2 neutral-leading, 0 contradiction-leading. Best entailment 0.1%, best contradiction 0.0%, best neutral 100.0%, threshold 85%. Escalating to Tier 2."
+        },
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "uncertain",
+          "confidence": 0.8,
+          "meaning_drift_label": null,
+          "reasoning": "[ESCALATING TO TIER 3: confidence 80.0% is below the 80% exit threshold] The claim states that \"Geographic mobility barriers limit families’ opportunities to relocate to areas with better economic and educational prospects.\" While Source 1 mentions that \"voucher holders also face significant barriers to geographic mobility,\" it does not explicitly connect these barriers to limiting opportunities for relocation to areas with better economic and educational prospects. Source 2 discusses issues that inhibit access to Section 8 vouchers but does not directly link these issues to the broader economic and educational opportunities. Therefore, the claim overstates the causal relationship implied by the sources, which only indicate barriers without establishing a direct link to the opportunities mentioned in the claim."
+        },
+        "tier_3": {
+          "tier_id": 3,
+          "verdict": "invalid",
+          "confidence": 0.95,
+          "reasoning": "All three reviewers agree that the claim overstates the causal relationship between geographic mobility barriers and families' opportunities to relocate to better economic and educational areas. The sources cited indicate barriers to mobility but do not establish a direct link to the opportunities mentioned in the claim. The claim would benefit from more precise language that acknowledges the indirect nature of this relationship.",
+          "suggested_revision": "\"Geographic mobility barriers may hinder families' ability to relocate to areas with better economic and educational prospects, though the extent of this impact is not clearly established by the sources.\""
+        },
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-007",
+      "tier_reached": 2,
+      "verdict": "invalid",
+      "confidence": 0.9,
+      "feedback": "The claim suggests that increasing funding for the HCV program specifically for rural areas can boost the number of available vouchers. However, the cited source does not support this assertion. The source discusses the need for Section 8 agencies to find savings to serve the same number of families, indicating a funding shortfall rather than a direct relationship between increased funding and the availability of vouchers. The claim implies a causal relationship that is not substantiated by the source material, which only highlights the challenges faced by agencies due to funding issues without suggesting that increased funding would specifically lead to more vouchers in rural areas.",
+      "suggested_revision": "Increasing funding for the HCV program is necessary to address current shortfalls faced by Section 8 agencies, which may impact the availability of vouchers.",
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "invalid",
+          "confidence": 0.9,
+          "reasoning": "The claim suggests that increasing funding for the HCV program specifically for rural areas can boost the number of available vouchers. However, the cited source does not support this assertion. The source discusses the need for Section 8 agencies to find savings to serve the same number of families, indicating a funding shortfall rather than a direct relationship between increased funding and the availability of vouchers. The claim implies a causal relationship that is not substantiated by the source material, which only highlights the challenges faced by agencies due to funding issues without suggesting that increased funding would specifically lead to more vouchers in rural areas.",
+          "suggested_revision": "Increasing funding for the HCV program is necessary to address current shortfalls faced by Section 8 agencies, which may impact the availability of vouchers.",
+          "meaning_drift_label": "causal_strength_drift"
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-008",
+      "tier_reached": 3,
+      "verdict": "invalid",
+      "confidence": 0.95,
+      "feedback": "All three reviewers unanimously agree that the claim is invalid due to a lack of direct evidence supporting the effectiveness of targeted outreach programs in mitigating discrimination against voucher holders. The Domain Expert, Research Methodologist, and Critical Skeptic all highlight the absence of empirical support, specificity regarding contexts for effectiveness, and acknowledgment of dissenting views. The claim's prescriptive nature is deemed overly simplistic given the complexity of discrimination in housing. Therefore, the claim requires significant revision to reflect these concerns.",
+      "suggested_revision": "\"Targeted outreach programs to educate landlords in rural areas about the benefits of accepting vouchers may have potential benefits, but their effectiveness in mitigating discrimination is not well-supported by empirical evidence and may vary based on specific contexts and conditions.\"",
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "uncertain",
+          "confidence": 0.8,
+          "meaning_drift_label": null,
+          "reasoning": "[ESCALATING TO TIER 3: confidence 80.0% is below the 80% exit threshold] The claim suggests that targeted outreach programs can mitigate discrimination against voucher holders, which is a prescriptive statement. However, the cited sources do not provide a consensus or evidence that specifically supports this recommendation as a best practice. The claim appears to be based on agent inference rather than direct evidence from a credible source. Additionally, the claim does not specify any conditions or contexts under which this outreach would be effective, nor does it acknowledge potential dissenting views on the effectiveness of such programs."
+        },
+        "tier_3": {
+          "tier_id": 3,
+          "verdict": "invalid",
+          "confidence": 0.95,
+          "reasoning": "All three reviewers unanimously agree that the claim is invalid due to a lack of direct evidence supporting the effectiveness of targeted outreach programs in mitigating discrimination against voucher holders. The Domain Expert, Research Methodologist, and Critical Skeptic all highlight the absence of empirical support, specificity regarding contexts for effectiveness, and acknowledgment of dissenting views. The claim's prescriptive nature is deemed overly simplistic given the complexity of discrimination in housing. Therefore, the claim requires significant revision to reflect these concerns.",
+          "suggested_revision": "\"Targeted outreach programs to educate landlords in rural areas about the benefits of accepting vouchers may have potential benefits, but their effectiveness in mitigating discrimination is not well-supported by empirical evidence and may vary based on specific contexts and conditions.\""
+        },
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-009",
+      "tier_reached": 3,
+      "verdict": "invalid",
+      "confidence": 0.95,
+      "feedback": "All three reviewers agree that the claim lacks direct evidence and credible sources to support the assertion that creating incentives for developers will alleviate the shortage of affordable rental units in rural areas. The Domain Expert emphasizes the need for more substantiation and context, while the Research Methodologist points out the absence of empirical evidence or consensus. The Critical Skeptic highlights the lack of engagement with dissenting views and potential complexities in rural housing markets. Given the unanimous agreement on the invalidity of the claim and the strong reasoning provided, this verdict is made with high confidence.",
+      "suggested_revision": "\"Creating incentives for developers to build more affordable rental units in rural areas may help alleviate the documented shortage, but this assertion requires further empirical evidence and consideration of local market conditions and potential dissenting views.\"",
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "uncertain",
+          "confidence": 0.8,
+          "meaning_drift_label": null,
+          "reasoning": "[ESCALATING TO TIER 3: confidence 80.0% is below the 80% exit threshold] The claim suggests that creating incentives for developers to build affordable rental units in rural areas is a solution to alleviate a documented shortage. However, the source material does not provide evidence of a consensus or support for this specific recommendation. It appears to be based on the agent's inference rather than a direct citation from a credible source. Additionally, the claim does not acknowledge any dissenting views or the specific context in which these incentives would be effective, which is necessary for a normative claim. Therefore, the claim lacks the necessary support and context to be considered valid."
+        },
+        "tier_3": {
+          "tier_id": 3,
+          "verdict": "invalid",
+          "confidence": 0.95,
+          "reasoning": "All three reviewers agree that the claim lacks direct evidence and credible sources to support the assertion that creating incentives for developers will alleviate the shortage of affordable rental units in rural areas. The Domain Expert emphasizes the need for more substantiation and context, while the Research Methodologist points out the absence of empirical evidence or consensus. The Critical Skeptic highlights the lack of engagement with dissenting views and potential complexities in rural housing markets. Given the unanimous agreement on the invalidity of the claim and the strong reasoning provided, this verdict is made with high confidence.",
+          "suggested_revision": "\"Creating incentives for developers to build more affordable rental units in rural areas may help alleviate the documented shortage, but this assertion requires further empirical evidence and consideration of local market conditions and potential dissenting views.\""
+        },
+        "tier_4": null
+      }
+    }
+  ]
+}

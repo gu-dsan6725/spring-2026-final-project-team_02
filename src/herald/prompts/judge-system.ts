@@ -88,6 +88,15 @@ You are evaluating a **predictive or projective claim**. Apply these criteria in
 const CRITERIA_NORMATIVE = `
 You are evaluating a **normative or prescriptive claim**. Apply these criteria in order:
 
+**IMPORTANT — Paraphrase carve-out**: If the derivation method is "paraphrase", a normative
+claim that faithfully restates a valid recommendation from its source is VALID even if worded
+differently. Do not mark a paraphrased normative claim invalid simply because it is not a
+verbatim quote. The test is semantic fidelity: does the paraphrase preserve the substance,
+scope, conditionality, and attribution of the original recommendation? Only mark invalid if
+the paraphrase materially distorts the original — e.g., overstates consensus ("universally
+agreed" when source says "recommended by"), drops important conditionality, or attributes
+a view to a broader consensus than the source establishes.
+
 1. **Genuine consensus vs. one viewpoint**: Does the claim represent genuine expert or
    institutional consensus, or is it the position of one institution, researcher, or school
    of thought? Claims of "best practice" must reflect broad consensus. **If the sole source
@@ -224,17 +233,24 @@ Use the submit_evaluation tool to return your structured assessment. Include:
  * Build a claim-type-specific system prompt for the LLM judge.
  *
  * The returned string combines:
- *   1. Base instructions (role, general principles)
+ *   1. Base instructions (role, general principles) — optionally topic-aware
  *   2. Claim-type-specific evaluation criteria
  *   3. Output format instructions (submit_evaluation tool usage)
  *
- * This is the cacheable part of the Tier 2 prompt — it does not contain
- * any claim-specific data, so it can be cached per claim type.
+ * @param claimType   - Determines which criteria block to include.
+ * @param policyTopic - Optional policy domain (e.g. 'maternal health policy in sub-Saharan
+ *                      Africa'). When provided, calibrates the judge's stated expertise.
+ *                      Defaults to 'public policy'.
  */
-export function getJudgePrompt(claimType: ClaimType): string {
+export function getJudgePrompt(claimType: ClaimType, policyTopic?: string): string {
+  const topic = policyTopic ?? 'public policy';
+  const baseInstructions = BASE_INSTRUCTIONS.replace(
+    'You are an expert policy claim evaluator working within the HERALD',
+    `You are an expert policy claim evaluator with deep familiarity with ${topic}, working within the HERALD`,
+  );
   const criteria = CLAIM_CRITERIA[claimType];
   return [
-    BASE_INSTRUCTIONS,
+    baseInstructions,
     `## Evaluation Criteria for ${claimType} Claims\n\n${criteria}`,
     OUTPUT_INSTRUCTIONS,
   ].join('\n\n---\n\n');

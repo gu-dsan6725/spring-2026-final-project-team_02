@@ -68,6 +68,8 @@ async def run_tier2(
     claim: NotesLogEntry,
     prior_tier_results: list[TierOutput],
     *,
+    policy_topic: str = "public policy",
+    memo_summary: str | None = None,
     client: anthropic.AsyncAnthropic | None = None,
 ) -> TierOutput:
     """
@@ -79,6 +81,13 @@ async def run_tier2(
         Notes log entry to evaluate.
     prior_tier_results:
         Outputs from Tier 1 (for context injection).
+    policy_topic:
+        The policy domain of the memo. Passed to the judge system prompt to
+        calibrate domain expertise (e.g. 'maternal health policy in sub-Saharan Africa').
+    memo_summary:
+        Optional executive summary of the full memo. When provided, injected into
+        the user content so the judge can assess claim relevance in context and
+        catch supporting information present elsewhere in the document.
     client:
         AsyncAnthropic client. If None, one is constructed from ANTHROPIC_API_KEY.
         Inject a mock in unit tests.
@@ -100,7 +109,12 @@ async def run_tier2(
             default=str,
         )
 
+    memo_context = ""
+    if memo_summary:
+        memo_context = f"MEMO CONTEXT:\n{memo_summary}\n\n"
+
     user_content = (
+        f"{memo_context}"
         f"CLAIM: {claim.claim_text}\n"
         f"Claim type: {claim.claim_type}\n"
         f"Derivation: {claim.derivation}\n\n"
@@ -112,7 +126,7 @@ async def run_tier2(
     response = await client.messages.create(
         model=_DEFAULT_MODEL,
         max_tokens=1024,
-        system=get_judge_system_prompt(),
+        system=get_judge_system_prompt(policy_topic),
         messages=[{"role": "user", "content": user_content}],
     )
 

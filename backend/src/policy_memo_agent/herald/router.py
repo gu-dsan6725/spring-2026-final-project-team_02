@@ -121,6 +121,7 @@ async def evaluate_claim(
     claim: NotesLogEntry,
     *,
     policy_topic: str = "public policy",
+    memo_summary: str | None = None,
     nli_service: NLIService | None = None,
     anthropic_client: anthropic.AsyncAnthropic | None = None,
 ) -> HeraldResult:
@@ -137,7 +138,12 @@ async def evaluate_claim(
         The notes log entry with full provenance (claim text, type,
         derivation, sources, and reasoning).
     policy_topic:
-        The policy domain. Used to personalise the Tier 3 Domain Expert persona.
+        The policy domain. Passed to the Tier 2 judge system prompt and the
+        Tier 3 Domain Expert persona for domain-calibrated evaluation.
+    memo_summary:
+        Optional executive summary of the full memo. Injected into the Tier 2
+        judge's user content so relevance and normative consensus can be assessed
+        in the context of the document's overall argument.
     nli_service:
         Optional NLI service override for testing; defaults to module singleton.
     anthropic_client:
@@ -184,7 +190,13 @@ async def evaluate_claim(
 
     # ── Tier 2: LLM Judge ────────────────────────────────────────────────────
     if routing.start_tier <= 2:
-        t2 = await run_tier2(claim, accumulated, client=anthropic_client)
+        t2 = await run_tier2(
+            claim,
+            accumulated,
+            policy_topic=policy_topic,
+            memo_summary=memo_summary,
+            client=anthropic_client,
+        )
         tier_details["tier_2"] = t2
         accumulated.append(t2)
 
