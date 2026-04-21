@@ -177,6 +177,8 @@ describe('runResearchAgent — happy path', () => {
       ]),
     );
     create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
+    // Final synthesis pass (always runs after the loop)
+    create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
 
     const output = await runResearchAgent(testInput, testConfig);
 
@@ -187,6 +189,8 @@ describe('runResearchAgent — happy path', () => {
   });
 
   it('returns valid MemoOutput shape', async () => {
+    create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
+    // Final synthesis pass
     create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
 
     const output = await runResearchAgent(testInput, testConfig);
@@ -201,14 +205,18 @@ describe('runResearchAgent — happy path', () => {
 
   it('handles direct stop with no tool calls', async () => {
     create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
+    // Final synthesis pass
+    create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
 
     const output = await runResearchAgent(testInput, testConfig);
 
     expect(output.notes_log).toHaveLength(1);
-    expect(create).toHaveBeenCalledTimes(1);
+    expect(create).toHaveBeenCalledTimes(2);
   });
 
   it('sends system prompt as first message', async () => {
+    create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
+    // Final synthesis pass
     create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
 
     await runResearchAgent(testInput, testConfig);
@@ -228,11 +236,13 @@ describe('runResearchAgent — happy path', () => {
       ),
     );
     openAiCreate.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
+    // Final synthesis pass — Groq is tried first again; it now succeeds (no more rejections)
+    create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
 
     const output = await runResearchAgent(testInput, testConfig);
 
     expect(output.notes_log).toHaveLength(1);
-    expect(create).toHaveBeenCalledTimes(1);
+    expect(create).toHaveBeenCalledTimes(2); // 1 rejection + 1 synthesis pass
     expect(openAiCreate).toHaveBeenCalledTimes(1);
   });
 });
@@ -250,6 +260,8 @@ describe('runResearchAgent — tool definitions', () => {
   });
 
   it('includes all 8 tools in the request to Groq', async () => {
+    create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
+    // Final synthesis pass
     create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
 
     await runResearchAgent(testInput, testConfig);
@@ -271,6 +283,8 @@ describe('runResearchAgent — tool definitions', () => {
   });
 
   it('sends tools in Groq function format', async () => {
+    create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
+    // Final synthesis pass
     create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
 
     await runResearchAgent(testInput, testConfig);
@@ -307,6 +321,8 @@ describe('runResearchAgent — tool result forwarding', () => {
         makeToolCall('tc_abc', 'arxiv_search', { query: 'test' }),
       ]),
     );
+    create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
+    // Final synthesis pass
     create.mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
 
     await runResearchAgent(testInput, testConfig);
@@ -403,6 +419,8 @@ describe('runResearchAgent — budget enforcement', () => {
           60,
         ),
       )
+      .mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON))
+      // Final synthesis pass
       .mockResolvedValueOnce(makeGroqResponse('stop', VALID_FINAL_JSON));
 
     await runResearchAgent(testInput, tightConfig);
@@ -449,6 +467,8 @@ describe('runResearchAgent — completeness', () => {
       notes_log: [VALID_NOTES_LOG_ENTRY], // only C-001
     });
 
+    create.mockResolvedValueOnce(makeGroqResponse('stop', jsonWithOrphan));
+    // Final synthesis pass
     create.mockResolvedValueOnce(makeGroqResponse('stop', jsonWithOrphan));
 
     const output = await runResearchAgent(testInput, testConfig);

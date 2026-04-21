@@ -51,6 +51,26 @@ function requiresKey(varName: string): boolean {
   return true;
 }
 
+function isTransientLiveApiFailure(
+  result: Record<string, unknown>,
+  extraPatterns: string[] = [],
+): boolean {
+  const error = result['error'];
+  if (typeof error !== 'string') return false;
+
+  const patterns = [
+    'fetch failed',
+    'timed out',
+    'request failed',
+    'ECONNREFUSED',
+    'ENOTFOUND',
+    'EAI_AGAIN',
+    ...extraPatterns,
+  ];
+
+  return patterns.some((pattern) => error.includes(pattern));
+}
+
 // ---------------------------------------------------------------------------
 // arXiv Search  (no key required)
 // ---------------------------------------------------------------------------
@@ -62,6 +82,11 @@ describe('[no-key] arxiv_search', { sequential: true }, () => {
       query: 'universal basic income Africa',
       max_results: 3,
     });
+
+    if (isTransientLiveApiFailure(result, ['503', '502', '504'])) {
+      console.warn('  [SKIPPED] arXiv endpoint unavailable or timed out.');
+      return;
+    }
 
     expect(result).not.toHaveProperty('error');
     expect(result).toHaveProperty('results');
@@ -98,6 +123,11 @@ describe('[no-key] arxiv_search', { sequential: true }, () => {
       max_results: 50,
     });
 
+    if (isTransientLiveApiFailure(result, ['503', '502', '504'])) {
+      console.warn('  [SKIPPED] arXiv endpoint unavailable or timed out.');
+      return;
+    }
+
     expect(result).not.toHaveProperty('error');
     const results = result['results'] as unknown[];
     expect(results.length).toBeLessThanOrEqual(10);
@@ -116,6 +146,11 @@ describe('[no-key] worldbank_data', () => {
       country: 'US',
       date_range: '2018:2022',
     });
+
+    if (isTransientLiveApiFailure(result, ['API error: 5'])) {
+      console.warn('  [SKIPPED] World Bank endpoint unavailable or timed out.');
+      return;
+    }
 
     expect(result).not.toHaveProperty('error');
     expect(result).toHaveProperty('indicator');
@@ -144,6 +179,11 @@ describe('[no-key] worldbank_data', () => {
       date_range: '2015:2020',
     });
 
+    if (isTransientLiveApiFailure(result, ['API error: 5'])) {
+      console.warn('  [SKIPPED] World Bank endpoint unavailable or timed out.');
+      return;
+    }
+
     expect(result).not.toHaveProperty('error');
     const obs = result['observations'] as Array<{ year: string }>;
     for (let i = 1; i < obs.length; i++) {
@@ -156,6 +196,11 @@ describe('[no-key] worldbank_data', () => {
       indicator: 'SH.STA.MMRT',
       country: 'TCD',
     });
+
+    if (isTransientLiveApiFailure(result, ['API error: 5'])) {
+      console.warn('  [SKIPPED] World Bank endpoint unavailable or timed out.');
+      return;
+    }
 
     // Chad has maternal mortality data — should succeed
     expect(result).not.toHaveProperty('error');
@@ -178,6 +223,11 @@ describe('[no-key] govreport_search', () => {
       query: 'healthcare cost reduction',
       max_results: 3,
     });
+
+    if (isTransientLiveApiFailure(result, ['503', '502', '504'])) {
+      console.warn('  [SKIPPED] GovReport endpoint unavailable or timed out.');
+      return;
+    }
 
     // GovReport may return results or an empty set with a note (if index not ready)
     expect(result).not.toHaveProperty('error');
@@ -204,6 +254,11 @@ describe('[no-key] govreport_search', () => {
       query: 'federal budget deficit',
       max_results: 50,
     });
+
+    if (isTransientLiveApiFailure(result, ['503', '502', '504'])) {
+      console.warn('  [SKIPPED] GovReport endpoint unavailable or timed out.');
+      return;
+    }
 
     expect(result).not.toHaveProperty('error');
     const results = result['results'] as unknown[];
@@ -242,6 +297,10 @@ describe('[no-key] semantic_scholar_search', { sequential: true }, () => {
       console.warn('  [SKIPPED] Semantic Scholar rate-limited (429) — run again after 60s.');
       return;
     }
+    if (isTransientLiveApiFailure(result, ['500', '502', '503', '504'])) {
+      console.warn('  [SKIPPED] Semantic Scholar endpoint unavailable or timed out.');
+      return;
+    }
 
     expect(result).not.toHaveProperty('error');
     expect(result).toHaveProperty('results');
@@ -275,6 +334,10 @@ describe('[no-key] semantic_scholar_search', { sequential: true }, () => {
       console.warn('  [SKIPPED] Semantic Scholar rate-limited (429).');
       return;
     }
+    if (isTransientLiveApiFailure(result, ['500', '502', '503', '504'])) {
+      console.warn('  [SKIPPED] Semantic Scholar endpoint unavailable or timed out.');
+      return;
+    }
 
     expect(result).not.toHaveProperty('error');
     expect(result).toHaveProperty('results');
@@ -297,6 +360,10 @@ describe('[no-key] semantic_scholar_search', { sequential: true }, () => {
 
     if (isRateLimited(result)) {
       console.warn('  [SKIPPED] Semantic Scholar rate-limited (429).');
+      return;
+    }
+    if (isTransientLiveApiFailure(result, ['500', '502', '503', '504'])) {
+      console.warn('  [SKIPPED] Semantic Scholar endpoint unavailable or timed out.');
       return;
     }
 
@@ -555,6 +622,15 @@ describe('[requires-key] fred_data', () => {
       start_date: '2023-01-01',
       end_date: '2023-06-30',
     });
+
+    // Skip on transient upstream 5xx — live API call outside our control
+    if (result && typeof result === 'object' && 'error' in result) {
+      const errMsg = String((result as { error: unknown }).error);
+      if (/5\d\d/.test(errMsg)) {
+        console.warn('[SKIPPED] FRED API returned a transient server error:', errMsg);
+        return;
+      }
+    }
 
     expect(result).not.toHaveProperty('error');
     expect(result).toHaveProperty('series_id', 'UNRATE');
