@@ -15,7 +15,7 @@
  */
 
 import { CLAIM_TYPE_CONFIG, type ClaimType, type NotesLogEntry } from '../types/claims';
-import type { HeraldResult, TierOutput } from '../types/herald';
+import type { HeraldResult, TierOutput, TokenUsage } from '../types/herald';
 import { evaluateWithNLI } from './tier1-nli';
 import { evaluateWithLLMJudge } from './tier2-llm-judge';
 import { evaluateWithDebate } from './tier3-debate';
@@ -141,6 +141,20 @@ function _buildResult(
   tierDetails: HeraldResult['tier_details'],
 ): HeraldResult {
   const tierReached = decidingTier.tier_id;
+
+  const tiers = [tierDetails.tier_1, tierDetails.tier_2, tierDetails.tier_3, tierDetails.tier_4];
+  const usage: TokenUsage = tiers.reduce<TokenUsage>(
+    (acc, t) => {
+      if (t?.usage == null) return acc;
+      return {
+        input_tokens: acc.input_tokens + t.usage.input_tokens,
+        output_tokens: acc.output_tokens + t.usage.output_tokens,
+        api_calls: acc.api_calls + t.usage.api_calls,
+      };
+    },
+    { input_tokens: 0, output_tokens: 0, api_calls: 0 },
+  );
+
   return {
     claim_id: claim.claim_id,
     tier_reached: tierReached,
@@ -148,6 +162,7 @@ function _buildResult(
     confidence: decidingTier.confidence,
     feedback: decidingTier.reasoning,
     suggested_revision: decidingTier.suggested_revision ?? null,
+    usage,
     tier_details: tierDetails,
   };
 }

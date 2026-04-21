@@ -16,7 +16,7 @@
 import OpenAI from 'openai';
 
 import { DERIVATION_CONFIG, DerivationMethod, type NotesLogEntry } from '../types/claims';
-import type { MeaningDriftLabel, TierOutput, Verdict } from '../types/herald';
+import type { MeaningDriftLabel, TierOutput, TokenUsage, Verdict } from '../types/herald';
 import { logError, startSpan } from '../observability/braintrust';
 import { getJudgePrompt } from './prompts/judge-system';
 
@@ -330,6 +330,7 @@ export async function evaluateWithLLMJudge(
     const userMessage = buildUserMessage(claim, tier1Result, memoSummary);
 
     let parsed: unknown;
+    const usage: TokenUsage = { input_tokens: 0, output_tokens: 0, api_calls: 0 };
 
     // First attempt: structured tool calling
     let usedFallback = false;
@@ -345,6 +346,10 @@ export async function evaluateWithLLMJudge(
           { role: 'user', content: userMessage },
         ],
       });
+
+      usage.api_calls += 1;
+      usage.input_tokens += response.usage?.prompt_tokens ?? 0;
+      usage.output_tokens += response.usage?.completion_tokens ?? 0;
 
       const toolCall = response.choices[0]?.message?.tool_calls?.[0];
       const plainTextContent = response.choices[0]?.message?.content ?? '';
@@ -383,6 +388,10 @@ export async function evaluateWithLLMJudge(
         ],
       });
 
+      usage.api_calls += 1;
+      usage.input_tokens += fallbackResponse.usage?.prompt_tokens ?? 0;
+      usage.output_tokens += fallbackResponse.usage?.completion_tokens ?? 0;
+
       const text = fallbackResponse.choices[0]?.message?.content ?? '';
       const jsonMatch = /\{[\s\S]*\}/.exec(text);
       if (jsonMatch === null) {
@@ -399,11 +408,14 @@ export async function evaluateWithLLMJudge(
     }
 
     const result = applyDecisionLogic(parsed);
+    result.usage = usage;
 
     span.end({
       verdict: result.verdict,
       confidence: result.confidence,
       used_fallback: usedFallback,
+      input_tokens: usage.input_tokens,
+      output_tokens: usage.output_tokens,
     });
 
     return result;

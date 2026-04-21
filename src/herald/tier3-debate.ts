@@ -16,7 +16,7 @@
 import OpenAI from 'openai';
 
 import type { NotesLogEntry } from '../types/claims';
-import type { TierOutput, Verdict, DebatePersona, DebateOutput } from '../types/herald';
+import type { TierOutput, TokenUsage, Verdict, DebatePersona, DebateOutput } from '../types/herald';
 import { logError, startSpan } from '../observability/braintrust';
 import { getDomainExpertPrompt } from './prompts/domain-expert';
 import { getMethodologistPrompt } from './prompts/methodologist';
@@ -218,7 +218,7 @@ async function callPersona(
   persona: DebatePersona,
   systemPrompt: string,
   claimContext: string,
-): Promise<DebateOutput> {
+): Promise<DebateOutput & { usage: TokenUsage }> {
   const response = await getClient().chat.completions.create({
     model: DEBATE_MODEL,
     max_tokens: DEBATE_MAX_TOKENS,
@@ -230,6 +230,11 @@ async function callPersona(
       { role: 'user', content: claimContext },
     ],
   });
+  const usage: TokenUsage = {
+    input_tokens: response.usage?.prompt_tokens ?? 0,
+    output_tokens: response.usage?.completion_tokens ?? 0,
+    api_calls: 1,
+  };
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
   const plainTextContent = response.choices[0]?.message?.content ?? '';
@@ -277,6 +282,7 @@ async function callPersona(
     persona,
     verdict: parseVerdict(parsed.verdict),
     reasoning: `${parsed.reasoning}\n\nKey concern: ${parsed.key_concern}`,
+    usage,
   };
 }
 
@@ -331,7 +337,7 @@ async function callJudge(
   claim: NotesLogEntry,
   personaOutputs: DebateOutput[],
   claimContext: string,
-): Promise<SynthesisInput> {
+): Promise<SynthesisInput & { usage: TokenUsage }> {
   const judgeContext = buildJudgeContext(claim, personaOutputs, claimContext);
 
   const response = await getClient().chat.completions.create({
@@ -345,6 +351,11 @@ async function callJudge(
       { role: 'user', content: judgeContext },
     ],
   });
+  const usage: TokenUsage = {
+    input_tokens: response.usage?.prompt_tokens ?? 0,
+    output_tokens: response.usage?.completion_tokens ?? 0,
+    api_calls: 1,
+  };
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
   const plainTextContent = response.choices[0]?.message?.content ?? '';
@@ -381,7 +392,7 @@ async function callJudge(
     throw new Error(`Judge output missing required fields: ${JSON.stringify(parsed)}`);
   }
 
-  return parsed;
+  return { ...parsed, usage };
 }
 
 // ---------------------------------------------------------------------------
@@ -423,6 +434,21 @@ export async function evaluateWithDebate(
     // Judge synthesis
     const synthesis = await callJudge(claim, personaOutputs, claimContext);
 
+    // Aggregate token usage across all 4 calls (3 personas + judge)
+    const usage: TokenUsage = {
+      input_tokens:
+        expertResult.usage.input_tokens +
+        methodologistResult.usage.input_tokens +
+        skepticResult.usage.input_tokens +
+        synthesis.usage.input_tokens,
+      output_tokens:
+        expertResult.usage.output_tokens +
+        methodologistResult.usage.output_tokens +
+        skepticResult.usage.output_tokens +
+        synthesis.usage.output_tokens,
+      api_calls: 4,
+    };
+
     const verdict = parseVerdict(synthesis.verdict);
     const confidence = Math.max(0, Math.min(1, synthesis.confidence));
 
@@ -431,6 +457,7 @@ export async function evaluateWithDebate(
       verdict: confidence > JUDGE_CONFIDENCE_THRESHOLD ? verdict : 'uncertain',
       confidence,
       reasoning: synthesis.reasoning,
+      usage,
     };
 
     if (
@@ -445,6 +472,8 @@ export async function evaluateWithDebate(
       confidence,
       persona_verdicts: personaOutputs.map((p) => `${p.persona}:${p.verdict}`).join(','),
       dominant_persona: synthesis.dominant_persona,
+      input_tokens: usage.input_tokens,
+      output_tokens: usage.output_tokens,
     });
 
     return output;
