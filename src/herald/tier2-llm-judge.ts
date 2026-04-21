@@ -24,7 +24,7 @@ import { getJudgePrompt } from './prompts/judge-system';
 // Constants
 // ---------------------------------------------------------------------------
 
-const JUDGE_MODEL = 'gpt-4o-mini';
+const JUDGE_MODEL = 'gpt-4o';
 const JUDGE_TEMPERATURE = 0.2;
 const JUDGE_MAX_TOKENS = 1024;
 
@@ -35,14 +35,16 @@ const CONFIDENCE_EXIT_THRESHOLD = 0.8;
 const CONFIDENCE_HIGH_PRIORITY_THRESHOLD = 0.6;
 
 // ---------------------------------------------------------------------------
-// OpenAI client (lazy singleton)
+// Groq client via OpenAI-compatible SDK (lazy singleton)
 // ---------------------------------------------------------------------------
 
 let _client: OpenAI | null = null;
 
 function getClient(): OpenAI {
   if (_client === null) {
-    _client = new OpenAI({ apiKey: process.env['OPENAI_API_KEY'] });
+    _client = new OpenAI({
+      apiKey: process.env['OPENAI_API_KEY'],
+    });
   }
   return _client;
 }
@@ -278,6 +280,26 @@ function applyDecisionLogic(raw: JudgeToolInput): TierOutput {
 }
 
 // ---------------------------------------------------------------------------
+// Tool-use failure detection (Groq sometimes rejects requests with 400)
+// ---------------------------------------------------------------------------
+
+function isToolUseFailedError(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+  return msg.includes('tool_use_failed') || msg.includes('failed to call a function');
+}
+
+const JSON_FALLBACK_SUFFIX = `
+
+Respond with a JSON object (no markdown fences) containing exactly these fields:
+{
+  "verdict": "valid" | "invalid" | "uncertain",
+  "confidence": <number 0.0–1.0>,
+  "reasoning": "<specific reasoning citing source>",
+  "suggested_revision": "<revised claim text>" | null,
+  "meaning_drift_label": "<label>" | null
+}`;
+
+// ---------------------------------------------------------------------------
 // Main export
 // ---------------------------------------------------------------------------
 
@@ -307,56 +329,69 @@ export async function evaluateWithLLMJudge(
     const systemPrompt = getJudgePrompt(claim.claim_type, policyTopic);
     const userMessage = buildUserMessage(claim, tier1Result, memoSummary);
 
-    const response = await getClient().chat.completions.create({
-      model: JUDGE_MODEL,
-      max_tokens: JUDGE_MAX_TOKENS,
-      temperature: JUDGE_TEMPERATURE,
-      tools: [SUBMIT_EVALUATION_FUNCTION],
-      tool_choice: { type: 'function', function: { name: 'submit_evaluation' } },
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage },
-      ],
-    });
-
-    // Extract the function call — required by tool_choice: function
-    const toolCall = response.choices[0]?.message?.tool_calls?.[0];
-    const plainTextContent = response.choices[0]?.message?.content ?? '';
-
     let parsed: unknown;
 
-    if (toolCall !== undefined && toolCall.type === 'function') {
-      // Normal path: model called the function
-      try {
+    // First attempt: structured tool calling
+    let usedFallback = false;
+    try {
+      const response = await getClient().chat.completions.create({
+        model: JUDGE_MODEL,
+        max_tokens: JUDGE_MAX_TOKENS,
+        temperature: JUDGE_TEMPERATURE,
+        tools: [SUBMIT_EVALUATION_FUNCTION],
+        tool_choice: { type: 'function', function: { name: 'submit_evaluation' } },
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage },
+        ],
+      });
+
+      const toolCall = response.choices[0]?.message?.tool_calls?.[0];
+      const plainTextContent = response.choices[0]?.message?.content ?? '';
+
+      if (toolCall !== undefined && toolCall.type === 'function') {
         parsed = JSON.parse(toolCall.function.arguments) as unknown;
-      } catch {
+      } else if (toolCall !== undefined) {
+        throw new Error(`submit_evaluation received unexpected tool_call type: ${toolCall.type}`);
+      } else if (plainTextContent.length > 0) {
+        const jsonMatch = /\{[\s\S]*\}/.exec(plainTextContent);
+        if (jsonMatch === null) {
+          throw new Error(
+            `Tier 2 judge did not call submit_evaluation and response contains no JSON. ` +
+              `finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
+          );
+        }
+        parsed = JSON.parse(jsonMatch[0]) as unknown;
+      } else {
         throw new Error(
-          `submit_evaluation arguments JSON parse failed: ${toolCall.function.arguments.slice(0, 300)}`,
-        );
-      }
-    } else if (toolCall !== undefined) {
-      throw new Error(`submit_evaluation received unexpected tool_call type: ${toolCall.type}`);
-    } else if (plainTextContent.length > 0) {
-      // Fallback: Groq occasionally ignores tool_choice and returns plain text JSON
-      const jsonMatch = /\{[\s\S]*\}/.exec(plainTextContent);
-      if (jsonMatch === null) {
-        throw new Error(
-          `Tier 2 judge did not call submit_evaluation and response contains no JSON. ` +
+          `Tier 2 judge model did not call submit_evaluation. ` +
             `finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
         );
       }
-      try {
-        parsed = JSON.parse(jsonMatch[0]) as unknown;
-      } catch {
+    } catch (firstError) {
+      if (!isToolUseFailedError(firstError)) throw firstError;
+
+      // Groq rejected the function-call format — retry without tools
+      usedFallback = true;
+      const fallbackResponse = await getClient().chat.completions.create({
+        model: JUDGE_MODEL,
+        max_tokens: JUDGE_MAX_TOKENS,
+        temperature: JUDGE_TEMPERATURE,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage + JSON_FALLBACK_SUFFIX },
+        ],
+      });
+
+      const text = fallbackResponse.choices[0]?.message?.content ?? '';
+      const jsonMatch = /\{[\s\S]*\}/.exec(text);
+      if (jsonMatch === null) {
         throw new Error(
-          `Tier 2 judge plain-text JSON parse failed: ${plainTextContent.slice(0, 300)}`,
+          `Tier 2 judge fallback: no JSON in plain-text response. ` +
+            `finish_reason=${fallbackResponse.choices[0]?.finish_reason ?? 'null'}`,
         );
       }
-    } else {
-      throw new Error(
-        `Tier 2 judge model did not call submit_evaluation. ` +
-          `finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
-      );
+      parsed = JSON.parse(jsonMatch[0]) as unknown;
     }
 
     if (!isJudgeToolInput(parsed)) {
@@ -368,8 +403,7 @@ export async function evaluateWithLLMJudge(
     span.end({
       verdict: result.verdict,
       confidence: result.confidence,
-      input_tokens: response.usage?.prompt_tokens ?? 0,
-      output_tokens: response.usage?.completion_tokens ?? 0,
+      used_fallback: usedFallback,
     });
 
     return result;

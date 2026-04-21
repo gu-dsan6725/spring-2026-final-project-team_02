@@ -63,6 +63,12 @@ interface AggregatedResult {
 const CONTRADICTION_THRESHOLD = 0.7;
 const DEFAULT_ENTAILMENT_MARGIN = 0.12;
 const CAUSAL_PARAPHRASE_ENTAILMENT_MARGIN = 0.2;
+
+// Sliding-window parameters
+const MAX_WINDOW_SENTENCES = 3;
+// DeBERTa-v3 has a 512-token budget shared between premise and hypothesis.
+// Cap premise chars to avoid hard truncation inside the model (~375 words).
+const MAX_PREMISE_CHARS = 1500;
 const HEDGED_CAUSAL_SOURCE_PATTERN =
   /\b(associated with|association|correlated with|correlation|linked to|coincided with|may|might|could|suggests?|contributed to)\b/i;
 const STRONG_CAUSAL_CLAIM_PATTERN =
@@ -95,6 +101,102 @@ function hasCausalHedgingMismatch(claim: NotesLogEntry): boolean {
     HEDGED_CAUSAL_SOURCE_PATTERN.test(sourceText) &&
     STRONG_CAUSAL_CLAIM_PATTERN.test(claim.claim_text)
   );
+}
+
+// ---------------------------------------------------------------------------
+// Sliding-window helpers
+// ---------------------------------------------------------------------------
+
+function splitIntoSentences(text: string): string[] {
+  // Split only when sentence-terminal punctuation is followed by whitespace
+  // then an uppercase letter or opening quote.  This avoids false splits on
+  // decimal numbers (5.2%), abbreviations (e.g., U.S.), and mid-sentence
+  // ellipses.
+  const parts = text.split(/(?<=[.!?])\s+(?=[A-Z"'])/);
+  return parts.map((s) => s.trim()).filter((s) => s.length > 0);
+}
+
+/**
+ * Build a deduplicated set of premise strings for one source chunk.
+ *
+ * Generates overlapping windows of 1–MAX_WINDOW_SENTENCES sentences so that
+ * the strongest entailing sub-passage is always included, even when surrounding
+ * context dilutes the signal on the full chunk.  The full chunk is always
+ * included as one window.
+ */
+function buildChunkWindows(chunk: string): string[] {
+  const sentences = splitIntoSentences(chunk);
+  const seen = new Set<string>();
+  const windows: string[] = [];
+
+  const add = (w: string): void => {
+    const trimmed = w.trim().slice(0, MAX_PREMISE_CHARS);
+    if (trimmed.length > 0 && !seen.has(trimmed)) {
+      seen.add(trimmed);
+      windows.push(trimmed);
+    }
+  };
+
+  // Always include the full chunk first
+  add(chunk);
+
+  if (sentences.length > 1) {
+    for (let size = 1; size <= Math.min(MAX_WINDOW_SENTENCES, sentences.length); size++) {
+      for (let start = 0; start <= sentences.length - size; start++) {
+        add(sentences.slice(start, start + size).join(' '));
+      }
+    }
+  }
+
+  return windows;
+}
+
+/**
+ * Collapse per-window NLI results back to one synthetic item per source.
+ *
+ * Takes the best signal across all windows:
+ *   - entailment  → max (any window entailing the claim counts)
+ *   - contradiction → max (any window contradicting the claim counts)
+ *   - neutral     → max
+ *
+ * The label reflects whichever score dominates.
+ */
+function collapseWindowsToSource(
+  results: NLIResponseItem[],
+  windowCountsPerSource: number[],
+): NLIResponseItem[] {
+  const collapsed: NLIResponseItem[] = [];
+  let idx = 0;
+
+  for (const count of windowCountsPerSource) {
+    const slice = results.slice(idx, idx + count);
+    idx += count;
+
+    let maxEntailment = 0;
+    let maxContradiction = 0;
+    let maxNeutral = 0;
+
+    for (const item of slice) {
+      if (item.scores.entailment > maxEntailment) maxEntailment = item.scores.entailment;
+      if (item.scores.contradiction > maxContradiction)
+        maxContradiction = item.scores.contradiction;
+      if (item.scores.neutral > maxNeutral) maxNeutral = item.scores.neutral;
+    }
+
+    const label =
+      maxEntailment >= maxContradiction && maxEntailment >= maxNeutral
+        ? 'entailment'
+        : maxContradiction >= maxNeutral
+          ? 'contradiction'
+          : 'neutral';
+
+    collapsed.push({
+      label,
+      scores: { entailment: maxEntailment, contradiction: maxContradiction, neutral: maxNeutral },
+    });
+  }
+
+  return collapsed;
 }
 
 function aggregateResults(
@@ -185,35 +287,43 @@ export async function evaluateWithNLI(claim: NotesLogEntry): Promise<TierOutput>
   const threshold = config.nliEscalationThreshold ?? 0.9;
   const entailmentMargin = requiredEntailmentMargin(claim);
 
-  // Build premise–hypothesis pairs: one per source chunk
-  const originalPairs = claim.sources.map((src) => ({
-    premise: src.relevant_chunk,
-    hypothesis: claim.claim_text,
-  }));
+  // Build windowed pairs: each source chunk is expanded into overlapping
+  // sentence windows so the NLI model sees every sub-passage, not just the
+  // full chunk (which can dilute the signal when surrounding context is weak).
+  const chunkWindowsPerSource = claim.sources.map((src) => buildChunkWindows(src.relevant_chunk));
+  const windowCountsPerSource = chunkWindowsPerSource.map((w) => w.length);
+
   const canonicalHypothesis =
     claim.derivation === DerivationMethod.Paraphrase
       ? normalizeClaimForNLI(claim.claim_text)
       : claim.claim_text;
   const useCanonicalHypothesis =
     claim.derivation === DerivationMethod.Paraphrase && canonicalHypothesis !== claim.claim_text;
-  const canonicalPairs = useCanonicalHypothesis
-    ? claim.sources.map((src) => ({
-        premise: src.relevant_chunk,
-        hypothesis: canonicalHypothesis,
-      }))
-    : originalPairs;
+
+  const originalFlatPairs = chunkWindowsPerSource.flatMap((windows) =>
+    windows.map((premise) => ({ premise, hypothesis: claim.claim_text })),
+  );
+  const canonicalFlatPairs = useCanonicalHypothesis
+    ? chunkWindowsPerSource.flatMap((windows) =>
+        windows.map((premise) => ({ premise, hypothesis: canonicalHypothesis })),
+      )
+    : originalFlatPairs;
 
   const [batchResponse, canonicalBatchResponse] = await Promise.all([
-    callNLIBatch(originalPairs),
+    callNLIBatch(originalFlatPairs),
     useCanonicalHypothesis
-      ? callNLIBatch(canonicalPairs)
+      ? callNLIBatch(canonicalFlatPairs)
       : Promise.resolve<NLIBatchResponse>({ results: [] }),
   ]);
-  const canonicalResults =
+
+  // Collapse window results back to one best item per source before aggregating
+  const perSourceOriginal = collapseWindowsToSource(batchResponse.results, windowCountsPerSource);
+  const perSourceCanonical =
     canonicalBatchResponse.results.length > 0
-      ? canonicalBatchResponse.results
-      : batchResponse.results;
-  const agg = aggregateResults(batchResponse.results, canonicalResults);
+      ? collapseWindowsToSource(canonicalBatchResponse.results, windowCountsPerSource)
+      : perSourceOriginal;
+
+  const agg = aggregateResults(perSourceOriginal, perSourceCanonical);
   const bestSignalMargin = agg.bestEntailment - Math.max(agg.bestContradiction, agg.bestNeutral);
   const hedgingMismatch = hasCausalHedgingMismatch(claim);
 
@@ -232,7 +342,7 @@ export async function evaluateWithNLI(claim: NotesLogEntry): Promise<TierOutput>
       verdict: 'valid',
       confidence: agg.bestEntailment,
       reasoning:
-        `Strong support found in ${String(agg.supportingSources)} of ${String(originalPairs.length)} ` +
+        `Strong support found in ${String(agg.supportingSources)} of ${String(claim.sources.length)} ` +
         `source chunk(s); best entailment ${(agg.bestEntailment * 100).toFixed(1)}% ` +
         `with signal margin ${(bestSignalMargin * 100).toFixed(1)} points and no strong contradiction ` +
         `(max contradiction ${(agg.bestContradiction * 100).toFixed(1)}%, ` +
@@ -247,7 +357,7 @@ export async function evaluateWithNLI(claim: NotesLogEntry): Promise<TierOutput>
       confidence: agg.bestContradiction,
       reasoning:
         `NLI detected a contradiction between the claim and ` +
-        `${String(agg.contradictingSources)} of ${String(originalPairs.length)} source chunk(s). ` +
+        `${String(agg.contradictingSources)} of ${String(claim.sources.length)} source chunk(s). ` +
         `Best contradiction confidence: ${(agg.bestContradiction * 100).toFixed(1)}%.`,
       suggested_revision:
         'Verify the claim against the cited source. The claim may misrepresent the direction ' +
@@ -267,7 +377,7 @@ export async function evaluateWithNLI(claim: NotesLogEntry): Promise<TierOutput>
     confidence: agg.bestEntailment,
     reasoning:
       `${escalationReason} ` +
-      `NLI result inconclusive across ${String(originalPairs.length)} source(s): ` +
+      `NLI result inconclusive across ${String(claim.sources.length)} source(s): ` +
       `${String(agg.supportingSources)} support-leading, ${String(agg.neutralSources)} neutral-leading, ` +
       `${String(agg.contradictingSources)} contradiction-leading. Best entailment ` +
       `${(agg.bestEntailment * 100).toFixed(1)}%, best contradiction ` +

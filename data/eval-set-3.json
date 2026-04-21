@@ -1,0 +1,876 @@
+[
+  {
+    "claim_id": "GT-104",
+    "claim_text": "The U.S. Supplemental Nutrition Assistance Program serves approximately 42 million Americans, making it the largest domestic food assistance program by enrollment.",
+    "claim_type": "comparative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-104",
+        "source_title": "USDA Food and Nutrition Service (2023) — SNAP Annual Summary",
+        "source_url": "https://www.fns.usda.gov/pd/supplemental-nutrition-assistance-program-snap",
+        "relevant_chunk": "An average of 41.7 million people participated in SNAP each month in fiscal year 2022, at a total cost of $119.5 billion. SNAP remains the largest domestic food and nutrition assistance program by both participants and expenditure."
+      }
+    ],
+    "reasoning": "The claim rounds 41.7 million to approximately 42 million and accurately identifies SNAP as the largest domestic food assistance program.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "SKEPTIC TRAP: The figure of approximately 42 million is a reasonable rounding of 41.7 million. The comparative claim about largest enrollment is directly confirmed. A skeptic might note the WIC or school meals programs also serve tens of millions, but the source explicitly confirms SNAP's top ranking."
+  },
+  {
+    "claim_id": "GT-105",
+    "claim_text": "Turkey's inflation rate exceeded 80% in 2022, the highest annual rate the country had experienced since 2001.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-105",
+        "source_title": "Turkish Statistical Institute (TÜİK) (2022) — Consumer Price Index, October 2022",
+        "source_url": "https://www.tuik.gov.tr",
+        "relevant_chunk": "Turkey's consumer price index rose 85.5% year-on-year in October 2022, the highest annual inflation rate recorded since 2001."
+      }
+    ],
+    "reasoning": "The claim accurately describes the inflation exceeding 80% and the historical comparison to 2001.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source confirms inflation exceeded 80% (peaking at 85.5%) and that this was the highest since 2001. Both elements of the claim are directly supported."
+  },
+  {
+    "claim_id": "GT-106",
+    "claim_text": "Housing voucher programs in the United States, such as Section 8, reach fewer than 25% of eligible low-income households due to chronic underfunding.",
+    "claim_type": "statistical",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-106",
+        "source_title": "Center on Budget and Policy Priorities (2023) — Federal Rental Assistance Fact Sheet",
+        "source_url": "https://www.cbpp.org/research/housing/federal-rental-assistance-fact-sheets",
+        "relevant_chunk": "Only about 1 in 4 households eligible for federal rental assistance actually receives it, due to funding limitations. An estimated 20 million low-income renter households are eligible for assistance but do not receive it. Waitlists for Housing Choice Vouchers in many cities stretch five to ten years."
+      }
+    ],
+    "reasoning": "The claim states fewer than 25% reach is confirmed by '1 in 4' language in the source.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source's '1 in 4' figure means approximately 25% coverage — consistent with 'fewer than 25%.' The source confirms chronic underfunding as the driver via waitlists and the 20 million unserved eligible households statistic."
+  },
+  {
+    "claim_id": "GT-107",
+    "claim_text": "Mass incarceration in the United States disproportionately affects Black Americans, who are incarcerated at a rate five times higher than white Americans.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-107",
+        "source_title": "The Sentencing Project (2023) — Trends in U.S. Corrections",
+        "source_url": "https://www.sentencingproject.org/reports/trends-in-u-s-corrections/",
+        "relevant_chunk": "Black Americans are incarcerated in state prisons at a rate 5 times higher than white Americans. Black men are incarcerated at a rate of 2,306 per 100,000, compared to 450 per 100,000 for white men."
+      }
+    ],
+    "reasoning": "The claim directly extracts the 5:1 racial disparity in incarceration rates.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly confirms a 5:1 disparity in incarceration rates between Black and white Americans. The claim is a faithful and accurate extraction of the finding."
+  },
+  {
+    "claim_id": "GT-108",
+    "claim_text": "Ethiopia's low tax-to-GDP ratio of around 6% reflects structural weaknesses in revenue collection that limit the government's ability to finance public services.",
+    "claim_type": "statistical",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-108",
+        "source_title": "IMF (2023) — Ethiopia: 2023 Article IV Consultation Staff Report",
+        "source_url": "https://www.imf.org/en/Publications/CR/Issues/2023/",
+        "relevant_chunk": "Ethiopia's tax revenue-to-GDP ratio was approximately 5.4% in fiscal year 2021/22, one of the lowest in Sub-Saharan Africa and well below the regional average of 16%. Limited administrative capacity, a large informal sector, and widespread exemptions constrain domestic revenue mobilization."
+      }
+    ],
+    "reasoning": "The claim says 'around 6%' but the source gives 5.4%; the characterization of structural weaknesses is supported.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The claim's 'around 6%' is a reasonable approximation of the source's 5.4%. The qualitative characterization of structural weaknesses limiting public service financing is directly supported by the source's description of administrative capacity, informal sector, and exemption issues."
+  },
+  {
+    "claim_id": "GT-109",
+    "claim_text": "The Deferred Action for Childhood Arrivals (DACA) program has provided work authorization to approximately 800,000 individuals since its creation in 2012.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-109",
+        "source_title": "U.S. Citizenship and Immigration Services (2023) — DACA Population Data",
+        "source_url": "https://www.uscis.gov/sites/default/files/document/data/DACA_Population_Data.pdf",
+        "relevant_chunk": "Approximately 594,000 individuals had active DACA status as of March 2023. Since the program's inception in 2012, approximately 840,000 individuals have ever received DACA approval."
+      }
+    ],
+    "reasoning": "The claim states approximately 800,000 individuals since creation; the source gives 840,000 ever approved.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source confirms approximately 840,000 individuals have ever received DACA approval — the claim's '800,000' is a reasonable approximation. The claim correctly distinguishes total recipients since creation from current active holders."
+  },
+  {
+    "claim_id": "GT-110",
+    "claim_text": "Mozambique's total external debt is primarily owed to multilateral creditors such as the World Bank and IMF, which together account for over 60% of the debt stock.",
+    "claim_type": "statistical",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-110",
+        "source_title": "World Bank (2023) — International Debt Statistics: Mozambique",
+        "source_url": "https://datatopics.worldbank.org/debt/ids/country/MOZ",
+        "relevant_chunk": "As of end-2022, Mozambique's public and publicly guaranteed external debt totaled $14.4 billion. Bilateral creditors held the largest share at approximately 45%, led by China, followed by multilateral creditors at 38% and commercial creditors at 17%."
+      }
+    ],
+    "reasoning": "The claim asserts multilateral creditors account for over 60% when the source shows only 38%.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source directly contradicts the claim. Multilateral creditors held approximately 38% of Mozambique's external debt, not 'over 60%.' Bilateral creditors — not multilaterals — held the largest share at 45%."
+  },
+  {
+    "claim_id": "GT-111",
+    "claim_text": "Local zoning reforms that permit accessory dwelling units have been associated with modest increases in housing supply in U.S. cities that have adopted them.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-111",
+        "source_title": "Chapple, K. et al. (2021) — ADUs as a Path to Affordable Housing, UC Berkeley Terner Center",
+        "source_url": "https://ternercenter.berkeley.edu/research-and-policy/adu-2021/",
+        "relevant_chunk": "Following California's 2017 ADU permitting reforms, ADU permit applications increased by over 900% statewide through 2021. However, ADUs accounted for approximately 12% of all new housing units permitted in California — meaningful but insufficient alone to resolve the state's housing shortage."
+      }
+    ],
+    "reasoning": "The claim characterizes the supply increase as 'modest,' which is consistent with the source's finding that ADUs account for 12% of new units.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source confirms that ADU reforms increased permit applications substantially and that ADUs represented a meaningful (12%) share of new housing, described as 'insufficient alone to resolve' the shortage — consistent with the claim's characterization of 'modest increases.' The language is appropriately hedged."
+  },
+  {
+    "claim_id": "GT-112",
+    "claim_text": "Eritrea has one of the world's lowest rates of internet penetration, with fewer than 1% of the population having access.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-112",
+        "source_title": "International Telecommunication Union (2023) — ICT Development Index",
+        "source_url": "https://www.itu.int/itu-d/reports/statistics/2023/",
+        "relevant_chunk": "Eritrea's internet user penetration rate was estimated at 0.9% in 2022, the lowest in Africa and among the lowest in the world."
+      }
+    ],
+    "reasoning": "The claim accurately states fewer than 1% internet penetration, confirmed by the 0.9% figure.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "SKEPTIC TRAP: The source confirms 0.9% penetration, which is indeed fewer than 1%. The source also confirms it is among the lowest in the world. The claim is a direct and accurate extraction."
+  },
+  {
+    "claim_id": "GT-113",
+    "claim_text": "Nurse staffing ratios mandated in California hospitals have been associated with lower patient mortality rates compared to states without such mandates.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-113",
+        "source_title": "Aiken, L. et al. (2010) — Implications of the California Nurse Staffing Mandate for Other States, Health Services Research",
+        "source_url": "https://doi.org/10.1111/j.1475-6773.2010.01114.x",
+        "relevant_chunk": "Hospitals in California had significantly lower surgical patient mortality than hospitals in New Jersey and Pennsylvania after controlling for patient acuity and hospital characteristics. The analysis estimates that the California mandate prevented approximately 4,600 deaths annually relative to counterfactual staffing levels."
+      }
+    ],
+    "reasoning": "The claim accurately paraphrases the mortality finding from the nurse staffing ratio research.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly supports lower mortality in California hospitals following the mandate compared to non-mandate states, using appropriate controls. The claim's use of 'associated with' is consistent with the quasi-experimental design of the source."
+  },
+  {
+    "claim_id": "GT-114",
+    "claim_text": "Ghana's cocoa sector contributes approximately 20% of the country's export earnings and employs around 800,000 farming households.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-114",
+        "source_title": "Ghana Cocoa Board (COCOBOD) (2023) — Annual Report 2022/2023",
+        "source_url": "https://www.cocobod.gh/annual-reports",
+        "relevant_chunk": "Cocoa accounted for approximately 17% of Ghana's total merchandise export value in 2022. The sector supports an estimated 800,000 smallholder farming families."
+      }
+    ],
+    "reasoning": "The employment figure (800,000) matches exactly, but the export share is stated as 20% when the source gives 17%.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The 800,000 farming household figure is directly confirmed. However, the claim states cocoa contributes approximately 20% of export earnings while the source gives 17% — a meaningful discrepancy of 3 percentage points in a policy context where precision matters."
+  },
+  {
+    "claim_id": "GT-115",
+    "claim_text": "Ride-hailing platforms such as Uber and Lyft have reduced drunk driving fatalities in U.S. cities where they operate.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-115",
+        "source_title": "Morrison, C.N. et al. (2018) — Ridesharing and Motor Vehicle Crashes in 4 US Cities, American Journal of Epidemiology",
+        "source_url": "https://doi.org/10.1093/aje/kwy118",
+        "relevant_chunk": "We found no statistically significant association between Uber's entry into 4 U.S. cities and subsequent changes in alcohol-related traffic fatalities. Our results are consistent with several prior studies that also found null or inconclusive effects. The hypothesis that ridesharing reduces drunk driving fatalities lacks robust empirical support."
+      }
+    ],
+    "reasoning": "The claim asserts reduced drunk driving fatalities, but the source finds no statistically significant association.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source directly contradicts the claim, finding no statistically significant association between ride-hailing entry and alcohol-related traffic fatalities. The source explicitly states the hypothesis 'lacks robust empirical support,' making the claim's assertion of demonstrated reductions unsupported."
+  },
+  {
+    "claim_id": "GT-116",
+    "claim_text": "Falling groundwater tables in India's Punjab region and rising input costs for smallholder farmers together suggest that the Green Revolution's agricultural model may be approaching economic and environmental limits.",
+    "claim_type": "synthesis",
+    "derivation": "cross_source",
+    "sources": [
+      {
+        "source_id": "S-116a",
+        "source_title": "Rodell, M. et al. (2018) — Emerging Trends in Global Freshwater Availability, Nature",
+        "source_url": "https://doi.org/10.1038/s41586-018-0123-1",
+        "relevant_chunk": "Satellite gravimetry data from GRACE show groundwater depletion in India's northwestern states at a rate of approximately 17.7 km³ per year between 2002 and 2016, among the fastest depletion rates globally. The Indo-Gangetic Plain aquifer system supporting Punjab's irrigated agriculture shows no sign of natural recharge matching extraction rates."
+      },
+      {
+        "source_id": "S-116b",
+        "source_title": "Lanjouw, J.O. & Lanjouw, P. (2022) — Agricultural Transformation in the Indo-Gangetic Plain, World Development",
+        "source_url": "https://doi.org/10.1016/j.worlddev.2022.105842",
+        "relevant_chunk": "Fertilizer, pesticide, and energy costs for smallholder paddy-wheat farmers in Punjab increased by an estimated 85% in real terms between 2000 and 2020, while paddy procurement prices grew at a slower pace. Net farm income among small landholders stagnated despite subsidy support."
+      }
+    ],
+    "reasoning": "The synthesis combines groundwater depletion with rising input costs to infer limits to the Green Revolution model.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "Both premises are well-documented and directly supported. The synthesis — that unsustainable water depletion and deteriorating farm economics suggest approaching limits — is logically sound and well-hedged with 'may be approaching' and 'suggest.' The claim does not overstate the certainty of the inference."
+  },
+  {
+    "claim_id": "GT-117",
+    "claim_text": "The U.S. federal government spends more on interest payments on the national debt than on Medicaid.",
+    "claim_type": "comparative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-117",
+        "source_title": "Congressional Budget Office (2023) — The Budget and Economic Outlook: 2023 to 2033",
+        "source_url": "https://www.cbo.gov/publication/58848",
+        "relevant_chunk": "In fiscal year 2023, net interest payments on the federal debt are projected to total $663 billion, exceeding projected Medicaid outlays of $616 billion. Interest payments are projected to surpass all discretionary spending categories by 2025."
+      }
+    ],
+    "reasoning": "The claim accurately reflects the CBO projection that interest payments exceed Medicaid spending.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly confirms that interest payments ($663B) are projected to exceed Medicaid outlays ($616B) in FY2023. The comparative claim is supported."
+  },
+  {
+    "claim_id": "GT-118",
+    "claim_text": "Lead exposure in early childhood has been shown in multiple longitudinal studies to cause lasting reductions in cognitive development and IQ.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-118",
+        "source_title": "Lanphear, B.P. et al. (2005) — Low-Level Environmental Lead Exposure and Children's Intellectual Function, Environmental Health Perspectives",
+        "source_url": "https://doi.org/10.1289/ehp.7688",
+        "relevant_chunk": "In a pooled analysis of 7 international prospective cohort studies, blood lead concentrations were inversely associated with IQ scores across all levels of exposure including those below 10 μg/dL. An increase from 2.4 to 10 μg/dL was associated with a 3.9-point IQ deficit. There was no identifiable threshold below which lead had no effect on intellectual function."
+      }
+    ],
+    "reasoning": "The claim paraphrases the well-established finding from prospective longitudinal studies on lead and cognitive development.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source represents a pooled analysis of 7 prospective cohort studies — consistent with 'multiple longitudinal studies' — and confirms lasting IQ reductions associated with lead exposure. The causal language is warranted given the consistency and design quality of the evidence base."
+  },
+  {
+    "claim_id": "GT-119",
+    "claim_text": "Argentina's sovereign debt restructuring in 2020 was the country's first such restructuring since the default of 2001.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-119",
+        "source_title": "IMF (2020) — Argentina: Request for Extended Arrangement Under the Extended Fund Facility — Staff Report",
+        "source_url": "https://www.imf.org/en/Publications/CR/Issues/2022/01/28/Argentina",
+        "relevant_chunk": "Argentina completed a restructuring of approximately $65 billion in foreign-law bonds in September 2020. This followed the country's ninth sovereign default in 2020 and a prior restructuring completed in 2005 following the 2001 default."
+      }
+    ],
+    "reasoning": "The claim says 2020 was the first restructuring since 2001, but the source notes a prior restructuring was completed in 2005.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source explicitly mentions a prior restructuring in 2005 following the 2001 default, meaning the 2020 restructuring was not the first since 2001. The claim misrepresents the history of Argentina's debt restructurings."
+  },
+  {
+    "claim_id": "GT-120",
+    "claim_text": "Clean energy investment globally exceeded fossil fuel investment for the first time in 2023.",
+    "claim_type": "comparative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-120",
+        "source_title": "IEA (2023) — World Energy Investment 2023",
+        "source_url": "https://www.iea.org/reports/world-energy-investment-2023",
+        "relevant_chunk": "For the first time, global clean energy investment in 2023 is set to exceed $1.7 trillion, compared to approximately $1 trillion for fossil fuels — meaning clean energy investment is on track to be nearly 70% higher than fossil fuel investment."
+      }
+    ],
+    "reasoning": "The claim accurately captures the first-time milestone of clean energy investment surpassing fossil fuel investment.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly confirms that 2023 is when clean energy investment first exceeded fossil fuel investment, with the margin being substantial ($1.7T vs. $1T). The claim accurately represents this milestone."
+  },
+  {
+    "claim_id": "GT-121",
+    "claim_text": "Increased deployment of school resource officers in U.S. schools reduces rates of violent incidents and improves student safety outcomes.",
+    "claim_type": "causal",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-121",
+        "source_title": "Na, C. & Gottfredson, D.C. (2013) — Police Officers in Schools, Justice Quarterly",
+        "source_url": "https://doi.org/10.1080/07418825.2011.615754",
+        "relevant_chunk": "Schools with police officers reported significantly more arrests and referrals to law enforcement for minor infractions but did not report lower rates of serious violent incidents compared to schools without officers. Our findings suggest that SROs may increase the criminalization of student behavior without producing measurable safety benefits."
+      }
+    ],
+    "reasoning": "The claim asserts improved safety outcomes, but the source finds increased arrests without reduction in violent incidents.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source directly contradicts the claim: schools with SROs showed no reduction in serious violent incidents but did show increased arrests for minor infractions. The source explicitly states SROs 'may increase the criminalization of student behavior without producing measurable safety benefits.' The claim misrepresents the evidence."
+  },
+  {
+    "claim_id": "GT-122",
+    "claim_text": "Bolivia's nationalization of its natural gas sector in 2006 generated substantially increased government revenues in the years immediately following the policy.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-122",
+        "source_title": "Kaup, B.Z. (2010) — A Neoliberal Nationalization? The Constraints on Natural Gas-Led Development in Bolivia, Latin American Perspectives",
+        "source_url": "https://doi.org/10.1177/0094582X09356058",
+        "relevant_chunk": "Following the 2006 nationalization, hydrocarbon revenues flowing to the Bolivian state increased from approximately $300 million in 2005 to over $1.5 billion by 2008, a five-fold increase. This revenue expansion financed significant social spending increases including the Bono Juancito Pinto cash transfer program."
+      }
+    ],
+    "reasoning": "The claim accurately paraphrases the substantial revenue gains following the nationalization.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly confirms a five-fold increase in hydrocarbon revenues from $300M to $1.5B in the years immediately following the 2006 nationalization. The claim's characterization of 'substantially increased revenues in the years immediately following' is well-supported."
+  },
+  {
+    "claim_id": "GT-123",
+    "claim_text": "The U.S. Veterans Affairs health system consistently outperforms private sector hospitals on patient satisfaction and care quality metrics.",
+    "claim_type": "comparative",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-123",
+        "source_title": "Trivedi, A.N. et al. (2011) — Comparison of the Quality of Medical Care in Veterans' Affairs and Non-Veterans' Affairs Settings, New England Journal of Medicine",
+        "source_url": "https://doi.org/10.1056/NEJMsa0608136",
+        "relevant_chunk": "VA facilities performed better than Medicare fee-for-service on 12 of 26 clinical quality indicators, comparably on 10, and worse on 4. Patient satisfaction scores were lower in VA facilities than in comparable non-VA settings on most survey dimensions. The VA showed particular strengths in chronic disease management but weaknesses in access and wait times."
+      }
+    ],
+    "reasoning": "The claim asserts consistent outperformance across all metrics, but the source presents a more mixed picture.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source presents a mixed picture: the VA performed better on 12 of 26 clinical quality indicators but had lower patient satisfaction scores on most survey dimensions. The claim's characterization of 'consistently outperforms' on both satisfaction and care quality misrepresents the evidence, which shows selective strengths and weaknesses."
+  },
+  {
+    "claim_id": "GT-124",
+    "claim_text": "Cambodia's primary school enrollment rate exceeded 95% by 2020, reflecting significant progress in expanding basic education access since the 1990s.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-124",
+        "source_title": "UNESCO UIS (2022) — Education Data: Cambodia",
+        "source_url": "https://uis.unesco.org/en/country/kh",
+        "relevant_chunk": "Cambodia's gross enrollment ratio for primary school reached 116.3% in 2020, with a net enrollment rate of 94.8%."
+      }
+    ],
+    "reasoning": "The claim states 'exceeded 95%' but the net enrollment rate is 94.8%; the GER exceeds 95% but that includes over-age students.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The relevant metric for access — net enrollment rate — is 94.8%, just below the 95% threshold the claim asserts. While the GER exceeds 95%, it reflects over-age enrollment and overstates effective access. The claim should use the NER and note it is just below 95%, not above it."
+  },
+  {
+    "claim_id": "GT-125",
+    "claim_text": "States that expanded Medicaid under the ACA have lower rates of rural hospital closures than non-expansion states.",
+    "claim_type": "comparative",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-125",
+        "source_title": "Kaufman Hall (2023) — Rural Hospital Sustainability Index",
+        "source_url": "https://www.kaufmanhall.com/insights/research-report/2023-rural-hospital-sustainability",
+        "relevant_chunk": "Between 2014 and 2022, rural hospital closure rates in Medicaid non-expansion states were approximately three times higher than in expansion states. Of the 136 rural hospital closures documented in this period, 101 occurred in non-expansion states."
+      }
+    ],
+    "reasoning": "The claim paraphrases the comparative finding on rural hospital closures and Medicaid expansion status.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly supports the claim, showing rural closure rates approximately three times higher in non-expansion states. The comparative claim is well-supported."
+  },
+  {
+    "claim_id": "GT-126",
+    "claim_text": "Malaria incidence in sub-Saharan Africa declined by over 40% between 2000 and 2015, driven primarily by scaled-up distribution of insecticide-treated bed nets.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-126",
+        "source_title": "WHO (2015) — World Malaria Report 2015",
+        "source_url": "https://www.who.int/malaria/publications/world-malaria-report-2015/report/en/",
+        "relevant_chunk": "Malaria case incidence in sub-Saharan Africa fell by 42% between 2000 and 2015. Modeling studies attribute approximately 68% of this decline to the scale-up of insecticide-treated nets, with indoor residual spraying and artemisinin combination therapies accounting for most of the remainder."
+      }
+    ],
+    "reasoning": "The claim accurately paraphrases the 40%+ decline and the primary role of bed nets.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source confirms a 42% decline (consistent with 'over 40%') and attributes approximately 68% to bed nets — consistent with 'driven primarily by' their distribution. The claim is a faithful and accurate paraphrase."
+  },
+  {
+    "claim_id": "GT-127",
+    "claim_text": "U.S. federal climate investment under the Inflation Reduction Act is projected to reduce domestic greenhouse gas emissions by 40% below 2005 levels by 2030.",
+    "claim_type": "predictive",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-127",
+        "source_title": "Rhodium Group (2022) — Inflation Reduction Act: A Climate Turning Point",
+        "source_url": "https://rhg.com/research/climate-turning-point/",
+        "relevant_chunk": "Our modeling projects that the Inflation Reduction Act will reduce U.S. net greenhouse gas emissions to 32–42% below 2005 levels by 2030, compared to a pre-IRA baseline of 24–35% below. The most likely central estimate is 37–41% below 2005 levels."
+      }
+    ],
+    "reasoning": "The claim states 40% below 2005 levels, which falls within the projected range of 32-42% in the source.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source's projected range of 32-42% (central estimate 37-41%) encompasses the 40% figure the claim cites. The claim appropriately uses 'projected' and the figure is well within the published range."
+  },
+  {
+    "claim_id": "GT-128",
+    "claim_text": "Jordan hosts the largest number of Syrian refugees per capita of any country in the world.",
+    "claim_type": "comparative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-128",
+        "source_title": "UNHCR (2023) — Global Trends: Forced Displacement in 2022",
+        "source_url": "https://www.unhcr.org/global-trends-report-2022",
+        "relevant_chunk": "Lebanon hosts the highest number of refugees per capita globally, with approximately 1 refugee for every 7 residents. Jordan ranks among the top five refugee-hosting countries per capita worldwide."
+      }
+    ],
+    "reasoning": "The claim says Jordan has the highest per-capita refugee burden, but the source identifies Lebanon as first globally.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source directly contradicts the claim, identifying Lebanon — not Jordan — as the country with the highest number of refugees per capita globally. Jordan ranks in the top five but not first."
+  },
+  {
+    "claim_id": "GT-129",
+    "claim_text": "Community land trusts in U.S. cities have demonstrated that permanently affordable homeownership models can maintain housing stability for low-income residents over multiple decades.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-129",
+        "source_title": "Davis, J.E. & Jacobus, R. (2008) — The City-CLT Partnership, Lincoln Institute of Land Policy",
+        "source_url": "https://www.lincolninst.edu/publications/working-papers/city-clt-partnership",
+        "relevant_chunk": "Community land trusts have maintained resale-restricted homeownership across three-plus decades of operation in Burlington, Vermont and other cities. CLT homeowners show significantly lower foreclosure and delinquency rates than conventional low-income homeowners, with the Burlington CLT reporting a 30-year foreclosure rate below 1%."
+      }
+    ],
+    "reasoning": "The claim paraphrases the evidence on CLT housing stability over multiple decades.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly supports the claim with empirical evidence from 30+ years of CLT operation and notably low foreclosure rates. The characterization of 'demonstrated' is warranted given the longitudinal evidence."
+  },
+  {
+    "claim_id": "GT-130",
+    "claim_text": "Rising sea levels, intensifying cyclone activity, and declining fish stocks together indicate that Pacific Island nations face existential threats requiring immediate adaptation investment well beyond current international commitments.",
+    "claim_type": "synthesis",
+    "derivation": "cross_source",
+    "sources": [
+      {
+        "source_id": "S-130a",
+        "source_title": "IPCC (2022) — Climate Change 2022: Impacts, Adaptation and Vulnerability, Chapter 15: Small Islands",
+        "source_url": "https://www.ipcc.ch/report/ar6/wg2/chapter/chapter-15/",
+        "relevant_chunk": "Pacific small island developing states face compound climate risks including sea-level rise projected at 0.3–1.0 m by 2100, increasing tropical cyclone intensity, and ocean acidification threatening reef-dependent fisheries. Some atoll nations may become uninhabitable within decades under high-emission scenarios."
+      },
+      {
+        "source_id": "S-130b",
+        "source_title": "OECD (2023) — Climate Finance Provided and Mobilised by Developed Countries 2013–2021",
+        "source_url": "https://www.oecd.org/env/cc/climate-finance-provided-and-mobilised-by-developed-countries-aggregate-trends-updated-data.htm",
+        "relevant_chunk": "Small island developing states received approximately $2 billion in climate finance in 2021, representing just 2% of total global climate finance flows despite facing among the highest per-capita climate vulnerability. Adaptation finance for SIDS fell short of stated targets under the Paris Agreement."
+      }
+    ],
+    "reasoning": "The synthesis combines documented climate threats with the finance gap to infer inadequate current commitments.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "Both premises are well-documented: compound climate threats to Pacific SIDS (Source A) and a large gap between climate finance commitments and actual flows (Source B). The synthesis is logically sound and appropriately hedged. The 'existential' framing is supported by Source A's reference to potential uninhabitability."
+  },
+  {
+    "claim_id": "GT-131",
+    "claim_text": "Universal school meals programs in the United States improve attendance and academic concentration, particularly among food-insecure students.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-131",
+        "source_title": "Imberman, S.A. & Kugler, A.D. (2014) — The Effect of Providing Breakfast in Class on Student Performance, Journal of Policy Analysis and Management",
+        "source_url": "https://doi.org/10.1002/pam.21759",
+        "relevant_chunk": "Our regression discontinuity analysis finds that universal in-classroom breakfast provision increased math and reading test scores by 0.09 and 0.06 standard deviations respectively and reduced absences by 0.3 days per student. Effects were concentrated among food-insecure students, who showed 2–3 times larger gains."
+      }
+    ],
+    "reasoning": "The claim paraphrases the finding on attendance and academic concentration, with the food-insecure student qualifier.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source confirms both improved academic performance and reduced absences, with larger effects among food-insecure students. The claim's reference to 'academic concentration' is a reasonable paraphrase of test score improvements. The qualifier about food-insecure students is directly supported."
+  },
+  {
+    "claim_id": "GT-132",
+    "claim_text": "Antibiotic overuse in livestock production in South and Southeast Asia is a primary driver of antimicrobial resistance in human clinical settings.",
+    "claim_type": "causal",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-132",
+        "source_title": "Van Boeckel, T.P. et al. (2014) — Global Antibiotic Consumption in Livestock, Lancet Infectious Diseases",
+        "source_url": "https://doi.org/10.1016/S1473-3099(14)70780-7",
+        "relevant_chunk": "South and Southeast Asia account for the highest rates of antibiotic use in livestock globally, with India and China together representing over 50% of global livestock antibiotic consumption. While high livestock antibiotic use is associated with increased resistance in animal populations, the transmission pathway to human clinical AMR remains incompletely characterized and contested in the scientific literature."
+      }
+    ],
+    "reasoning": "The claim asserts livestock antibiotic use is a 'primary driver' of human clinical AMR, but the source says the transmission pathway to human clinical settings is 'incompletely characterized and contested.'",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source supports high livestock antibiotic use in the region and its link to animal AMR, but explicitly states the transmission pathway to human clinical AMR is 'incompletely characterized and contested.' The claim's assertion that it is a 'primary driver' of human clinical AMR overstates the evidence and contradicts the source's own characterization of the scientific uncertainty."
+  },
+  {
+    "claim_id": "GT-133",
+    "claim_text": "Among high-income countries, the United States has the highest rate of firearm deaths per 100,000 population.",
+    "claim_type": "comparative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-133",
+        "source_title": "GBD 2019 Violence Collaborators (2022) — Global Mortality from Firearms, 1990–2016, JAMA",
+        "source_url": "https://doi.org/10.1001/jama.2018.14051",
+        "relevant_chunk": "Among high-income countries, the United States had the highest age-standardized firearm mortality rate at 10.6 per 100,000, more than three times the rate of the next highest high-income country (Portugal at 3.1 per 100,000)."
+      }
+    ],
+    "reasoning": "The claim directly extracts the comparative ranking of U.S. firearm deaths among high-income countries.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "SKEPTIC TRAP: The source directly confirms the U.S. leads high-income countries in firearm mortality at 10.6 per 100,000 — more than triple the second-ranked country. The claim is accurate and directly supported."
+  },
+  {
+    "claim_id": "GT-134",
+    "claim_text": "Restrictive land use regulations in U.S. metropolitan areas have been identified as a significant contributor to housing affordability challenges and intergenerational economic mobility constraints.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-134",
+        "source_title": "Hsieh, C.T. & Moretti, E. (2019) — Housing Constraints and Spatial Misallocation, American Economic Journal: Macroeconomics",
+        "source_url": "https://doi.org/10.1257/mac.20170388",
+        "relevant_chunk": "We estimate that housing supply constraints in high-productivity cities reduced aggregate U.S. GDP growth by 2% annually between 1964 and 2009. Restrictive zoning prevents workers from moving to high-wage metros, which we estimate reduced intergenerational mobility by preventing disadvantaged workers from accessing higher-opportunity labor markets."
+      }
+    ],
+    "reasoning": "The claim paraphrases the well-established economic finding on restrictive land use and its dual effects on affordability and mobility.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly supports both causal pathways: restrictive housing supply contributing to GDP losses and reduced worker mobility limiting intergenerational economic mobility. The claim accurately characterizes both mechanisms."
+  },
+  {
+    "claim_id": "GT-135",
+    "claim_text": "Nearly 40% of child deaths in low-income countries are attributable to malnutrition, either directly or as an underlying cause.",
+    "claim_type": "statistical",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-135",
+        "source_title": "Black, R.E. et al. (2013) — Maternal and Child Undernutrition and Overweight in Low-Income and Middle-Income Countries, Lancet",
+        "source_url": "https://doi.org/10.1016/S0140-6736(13)60937-X",
+        "relevant_chunk": "Undernutrition — including stunting, wasting, and micronutrient deficiencies — underlies 45% of all under-5 deaths in low-income and middle-income countries. In sub-Saharan Africa and South Asia, the proportion exceeds 50%."
+      }
+    ],
+    "reasoning": "The claim says 'nearly 40%' but the source reports 45% for LMICs.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source reports that malnutrition underlies 45% of under-5 deaths in LMICs — the claim's 'nearly 40%' understates this figure. The claim also uses 'low-income countries' while the source refers to 'low- and middle-income countries.' Both differences are meaningful in a policy context."
+  },
+  {
+    "claim_id": "GT-136",
+    "claim_text": "Declining enrollment in U.S. law schools, falling bar passage rates, and rising student debt loads together suggest that legal education reform is necessary to sustain access to justice for underserved communities.",
+    "claim_type": "synthesis",
+    "derivation": "cross_source",
+    "sources": [
+      {
+        "source_id": "S-136a",
+        "source_title": "American Bar Association (2023) — ABA Law School Data: Enrollment Trends",
+        "source_url": "https://www.americanbar.org/groups/legal_education/resources/statistics/",
+        "relevant_chunk": "Total J.D. enrollment at ABA-accredited law schools declined from a peak of 147,525 in 2010 to 111,400 in 2020, a 24% decrease. Applications also declined, though selective schools saw increased competition. First-time bar passage rates fell from 76% nationally in 2010 to 58% in 2019."
+      },
+      {
+        "source_id": "S-136b",
+        "source_title": "AccessLex Institute (2022) — Law School Debt and Access to Justice",
+        "source_url": "https://www.accesslex.org/research/law-school-debt-and-access",
+        "relevant_chunk": "Median law school debt at graduation reached $130,000 at public law schools and $160,000 at private schools in 2021. High debt loads are associated with reduced likelihood of pursuing public interest or public defender careers. Graduates with high debt are 35% less likely to work in legal aid or public service roles."
+      }
+    ],
+    "reasoning": "The synthesis combines enrollment decline, bar passage challenges, and high debt to infer structural access to justice concerns.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "All three premises are documented: enrollment and bar passage declines (Source A) and debt-driven diversion from public interest work (Source B). The inference that these trends threaten access to justice in underserved communities follows logically and is directly supported by Source B's data on public interest career choices. The claim uses 'suggest' appropriately."
+  },
+  {
+    "claim_id": "GT-137",
+    "claim_text": "Tanzania's average annual GDP growth rate exceeded 6% from 2000 to 2020, making it one of the fastest-growing economies in sub-Saharan Africa.",
+    "claim_type": "comparative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-137",
+        "source_title": "World Bank (2022) — Tanzania Economic Update",
+        "source_url": "https://openknowledge.worldbank.org/handle/10986/37442",
+        "relevant_chunk": "Tanzania sustained average annual GDP growth of approximately 6.5% between 2000 and 2019, ranking among the five fastest-growing economies in sub-Saharan Africa over this period. Growth slowed to 2% in 2020 due to the COVID-19 pandemic."
+      }
+    ],
+    "reasoning": "The claim accurately reflects Tanzania's growth rate and comparative ranking in the region.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source confirms 6.5% average growth from 2000-2019 (consistent with '2000 to 2020' given the anomalous 2020 pandemic year) and explicitly ranks Tanzania among the five fastest-growing SSA economies. The claim is an accurate representation."
+  },
+  {
+    "claim_id": "GT-138",
+    "claim_text": "The United States has experienced net immigration from Mexico every year since 2005.",
+    "claim_type": "statistical",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-138",
+        "source_title": "Pew Research Center (2015) — More Mexicans Leaving Than Coming to the U.S.",
+        "source_url": "https://www.pewresearch.org/hispanic/2015/11/19/more-mexicans-leaving-than-coming-to-the-u-s/",
+        "relevant_chunk": "Between 2009 and 2014, more Mexican immigrants left the United States to return to Mexico than arrived from Mexico — a net flow of approximately one million people in the Mexico-to-U.S. direction. Economic conditions, family reunification, and increased U.S. deportations contributed to this reversal."
+      }
+    ],
+    "reasoning": "The claim asserts net immigration from Mexico every year since 2005, but the source documents a period of net outflow from the U.S. to Mexico between 2009 and 2014.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source directly contradicts the claim, documenting a net outflow from the U.S. to Mexico between 2009 and 2014. Net immigration from Mexico was not consistent in every year since 2005 — there was a notable reversal during and after the Great Recession."
+  },
+  {
+    "claim_id": "GT-139",
+    "claim_text": "Paid family leave policies in OECD countries are associated with higher rates of breastfeeding initiation and longer breastfeeding duration.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-139",
+        "source_title": "Chai, Y. et al. (2018) — Maternity Leave Duration and Child Health Outcomes in the United States, Social Science and Medicine",
+        "source_url": "https://doi.org/10.1016/j.socscimed.2018.04.007",
+        "relevant_chunk": "Longer maternity leave duration was significantly associated with higher rates of breastfeeding initiation (OR: 1.37 per 10-week increase) and longer breastfeeding duration. Each additional 10 weeks of leave was associated with a 37% increase in the odds of breastfeeding initiation, with comparable effects observed across multiple OECD country studies."
+      }
+    ],
+    "reasoning": "The claim paraphrases the well-supported finding on paid leave and breastfeeding outcomes.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly supports the association between longer maternity leave and improved breastfeeding outcomes, with quantified effect sizes and reference to consistency across OECD country studies. The claim accurately represents the finding."
+  },
+  {
+    "claim_id": "GT-140",
+    "claim_text": "Public housing residents in the United States are required by federal law to participate in economic self-sufficiency programs as a condition of continued tenancy.",
+    "claim_type": "normative",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-140",
+        "source_title": "U.S. Department of Housing and Urban Development (2023) — Family Self-Sufficiency Program Overview",
+        "source_url": "https://www.hud.gov/program_offices/public_indian_housing/programs/hcv/fss",
+        "relevant_chunk": "HUD's Family Self-Sufficiency program is voluntary for eligible residents and allows participants to accumulate savings as their earnings increase. Participation is not a condition of receiving housing assistance. PHAs are required to make the program available but cannot mandate enrollment."
+      }
+    ],
+    "reasoning": "The claim asserts mandatory participation in self-sufficiency programs, but the source confirms participation is voluntary.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source directly states the Family Self-Sufficiency program is voluntary and that PHAs 'cannot mandate enrollment.' The claim's characterization of mandatory participation as a condition of tenancy is factually incorrect."
+  },
+  {
+    "claim_id": "GT-141",
+    "claim_text": "Rapid urbanization in West Africa and deteriorating urban infrastructure together suggest that metropolitan governance reforms are urgently needed to avoid compounding service delivery failures.",
+    "claim_type": "synthesis",
+    "derivation": "cross_source",
+    "sources": [
+      {
+        "source_id": "S-141a",
+        "source_title": "African Development Bank (2022) — Urbanization in West Africa: Trends and Policy Implications",
+        "source_url": "https://www.afdb.org/en/documents/urbanization-west-africa",
+        "relevant_chunk": "West Africa's urban population is projected to grow from 160 million in 2020 to 330 million by 2040, with most growth concentrated in secondary cities that lack the administrative capacity and fiscal resources of capital cities. Urban infrastructure investment has not kept pace with population growth in any major West African metropolitan area."
+      },
+      {
+        "source_id": "S-141b",
+        "source_title": "World Bank (2023) — Municipal Finance in West Africa",
+        "source_url": "https://openknowledge.worldbank.org/handle/10986/39245",
+        "relevant_chunk": "Municipal governments in West Africa collect on average less than 1% of GDP in own-source revenues, compared to 5–8% in comparable Asian cities. Fragmented metropolitan governance — with multiple competing municipal authorities in single urban agglomerations — reduces service delivery effectiveness and accountability in cities such as Lagos, Accra, and Abidjan."
+      }
+    ],
+    "reasoning": "The synthesis combines rapid urbanization with governance and fiscal weaknesses to infer urgent reform needs.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "Both premises are well-documented: population doubling by 2040 outpacing infrastructure (Source A) and severe fiscal and governance fragmentation (Source B). The inference that compounding service delivery failures are likely without reform is logically supported and appropriately urgent without overstating certainty."
+  },
+  {
+    "claim_id": "GT-142",
+    "claim_text": "High-speed rail investment in California is projected to carry 30 million annual passengers by 2030.",
+    "claim_type": "predictive",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-142",
+        "source_title": "California High-Speed Rail Authority (2022) — 2022 Business Plan",
+        "source_url": "https://hsr.ca.gov/programs/research-development/technical-reports/2022-business-plan/",
+        "relevant_chunk": "The 2022 Business Plan projects that a Phase 1 system connecting San Francisco and Los Angeles will carry between 24 and 36 million annual passengers once full operations commence. Full Phase 1 service commencement is now projected for no earlier than 2033, revised from earlier 2029 projections."
+      }
+    ],
+    "reasoning": "The claim states 30 million passengers by 2030, but the source shows full service won't begin until at least 2033.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source makes two things clear: the ridership range (24-36M annually, with 30M plausible) and the timing — full operations are projected no earlier than 2033, not 2030 as the claim states. The claim's timeline is directly contradicted by the source."
+  },
+  {
+    "claim_id": "GT-143",
+    "claim_text": "Voluntary carbon offset markets have been criticized for widespread integrity failures, including projects that overstate emissions reductions or claim credit for forests that were never at risk.",
+    "claim_type": "normative",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-143",
+        "source_title": "Guizar-Coutiño, A. et al. (2022) — A Global Evaluation of the Effectiveness of Voluntary REDD+ Projects, Science",
+        "source_url": "https://doi.org/10.1126/science.abm3770",
+        "relevant_chunk": "Our analysis of 26 REDD+ voluntary carbon projects found that only 26% showed evidence of meaningful deforestation reduction, while 74% of projects showed no measurable benefit relative to counterfactual baselines. Many projects were sited in forests with low baseline deforestation risk, meaning credited emissions reductions were largely fictitious."
+      }
+    ],
+    "reasoning": "The claim paraphrases the well-documented critique of voluntary carbon markets, supported by the REDD+ study findings.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source provides direct empirical support for both types of integrity failure mentioned: overstated reductions (only 26% showed meaningful benefit) and crediting non-threatened forests (projects sited in low-risk areas). The claim accurately characterizes the documented problems."
+  },
+  {
+    "claim_id": "GT-144",
+    "claim_text": "The United Kingdom's National Health Service spends a higher share of GDP on healthcare than any other universal health coverage system in Europe.",
+    "claim_type": "comparative",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-144",
+        "source_title": "OECD (2023) — Health at a Glance 2023",
+        "source_url": "https://doi.org/10.1787/7a7afb35-en",
+        "relevant_chunk": "The United Kingdom spent 11.9% of GDP on health in 2022, above the EU average of 10.9%. Germany spent 12.7%, France 12.1%, and Austria 12.0% — all higher than the UK."
+      }
+    ],
+    "reasoning": "The claim asserts the UK spends the highest share of GDP on healthcare in Europe, but the source shows Germany, France, and Austria all exceed the UK.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source directly contradicts the claim. The UK spent 11.9% of GDP on health, but Germany (12.7%), France (12.1%), and Austria (12.0%) all spent more. The UK is above the EU average but far from the highest."
+  },
+  {
+    "claim_id": "GT-145",
+    "claim_text": "Drug treatment courts in the United States reduce reoffending rates among participants compared to traditional incarceration, with most studies finding 10–20% lower recidivism.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-145",
+        "source_title": "Mitchell, O. et al. (2012) — Assessing the Effectiveness of Drug Courts on Recidivism: A Meta-Analytic Review, Journal of Criminal Justice",
+        "source_url": "https://doi.org/10.1016/j.jcrimjus.2012.04.009",
+        "relevant_chunk": "Our meta-analysis of 92 drug court evaluations found that drug courts reduced recidivism by approximately 8–14% compared to traditional case processing, with effects larger in adult felony drug courts than juvenile or misdemeanor courts."
+      }
+    ],
+    "reasoning": "The claim states 10-20% lower recidivism, but the source meta-analysis finds 8-14%.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source's meta-analysis of 92 studies finds a reduction of 8-14%, not 10-20% as the claim states. The claim's range starts slightly above and extends substantially beyond the evidence. In a policy memo context, citing the correct range matters for accurate program assessment."
+  },
+  {
+    "claim_id": "GT-146",
+    "claim_text": "Sustained investment in early literacy programs in the United States could prevent up to two-thirds of students who currently read below grade level by third grade from chronic academic underperformance.",
+    "claim_type": "predictive",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-146",
+        "source_title": "Annie E. Casey Foundation (2010) — Early Warning: Why Reading by the End of Third Grade Matters",
+        "source_url": "https://www.aecf.org/resources/early-warning-why-reading-by-the-end-of-third-grade-matters",
+        "relevant_chunk": "Students who cannot read proficiently by the end of third grade are four times more likely to drop out of high school. Evidence-based reading instruction, when implemented with fidelity, can bring the majority of at-risk students to grade-level proficiency, though no large-scale study has quantified a specific fraction of chronic underperformance that could be prevented."
+      }
+    ],
+    "reasoning": "The claim asserts a specific 'up to two-thirds' prevention estimate that the source does not quantify.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source supports the importance of early literacy and the effectiveness of evidence-based instruction, but explicitly states that 'no large-scale study has quantified a specific fraction of chronic underperformance that could be prevented.' The claim's 'up to two-thirds' figure is fabricated — the source provides no basis for this specific estimate."
+  },
+  {
+    "claim_id": "GT-147",
+    "claim_text": "Kenya's M-Pesa mobile money platform has been credited with lifting approximately 2% of Kenyan households out of extreme poverty.",
+    "claim_type": "causal",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-147",
+        "source_title": "Suri, T. & Jack, W. (2016) — The Long-Run Poverty and Gender Impacts of Mobile Money, Science",
+        "source_url": "https://doi.org/10.1126/science.aah5309",
+        "relevant_chunk": "Access to M-Pesa increased per capita consumption levels and lifted approximately 2% of Kenyan households out of extreme poverty. Effects were particularly large for women-headed households, among which consumption increased by 18.5% and the likelihood of extreme poverty fell by 21 percentage points."
+      }
+    ],
+    "reasoning": "The claim directly extracts the 2% poverty reduction finding from the Suri and Jack study.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "SKEPTIC TRAP: The 2% household poverty lift figure is directly from the source — a widely cited study in Science. A skeptic might note this is a single country study with possible external validity limitations, but the claim accurately attributes the finding to Kenya and uses 'credited with' language consistent with the causal design."
+  },
+  {
+    "claim_id": "GT-148",
+    "claim_text": "Municipal solid waste generation per capita in the United States is the highest of any country in the world.",
+    "claim_type": "comparative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-148",
+        "source_title": "World Bank (2022) — What a Waste 2.0: A Global Snapshot of Solid Waste Management",
+        "source_url": "https://datatopics.worldbank.org/what-a-waste/",
+        "relevant_chunk": "The United States generates approximately 808 kg of municipal solid waste per person per year, the highest of any country with available data. High-income countries generate on average 683 kg per capita annually."
+      }
+    ],
+    "reasoning": "The claim directly extracts the comparative ranking on per capita waste generation.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly confirms the U.S. leads globally in per capita MSW generation at 808 kg/person/year. The comparative claim is accurate."
+  },
+  {
+    "claim_id": "GT-149",
+    "claim_text": "Globally, approximately 2 billion people lack access to safely managed drinking water, with the majority of the gap concentrated in sub-Saharan Africa and South Asia.",
+    "claim_type": "statistical",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-149",
+        "source_title": "WHO/UNICEF JMP (2023) — Progress on Drinking Water, Sanitation and Hygiene 2000–2022",
+        "source_url": "https://washdata.org/reports/jmp-2023-wash-households",
+        "relevant_chunk": "In 2022, 2.2 billion people lacked access to safely managed drinking water services. Sub-Saharan Africa and South Asia together accounted for 74% of the global gap, with sub-Saharan Africa alone representing 44%."
+      }
+    ],
+    "reasoning": "The claim states approximately 2 billion; the source gives 2.2 billion, with geographic concentration supported.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The claim's 'approximately 2 billion' slightly understates the source's 2.2 billion but is within a reasonable range for a policy memo approximation. The geographic characterization — majority in sub-Saharan Africa and South Asia — is directly confirmed (74% combined)."
+  },
+  {
+    "claim_id": "GT-150",
+    "claim_text": "Police body camera programs in the United States have consistently reduced civilian complaints and use-of-force incidents across all jurisdictions where they have been deployed.",
+    "claim_type": "causal",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-150",
+        "source_title": "Lum, C. et al. (2019) — Research on Body-Worn Cameras: What We Know, What We Need to Know, Criminology and Public Policy",
+        "source_url": "https://doi.org/10.1111/1745-9133.12412",
+        "relevant_chunk": "The evidence on body cameras is mixed. Some randomized trials, including Washington D.C.'s Metropolitan Police Department experiment, found no significant reduction in use-of-force or civilian complaints. Other studies, including trials in Rialto, California, found substantial reductions. Implementation fidelity — including officer discretion in activating cameras — substantially moderates outcomes."
+      }
+    ],
+    "reasoning": "The claim asserts 'consistent' reductions 'across all jurisdictions,' but the source describes mixed results.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source directly contradicts the claim of consistent reductions across all jurisdictions, describing 'mixed' evidence. The Washington D.C. RCT — a large, rigorous study — found no significant effect, while Rialto found reductions. The claim's 'consistently' and 'all jurisdictions' language is not supported."
+  },
+  {
+    "claim_id": "GT-151",
+    "claim_text": "Providing conditional cash transfers to pregnant women in rural areas of low-income countries is associated with improved birth weight outcomes.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-151",
+        "source_title": "Glassman, A. et al. (2013) — Conditional Cash Transfers and Health Outcomes in Latin America, Health Affairs",
+        "source_url": "https://doi.org/10.1377/hlthaff.2012.0996",
+        "relevant_chunk": "Programs that conditioned transfers on prenatal care attendance showed significant improvements in birth weight, with average improvements of 50–100 grams in several Latin American trials. The effect was mediated by increased prenatal care utilization rather than income effects alone."
+      }
+    ],
+    "reasoning": "The claim accurately paraphrases the finding on CCTs and birth weight outcomes in low-income settings.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly supports improved birth weight outcomes from CCTs conditioned on prenatal care attendance, with quantified effect sizes. The claim uses 'associated with' appropriately and the geographic scope (low-income countries) is consistent with the Latin American trial evidence cited."
+  },
+  {
+    "claim_id": "GT-152",
+    "claim_text": "Democratic governance and open civic space are necessary preconditions for effective development outcomes in low-income countries.",
+    "claim_type": "normative",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-152",
+        "source_title": "Acemoglu, D. et al. (2019) — Democracy Does Cause Growth, Journal of Political Economy",
+        "source_url": "https://doi.org/10.1086/700936",
+        "relevant_chunk": "Our instrumental variable estimates find that democratization increases GDP per capita by approximately 20% over 25 years, operating primarily through improved provision of public goods, higher investment in education and health, and lower societal conflict. The effects are robust across multiple specifications."
+      }
+    ],
+    "reasoning": "The claim converts a finding about democracy and growth into a universal normative claim that democracy is a 'necessary precondition' for development.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source documents a positive average effect of democracy on economic growth. However, the claim converts this into a universal 'necessary precondition,' which the evidence does not support — there are documented cases of significant development progress under authoritarian governance (e.g., China, South Korea in earlier decades). The source shows democracy tends to help but does not demonstrate it is a necessary condition."
+  },
+  {
+    "claim_id": "GT-153",
+    "claim_text": "The share of Americans with no religious affiliation has roughly doubled since 2007, rising from approximately 16% to 29% in 2023.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-153",
+        "source_title": "Pew Research Center (2023) — Modeling the Future of Religion in America",
+        "source_url": "https://www.pewresearch.org/religion/2022/09/13/modeling-the-future-of-religion-in-america/",
+        "relevant_chunk": "The religiously unaffiliated — those who describe their religion as atheist, agnostic, or 'nothing in particular' — made up 16% of U.S. adults in 2007 and 28% in 2022, representing a near-doubling over 15 years."
+      }
+    ],
+    "reasoning": "The claim states 29% in 2023; the source gives 28% in 2022 — a minor difference for a policy memo approximation.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The starting point (16% in 2007) is directly confirmed. The endpoint (29% claimed vs. 28% reported for 2022) is a one percentage point difference that is reasonable to round or project for a 2023 estimate. The 'roughly doubled' characterization is accurate."
+  }
+]

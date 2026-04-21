@@ -528,7 +528,7 @@ describe('evaluateWithLLMJudge — Groq API call structure', () => {
     await evaluateWithLLMJudge(makeEntry());
 
     const [params] = mockCreate.mock.calls[0] as [Record<string, unknown>];
-    expect(params['model']).toBe('gpt-4o-mini');
+    expect(params['model']).toBe('gpt-4o');
     expect(params['temperature']).toBe(0.2);
   });
 
