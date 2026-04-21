@@ -190,6 +190,10 @@ function makeTierOutput(tier: 1 | 2 | 3 | 4, verdict: HeraldResult['verdict'], c
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockGroqCreate.mockReset();
+  mockEvaluateWithNLI.mockReset();
+  mockEvaluateWithLLMJudge.mockReset();
+  mockEvaluateWithDebate.mockReset();
   clearQueue();
   process.env['GROQ_API_KEY'] = 'test-groq-key';
   delete process.env['OPENAI_API_KEY'];
@@ -221,6 +225,7 @@ describe('Pipeline Phase 1→2: Research agent produces MemoOutput', () => {
       notes_log: [STATISTICAL_CLAIM],
     };
 
+    mockGroqCreate.mockResolvedValueOnce(makeGroqAgentResponse(agentJson));
     mockGroqCreate.mockResolvedValueOnce(makeGroqAgentResponse(agentJson));
 
     const output = await runResearchAgent(
