@@ -1,0 +1,62 @@
+[
+  {
+    "claim_id": "C-001",
+    "claim_text": "Rural areas have lower coverage rates for Section 8 vouchers compared to urban areas.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-001",
+        "source_title": "Government Accountability Office (GAO) Report",
+        "source_url": "https://www.gao.gov/products/gao-23-105675",
+        "relevant_chunk": "The GAO report found that rural areas have lower coverage rates for Section 8 vouchers compared to urban areas."
+      }
+    ],
+    "reasoning": "The GAO report provides evidence of the disparity in coverage rates between rural and urban areas."
+  },
+  {
+    "claim_id": "C-002",
+    "claim_text": "Rural households often experience longer waitlist times, with some waitlists exceeding 5-10 years.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-002",
+        "source_title": "HUD Report",
+        "source_url": "https://www.huduser.gov/portal/periodicals/em/fall21/highlight2.html",
+        "relevant_chunk": "The HUD report notes that rural households often experience longer waitlist times, with some waitlists exceeding 5-10 years."
+      }
+    ],
+    "reasoning": "The HUD report provides evidence of the long waitlist times faced by rural households."
+  },
+  {
+    "claim_id": "C-003",
+    "claim_text": "Landlord participation is a significant issue in rural areas, with many landlords opting out of the program due to administrative burdens or lack of incentives.",
+    "claim_type": "causal",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-003",
+        "source_title": "Center on Budget and Policy Priorities Report",
+        "source_url": "https://www.cbpp.org/research/housing/research-note-rural-renters-face-distinct-barriers-to-housing-assistance",
+        "relevant_chunk": "The CBPP report notes that landlord participation is a significant issue in rural areas, with many landlords opting out of the program due to administrative burdens or lack of incentives."
+      }
+    ],
+    "reasoning": "The CBPP report provides evidence of the challenges faced by rural households in accessing the Section 8 program."
+  },
+  {
+    "claim_id": "C-004",
+    "claim_text": "Targeted funding increases and programmatic changes could help address the access gaps faced by rural households.",
+    "claim_type": "normative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-003",
+        "source_title": "Center on Budget and Policy Priorities Report",
+        "source_url": "https://www.cbpp.org/research/housing/research-note-rural-renters-face-distinct-barriers-to-housing-assistance",
+        "relevant_chunk": "The CBPP report suggests that targeted funding increases and programmatic changes could help address the access gaps faced by rural households."
+      }
+    ],
+    "reasoning": "The CBPP report provides evidence of the potential solutions to address the access gaps faced by rural households."
+  }
+]

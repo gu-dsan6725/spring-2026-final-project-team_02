@@ -48,6 +48,6 @@ export interface AgentConfig {
 
 export const DEFAULT_AGENT_CONFIG: AgentConfig = {
   max_tool_calls: 25,
-  max_research_tokens: 50000,
+  max_research_tokens: 100000,
   max_revision_attempts: 2,
 };

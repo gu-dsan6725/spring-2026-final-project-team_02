@@ -1,0 +1,88 @@
+{
+  "generated_at": "2026-04-21T15:25:23.082Z",
+  "total_claims": 4,
+  "valid_count": 4,
+  "invalid_count": 0,
+  "invalid_with_revision_count": 0,
+  "uncertain_count": 0,
+  "requires_human_intervention": [],
+  "results": [
+    {
+      "claim_id": "C-001",
+      "tier_reached": 1,
+      "verdict": "valid",
+      "confidence": 0.9980018734931946,
+      "feedback": "Strong support found in 1 of 1 source chunk(s); best entailment 99.8% with signal margin 99.6 points and no strong contradiction (max contradiction 0.0%, threshold 90%).",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "valid",
+          "confidence": 0.9980018734931946,
+          "reasoning": "Strong support found in 1 of 1 source chunk(s); best entailment 99.8% with signal margin 99.6 points and no strong contradiction (max contradiction 0.0%, threshold 90%)."
+        },
+        "tier_2": null,
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-002",
+      "tier_reached": 1,
+      "verdict": "valid",
+      "confidence": 0.9969481825828552,
+      "feedback": "Strong support found in 1 of 1 source chunk(s); best entailment 99.7% with signal margin 99.4 points and no strong contradiction (max contradiction 0.0%, threshold 90%).",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "valid",
+          "confidence": 0.9969481825828552,
+          "reasoning": "Strong support found in 1 of 1 source chunk(s); best entailment 99.7% with signal margin 99.4 points and no strong contradiction (max contradiction 0.0%, threshold 90%)."
+        },
+        "tier_2": null,
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-003",
+      "tier_reached": 1,
+      "verdict": "valid",
+      "confidence": 0.9885461926460266,
+      "feedback": "Strong support found in 1 of 1 source chunk(s); best entailment 98.9% with signal margin 97.7 points and no strong contradiction (max contradiction 0.0%, threshold 85%).",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "valid",
+          "confidence": 0.9885461926460266,
+          "reasoning": "Strong support found in 1 of 1 source chunk(s); best entailment 98.9% with signal margin 97.7 points and no strong contradiction (max contradiction 0.0%, threshold 85%)."
+        },
+        "tier_2": null,
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-004",
+      "tier_reached": 2,
+      "verdict": "valid",
+      "confidence": 0.9,
+      "feedback": "The claim text directly matches the suggestion made in the CBPP report, which indicates that targeted funding increases and programmatic changes could help address the access gaps faced by rural households. The source material supports the claim with appropriate precision and scope.",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "valid",
+          "confidence": 0.9,
+          "reasoning": "The claim text directly matches the suggestion made in the CBPP report, which indicates that targeted funding increases and programmatic changes could help address the access gaps faced by rural households. The source material supports the claim with appropriate precision and scope.",
+          "meaning_drift_label": null
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    }
+  ]
+}

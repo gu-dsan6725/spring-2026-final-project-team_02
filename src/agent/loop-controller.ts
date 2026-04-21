@@ -52,10 +52,10 @@ export type CacheLookup = CacheHit | CacheMiss;
 // ---------------------------------------------------------------------------
 
 const QUALITY_GATE = {
-  minUniqueSources: 3,
-  minClaims: 4,
-  minClaimTypes: 2,
-  minClaimsForLowEvidenceFlag: 3,
+  minUniqueSources: 5,
+  minClaims: 8,
+  minClaimTypes: 3,
+  minClaimsForLowEvidenceFlag: 6,
 } as const;
 
 // ---------------------------------------------------------------------------

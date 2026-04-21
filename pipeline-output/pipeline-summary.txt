@@ -1,16 +1,14 @@
 HERALD Pipeline Summary
-Generated: 2026-04-16T05:40:30.226Z
+Generated: 2026-04-21T17:14:49.390Z
 
-Total claims evaluated: 5
+Total claims evaluated: 3
   Valid:              1
   Invalid:            2
-  Needs revision:     0
-  Uncertain:          2
-  Human intervention: 0
+  Invalid w/revision: 2
+  Uncertain:          0
+  Human intervention: 1
 
 Claim Results:
-  [C-001] ? uncertain      Tier 2 — [ESCALATING TO TIER 3: confidence 80.0% is below the 85% exi
-  [C-002] ✕ invalid        Tier 2 — The claim states that renewable energy capacity is projected
-  [C-003] ? uncertain      Tier 2 — [ESCALATING TO TIER 3: confidence 80.0% is below the 85% exi
-  [C-004] ✕ invalid        Tier 2 — The claim states that fossil fuel subsidies 'crowding out cl
-  [C-005] ✓ valid          Tier 2 — The claim is supported by the Bridgetown Initiative, which c
+  [C-005] ✕ invalid        Tier 3 — The Research Methodologist's argument is the most persuasive
+  [C-006] ✓ valid          Tier 1 — Strong support found in 1 of 1 source chunk(s); best entailm
+  [C-007] ✕ invalid        Tier 2 — The source material does not explicitly support the claim th

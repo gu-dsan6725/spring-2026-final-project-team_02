@@ -65,12 +65,21 @@ export async function semanticScholarHandler(
     url.searchParams.set('fieldsOfStudy', fieldsOfStudy);
   }
 
-  const response = await fetch(url.toString(), {
-    headers: { Accept: 'application/json' },
-  });
+  let response: Response | undefined;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    response = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+    if (response.status !== 429) break;
+    if (attempt < 2) {
+      await new Promise((resolve) => setTimeout(resolve, 2000 * (attempt + 1)));
+    }
+  }
 
-  if (!response.ok) {
-    return { error: `Semantic Scholar API error: ${String(response.status)}` };
+  if (response === undefined || !response.ok) {
+    const status = response?.status ?? 0;
+    if (status === 429) {
+      return { error: 'Semantic Scholar rate limit exceeded. Use arxiv_search or web_search instead.' };
+    }
+    return { error: `Semantic Scholar API error: ${String(status)}` };
   }
 
   const data = (await response.json()) as S2SearchResponse;

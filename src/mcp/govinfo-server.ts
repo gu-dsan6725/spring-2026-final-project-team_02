@@ -1,9 +1,16 @@
 /**
  * GovInfo API tool server.
  *
- * Wraps the US Government Publishing Office API for Congressional Research
- * Service reports, GAO analyses, and other government publications.
+ * Wraps the US Government Publishing Office API for GAO reports,
+ * Congressional Reports, Bills, Federal Register, and Budget documents.
  * Requires: GOVINFO_API_KEY in environment.
+ *
+ * Collection code mapping:
+ *   GAO    → GAOREPORTS  (Government Accountability Office reports)
+ *   CRS    → CRPT        (Congressional Reports — includes CRS products)
+ *   BILLS  → BILLS
+ *   FR     → FR          (Federal Register)
+ *   BUDGET → BUDGET
  */
 
 interface GovInfoSearchResult {
@@ -11,9 +18,17 @@ interface GovInfoSearchResult {
   title?: string;
   dateIssued?: string;
   governmentAuthor?: string[];
+  collectionCode?: string;
+  resultLink?: string;
+  download?: {
+    xmlLink?: string;
+    zipLink?: string;
+    modsLink?: string;
+  };
 }
 
 interface GovInfoSearchResponse {
+  count?: number;
   results?: GovInfoSearchResult[];
 }
 
@@ -21,7 +36,8 @@ interface GovInfoSummary {
   title?: string;
   dateIssued?: string;
   governmentAuthor?: string[];
-  download?: { txtLink?: string };
+  shortTitle?: string;
+  publisher?: string;
 }
 
 interface GovInfoResult {
@@ -33,15 +49,27 @@ interface GovInfoResult {
   source_url: string;
 }
 
-const VALID_COLLECTIONS = new Set(['CRS', 'GAO', 'BILLS', 'FR', 'BUDGET']);
+// Map user-facing collection names to actual GovInfo collection codes
+const COLLECTION_CODE_MAP: Record<string, string> = {
+  GAO: 'GAOREPORTS',
+  CRS: 'CRPT',
+  BILLS: 'BILLS',
+  FR: 'FR',
+  BUDGET: 'BUDGET',
+  CHRG: 'CHRG',   // Congressional Hearings
+  CMR: 'CMR',     // Congressionally Mandated Reports
+};
+
+const VALID_USER_COLLECTIONS = new Set(Object.keys(COLLECTION_CODE_MAP));
 
 export async function govinfoHandler(
   input: Record<string, unknown>,
 ): Promise<Record<string, unknown>> {
   const query = typeof input.query === 'string' ? input.query : '';
   const rawCollection =
-    typeof input.collection === 'string' ? input.collection.toUpperCase() : 'CRS';
-  const collection = VALID_COLLECTIONS.has(rawCollection) ? rawCollection : 'CRS';
+    typeof input.collection === 'string' ? input.collection.toUpperCase() : 'GAO';
+  const userCollection = VALID_USER_COLLECTIONS.has(rawCollection) ? rawCollection : 'GAO';
+  const collectionCode = COLLECTION_CODE_MAP[userCollection] ?? 'GAOREPORTS';
   const maxResults = typeof input.max_results === 'number' ? input.max_results : 5;
 
   if (query.length === 0) {
@@ -53,19 +81,20 @@ export async function govinfoHandler(
     return { error: 'GOVINFO_API_KEY is not set' };
   }
 
-  // Step 1: Search. GovInfo's Search Service is a POST endpoint that accepts
-  // the same query syntax as the website, including collection filters.
-  const searchUrl = new URL('https://api.govinfo.gov/search');
-  searchUrl.searchParams.set('api_key', apiKey);
   const pageSize = Math.min(maxResults, 10);
+
+  // Use filters object (not query-string injection) for collection filtering
   const searchBody = {
-    query: `collection:${collection} ${query}`,
-    pageSize: String(pageSize),
+    query,
+    pageSize,
     offsetMark: '*',
     sorts: [{ field: 'dateIssued', sortOrder: 'DESC' }],
+    filters: { collectionCode: [collectionCode] },
   };
 
-  const searchResponse = await fetch(searchUrl.toString(), {
+  const searchUrl = `https://api.govinfo.gov/search?api_key=${apiKey}`;
+
+  const searchResponse = await fetch(searchUrl, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -75,59 +104,74 @@ export async function govinfoHandler(
   });
 
   if (!searchResponse.ok) {
-    return { error: `GovInfo search error: ${String(searchResponse.status)}` };
+    return {
+      error: `GovInfo search error: ${String(searchResponse.status)} ${searchResponse.statusText}`,
+    };
   }
 
   const searchData = (await searchResponse.json()) as GovInfoSearchResponse;
   const searchResults = searchData.results ?? [];
 
   if (searchResults.length === 0) {
-    return { results: [], query, collection, total: 0 };
+    return { results: [], query, collection: userCollection, total: 0 };
   }
 
-  // Step 2: Fetch summaries (up to 3 to avoid rate limiting)
+  // Fetch summaries + attempt text content (up to 3 to avoid rate limits)
   const results: GovInfoResult[] = [];
 
   for (const sr of searchResults.slice(0, 3)) {
     const packageId = sr.packageId ?? '';
     if (packageId.length === 0) continue;
 
-    const summaryUrl = `https://api.govinfo.gov/packages/${encodeURIComponent(packageId)}/summary?api_key=${apiKey}`;
+    let title = sr.title ?? packageId;
+    let authors: string[] = sr.governmentAuthor ?? [];
     let excerpt = '';
 
+    // Try fetching the HTML rendition directly — most readable for text extraction
+    const htmlUrl = `https://www.govinfo.gov/content/pkg/${packageId}/html/${packageId}.htm`;
     try {
-      const summaryResponse = await fetch(summaryUrl, { headers: { Accept: 'application/json' } });
-
-      if (summaryResponse.ok) {
-        const summary = (await summaryResponse.json()) as GovInfoSummary;
-
-        // Step 3: Fetch text content if available (first 3000 chars)
-        const txtLink = summary.download?.txtLink ?? '';
-        if (txtLink.length > 0) {
-          try {
-            const txtResponse = await fetch(`${txtLink}?api_key=${apiKey}`);
-            if (txtResponse.ok) {
-              const text = await txtResponse.text();
-              excerpt = text.slice(0, 3000);
-            }
-          } catch {
-            // Text fetch failed — continue without excerpt
-          }
-        }
-
-        results.push({
-          packageId,
-          title: summary.title ?? sr.title ?? packageId,
-          date: summary.dateIssued ?? sr.dateIssued ?? '',
-          authors: summary.governmentAuthor ?? sr.governmentAuthor ?? [],
-          excerpt,
-          source_url: `https://www.govinfo.gov/content/pkg/${packageId}/html/${packageId}.htm`,
-        });
+      const htmlRes = await fetch(`${htmlUrl}?api_key=${apiKey}`, {
+        headers: { Accept: 'text/html' },
+      });
+      if (htmlRes.ok) {
+        const html = await htmlRes.text();
+        // Strip tags and grab first 3000 chars of content
+        excerpt = html
+          .replace(/<script[\s\S]*?<\/script>/gi, '')
+          .replace(/<style[\s\S]*?<\/style>/gi, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s{3,}/g, '\n')
+          .trim()
+          .slice(0, 3000);
       }
     } catch {
-      // Summary fetch failed — skip this result
+      // HTML fetch failed — try summary for metadata at least
     }
+
+    // If no HTML text, fall back to summary metadata
+    if (excerpt.length === 0) {
+      try {
+        const summaryUrl = `https://api.govinfo.gov/packages/${encodeURIComponent(packageId)}/summary?api_key=${apiKey}`;
+        const summaryRes = await fetch(summaryUrl, { headers: { Accept: 'application/json' } });
+        if (summaryRes.ok) {
+          const summary = (await summaryRes.json()) as GovInfoSummary;
+          title = summary.title ?? title;
+          authors = summary.governmentAuthor ?? authors;
+        }
+      } catch {
+        // skip
+      }
+    }
+
+    results.push({
+      packageId,
+      title,
+      date: sr.dateIssued ?? '',
+      authors,
+      excerpt,
+      source_url: `https://www.govinfo.gov/content/pkg/${packageId}/html/${packageId}.htm`,
+    });
   }
 
-  return { results, query, collection, total: results.length };
+  return { results, query, collection: userCollection, total: results.length };
 }
