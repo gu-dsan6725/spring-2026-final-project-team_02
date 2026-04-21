@@ -1,0 +1,94 @@
+{
+  "generated_at": "2026-04-21T16:46:03.542Z",
+  "total_claims": 3,
+  "valid_count": 0,
+  "invalid_count": 3,
+  "invalid_with_revision_count": 3,
+  "uncertain_count": 0,
+  "requires_human_intervention": [],
+  "results": [
+    {
+      "claim_id": "C-001",
+      "tier_reached": 3,
+      "verdict": "invalid",
+      "confidence": 0.95,
+      "feedback": "All three reviewers agree that the claim lacks sufficient support from the cited sources. While Source 1 mentions varying effectiveness, Source 2 does not address effectiveness at all, focusing instead on coverage and inequities. This critical gap in evidence leads to a misrepresentation of the claim, making it invalid. The consensus among the reviewers indicates a strong agreement on the inadequacy of the synthesis.",
+      "suggested_revision": "\"Micronutrient deficiency interventions in sub-Saharan Africa are influenced by various factors, including coverage and inequities, which may affect their overall effectiveness.\"",
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "uncertain",
+          "confidence": 0.8,
+          "meaning_drift_label": null,
+          "reasoning": "[ESCALATING TO TIER 3: confidence 80.0% is below the 80% exit threshold] The claim states that \"Micronutrient deficiency interventions in sub-Saharan Africa have varying levels of effectiveness.\" This is partially supported by Source 1, which mentions that the effectiveness of micronutrient interventions varies across different contexts and populations. However, Source 2 does not directly support the claim regarding effectiveness; it discusses coverage indicators and inequities but does not address the effectiveness of interventions. Therefore, the synthesis claim lacks sufficient support from the second source, leading to an invalid conclusion."
+        },
+        "tier_3": {
+          "tier_id": 3,
+          "verdict": "invalid",
+          "confidence": 0.95,
+          "reasoning": "All three reviewers agree that the claim lacks sufficient support from the cited sources. While Source 1 mentions varying effectiveness, Source 2 does not address effectiveness at all, focusing instead on coverage and inequities. This critical gap in evidence leads to a misrepresentation of the claim, making it invalid. The consensus among the reviewers indicates a strong agreement on the inadequacy of the synthesis.",
+          "suggested_revision": "\"Micronutrient deficiency interventions in sub-Saharan Africa are influenced by various factors, including coverage and inequities, which may affect their overall effectiveness.\""
+        },
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-002",
+      "tier_reached": 3,
+      "verdict": "invalid",
+      "confidence": 0.95,
+      "feedback": "All three reviewers, including the Domain Expert, Research Methodologist, and Critical Skeptic, agree that the claim is invalid. They collectively argue that the cited source does not provide sufficient evidence to support the assertion of coverage gaps in micronutrient interventions in sub-Saharan Africa. The source only discusses varying coverage levels during different life stages without explicitly identifying gaps or providing a comprehensive assessment of coverage across the region. This lack of explicit evidence and quantification leads to a misrepresentation of the findings, making the claim unsupported.",
+      "suggested_revision": "\"There are varying levels of coverage in micronutrient interventions across different life stages in sub-Saharan Africa, with higher coverage during pregnancy and lower coverage during infancy and young childhood.\"",
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "uncertain",
+          "confidence": 0.0031013840343803167,
+          "reasoning": "Signal margin -99.3 points is below the 12-point requirement. NLI result inconclusive across 1 source(s): 0 support-leading, 1 neutral-leading, 0 contradiction-leading. Best entailment 0.3%, best contradiction 0.1%, best neutral 99.6%, threshold 90%. Escalating to Tier 2."
+        },
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "uncertain",
+          "confidence": 0.8,
+          "meaning_drift_label": null,
+          "reasoning": "[ESCALATING TO TIER 3: confidence 80.0% is below the 80% exit threshold] The claim states that 'coverage gaps exist in micronutrient interventions in sub-Saharan Africa.' However, the cited source only mentions that coverage was highest during pregnancy and lowest during infancy and young childhood, without explicitly stating that there are coverage gaps or providing a comprehensive assessment of micronutrient interventions across sub-Saharan Africa. The source does not quantify or detail the extent of these gaps, making the claim unsupported by the provided evidence."
+        },
+        "tier_3": {
+          "tier_id": 3,
+          "verdict": "invalid",
+          "confidence": 0.95,
+          "reasoning": "All three reviewers, including the Domain Expert, Research Methodologist, and Critical Skeptic, agree that the claim is invalid. They collectively argue that the cited source does not provide sufficient evidence to support the assertion of coverage gaps in micronutrient interventions in sub-Saharan Africa. The source only discusses varying coverage levels during different life stages without explicitly identifying gaps or providing a comprehensive assessment of coverage across the region. This lack of explicit evidence and quantification leads to a misrepresentation of the findings, making the claim unsupported.",
+          "suggested_revision": "\"There are varying levels of coverage in micronutrient interventions across different life stages in sub-Saharan Africa, with higher coverage during pregnancy and lower coverage during infancy and young childhood.\""
+        },
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-003",
+      "tier_reached": 3,
+      "verdict": "invalid",
+      "confidence": 0.95,
+      "feedback": "All three reviewers, including the Domain Expert, Research Methodologist, and Critical Skeptic, agree that the claim is invalid. They collectively argue that the cited sources do not directly support the assertion that policy levers like food fortification and agricultural commercialization can effectively address micronutrient deficiencies. Source 1 discusses improving micronutrient use efficiency through fertilizers without mentioning food fortification, while Source 2 highlights the benefits of agricultural commercialization for household nutrition via income generation but does not connect this to micronutrient deficiencies. The claim misrepresents the evidence by implying a direct relationship that is not substantiated by the sources.",
+      "suggested_revision": "\"Policy levers such as improving fertilizer use efficiency and promoting agricultural commercialization can contribute to better nutritional outcomes, but their direct impact on addressing micronutrient deficiencies is not explicitly supported by the current evidence.\"",
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "uncertain",
+          "confidence": 0.8,
+          "meaning_drift_label": "scope_drift",
+          "reasoning": "[ESCALATING TO TIER 3: confidence 80.0% is below the 80% exit threshold] The claim states that 'policy levers such as food fortification and agricultural commercialization can address micronutrient deficiencies.' However, the cited sources do not support this claim directly. Source 1 discusses improving micronutrient use efficiency through fertilizers but does not mention food fortification or directly addressing deficiencies. Source 2 mentions agricultural commercialization's benefits for household nutrition via income generation, but it does not explicitly connect this to addressing micronutrient deficiencies. Therefore, the claim overstates the support provided by the sources."
+        },
+        "tier_3": {
+          "tier_id": 3,
+          "verdict": "invalid",
+          "confidence": 0.95,
+          "reasoning": "All three reviewers, including the Domain Expert, Research Methodologist, and Critical Skeptic, agree that the claim is invalid. They collectively argue that the cited sources do not directly support the assertion that policy levers like food fortification and agricultural commercialization can effectively address micronutrient deficiencies. Source 1 discusses improving micronutrient use efficiency through fertilizers without mentioning food fortification, while Source 2 highlights the benefits of agricultural commercialization for household nutrition via income generation but does not connect this to micronutrient deficiencies. The claim misrepresents the evidence by implying a direct relationship that is not substantiated by the sources.",
+          "suggested_revision": "\"Policy levers such as improving fertilizer use efficiency and promoting agricultural commercialization can contribute to better nutritional outcomes, but their direct impact on addressing micronutrient deficiencies is not explicitly supported by the current evidence.\""
+        },
+        "tier_4": null
+      }
+    }
+  ]
+}

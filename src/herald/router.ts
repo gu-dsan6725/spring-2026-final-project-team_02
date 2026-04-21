@@ -34,8 +34,14 @@ export interface RouteDecision {
 
 /** Determine which tier a claim should start evaluation at. */
 export function routeClaim(claim: NotesLogEntry): RouteDecision {
-  const config = CLAIM_TYPE_CONFIG[claim.claim_type as keyof typeof CLAIM_TYPE_CONFIG];
-  // Unknown/hallucinated claim types skip NLI and go to Tier 2 for human-style review
+  // Cast through unknown so the null check is valid at runtime — LLMs can hallucinate
+  // claim types not present in CLAIM_TYPE_CONFIG.
+  const config = (
+    CLAIM_TYPE_CONFIG as unknown as Record<
+      string,
+      (typeof CLAIM_TYPE_CONFIG)[keyof typeof CLAIM_TYPE_CONFIG] | undefined
+    >
+  )[claim.claim_type];
   if (config == null || config.skipNLI) {
     const rationale =
       config == null

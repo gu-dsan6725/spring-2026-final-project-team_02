@@ -284,8 +284,7 @@ function applyDecisionLogic(raw: JudgeToolInput): TierOutput {
 // ---------------------------------------------------------------------------
 
 function isToolUseFailedError(error: unknown): boolean {
-  const msg =
-    error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+  const msg = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
   return msg.includes('tool_use_failed') || msg.includes('failed to call a function');
 }
 

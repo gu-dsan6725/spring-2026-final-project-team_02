@@ -190,7 +190,10 @@ function collapseWindowsToSource(
           ? 'contradiction'
           : 'neutral';
 
-    collapsed.push({ label, scores: { entailment: maxEntailment, contradiction: maxContradiction, neutral: maxNeutral } });
+    collapsed.push({
+      label,
+      scores: { entailment: maxEntailment, contradiction: maxContradiction, neutral: maxNeutral },
+    });
   }
 
   return collapsed;
@@ -287,9 +290,7 @@ export async function evaluateWithNLI(claim: NotesLogEntry): Promise<TierOutput>
   // Build windowed pairs: each source chunk is expanded into overlapping
   // sentence windows so the NLI model sees every sub-passage, not just the
   // full chunk (which can dilute the signal when surrounding context is weak).
-  const chunkWindowsPerSource = claim.sources.map((src) =>
-    buildChunkWindows(src.relevant_chunk),
-  );
+  const chunkWindowsPerSource = claim.sources.map((src) => buildChunkWindows(src.relevant_chunk));
   const windowCountsPerSource = chunkWindowsPerSource.map((w) => w.length);
 
   const canonicalHypothesis =
