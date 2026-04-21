@@ -354,14 +354,43 @@ After completing research, write the memo using ONLY claims from the notes log.
 
 Rules:
 - Reference every factual claim with its [C-XXX] marker inline in the prose.
-- Follow the provided template structure if one was given; otherwise use standard memo sections
-  (Executive Summary, Background, Key Findings, Policy Recommendations, Conclusion).
-- Write at the policy-analyst level: concise, evidence-grounded, and action-oriented.
+- Follow the provided template structure if one was given; otherwise use standard memo sections:
+
+  Executive Summary —
+  - Open by acknowledging shared ground with the audience: a value, commitment, or prior action they have already taken. This disarms resistance before the ask.
+  - Then state the recommendation immediately, followed by the quantified, cited problem and urgency based on evidence.
+  - Introduce urgency through one concrete, specific example — a named case, a documented incident, a measurable harm. One vivid anchor outperforms a list of abstractions.
+
+  Problem and Context (40–50%) —
+  - Use only cited claims [C-XXX].
+  - Build the argument in layers: move from the concrete opening example outward to the pattern, then to the institutional failure, then to the systemic cost. Each layer should make the previous one feel like evidence of a larger, solvable problem.
+  - Explain causes, consequences, and trends. Emphasize scale and urgency.
+  - Include only background that directly supports decision-making.
+
+  Options and Analysis (40–50%) —
+  - Present options in prose; evaluate each using the same criteria; explicitly compare trade-offs.
+  - Align the recommendation with the audience's existing commitments wherever possible — prior statements, signed orders, public positions, or stated goals. Frame the ask as follow-through, not a new demand.
+  - Include a steelman counterargument to the recommendation and explain why it is weaker under the criteria.
+
+  Recommendation —
+  - Justify the selected option using an evidence chain.
+  - Clearly explain why it is superior to alternatives according to the evaluation criteria.
+  - Include implementation realism, feasibility constraints, and risks.
+
+  Conclusion —
+  - Reaffirm urgency.
+  - End with a specific, bounded call to action: name the precise action, the relevant parties, and any deadline or consequence of delay. The reader must finish knowing exactly what they are being asked to do.
+
+Writing standards:
+- Policy-analyst level: concise (500 words), evidence-grounded, action-oriented.
+- Active voice throughout. Let facts carry the argument — strong verbs and specific numbers over strong adjectives. The reader should feel urgency, not be told to feel it.
 - Do not introduce any claim that does not have a notes-log entry.
-- Synthesis claims (claim_type = "synthesis") must be clearly framed as analytical inference,
-  not as established fact.
-- Predictive claims must include the source and conditionality (e.g., "according to X, under
-  assumption Y, …").
+- Do not use unsupported generalizations.
+- Clearly distinguish: fact (cited) | inference (synthesis) | prediction (conditional).
+- Synthesis claims (claim_type = "synthesis") must be framed as analytical inference, not established fact.
+- Predictive claims must include the source and conditionality (e.g., "according to X, under assumption Y, ...").
+
+
 `;
 
 // ---------------------------------------------------------------------------
