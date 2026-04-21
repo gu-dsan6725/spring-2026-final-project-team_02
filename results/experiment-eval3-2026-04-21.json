@@ -1,0 +1,1716 @@
+{
+  "run_timestamp": "2026-04-21T19:49:13.865Z",
+  "git_commit": "1de8dbd",
+  "eval_set_path": "data/eval-set-3.json",
+  "systems_run": ["A", "B", "C"],
+  "dry_run": false,
+  "total_claims": 50,
+  "model": "gpt-4o-mini",
+  "pricing": {
+    "input_per_million": 0.15,
+    "output_per_million": 0.6
+  },
+  "per_claim_results": [
+    {
+      "claim_id": "GT-143",
+      "claim_type": "normative",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 3900,
+        "input_tokens": 2514,
+        "output_tokens": 99,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 3989,
+        "input_tokens": 2514,
+        "output_tokens": 113,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 3578,
+        "input_tokens": 2514,
+        "output_tokens": 116,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-109",
+      "claim_type": "statistical",
+      "derivation": "direct_extraction",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.9969490170478821,
+        "latency_ms": 2916,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 4179,
+        "input_tokens": 1676,
+        "output_tokens": 205,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 3578,
+        "input_tokens": 1676,
+        "output_tokens": 171,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-151",
+      "claim_type": "causal",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 5163,
+        "input_tokens": 2276,
+        "output_tokens": 143,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 3388,
+        "input_tokens": 2126,
+        "output_tokens": 148,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 3423,
+        "input_tokens": 2126,
+        "output_tokens": 152,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-105",
+      "claim_type": "statistical",
+      "derivation": "direct_extraction",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.9979669451713562,
+        "latency_ms": 300,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 1907,
+        "input_tokens": 1653,
+        "output_tokens": 103,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2185,
+        "input_tokens": 1653,
+        "output_tokens": 99,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-108",
+      "claim_type": "statistical",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 3137,
+        "input_tokens": 1958,
+        "output_tokens": 126,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2320,
+        "input_tokens": 1808,
+        "output_tokens": 133,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2729,
+        "input_tokens": 1808,
+        "output_tokens": 148,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-125",
+      "claim_type": "comparative",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.982225239276886,
+        "latency_ms": 176,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2472,
+        "input_tokens": 1728,
+        "output_tokens": 133,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2402,
+        "input_tokens": 1728,
+        "output_tokens": 116,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-119",
+      "claim_type": "statistical",
+      "derivation": "direct_extraction",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 1,
+        "confidence": 0.9989497065544128,
+        "latency_ms": 179,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2786,
+        "input_tokens": 1687,
+        "output_tokens": 119,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 1984,
+        "input_tokens": 1687,
+        "output_tokens": 119,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-153",
+      "claim_type": "statistical",
+      "derivation": "direct_extraction",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.9959266185760498,
+        "latency_ms": 178,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2541,
+        "input_tokens": 1712,
+        "output_tokens": 168,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2738,
+        "input_tokens": 1712,
+        "output_tokens": 172,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-118",
+      "claim_type": "causal",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.85,
+        "latency_ms": 2927,
+        "input_tokens": 2305,
+        "output_tokens": 156,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2136,
+        "input_tokens": 2156,
+        "output_tokens": 102,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2032,
+        "input_tokens": 2156,
+        "output_tokens": 123,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-149",
+      "claim_type": "statistical",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.998672366142273,
+        "latency_ms": 499,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2837,
+        "input_tokens": 1800,
+        "output_tokens": 163,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2812,
+        "input_tokens": 1800,
+        "output_tokens": 157,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-110",
+      "claim_type": "statistical",
+      "derivation": "paraphrase",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 1,
+        "confidence": 0.9998641014099121,
+        "latency_ms": 189,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2720,
+        "input_tokens": 1795,
+        "output_tokens": 142,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2259,
+        "input_tokens": 1795,
+        "output_tokens": 129,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-107",
+      "claim_type": "statistical",
+      "derivation": "direct_extraction",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2564,
+        "input_tokens": 1818,
+        "output_tokens": 141,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 1,
+        "latency_ms": 1816,
+        "input_tokens": 1668,
+        "output_tokens": 86,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2081,
+        "input_tokens": 1668,
+        "output_tokens": 108,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-112",
+      "claim_type": "statistical",
+      "derivation": "direct_extraction",
+      "ground_truth": "valid",
+      "is_skeptic_trap": true,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.998278021812439,
+        "latency_ms": 151,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2402,
+        "input_tokens": 1656,
+        "output_tokens": 147,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2072,
+        "input_tokens": 1656,
+        "output_tokens": 118,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-133",
+      "claim_type": "comparative",
+      "derivation": "direct_extraction",
+      "ground_truth": "valid",
+      "is_skeptic_trap": true,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.9986996650695801,
+        "latency_ms": 170,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 1597,
+        "input_tokens": 1636,
+        "output_tokens": 112,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 1786,
+        "input_tokens": 1636,
+        "output_tokens": 119,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-127",
+      "claim_type": "predictive",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2087,
+        "input_tokens": 2133,
+        "output_tokens": 123,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2359,
+        "input_tokens": 2133,
+        "output_tokens": 123,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2100,
+        "input_tokens": 2133,
+        "output_tokens": 119,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-130",
+      "claim_type": "synthesis",
+      "derivation": "cross_source",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2296,
+        "input_tokens": 2735,
+        "output_tokens": 140,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2296,
+        "input_tokens": 2735,
+        "output_tokens": 139,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2193,
+        "input_tokens": 2735,
+        "output_tokens": 137,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-122",
+      "claim_type": "causal",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.9479644894599915,
+        "latency_ms": 173,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2940,
+        "input_tokens": 2149,
+        "output_tokens": 112,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2489,
+        "input_tokens": 2149,
+        "output_tokens": 111,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-128",
+      "claim_type": "comparative",
+      "derivation": "direct_extraction",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2946,
+        "input_tokens": 1754,
+        "output_tokens": 124,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 1,
+        "latency_ms": 1946,
+        "input_tokens": 1604,
+        "output_tokens": 113,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 1,
+        "latency_ms": 1847,
+        "input_tokens": 1604,
+        "output_tokens": 112,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-106",
+      "claim_type": "statistical",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2670,
+        "input_tokens": 1956,
+        "output_tokens": 144,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2118,
+        "input_tokens": 1806,
+        "output_tokens": 131,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 1992,
+        "input_tokens": 1806,
+        "output_tokens": 128,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-120",
+      "claim_type": "comparative",
+      "derivation": "direct_extraction",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.9986188411712646,
+        "latency_ms": 382,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 1775,
+        "input_tokens": 1611,
+        "output_tokens": 111,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2829,
+        "input_tokens": 1611,
+        "output_tokens": 114,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-115",
+      "claim_type": "causal",
+      "derivation": "paraphrase",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 3004,
+        "input_tokens": 2290,
+        "output_tokens": 166,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2510,
+        "input_tokens": 2141,
+        "output_tokens": 160,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2574,
+        "input_tokens": 2141,
+        "output_tokens": 157,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-116",
+      "claim_type": "synthesis",
+      "derivation": "cross_source",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 1845,
+        "input_tokens": 2745,
+        "output_tokens": 112,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 1748,
+        "input_tokens": 2745,
+        "output_tokens": 119,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 1852,
+        "input_tokens": 2745,
+        "output_tokens": 113,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-141",
+      "claim_type": "synthesis",
+      "derivation": "cross_source",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 1892,
+        "input_tokens": 2711,
+        "output_tokens": 124,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 1834,
+        "input_tokens": 2711,
+        "output_tokens": 123,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2715,
+        "input_tokens": 2711,
+        "output_tokens": 111,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-137",
+      "claim_type": "comparative",
+      "derivation": "direct_extraction",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.9959180951118469,
+        "latency_ms": 166,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2969,
+        "input_tokens": 1628,
+        "output_tokens": 173,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2996,
+        "input_tokens": 1628,
+        "output_tokens": 163,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-117",
+      "claim_type": "comparative",
+      "derivation": "direct_extraction",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.9946483969688416,
+        "latency_ms": 645,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 1585,
+        "input_tokens": 1608,
+        "output_tokens": 94,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 1775,
+        "input_tokens": 1608,
+        "output_tokens": 102,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-123",
+      "claim_type": "comparative",
+      "derivation": "agent_inference",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 1,
+        "confidence": 0.9952379465103149,
+        "latency_ms": 771,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2538,
+        "input_tokens": 1662,
+        "output_tokens": 168,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2495,
+        "input_tokens": 1662,
+        "output_tokens": 163,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-150",
+      "claim_type": "causal",
+      "derivation": "agent_inference",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 1,
+        "confidence": 0.9999349117279053,
+        "latency_ms": 646,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 5682,
+        "input_tokens": 2050,
+        "output_tokens": 151,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2460,
+        "input_tokens": 2050,
+        "output_tokens": 148,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-135",
+      "claim_type": "statistical",
+      "derivation": "paraphrase",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.9961810111999512,
+        "latency_ms": 524,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2676,
+        "input_tokens": 1811,
+        "output_tokens": 166,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 4721,
+        "input_tokens": 1811,
+        "output_tokens": 169,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-145",
+      "claim_type": "causal",
+      "derivation": "paraphrase",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 9032,
+        "input_tokens": 2307,
+        "output_tokens": 130,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 35123,
+        "input_tokens": 2157,
+        "output_tokens": 116,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 9037,
+        "input_tokens": 2157,
+        "output_tokens": 130,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-111",
+      "claim_type": "causal",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2322,
+        "input_tokens": 2305,
+        "output_tokens": 127,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 7136,
+        "input_tokens": 2155,
+        "output_tokens": 132,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2197,
+        "input_tokens": 2155,
+        "output_tokens": 128,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-129",
+      "claim_type": "causal",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.994265615940094,
+        "latency_ms": 248,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2076,
+        "input_tokens": 2142,
+        "output_tokens": 122,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2204,
+        "input_tokens": 2142,
+        "output_tokens": 111,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-121",
+      "claim_type": "causal",
+      "derivation": "agent_inference",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 1,
+        "confidence": 0.9970092177391052,
+        "latency_ms": 229,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2430,
+        "input_tokens": 2024,
+        "output_tokens": 163,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2434,
+        "input_tokens": 2024,
+        "output_tokens": 161,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-136",
+      "claim_type": "synthesis",
+      "derivation": "cross_source",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 10038,
+        "input_tokens": 2730,
+        "output_tokens": 125,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 3144,
+        "input_tokens": 2730,
+        "output_tokens": 124,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2089,
+        "input_tokens": 2730,
+        "output_tokens": 124,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-113",
+      "claim_type": "causal",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2242,
+        "input_tokens": 2285,
+        "output_tokens": 130,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2557,
+        "input_tokens": 2135,
+        "output_tokens": 127,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2281,
+        "input_tokens": 2135,
+        "output_tokens": 138,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-131",
+      "claim_type": "causal",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2469,
+        "input_tokens": 2300,
+        "output_tokens": 139,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2147,
+        "input_tokens": 2150,
+        "output_tokens": 107,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2612,
+        "input_tokens": 2150,
+        "output_tokens": 128,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-140",
+      "claim_type": "normative",
+      "derivation": "agent_inference",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 1,
+        "latency_ms": 3669,
+        "input_tokens": 2374,
+        "output_tokens": 154,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 1,
+        "latency_ms": 4394,
+        "input_tokens": 2374,
+        "output_tokens": 144,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 1,
+        "latency_ms": 3486,
+        "input_tokens": 2374,
+        "output_tokens": 139,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-142",
+      "claim_type": "predictive",
+      "derivation": "agent_inference",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 3425,
+        "input_tokens": 2011,
+        "output_tokens": 128,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 69290,
+        "input_tokens": 2011,
+        "output_tokens": 160,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2810,
+        "input_tokens": 2011,
+        "output_tokens": 156,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-146",
+      "claim_type": "predictive",
+      "derivation": "agent_inference",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 3249,
+        "input_tokens": 2035,
+        "output_tokens": 179,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 4818,
+        "input_tokens": 2035,
+        "output_tokens": 187,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 3306,
+        "input_tokens": 2035,
+        "output_tokens": 188,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-138",
+      "claim_type": "statistical",
+      "derivation": "agent_inference",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 1,
+        "confidence": 0.9991415739059448,
+        "latency_ms": 253,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 4138,
+        "input_tokens": 1713,
+        "output_tokens": 147,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 3790,
+        "input_tokens": 1713,
+        "output_tokens": 150,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-126",
+      "claim_type": "causal",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.9974572062492371,
+        "latency_ms": 230,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 1869,
+        "input_tokens": 2143,
+        "output_tokens": 113,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2920,
+        "input_tokens": 2143,
+        "output_tokens": 116,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-152",
+      "claim_type": "normative",
+      "derivation": "agent_inference",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "uncertain",
+        "tier_reached": 2,
+        "confidence": 0,
+        "latency_ms": 78572,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0,
+        "error": "429 Rate limit reached for gpt-4o-mini in organization org-kEanVUfSgCx3ILZdUoJrDeLr on tokens per min (TPM): Limit 200000, Used 199310, Requested 1472. Please try again in 234ms. Visit https://platform.openai.com/account/rate-limits to learn more."
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.85,
+        "latency_ms": 17291,
+        "input_tokens": 2370,
+        "output_tokens": 163,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 3,
+        "confidence": 0.95,
+        "latency_ms": 10459,
+        "input_tokens": 8161,
+        "output_tokens": 763,
+        "api_calls": 5
+      }
+    },
+    {
+      "claim_id": "GT-124",
+      "claim_type": "statistical",
+      "derivation": "direct_extraction",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2927,
+        "input_tokens": 1814,
+        "output_tokens": 169,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2302,
+        "input_tokens": 1664,
+        "output_tokens": 156,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2649,
+        "input_tokens": 1664,
+        "output_tokens": 159,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-147",
+      "claim_type": "causal",
+      "derivation": "direct_extraction",
+      "ground_truth": "valid",
+      "is_skeptic_trap": true,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 3242,
+        "input_tokens": 2174,
+        "output_tokens": 97,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2352,
+        "input_tokens": 2030,
+        "output_tokens": 86,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 1986,
+        "input_tokens": 2030,
+        "output_tokens": 75,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-134",
+      "claim_type": "causal",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.9978078007698059,
+        "latency_ms": 196,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2300,
+        "input_tokens": 2159,
+        "output_tokens": 113,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2606,
+        "input_tokens": 2159,
+        "output_tokens": 120,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-104",
+      "claim_type": "comparative",
+      "derivation": "direct_extraction",
+      "ground_truth": "valid",
+      "is_skeptic_trap": true,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.9952085614204407,
+        "latency_ms": 171,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2660,
+        "input_tokens": 1630,
+        "output_tokens": 116,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 7313,
+        "input_tokens": 1630,
+        "output_tokens": 101,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-139",
+      "claim_type": "causal",
+      "derivation": "paraphrase",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2534,
+        "input_tokens": 2295,
+        "output_tokens": 128,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2759,
+        "input_tokens": 2145,
+        "output_tokens": 147,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 3037,
+        "input_tokens": 2145,
+        "output_tokens": 124,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-148",
+      "claim_type": "comparative",
+      "derivation": "direct_extraction",
+      "ground_truth": "valid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.9844560623168945,
+        "latency_ms": 160,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2064,
+        "input_tokens": 1605,
+        "output_tokens": 93,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "valid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 2082,
+        "input_tokens": 1605,
+        "output_tokens": 111,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-144",
+      "claim_type": "comparative",
+      "derivation": "agent_inference",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 9452,
+        "input_tokens": 1787,
+        "output_tokens": 177,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 8595,
+        "input_tokens": 1637,
+        "output_tokens": 146,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.95,
+        "latency_ms": 8350,
+        "input_tokens": 1637,
+        "output_tokens": 153,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-114",
+      "claim_type": "statistical",
+      "derivation": "direct_extraction",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "valid",
+        "tier_reached": 1,
+        "confidence": 0.9846585988998413,
+        "latency_ms": 163,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "api_calls": 0
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2646,
+        "input_tokens": 1668,
+        "output_tokens": 126,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 2991,
+        "input_tokens": 1668,
+        "output_tokens": 119,
+        "api_calls": 1
+      }
+    },
+    {
+      "claim_id": "GT-132",
+      "claim_type": "causal",
+      "derivation": "agent_inference",
+      "ground_truth": "invalid",
+      "is_skeptic_trap": false,
+      "system_a": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 4109,
+        "input_tokens": 2215,
+        "output_tokens": 170,
+        "api_calls": 1
+      },
+      "system_b": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 4813,
+        "input_tokens": 2065,
+        "output_tokens": 175,
+        "api_calls": 1
+      },
+      "system_c": {
+        "verdict": "invalid",
+        "tier_reached": 2,
+        "confidence": 0.9,
+        "latency_ms": 8074,
+        "input_tokens": 2065,
+        "output_tokens": 174,
+        "api_calls": 1
+      }
+    }
+  ]
+}

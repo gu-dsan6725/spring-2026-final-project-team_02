@@ -31,6 +31,14 @@ const JUDGE_MAX_TOKENS = 1024;
 /** Confidence at or above this value → exit with the model's verdict. */
 const CONFIDENCE_EXIT_THRESHOLD = 0.8;
 
+/**
+ * Lower exit threshold for paraphrase claims specifically.
+ * Paraphrase false-invalids tend to cluster at conf=0.85 — just above the standard threshold.
+ * Lowering to 0.75 forces those borderline cases into Tier 3 debate where persona carve-outs
+ * can fully apply, rather than letting a slightly confident wrong verdict exit early.
+ */
+const CONFIDENCE_EXIT_THRESHOLD_PARAPHRASE = 0.75;
+
 /** Confidence below this value → escalate to Tier 3 with high-priority flag. */
 const CONFIDENCE_HIGH_PRIORITY_THRESHOLD = 0.6;
 
@@ -229,11 +237,11 @@ function buildUserMessage(
 // Decision logic
 // ---------------------------------------------------------------------------
 
-function applyDecisionLogic(raw: JudgeToolInput): TierOutput {
+function applyDecisionLogic(raw: JudgeToolInput, exitThreshold: number): TierOutput {
   const verdict = parseVerdict(raw.verdict);
   const confidence = Math.max(0, Math.min(1, raw.confidence));
 
-  if (confidence > CONFIDENCE_EXIT_THRESHOLD) {
+  if (confidence > exitThreshold) {
     // Confident verdict — exit Tier 2
     const output: TierOutput = {
       tier_id: 2,
@@ -264,7 +272,7 @@ function applyDecisionLogic(raw: JudgeToolInput): TierOutput {
     };
   }
 
-  // Mid-band confidence (0.6–0.80) — escalate to Tier 3 normally
+  // Mid-band confidence (0.6–threshold) — escalate to Tier 3 normally
   return {
     tier_id: 2,
     verdict: 'uncertain',
@@ -272,7 +280,7 @@ function applyDecisionLogic(raw: JudgeToolInput): TierOutput {
     meaning_drift_label: raw.meaning_drift_label,
     reasoning:
       `[ESCALATING TO TIER 3: confidence ${(confidence * 100).toFixed(1)}% is below ` +
-      `the ${(CONFIDENCE_EXIT_THRESHOLD * 100).toFixed(0)}% exit threshold] ` +
+      `the ${(exitThreshold * 100).toFixed(0)}% exit threshold] ` +
       raw.reasoning,
   };
 }
@@ -363,13 +371,21 @@ export async function evaluateWithLLMJudge(
       throw new Error(`submit_evaluation arguments failed validation: ` + JSON.stringify(parsed));
     }
 
-    const result = applyDecisionLogic(parsed);
+    const exitThreshold =
+      claim.derivation === DerivationMethod.Paraphrase
+        ? CONFIDENCE_EXIT_THRESHOLD_PARAPHRASE
+        : CONFIDENCE_EXIT_THRESHOLD;
+    const result = applyDecisionLogic(parsed, exitThreshold);
+
+    const inputTokens = response.usage?.prompt_tokens ?? 0;
+    const outputTokens = response.usage?.completion_tokens ?? 0;
+    result.usage = { input_tokens: inputTokens, output_tokens: outputTokens, api_calls: 1 };
 
     span.end({
       verdict: result.verdict,
       confidence: result.confidence,
-      input_tokens: response.usage?.prompt_tokens ?? 0,
-      output_tokens: response.usage?.completion_tokens ?? 0,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
     });
 
     return result;

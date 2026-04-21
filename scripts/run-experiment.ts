@@ -1,7 +1,9 @@
 /**
  * run-experiment.ts — HERALD vs. LLM-as-Judge Experiment Runner
  *
- * Runs three systems against the eval set and records per-claim results:
+ * Runs three systems against the eval set and records per-claim results
+ * including accuracy, latency, and actual token usage for cost analysis:
+ *
  *   System A — Full HERALD pipeline (src/herald/router.ts)
  *   System B — Tier 2 only / LLM-as-Judge baseline (src/herald/tier2-llm-judge.ts)
  *   System C — HERALD without Tier 1 NLI (ablation)
@@ -45,6 +47,9 @@ interface SystemResult {
   tier_reached: number;
   confidence: number;
   latency_ms: number;
+  input_tokens: number;
+  output_tokens: number;
+  api_calls: number;
   error?: string;
 }
 
@@ -66,6 +71,8 @@ interface ExperimentOutput {
   systems_run: string[];
   dry_run: boolean;
   total_claims: number;
+  model: string;
+  pricing: { input_per_million: number; output_per_million: number };
   per_claim_results: PerClaimResult[];
 }
 
@@ -137,6 +144,36 @@ async function evaluateWithTier2Only(claim: NotesLogEntry): Promise<HeraldResult
 }
 
 // ---------------------------------------------------------------------------
+// Token usage aggregator
+// Sums usage across all tier outputs in a HeraldResult.
+// ---------------------------------------------------------------------------
+
+function aggregateUsage(result: HeraldResult): {
+  input_tokens: number;
+  output_tokens: number;
+  api_calls: number;
+} {
+  let input = 0;
+  let output = 0;
+  let calls = 0;
+
+  for (const tier of [
+    result.tier_details.tier_1,
+    result.tier_details.tier_2,
+    result.tier_details.tier_3,
+    result.tier_details.tier_4,
+  ]) {
+    if (tier?.usage != null) {
+      input += tier.usage.input_tokens;
+      output += tier.usage.output_tokens;
+      calls += tier.usage.api_calls;
+    }
+  }
+
+  return { input_tokens: input, output_tokens: output, api_calls: calls };
+}
+
+// ---------------------------------------------------------------------------
 // Mock evaluator (dry-run)
 // ---------------------------------------------------------------------------
 
@@ -157,7 +194,9 @@ function mockResult(entry: EvalEntry, tierReached: 1 | 2 | 3): HeraldResult {
 // ---------------------------------------------------------------------------
 
 function isRateLimitError(err: unknown): boolean {
-  return err instanceof Error && (err.message.includes('429') || err.message.includes('rate limit'));
+  return (
+    err instanceof Error && (err.message.includes('429') || err.message.includes('rate limit'))
+  );
 }
 
 async function withRetry<T>(fn: () => Promise<T>, maxRetries = 4): Promise<T> {
@@ -200,9 +239,7 @@ async function runWithConcurrency<T>(
     }
   }
 
-  await Promise.all(
-    Array.from({ length: Math.min(concurrency, tasks.length) }, () => worker()),
-  );
+  await Promise.all(Array.from({ length: Math.min(concurrency, tasks.length) }, () => worker()));
   return results;
 }
 
@@ -210,16 +247,20 @@ async function runWithConcurrency<T>(
 // Run a single system against a claim
 // ---------------------------------------------------------------------------
 
-async function runSystem(
-  system: string,
-  entry: EvalEntry,
-  dryRun: boolean,
-): Promise<SystemResult> {
+async function runSystem(system: string, entry: EvalEntry, dryRun: boolean): Promise<SystemResult> {
   if (dryRun) {
     const idNum = parseInt(entry.claim_id.replace(/\D/g, ''), 10) || 1;
     const tier = ([1, 2, 2, 3] as const)[idNum % 4];
     const mock = mockResult(entry, tier);
-    return { verdict: mock.verdict, tier_reached: mock.tier_reached, confidence: mock.confidence, latency_ms: 0 };
+    return {
+      verdict: mock.verdict,
+      tier_reached: mock.tier_reached,
+      confidence: mock.confidence,
+      latency_ms: 0,
+      input_tokens: 0,
+      output_tokens: 0,
+      api_calls: 0,
+    };
   }
 
   const start = Date.now();
@@ -232,11 +273,15 @@ async function runSystem(
     } else {
       result = await withRetry(() => evaluateClaimNoNLI(entry));
     }
+    const usage = aggregateUsage(result);
     return {
       verdict: result.verdict,
       tier_reached: result.tier_reached,
       confidence: result.confidence,
       latency_ms: Date.now() - start,
+      input_tokens: usage.input_tokens,
+      output_tokens: usage.output_tokens,
+      api_calls: usage.api_calls,
     };
   } catch (err) {
     return {
@@ -244,6 +289,9 @@ async function runSystem(
       tier_reached: 2,
       confidence: 0,
       latency_ms: Date.now() - start,
+      input_tokens: 0,
+      output_tokens: 0,
+      api_calls: 0,
       error: err instanceof Error ? err.message : String(err),
     };
   }
@@ -270,11 +318,21 @@ function parseArgs(argv: string[]): {
   for (let i = 2; i < argv.length; i++) {
     const arg = argv[i];
     const next = argv[i + 1];
-    if (arg === '--eval-set' && next !== undefined) { evalSetPath = next; i++; }
-    else if (arg === '--systems' && next !== undefined) { systems = next.split(',').map((s) => s.trim().toUpperCase()); i++; }
-    else if (arg === '--concurrency' && next !== undefined) { concurrency = parseInt(next, 10); i++; }
-    else if (arg === '--output' && next !== undefined) { outputPath = next; i++; }
-    else if (arg === '--dry-run') { dryRun = true; }
+    if (arg === '--eval-set' && next !== undefined) {
+      evalSetPath = next;
+      i++;
+    } else if (arg === '--systems' && next !== undefined) {
+      systems = next.split(',').map((s) => s.trim().toUpperCase());
+      i++;
+    } else if (arg === '--concurrency' && next !== undefined) {
+      concurrency = parseInt(next, 10);
+      i++;
+    } else if (arg === '--output' && next !== undefined) {
+      outputPath = next;
+      i++;
+    } else if (arg === '--dry-run') {
+      dryRun = true;
+    }
   }
 
   return { evalSetPath, systems, concurrency, outputPath, dryRun };
@@ -295,16 +353,39 @@ function loadEvalSet(filePath: string): EvalEntry[] {
   }
 
   const raw = JSON.parse(fs.readFileSync(abs, 'utf-8')) as unknown[];
-  if (!Array.isArray(raw)) { console.error('[ERROR] Eval set must be a JSON array.'); process.exit(1); }
+  if (!Array.isArray(raw)) {
+    console.error('[ERROR] Eval set must be a JSON array.');
+    process.exit(1);
+  }
 
   const entries: EvalEntry[] = [];
   for (const item of raw) {
     const entry = item as Record<string, unknown>;
-    const missing = ['claim_id', 'claim_text', 'claim_type', 'derivation', 'sources', 'reasoning', 'ground_truth_verdict', 'ground_truth_rationale']
-      .filter((f) => entry[f] === undefined);
-    if (missing.length > 0) { console.warn(`[WARN] Skipping entry missing fields: ${missing.join(', ')}`, entry['claim_id'] ?? '?'); continue; }
-    if (!VALID_CLAIM_TYPES.has(entry['claim_type'] as ClaimType)) { console.warn(`[WARN] Unknown claim_type on ${String(entry['claim_id'])} — skipping`); continue; }
-    if (!VALID_DERIVATIONS.has(entry['derivation'] as DerivationMethod)) { console.warn(`[WARN] Unknown derivation on ${String(entry['claim_id'])} — skipping`); continue; }
+    const missing = [
+      'claim_id',
+      'claim_text',
+      'claim_type',
+      'derivation',
+      'sources',
+      'reasoning',
+      'ground_truth_verdict',
+      'ground_truth_rationale',
+    ].filter((f) => entry[f] === undefined);
+    if (missing.length > 0) {
+      console.warn(
+        `[WARN] Skipping entry missing fields: ${missing.join(', ')}`,
+        entry['claim_id'] ?? '?',
+      );
+      continue;
+    }
+    if (!VALID_CLAIM_TYPES.has(entry['claim_type'] as ClaimType)) {
+      console.warn(`[WARN] Unknown claim_type on ${String(entry['claim_id'])} — skipping`);
+      continue;
+    }
+    if (!VALID_DERIVATIONS.has(entry['derivation'] as DerivationMethod)) {
+      console.warn(`[WARN] Unknown derivation on ${String(entry['claim_id'])} — skipping`);
+      continue;
+    }
     entries.push(entry as unknown as EvalEntry);
   }
   return entries;
@@ -318,7 +399,11 @@ async function main(): Promise<void> {
   const { evalSetPath, systems, concurrency, outputPath, dryRun } = parseArgs(process.argv);
 
   let gitCommit = 'unknown';
-  try { gitCommit = execSync('git rev-parse --short HEAD').toString().trim(); } catch { /* ignore */ }
+  try {
+    gitCommit = execSync('git rev-parse --short HEAD').toString().trim();
+  } catch {
+    /* ignore */
+  }
 
   console.log('='.repeat(60));
   console.log('HERALD vs. LLM-as-Judge Experiment');
@@ -357,9 +442,21 @@ async function main(): Promise<void> {
       resultA != null ? `A=${resultA.verdict}` : null,
       resultB != null ? `B=${resultB.verdict}` : null,
       resultC != null ? `C=${resultC.verdict}` : null,
-    ].filter(Boolean).join(' ');
+    ]
+      .filter(Boolean)
+      .join(' ');
 
-    process.stdout.write(` → ${verdictStr} (gt=${entry.ground_truth_verdict})\n`);
+    const costStr = [
+      resultA != null && resultA.api_calls > 0 ? `A=${resultA.api_calls}calls` : null,
+      resultB != null && resultB.api_calls > 0 ? `B=${resultB.api_calls}calls` : null,
+      resultC != null && resultC.api_calls > 0 ? `C=${resultC.api_calls}calls` : null,
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+    process.stdout.write(
+      ` → ${verdictStr} (gt=${entry.ground_truth_verdict})${costStr.length > 0 ? ` [${costStr}]` : ''}\n`,
+    );
 
     perClaimResults.push({
       claim_id: entry.claim_id,
@@ -382,6 +479,8 @@ async function main(): Promise<void> {
     systems_run: systems,
     dry_run: dryRun,
     total_claims: entries.length,
+    model: 'gpt-4o-mini',
+    pricing: { input_per_million: 0.15, output_per_million: 0.6 },
     per_claim_results: perClaimResults,
   };
 

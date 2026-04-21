@@ -165,6 +165,13 @@ A paraphrase is INVALID only if it materially changes the recommended action, dr
 conditionality, or constructs a false attribution that misrepresents the source's authority
 or position.
 
+**STOP rule for paraphrase claims**: If the claim satisfies the acceptable patterns listed
+above (faithful restatement of the substance, no material distortion of the recommendation,
+no dropped conditionality, no false attribution), return VALID immediately. Do NOT proceed
+to criteria 1–6 to look for secondary grounds for invalidity. The numbered criteria below
+apply to normative claims where the paraphrase carve-out does NOT apply — they are not
+additional hurdles for paraphrase claims that have already cleared the carve-out.
+
 1. **Genuine consensus vs. one viewpoint**: Does the claim represent genuine expert or
    institutional consensus, or is it the position of one institution, researcher, or school
    of thought? Claims of "best practice" must reflect broad consensus. **If the sole source
@@ -240,6 +247,19 @@ Apply these criteria in order:
    - "productivity gains may plateau" inferred from source-established trends of declining
      extension support and rising pest resistance — no external facts required
    - "access barriers are compounding" inferred from two source-established access trends
+
+   **Worked example — concessive clause importing unsourced fact (INVALID):**
+   - Sources establish: (A) public debt has grown 40% over 5 years; (B) rural poverty rates
+     have increased 12 percentage points over the same period
+   - Claim: "Rising debt burdens are deepening rural poverty, despite national GDP growth"
+   - Correct verdict: **INVALID**
+   - Why: The clause "despite national GDP growth" asserts a fact about GDP that neither
+     cited source establishes. A concessive clause ("despite X", "even though X",
+     "notwithstanding X") is NOT rhetorical decoration — it makes a positive factual
+     assertion that X is true. If no cited source establishes X, the synthesis is INVALID.
+     The core inference (debt → poverty) may be sound, but the unsourced GDP assertion
+     makes the full claim invalid. The correct fix is to remove the concessive clause or
+     cite a source for it.
 
    If all necessary premises ARE present in the sources and the inferential step is sound,
    the synthesis is VALID even if the conclusion uses different language than the sources.
