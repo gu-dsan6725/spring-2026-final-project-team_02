@@ -717,6 +717,8 @@ npx tsx --env-file=.env scripts/run-herald-benchmark.ts --concurrency 1
 
 This is not optional. The changelog is the primary record of what has been tried, what
 worked, and what didn't. A teammate is continuing this work and needs the full history.
+`docs/benchmark-notes/session-prompt.md` references the changelog as the canonical current
+state — no separate update needed there.
 
 ### After every benchmark run, add a new entry to `docs/benchmark-notes/changelog.md` with:
 

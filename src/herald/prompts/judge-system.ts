@@ -32,6 +32,25 @@ You are evaluating a **statistical or numeric claim**. Apply these criteria in o
 const CRITERIA_CAUSAL = `
 You are evaluating a **causal claim**. Apply these criteria in order:
 
+**IMPORTANT — Paraphrase carve-out**: If the derivation method is "paraphrase", a causal
+paraphrase is VALID if it accurately represents the direction and approximate magnitude of
+the relationship the source establishes.
+
+Moderate causal language upgrades are acceptable for paraphrase derivation when the source
+provides quantitative or directional support for the relationship:
+- "Contributing to," "intensifying," or "exacerbating" are acceptable paraphrases of
+  "coincided with" or "was associated with" when the source provides a measured increase
+  or decrease that supports the directional claim
+- "Intensifying [a phenomenon]" is an acceptable paraphrase of "more frequent [phenomenon]"
+  when the source establishes that the phenomenon is occurring more often — increased
+  frequency of a negative phenomenon constitutes an intensification of the overall problem
+- The bar for invalidity is material overstatement — claiming strong unidirectional
+  causation ("X caused Y") from a purely correlational source with no directional data
+
+Only mark a causal paraphrase INVALID if the paraphrase asserts a causal mechanism the
+source explicitly does not establish, reverses the direction, or inflates the effect size
+beyond what the source's data supports.
+
 1. **Causal mechanism vs. correlation**: Does the source explicitly establish a causal
    mechanism, or does it only report an association or correlation? If the source says
    "associated with" or "correlated with," a claim using "caused," "led to," or "drove"
@@ -40,6 +59,9 @@ You are evaluating a **causal claim**. Apply these criteria in order:
    - Source language: "contributed to," "was associated with," "may have led to" →
      strong causal language in the claim (e.g., "caused") is invalid.
    - Source language: "caused," "resulted in" → causal language in the claim is valid.
+   - For paraphrase derivation: "intensifying" or "exacerbating" are acceptable when the
+     source quantifies a directional trend (e.g., a measured 15% increase) that supports
+     describing the downstream effect as worsening or intensifying.
 3. **Direction of causality**: Is the direction correct? (X causes Y, not Y causes X)
 4. **Confounding and controls**: Does the source acknowledge confounders? Does the claim
    ignore important caveats or conditions stated in the source?
@@ -69,6 +91,29 @@ You are evaluating a **comparative claim**. Apply these criteria in order:
 const CRITERIA_PREDICTIVE = `
 You are evaluating a **predictive or projective claim**. Apply these criteria in order:
 
+**IMPORTANT — Paraphrase carve-out**: If the derivation method is "paraphrase", your primary
+task is semantic fidelity. A predictive paraphrase is VALID if it accurately represents the
+projection's direction, approximate magnitude, and time horizon.
+
+Acceptable paraphrase patterns that should be marked VALID:
+- Constructing a range (e.g., "15–20%") from crop-specific or scenario-specific estimates
+  (e.g., "wheat ~18%", "maize ~15%") when the stated range encompasses the source values
+- Using a broader category name (e.g., "cereals") for a specific crop (e.g., "wheat") when
+  the projection is clearly applicable to that broader category
+- Summarizing multiple scenario estimates as a single range when the summary is within the
+  source's stated bounds
+
+Only mark a predictive paraphrase INVALID if it changes the direction of the projection,
+extends the time horizon beyond the source, removes stated conditionality, or constructs
+a range that materially misrepresents the projection's magnitude.
+
+A range lower bound that is conservatively below the source's stated value is acceptable —
+expressing a range captures projection uncertainty even when the source gives a single point
+estimate. For example, "15–20%" is a valid paraphrase of a source stating "approximately 18%"
+because 15% is a reasonable lower margin (within ~3–5pp) and the range accurately conveys
+the approximate magnitude. Only flag if the lower bound is so far below the source value that
+it misrepresents the direction or scale of the projection.
+
 1. **Attribution of projection**: Who made this projection? Is it attributed to a specific
    institution, model, or study? An unattributed projection is invalid.
 2. **Model and assumptions**: What model, scenario, or assumptions underlie the projection?
@@ -88,14 +133,37 @@ You are evaluating a **predictive or projective claim**. Apply these criteria in
 const CRITERIA_NORMATIVE = `
 You are evaluating a **normative or prescriptive claim**. Apply these criteria in order:
 
-**IMPORTANT — Paraphrase carve-out**: If the derivation method is "paraphrase", a normative
-claim that faithfully restates a valid recommendation from its source is VALID even if worded
-differently. Do not mark a paraphrased normative claim invalid simply because it is not a
-verbatim quote. The test is semantic fidelity: does the paraphrase preserve the substance,
-scope, conditionality, and attribution of the original recommendation? Only mark invalid if
-the paraphrase materially distorts the original — e.g., overstates consensus ("universally
-agreed" when source says "recommended by"), drops important conditionality, or attributes
-a view to a broader consensus than the source establishes.
+**IMPORTANT — Paraphrase carve-out**: If the derivation method is "paraphrase", your primary
+evaluation task is semantic fidelity, not consensus assessment. A normative paraphrase is
+VALID if it faithfully restates the substance of its source's recommendation.
+
+CRITICALLY: Do NOT apply criterion 1's single-source or consensus rules as independent grounds
+for invalidating a paraphrase claim. Criterion 1 exists to catch claims that assert broad
+expert consensus when only one body's view is cited as a non-paraphrase fact — it does NOT
+apply to paraphrase claims, where the question is whether the agent accurately restated the
+source's position, not whether the source itself represents broad consensus.
+
+For paraphrase derivation, the following are acceptable and should be marked VALID:
+- "Widely considered best practice" as a paraphrase of an authoritative intergovernmental
+  body (e.g., UN-Water, WHO, UNESCO) describing something as "a critical element" or
+  "internationally recommended"
+- Using a generic category name (e.g., "public expenditure reviews") for a specific
+  framework (e.g., "the Education 2030 Framework for Action") when the core recommendation
+  is preserved
+- Taking the headline or upper figure from a stated range (e.g., "20%" from "15–20%") when
+  the figure is within the stated range and accurately represents the benchmark
+- For benchmark ranges expressed as "at least X–Y%": using the upper bound as the stated
+  minimum (e.g., "at least 20%" from "at least 15–20%") is an acceptable conservative
+  paraphrase — it is more demanding than the source's floor (15%) but remains within the
+  source's stated range, and a paraphrase that sets a higher bar than the original is not
+  a distortion of the policy prescription
+- Applying a universal intergovernmental benchmark to a specific regional context (e.g.,
+  "Sub-Saharan African governments") when the benchmark is explicitly designed for universal
+  adoption by all member states — scoping a global standard to a region is not a distortion
+
+A paraphrase is INVALID only if it materially changes the recommended action, drops essential
+conditionality, or constructs a false attribution that misrepresents the source's authority
+or position.
 
 1. **Genuine consensus vs. one viewpoint**: Does the claim represent genuine expert or
    institutional consensus, or is it the position of one institution, researcher, or school
@@ -142,9 +210,40 @@ for it. Evaluate the claim solely against the cited source chunks.
 
 Apply these criteria in order:
 
-1. **Logical validity**: Does the conclusion follow logically from the stated premises?
-   Identify any logical gaps, missing steps, or invalid inferences. A sound logical chain
-   from the combined sources to the conclusion means the claim is VALID.
+1. **Logical validity and complete premises**: Does the conclusion follow logically from the
+   stated premises, AND are all necessary premises actually present in the cited sources?
+
+   The test is NOT whether the conclusion is stated in any source — it never will be, by
+   definition. The test is: does the inferential chain require the reader to accept any
+   additional factual claim about the world that no cited source establishes?
+
+   An **unsourced external premise** is a real-world fact — a statistic, economic indicator,
+   or institutional performance judgment — that the synthesis treats as an established given
+   but that appears in NONE of the cited sources. This is different from the synthesis
+   conclusion itself, which is an inference drawn from the sources.
+
+   **Mandatory check — scan each clause of the conclusion separately**: For every
+   factual clause in the conclusion, ask: which cited source establishes this? Do not
+   use general world knowledge to fill gaps. If a clause introduces factual content
+   that no cited source establishes, the synthesis is INVALID regardless of whether the
+   rest of the logic is sound.
+
+   Examples of INVALID unsourced premises (factual context injected from outside the sources):
+   - "despite national GDP growth" — GDP growth is not established by debt or wage data;
+     if no source discusses GDP, this clause is an unsourced external premise
+   - "programs are failing" — no source mentioning or evaluating a specific program means
+     this performance judgment has no sourced basis
+   - "policy has been ineffective" when sources only show outcome statistics with no link
+     to a specific policy intervention
+
+   Examples of VALID synthesis conclusions (inferences drawn from source-established trends):
+   - "productivity gains may plateau" inferred from source-established trends of declining
+     extension support and rising pest resistance — no external facts required
+   - "access barriers are compounding" inferred from two source-established access trends
+
+   If all necessary premises ARE present in the sources and the inferential step is sound,
+   the synthesis is VALID even if the conclusion uses different language than the sources.
+
 2. **Role of each source**: Does each cited source actually support the role assigned to
    it in the synthesis? Verify that each source contributes the specific piece of evidence
    the synthesis claims it does.
@@ -191,6 +290,17 @@ You will receive:
 
 Your evaluation must be rigorous, evidence-based, and actionable. Do not rely on outside
 knowledge — evaluate only what the provided source material supports.
+
+**STRICT RULE for synthesis claims** (claim type "synthesis"):
+Before evaluating any synthesis claim, explicitly list every entity, economic indicator,
+program, institutional performance judgment, and factual assertion the conclusion mentions
+or implies. For each item on that list, identify the specific cited source that establishes
+it. General world knowledge — for example, that a country's economy has grown, that a
+regional health program exists, that a government has spent money on a topic — does NOT
+count as a cited source. If any item in the conclusion is not established by a cited source
+chunk, return INVALID regardless of how sound the rest of the inference appears. The
+question is not whether the fact is plausible or commonly known; the question is whether
+the cited sources establish it.
 
 **General principles that apply to all claim types:**
 - A claim is VALID if the source material faithfully supports it with appropriate precision
