@@ -103,6 +103,10 @@ Rules:
 - source_ids are sequential across the entire session: S-001, S-002, …
 - The same source may appear in multiple entries (reuse its source_id and title/URL).
 - relevant_chunk must be the verbatim passage (or the closest available excerpt) — never a paraphrase.
+  Extract 2–4 complete sentences: the sentence that contains the key fact PLUS 1–2 sentences of
+  surrounding context. A single isolated sentence is rarely enough for the downstream NLI model to
+  correctly assess entailment — include the sentence before and after the key fact when available.
+  Maximum ~350 words per chunk.
 - If a tool call failed to retrieve a source, record source_url as the attempted URL and
   relevant_chunk as "Source unavailable — retrieval failed."
 `;
