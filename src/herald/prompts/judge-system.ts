@@ -122,11 +122,18 @@ a view to a broader consensus than the source establishes.
 const CRITERIA_SYNTHESIS = `
 You are evaluating a **synthesis claim** — a conclusion drawn by combining multiple sources.
 
-**IMPORTANT — Default posture for synthesis claims:**
-Synthesis claims carry the highest epistemic risk in the HERALD framework because no single
-source entails them. Your default posture must be **skeptical**. The burden of proof is on
-the claim to be clearly and unambiguously supported — not merely plausible or consistent with
-the sources.
+**CRITICAL — Correct standard for synthesis claims:**
+A synthesis claim combines evidence from multiple sources to reach a conclusion that no single
+source states verbatim. This is by design, not a flaw. Do NOT reject a synthesis claim
+merely because no single source states the conclusion. The correct validity standard is:
+does the conclusion follow logically from the combined sources, with no major inferential
+leaps or missing premises? If the reasoning is sound and the sources collectively support
+the conclusion, the synthesis claim is VALID.
+
+Reserve INVALID for claims where the logical inference itself is broken — e.g., the
+conclusion does not follow from the premises, sources are misrepresented, or a critical
+population/temporal mismatch makes the combination illegitimate. The existence of
+theoretical alternative explanations alone is NOT sufficient to mark a synthesis invalid.
 
 **CRITICAL — Agent reasoning is not evidence:**
 The agent's "reasoning" field explains how the agent constructed the synthesis. Do not treat
@@ -135,29 +142,26 @@ for it. Evaluate the claim solely against the cited source chunks.
 
 Apply these criteria in order:
 
-1. **Alternative explanations — required step**: Before you can return "valid", you MUST
-   explicitly identify and then refute at least one plausible alternative explanation for
-   the observed pattern. If you cannot think of an alternative explanation, that is evidence
-   the synthesis is well-grounded; document this explicitly. If an alternative explanation
-   exists and the synthesis does not address it, the claim is invalid.
-2. **Logical validity**: Does the conclusion follow logically from the stated premises?
-   Identify any logical gaps, missing steps, or invalid inferences.
-3. **Role of each source**: Does each cited source actually support the role assigned to
+1. **Logical validity**: Does the conclusion follow logically from the stated premises?
+   Identify any logical gaps, missing steps, or invalid inferences. A sound logical chain
+   from the combined sources to the conclusion means the claim is VALID.
+2. **Role of each source**: Does each cited source actually support the role assigned to
    it in the synthesis? Verify that each source contributes the specific piece of evidence
    the synthesis claims it does.
-4. **Population overlap**: Does the synthesis assume the same populations appear in
+3. **Population overlap**: Does the synthesis assume the same populations appear in
    multiple sources when they may differ? (e.g., combining enrollment data from one
    country with child labor data from another and treating them as one group). If the
-   populations differ and the synthesis does not disclose this, the claim is invalid.
-5. **Temporal consistency**: Are the sources from comparable time periods? A synthesis
-   combining data points from different eras without disclosure is invalid.
-6. **Strength of conclusion**: Is the strength of the conclusion proportional to the
+   populations differ AND this mismatch materially undermines the conclusion, the claim
+   is invalid. If populations are similar enough that the synthesis holds, it is valid.
+4. **Temporal consistency**: Are the sources from comparable time periods? A synthesis
+   combining data points from different eras without disclosure is invalid only if the
+   temporal gap materially affects the conclusion.
+5. **Strength of conclusion**: Is the strength of the conclusion proportional to the
    strength of the evidence? A synthesis concluding causality from correlational sources
-   is invalid; a synthesis concluding association is likely valid.
-7. **Agent inference scrutiny**: If the derivation method is "agent_inference", apply
-   maximum scrutiny. The agent has gone beyond what any source states. Require that the
-   logical chain from sources to conclusion is explicit, short, and unambiguous. If the
-   inferential leap is more than one step, the claim needs revision.
+   is invalid; a synthesis concluding association or pattern is likely valid.
+6. **Agent inference scrutiny**: If the derivation method is "agent_inference", verify
+   that the logical chain from sources to conclusion is explicit and the inferential leap
+   is no more than one step. Multi-step leaps without intermediate evidence need revision.
 `.trim();
 
 const CLAIM_CRITERIA: Record<ClaimType, string> = {

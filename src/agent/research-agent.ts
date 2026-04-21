@@ -21,8 +21,8 @@ import type { MemoInput, MemoOutput } from '../types/memo';
 // Constants
 // ---------------------------------------------------------------------------
 
-const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile';
-const DEFAULT_OPENAI_MODEL = 'gpt-4o-mini';
+const DEFAULT_GROQ_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
+const DEFAULT_OPENAI_MODEL = 'gpt-4o';
 
 /** ms to wait after a transient 429 before retrying */
 const RATE_LIMIT_WAIT_MS = 60_000;
@@ -287,6 +287,10 @@ interface LlmChatCompletion {
   };
 }
 
+interface CompletionOptions {
+  toolsEnabled?: boolean;
+}
+
 function buildSkippedToolResult(toolName: string, reason: string): Record<string, string> {
   return {
     error: 'Tool call skipped',
@@ -299,14 +303,23 @@ async function createCompletion(
   provider: ProviderConfig,
   messages: LlmMessage[],
   tools: ToolDefinition[],
+  options: CompletionOptions = {},
 ): Promise<LlmChatCompletion> {
-  const request = {
+  const { toolsEnabled = true } = options;
+  // OpenAI needs more output tokens to avoid truncating the final JSON memo.
+  // Groq is generous with output speed so 4096 is fine there.
+  const maxTokens = provider.provider === 'openai' ? 8192 : 4096;
+
+  const request: Record<string, unknown> = {
     model: provider.model,
     messages,
-    tools,
-    tool_choice: 'auto' as const,
-    max_tokens: 4096,
+    max_tokens: maxTokens,
   };
+
+  if (toolsEnabled) {
+    request['tools'] = tools;
+    request['tool_choice'] = 'auto';
+  }
 
   if (provider.provider === 'groq') {
     return (await getGroqClient().chat.completions.create(
@@ -322,19 +335,28 @@ async function createCompletion(
 async function callLlmWithRetryAndFallback(
   messages: LlmMessage[],
   tools: ToolDefinition[],
+  options: CompletionOptions = {},
 ): Promise<LlmChatCompletion> {
   const primary = resolveProviderConfig();
 
   try {
-    return await createCompletion(primary, messages, tools);
+    return await createCompletion(primary, messages, tools, options);
   } catch (error) {
+    if (isToolUseFailedError(error) && options.toolsEnabled !== false) {
+      logWarn('research_agent:tool_use_failed_retry_without_tools', {
+        model: primary.model,
+        reason: getErrorMessage(error),
+      });
+      return createCompletion(primary, messages, tools, { ...options, toolsEnabled: false });
+    }
+
     if (isRateLimitError(error) && !isQuotaExhaustedError(error)) {
       logWarn(`${primary.provider}:rate_limit:waiting`, {
         model: primary.model,
         wait_ms: RATE_LIMIT_WAIT_MS,
       });
       await new Promise((resolve) => setTimeout(resolve, RATE_LIMIT_WAIT_MS));
-      return createCompletion(primary, messages, tools);
+      return createCompletion(primary, messages, tools, options);
     }
 
     const fallback = getFallbackProvider(primary, error);
@@ -346,11 +368,16 @@ async function callLlmWithRetryAndFallback(
         to_model: fallback.model,
         reason: getErrorMessage(error),
       });
-      return createCompletion(fallback, messages, tools);
+      return createCompletion(fallback, messages, tools, options);
     }
 
     throw new Error(buildProviderFailureMessage(primary, error));
   }
+}
+
+function isToolUseFailedError(error: unknown): boolean {
+  const message = getErrorMessage(error).toLowerCase();
+  return message.includes('tool_use_failed') || message.includes('failed to call a function');
 }
 
 // ---------------------------------------------------------------------------
@@ -396,23 +423,40 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
 
       iterSpan.log({ finish_reason: finishReason, tokens: tokensUsed });
 
-      // Append assistant message to history
+      // Separate known tool calls from unknown ones (e.g. model hallucinating a notes-log entry
+      // as a function call). Unknown tool calls must NOT be appended to message history —
+      // Groq rejects subsequent requests that reference function names not in the tool registry.
+      const knownToolNames = new Set(tools.map((t) => t.function.name));
+      const rawToolCalls = message.tool_calls ?? [];
+      const validToolCalls = rawToolCalls.filter((tc) => knownToolNames.has(tc.function.name));
+      const unknownToolCalls = rawToolCalls.filter((tc) => !knownToolNames.has(tc.function.name));
+
+      if (unknownToolCalls.length > 0) {
+        logWarn('research_agent:unknown_tool_calls', {
+          names: unknownToolCalls.map((tc) => tc.function.name),
+          count: unknownToolCalls.length,
+        });
+      }
+
+      // Append assistant message to history — only include validated tool_calls
       messages.push({
         role: 'assistant',
         content: message.content ?? '',
-        // tool_calls must be included if present so Groq can match tool results
-        ...(message.tool_calls !== undefined && message.tool_calls.length > 0
-          ? { tool_calls: message.tool_calls }
-          : {}),
+        ...(validToolCalls.length > 0 ? { tool_calls: validToolCalls } : {}),
       });
 
-      if (finishReason === 'stop') {
+      // If the model only made unknown tool calls, treat this turn as a stop so the loop
+      // doesn't stall waiting for tool results that will never arrive.
+      const effectiveFinishReason =
+        finishReason === 'tool_calls' && validToolCalls.length === 0 ? 'stop' : finishReason;
+
+      if (effectiveFinishReason === 'stop') {
         iterSpan.end({ outcome: 'stop' });
         break;
       }
 
-      if (finishReason === 'tool_calls') {
-        const toolCalls = message.tool_calls ?? [];
+      if (effectiveFinishReason === 'tool_calls') {
+        const toolCalls = validToolCalls;
 
         for (const toolCall of toolCalls) {
           const toolName = toolCall.function.name;
@@ -472,15 +516,20 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
       break;
     }
 
-    // Extract final assistant text
-    let finalText = '';
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const msg = messages[i];
-      if (msg.role === 'assistant' && typeof msg.content === 'string' && msg.content.length > 0) {
-        finalText = msg.content;
-        break;
-      }
-    }
+    // Final synthesis pass: disable tool calling so the provider does not try to
+    // reinterpret the memo JSON as a function call during structured output.
+    const finalMessages = [
+      ...messages,
+      {
+        role: 'user',
+        content:
+          'Research is complete. Do not call any tools. Return only the final JSON object with keys "memo" and "notes_log". Ensure the JSON is complete and valid.',
+      },
+    ];
+    const finalResponse = await callLlmWithRetryAndFallback(finalMessages, tools, {
+      toolsEnabled: false,
+    });
+    const finalText = finalResponse.choices[0]?.message?.content ?? '';
 
     const { memoMarkdown, notesLog } = parseAgentOutput(finalText);
     const { orphanedClaimIds, unreferencedLogIds } = checkCompleteness(memoMarkdown, notesLog);

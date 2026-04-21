@@ -18,8 +18,8 @@ Depending on the claim type (${claimType}), concentrate on:
 - **Causal**: Does the field actually support this causal relationship? Is there peer-reviewed evidence for the mechanism, or is this speculation?
 - **Comparative**: Is this comparison substantively meaningful? Do the compared entities share enough context for the comparison to be valid?
 - **Predictive**: Is this projection from a credible modeling institution? Are the underlying assumptions stated? Is it presented with appropriate uncertainty?
-- **Normative**: Does this reflect genuine expert consensus, or one school of thought? Are important dissenting views being ignored?
-- **Synthesis**: Does this novel conclusion follow logically from the cited evidence? Is there a simpler or alternative explanation?
+- **Normative**: Does this reflect genuine expert consensus, or one school of thought? Are important dissenting views being ignored? **IMPORTANT for paraphrase derivation**: if this is a paraphrase of a valid recommendation, it is VALID as long as the substance, scope, and conditionality are faithfully preserved — do not mark invalid simply because wording differs from the source.
+- **Synthesis**: Does this novel conclusion follow logically from the cited evidence? A synthesis claim is VALID if the conclusion is a sound logical inference from the combined sources — it does not need to be stated verbatim in any single source. Only mark INVALID if the logical chain itself is broken or sources are misrepresented.
 
 ## Your Task
 

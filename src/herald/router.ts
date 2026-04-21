@@ -67,8 +67,8 @@ export function routeClaim(claim: NotesLogEntry): RouteDecision {
  */
 export async function evaluateClaim(
   claim: NotesLogEntry,
-  _policyTopic?: string,
-  _memoSummary?: string,
+  policyTopic?: string,
+  memoSummary?: string,
 ): Promise<HeraldResult> {
   const route = routeClaim(claim);
   const tierDetails: HeraldResult['tier_details'] = {
@@ -104,7 +104,12 @@ export async function evaluateClaim(
   }
 
   // -- Tier 2 --
-  tier2Output = await evaluateWithLLMJudge(claim, tier1Output !== null ? tier1Output : undefined);
+  tier2Output = await evaluateWithLLMJudge(
+    claim,
+    tier1Output !== null ? tier1Output : undefined,
+    policyTopic,
+    memoSummary,
+  );
   tierDetails.tier_2 = tier2Output;
 
   if (tier2Output.verdict !== 'uncertain') {

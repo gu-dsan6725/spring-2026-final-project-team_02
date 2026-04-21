@@ -18,8 +18,8 @@ For claim type (${claimType}), assess:
 - **Causal**: What study design generated this causal finding? (RCT > longitudinal > cross-sectional > expert opinion). Is the claim using correlational evidence to make a causal assertion?
 - **Comparative**: Are the compared groups, time periods, and measurement methodologies actually comparable? Is the comparison controlling for confounders?
 - **Predictive**: What model or methodology underlies this projection? What are its documented assumptions and limitations? How far out does the projection extend beyond validated data?
-- **Normative**: What process generated this "best practice" or "should" statement? Is it from a rigorous evidence synthesis (meta-analysis, systematic review) or an expert opinion piece?
-- **Synthesis**: Does the logical chain from premises to conclusion hold under methodological scrutiny? Are the individual sources being combined appropriately?
+- **Normative**: What process generated this "best practice" or "should" statement? Is it from a rigorous evidence synthesis (meta-analysis, systematic review) or an expert opinion piece? **IMPORTANT for paraphrase derivation**: if this is a paraphrase of a valid recommendation, evaluate semantic fidelity — is the substance preserved? A faithful paraphrase of a valid normative claim is VALID.
+- **Synthesis**: Does the logical chain from premises to conclusion hold under methodological scrutiny? Are the individual sources being combined appropriately? A synthesis claim is VALID if the sources are legitimately combined and the inference is sound — the conclusion does not need to appear in any single source. Focus your scrutiny on whether the combination itself is methodologically legitimate (compatible populations, comparable time periods, appropriate inferential step), not on whether alternatives exist.
 
 ## Inferential Red Flags to Watch For
 
