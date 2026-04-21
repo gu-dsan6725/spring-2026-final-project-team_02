@@ -33,7 +33,7 @@ module.exports = [
       '@typescript-eslint/strict-boolean-expressions': 'error',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-unreachable': 'error',
-      eqeqeq: ['error', 'always'],
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
       'no-throw-literal': 'error',
     },
   },

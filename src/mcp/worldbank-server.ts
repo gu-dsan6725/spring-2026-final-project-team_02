@@ -24,6 +24,8 @@ interface WorldBankResponse {
   source_url: string;
 }
 
+const WORLD_BANK_FETCH_TIMEOUT_MS = 8_000;
+
 export async function worldbankHandler(
   input: Record<string, unknown>,
 ): Promise<Record<string, unknown>> {
@@ -42,7 +44,34 @@ export async function worldbankHandler(
   url.searchParams.set('format', 'json');
   url.searchParams.set('per_page', '50');
 
-  const response = await fetch(url.toString());
+  const controller = new AbortController();
+  const timer = setTimeout(() => {
+    controller.abort();
+  }, WORLD_BANK_FETCH_TIMEOUT_MS);
+
+  let response: Response;
+  try {
+    response = await fetch(url.toString(), {
+      signal: controller.signal,
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'policy-memo-agent/0.1.0',
+      },
+    });
+  } catch (error) {
+    clearTimeout(timer);
+
+    if (error instanceof Error && error.name === 'AbortError') {
+      return {
+        error: `World Bank request timed out after ${String(WORLD_BANK_FETCH_TIMEOUT_MS)}ms`,
+      };
+    }
+
+    return {
+      error: error instanceof Error ? `World Bank request failed: ${error.message}` : String(error),
+    };
+  }
+  clearTimeout(timer);
 
   if (!response.ok) {
     return { error: `World Bank API error: ${String(response.status)}` };
