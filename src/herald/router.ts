@@ -65,7 +65,11 @@ export function routeClaim(claim: NotesLogEntry): RouteDecision {
  *
  * Returns a full HeraldResult suitable for agent revision feedback.
  */
-export async function evaluateClaim(claim: NotesLogEntry): Promise<HeraldResult> {
+export async function evaluateClaim(
+  claim: NotesLogEntry,
+  _policyTopic?: string,
+  _memoSummary?: string,
+): Promise<HeraldResult> {
   const route = routeClaim(claim);
   const tierDetails: HeraldResult['tier_details'] = {
     tier_1: null,

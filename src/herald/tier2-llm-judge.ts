@@ -141,11 +141,24 @@ function parseVerdict(raw: string): Verdict {
 // User message builder
 // ---------------------------------------------------------------------------
 
-function buildUserMessage(claim: NotesLogEntry, tier1Result?: TierOutput): string {
+function buildUserMessage(
+  claim: NotesLogEntry,
+  tier1Result?: TierOutput,
+  memoSummary?: string,
+): string {
   const derivationConfig = DERIVATION_CONFIG[claim.derivation];
   const riskLabel = `${derivationConfig.riskLevel} risk`;
 
-  const lines: string[] = [
+  const lines: string[] = [];
+
+  if (memoSummary !== undefined && memoSummary.length > 0) {
+    lines.push('## Memo Context');
+    lines.push('');
+    lines.push(memoSummary);
+    lines.push('');
+  }
+
+  lines.push(
     '## Claim to Evaluate',
     '',
     `**Claim ID**: ${claim.claim_id}`,
@@ -155,7 +168,7 @@ function buildUserMessage(claim: NotesLogEntry, tier1Result?: TierOutput): strin
     '',
     '## Cited Sources',
     '',
-  ];
+  );
 
   for (const [i, src] of claim.sources.entries()) {
     lines.push(`### Source ${String(i + 1)}: ${src.source_title} (${src.source_id})`);
@@ -279,17 +292,20 @@ function applyDecisionLogic(raw: JudgeToolInput): TierOutput {
 export async function evaluateWithLLMJudge(
   claim: NotesLogEntry,
   tier1Result?: TierOutput,
+  policyTopic?: string,
+  memoSummary?: string,
 ): Promise<TierOutput> {
   const span = startSpan('herald.tier2.evaluate', {
     claim_id: claim.claim_id,
     claim_type: claim.claim_type,
     derivation: claim.derivation,
     has_tier1_context: tier1Result !== undefined,
+    has_memo_summary: memoSummary !== undefined,
   });
 
   try {
-    const systemPrompt = getJudgePrompt(claim.claim_type);
-    const userMessage = buildUserMessage(claim, tier1Result);
+    const systemPrompt = getJudgePrompt(claim.claim_type, policyTopic);
+    const userMessage = buildUserMessage(claim, tier1Result, memoSummary);
 
     const response = await getClient().chat.completions.create({
       model: JUDGE_MODEL,

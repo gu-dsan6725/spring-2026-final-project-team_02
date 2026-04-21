@@ -756,6 +756,7 @@ npm run telemetry:view   # View OpenTelemetry traces
 4. Skip the notes log. Every claim in the memo MUST have a notes log entry with source provenance.
 5. Let the agent loop run unbounded. Always enforce the budget (max_tool_calls, max_research_tokens).
 6. Use `console.log` for observability — use the Braintrust span helpers in `src/observability/`.
+7. Use `!== undefined` to guard optional fields from LLM JSON responses. LLMs can return `null` for optional fields even when the TypeScript type says `string | undefined`. Always use `!= null` (loose inequality, catches both `null` and `undefined`) when checking optional fields from parsed LLM output. This bug has recurred multiple times in `tier2-llm-judge.ts` on the `suggested_revision` field.
 
 ### Plan Before Building
 

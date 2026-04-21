@@ -3,7 +3,7 @@
  * backend/src/policy_memo_agent/models/herald.py
  */
 
-export type Verdict = 'valid' | 'invalid' | 'uncertain';
+export type Verdict = 'valid' | 'invalid' | 'uncertain' | 'needs_revision';
 export type MeaningDriftLabel =
   | 'no_drift'
   | 'hedging_drift'

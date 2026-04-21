@@ -24,6 +24,7 @@ const VERDICT_CONFIG: Record<Verdict, { icon: string; label: string; color: stri
     valid: { icon: '✓', label: 'Valid', color: '#15803d', bg: '#dcfce7' },
     invalid: { icon: '✕', label: 'Invalid', color: '#dc2626', bg: '#fee2e2' },
     uncertain: { icon: '?', label: 'Uncertain', color: '#6b7280', bg: '#f3f4f6' },
+    needs_revision: { icon: '↺', label: 'Needs Revision', color: '#d97706', bg: '#fef3c7' },
   };
 
 const RISK_COLOR: Record<'low' | 'medium' | 'high', string> = {
@@ -41,6 +42,7 @@ function SummaryBar({ results }: { results: HeraldResult[] }) {
     valid: 0,
     invalid: 0,
     uncertain: 0,
+    needs_revision: 0,
   };
   for (const r of results) {
     counts[r.verdict] += 1;
