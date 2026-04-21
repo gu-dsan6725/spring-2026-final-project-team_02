@@ -1,0 +1,150 @@
+{
+  "generated_at": "2026-04-21T17:57:36.404Z",
+  "total_claims": 6,
+  "valid_count": 6,
+  "invalid_count": 0,
+  "invalid_with_revision_count": 0,
+  "uncertain_count": 0,
+  "requires_human_intervention": [],
+  "results": [
+    {
+      "claim_id": "C-001",
+      "tier_reached": 2,
+      "verdict": "valid",
+      "confidence": 1,
+      "feedback": "The claim accurately paraphrases the source material. The source explicitly states that issues such as housing affordability, shortage of units, and inadequate social service linkages inhibit the use of and access to Section 8 vouchers in rural communities. The claim maintains the same causal relationship and scope as the source, with no drift in proposition, scope, timeframe, attribution, modality, or strength of causal language. Therefore, the claim is valid.",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "uncertain",
+          "confidence": 0.9990231990814209,
+          "reasoning": "Signal margin 0.6 points is below the 20-point requirement. NLI result inconclusive across 1 source(s): 1 support-leading, 0 neutral-leading, 0 contradiction-leading. Best entailment 99.9%, best contradiction 0.7%, best neutral 99.3%, threshold 85%. Escalating to Tier 2."
+        },
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "valid",
+          "confidence": 1,
+          "reasoning": "The claim accurately paraphrases the source material. The source explicitly states that issues such as housing affordability, shortage of units, and inadequate social service linkages inhibit the use of and access to Section 8 vouchers in rural communities. The claim maintains the same causal relationship and scope as the source, with no drift in proposition, scope, timeframe, attribution, modality, or strength of causal language. Therefore, the claim is valid.",
+          "meaning_drift_label": "no_drift"
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-002",
+      "tier_reached": 2,
+      "verdict": "valid",
+      "confidence": 0.9,
+      "feedback": "The claim accurately paraphrases the source material. The source states that rural areas often have fewer options, leading to longer wait times for applicants. The claim maintains the same causal relationship, direction, and scope, indicating that fewer housing options in rural areas lead to longer wait times for Section 8 applicants. There is no drift in causal strength or scope, and the paraphrase is faithful to the source.",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "uncertain",
+          "confidence": 0.0002432062610751018,
+          "reasoning": "Signal margin -100.0 points is below the 20-point requirement. NLI result inconclusive across 1 source(s): 0 support-leading, 1 neutral-leading, 0 contradiction-leading. Best entailment 0.0%, best contradiction 0.0%, best neutral 100.0%, threshold 85%. Escalating to Tier 2."
+        },
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "valid",
+          "confidence": 0.9,
+          "reasoning": "The claim accurately paraphrases the source material. The source states that rural areas often have fewer options, leading to longer wait times for applicants. The claim maintains the same causal relationship, direction, and scope, indicating that fewer housing options in rural areas lead to longer wait times for Section 8 applicants. There is no drift in causal strength or scope, and the paraphrase is faithful to the source.",
+          "meaning_drift_label": "no_drift"
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-003",
+      "tier_reached": 1,
+      "verdict": "valid",
+      "confidence": 0.9989975094795227,
+      "feedback": "Strong support found in 1 of 1 source chunk(s); best entailment 99.9% with signal margin 99.8 points and no strong contradiction (max contradiction 0.0%, threshold 90%).",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "valid",
+          "confidence": 0.9989975094795227,
+          "reasoning": "Strong support found in 1 of 1 source chunk(s); best entailment 99.9% with signal margin 99.8 points and no strong contradiction (max contradiction 0.0%, threshold 90%)."
+        },
+        "tier_2": null,
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-004",
+      "tier_reached": 2,
+      "verdict": "valid",
+      "confidence": 0.95,
+      "feedback": "The claim accurately reflects the information provided in the source. The source states that the 30-Year Fixed Rate Mortgage Average in the United States began at approximately 3.73% in 2015 and rose to peaks over 7% by 2023. The claim correctly captures these figures and the timeframe, making it a valid representation of the source data.",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "uncertain",
+          "confidence": 0.004057801328599453,
+          "reasoning": "Signal margin -99.2 points is below the 12-point requirement. NLI result inconclusive across 1 source(s): 0 support-leading, 1 neutral-leading, 0 contradiction-leading. Best entailment 0.4%, best contradiction 0.0%, best neutral 99.6%, threshold 90%. Escalating to Tier 2."
+        },
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "valid",
+          "confidence": 0.95,
+          "reasoning": "The claim accurately reflects the information provided in the source. The source states that the 30-Year Fixed Rate Mortgage Average in the United States began at approximately 3.73% in 2015 and rose to peaks over 7% by 2023. The claim correctly captures these figures and the timeframe, making it a valid representation of the source data.",
+          "meaning_drift_label": null
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-005",
+      "tier_reached": 2,
+      "verdict": "valid",
+      "confidence": 0.9,
+      "feedback": "The claim accurately reflects the source material. The source states that monetary policy actions have sizeable and significant positive effects on regional housing prices, which aligns with the claim's assertion of 'sizeable and positive effects.' The claim also mentions variations in impact across different states, which is consistent with the source's note on differences in magnitude and duration across regions. The specific mention of regions like California, Arizona, and Florida in the claim is a reasonable inference given the context of regional variations, although these specific states are not mentioned in the provided excerpt. However, this does not constitute a significant drift as it is a plausible extension of the source's findings on regional differences.",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": {
+          "tier_id": 1,
+          "verdict": "uncertain",
+          "confidence": 0.00008841761155053973,
+          "reasoning": "Signal margin -100.0 points is below the 20-point requirement. NLI result inconclusive across 1 source(s): 0 support-leading, 1 neutral-leading, 0 contradiction-leading. Best entailment 0.0%, best contradiction 0.0%, best neutral 100.0%, threshold 85%. Escalating to Tier 2."
+        },
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "valid",
+          "confidence": 0.9,
+          "reasoning": "The claim accurately reflects the source material. The source states that monetary policy actions have sizeable and significant positive effects on regional housing prices, which aligns with the claim's assertion of 'sizeable and positive effects.' The claim also mentions variations in impact across different states, which is consistent with the source's note on differences in magnitude and duration across regions. The specific mention of regions like California, Arizona, and Florida in the claim is a reasonable inference given the context of regional variations, although these specific states are not mentioned in the provided excerpt. However, this does not constitute a significant drift as it is a plausible extension of the source's findings on regional differences.",
+          "meaning_drift_label": "no_drift"
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    },
+    {
+      "claim_id": "C-006",
+      "tier_reached": 2,
+      "verdict": "valid",
+      "confidence": 0.9,
+      "feedback": "The claim accurately synthesizes the information from the source. The source states that the field of explainable machine learning has expanded but often does not take real-world needs into account, indicating gaps in practical policy applications. The claim rephrases this to state that machine learning systems in public policy are expanding, yet current methods often lack real-world applicability, suggesting a gap in practical policy tool development. The paraphrase maintains the proposition, scope, and modality of the original source, with no significant drift in meaning.",
+      "suggested_revision": null,
+      "tier_details": {
+        "tier_1": null,
+        "tier_2": {
+          "tier_id": 2,
+          "verdict": "valid",
+          "confidence": 0.9,
+          "reasoning": "The claim accurately synthesizes the information from the source. The source states that the field of explainable machine learning has expanded but often does not take real-world needs into account, indicating gaps in practical policy applications. The claim rephrases this to state that machine learning systems in public policy are expanding, yet current methods often lack real-world applicability, suggesting a gap in practical policy tool development. The paraphrase maintains the proposition, scope, and modality of the original source, with no significant drift in meaning.",
+          "meaning_drift_label": "no_drift"
+        },
+        "tier_3": null,
+        "tier_4": null
+      }
+    }
+  ]
+}

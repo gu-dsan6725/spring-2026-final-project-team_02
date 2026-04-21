@@ -1,0 +1,92 @@
+[
+  {
+    "claim_id": "C-001",
+    "claim_text": "Rural residents face issues such as housing affordability, a shortage of units, and inadequate social service linkages which inhibit the use of and access to Section 8 vouchers.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-001",
+        "source_title": "Housing Assistance Council SECTION 8 HOMEOWNERSHIP: A GUIDE FOR RURAL HOUSING",
+        "source_url": "https://ruralhome.org/wp-content/uploads/storage/documents/sec8ownership.pdf",
+        "relevant_chunk": "Rural residents can benefit tremendously from the homeownership program. However, issues such as housing affordability, shortage of units, and inadequate social service linkages inhibit the use of and access to Section 8 vouchers in rural communities."
+      }
+    ],
+    "reasoning": "The snippet highlights how specific issues directly affect the access and effectiveness of Section 8 vouchers in rural areas."
+  },
+  {
+    "claim_id": "C-002",
+    "claim_text": "In rural areas, fewer housing options lead to longer wait times for Section 8 applicants.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-002",
+        "source_title": "Section 8 Housing Statistics for 2025: Trends and Insights | USA",
+        "source_url": "https://www.vacationrentallicense.com/post/section-8-housing-statistics-for-2025-trends-and-insights",
+        "relevant_chunk": "In contrast, rural areas often have fewer options, leading to longer wait times for applicants."
+      }
+    ],
+    "reasoning": "Limited options extend the time applicants must wait to receive housing assistance due to lack of availability."
+  },
+  {
+    "claim_id": "C-003",
+    "claim_text": "In smaller towns and rural areas, access to affordable housing can still be limited despite shorter waitlists.",
+    "claim_type": "comparative",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-003",
+        "source_title": "Understanding the Housing Crisis and the Struggle for Section 8 Assistance - Dayton Parent Magazine",
+        "source_url": "https://daytonparentmagazine.com/housing-crisis-and-the-struggle-for-section-8-assistance/",
+        "relevant_chunk": "In smaller towns and rural areas, waitlists may be shorter, but access to affordable housing can still be limited."
+      }
+    ],
+    "reasoning": "Even with potentially shorter wait times, the availability of affordable housing remains a significant challenge."
+  },
+  {
+    "claim_id": "C-004",
+    "claim_text": "The 30-Year Fixed Rate Mortgage Average in the United States showed significant fluctuations, rising from an average of about 3.73% in 2015 to peaks over 7% in 2023.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-004",
+        "source_title": "Federal Reserve Economic Data — 30-Year Fixed Rate Mortgage Average in the United States",
+        "source_url": "https://fred.stlouisfed.org/series/MORTGAGE30US",
+        "relevant_chunk": "The series indicates marked increases over the years, with rates beginning at approximately 3.73% in 2015 and moving towards peaks over 7% by 2023, indicating a significant cost barrier in housing affordability."
+      }
+    ],
+    "reasoning": "This statistical trend shows how rising mortgage rates can impact housing affordability, a critical factor in discussions about housing voucher utility."
+  },
+  {
+    "claim_id": "C-005",
+    "claim_text": "Monetary policy actions have sizeable and positive effects on regional housing prices, with variations in impact across different states, notably in regions like California, Arizona, and Florida.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-005",
+        "source_title": "Manfred M. Fischer et al., 2018 — The dynamic impact of monetary policy on regional housing prices in the US",
+        "source_url": "http://arxiv.org/pdf/1802.05870v1",
+        "relevant_chunk": "The empirical results indicate that monetary policy actions typically have sizeable and significant positive effects on regional housing prices, revealing differences in magnitude and duration across regions."
+      }
+    ],
+    "reasoning": "The varying impact of monetary policy on housing prices reinforces the necessity to tailor housing assistance like Section 8 to local economic conditions."
+  },
+  {
+    "claim_id": "C-006",
+    "claim_text": "Machine learning systems in public policy are expanding, yet current methods often lack real-world applicability, suggesting a gap in practical policy tool development.",
+    "claim_type": "synthesis",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-006",
+        "source_title": "Kasun Amarasinghe et al., 2020 — Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
+        "source_url": "http://arxiv.org/pdf/2010.14374v3",
+        "relevant_chunk": "The field of explainable ML has expanded, but much work has not taken real-world needs into account, indicating gaps in capability for practical policy applications."
+      }
+    ],
+    "reasoning": "While technological advancement is rapid, its integration into actionable policy remains limited, highlighting potential in better leveraging data-driven methods for housing policy."
+  }
+]
