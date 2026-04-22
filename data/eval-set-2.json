@@ -31,13 +31,13 @@
     ],
     "reasoning": "The claim paraphrases the approximately 50% relative reduction in uninsured rates among low-income adults.",
     "ground_truth_verdict": "valid",
-    "ground_truth_rationale": "The source supports a ~51% relative reduction, and the claim's characterization of 'approximately 50%' is an accurate paraphrase. The comparison to non-expansion states strengthens the causal inference, and the claim appropriately limits the scope to expansion states."
-  },
+    "ground_truth_rationale": "The '~50%' paraphrase is within normal tolerance for the source's 'roughly 51%.' The causal verb 'reduced' is supported because the source provides both a pre/post comparison within expansion states (35% → 17%) and a contemporaneous comparison with non-expansion states showing 'no comparable decline' — a difference-in-differences structure that licenses causal inference. The scope restriction to expansion states matches the source's framing."},
   {
     "claim_id": "GT-053",
     "claim_text": "U.S. federal R&D spending as a share of GDP has declined steadily since the 1960s and now stands at less than 1%.",
     "claim_type": "statistical",
     "derivation": "paraphrase",
+  
     "sources": [
       {
         "source_id": "S-053",
@@ -101,6 +101,8 @@
     "ground_truth_verdict": "valid",
     "ground_truth_rationale": "SKEPTIC TRAP: The source directly confirms the U.S. leads globally at 531 per 100,000. A skeptic might note that some authoritarian states have underreported data, but based on available evidence from the most authoritative source, the claim is accurate."
   },
+
+  
   {
     "claim_id": "GT-057",
     "claim_text": "Increasing temperatures and declining snowpack in the Colorado River basin together suggest that current water allocation agreements will be unenforceable within 20 years.",
@@ -121,8 +123,8 @@
       }
     ],
     "reasoning": "The synthesis combines projected flow declines with overallocation to infer future enforceability problems.",
-    "ground_truth_verdict": "valid",
-    "ground_truth_rationale": "The synthesis is logically sound: if current allocations already exceed average flows and flows are projected to decline further, enforcing those allocations becomes progressively harder. The 20-year timeframe is consistent with 'mid-century' projections. The claim uses 'suggest' appropriately."
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "Two key elements are ungrounded. 'Unenforceable' is a legal property neither source addresses; the sources describe hydrological shortfall, not failure of legal mechanisms like priority calls or curtailment. The '20-year' horizon also appears in neither source: S-057a specifies 'mid-century,' and S-057b gives a per-degree sensitivity with no timeframe. The hedge 'suggest' cannot substitute for missing grounding on elements the sources never address."
   },
   {
     "claim_id": "GT-058",
@@ -196,8 +198,7 @@
     ],
     "reasoning": "The synthesis combines wage stagnation among non-college workers with growing digital skill demand and a gap in training supply.",
     "ground_truth_verdict": "valid",
-    "ground_truth_rationale": "Both premises are well-supported: stagnant wages for non-college workers (Source A) and a documented gap between employer demand for digital skills and community college training capacity (Source B). The inference that retraining programs are underfunded relative to need is directly supported by Source B's enrollment gap figure. The claim uses appropriate hedging language."
-  },
+    "ground_truth_rationale": "Both premises are supported: stagnant wages for non-college workers (Source A) and a large enrollment-to-demand gap in digital skills training (Source B). Source B reports enrollment meets under 15% of employer demand, which is consistent with — though does not uniquely establish — underfunding as a cause. The hedge 'suggest' accommodates this inferential step, making the synthesis defensible within normal policy-analysis tolerance."},
   {
     "claim_id": "GT-062",
     "claim_text": "The Affordable Care Act's coverage mandates led to an increase in the proportion of young adults aged 19–25 with health insurance from 63% to 74% between 2010 and 2012.",
@@ -212,9 +213,8 @@
       }
     ],
     "reasoning": "The claim accurately extracts the coverage rate increase for young adults, though uses 'mandates' rather than specifying the dependent coverage provision.",
-    "ground_truth_verdict": "valid",
-    "ground_truth_rationale": "The figures (63% to 74%) directly match the source (63.8% to 73.7%). The source attributes the increase to the parental coverage provision, which is a component of the ACA's coverage provisions. The claim's broader use of 'coverage mandates' is imprecise but not inaccurate in context."
-  },
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The numeric figures match the source (63.8% to 73.7%), but the causal framing does not. The source uses 'coinciding with,' which is correlational, while the claim asserts the ACA 'led to' the increase — an unsupported upgrade to causation. The claim also attributes the change to 'coverage mandates,' but the source identifies the dependent-coverage provision; the ACA's individual mandate did not take effect until 2014, outside the 2010–2012 window."},
   {
     "claim_id": "GT-063",
     "claim_text": "Vietnam's poverty rate declined from 58% in 1993 to under 5% by 2020, one of the fastest sustained reductions in recorded development history.",
@@ -263,9 +263,8 @@
       }
     ],
     "reasoning": "The claim that external debt exceeded $100 billion for the first time in 2022 is a brief claim from a single brief source.",
-    "ground_truth_verdict": "valid",
-    "ground_truth_rationale": "The source confirms external debt of $126.3 billion in 2022, which does exceed $100 billion. However, the claim of 'for the first time' cannot be verified or refuted from this source alone — this is a limitation, but the core statistical claim is supported."
-  },
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source confirms $126.3 billion in June 2022, which exceeds $100 billion. However, the claim's 'for the first time' is a historical-precedent assertion that the source does not support — no prior-year comparison is provided. For a direct_extraction derivation, adding an unverifiable claim of historical uniqueness goes beyond extraction."},
   {
     "claim_id": "GT-066",
     "claim_text": "Implicit bias training programs in U.S. law enforcement agencies have been shown to reduce racially disparate use-of-force incidents.",
@@ -366,8 +365,7 @@
     ],
     "reasoning": "The claim paraphrases well-established evidence from RCTs on the NFP program.",
     "ground_truth_verdict": "valid",
-    "ground_truth_rationale": "The source from a 40-year research synthesis confirms both outcomes: reduced child maltreatment (48% reduction in abuse/neglect reports) and improved child development (higher cognitive scores). The claim uses appropriate 'associated with' language and is a faithful paraphrase."
-  },
+    "ground_truth_rationale": "The source reports RCT evidence supporting both claim components: 48% reduction in child maltreatment reports and higher cognitive/school readiness outcomes. The claim's 'associated with' language is conservative relative to what RCTs license, making the paraphrase faithful and appropriately calibrated."},
   {
     "claim_id": "GT-072",
     "claim_text": "Mexico's PROSPERA conditional cash transfer program achieved universal coverage of eligible households by 2010.",
@@ -451,13 +449,12 @@
     ],
     "reasoning": "The claim states 'over 70%'; the source shows 68.4%.",
     "ground_truth_verdict": "invalid",
-    "ground_truth_rationale": "The source reports 68.4% of overdose deaths involved synthetic opioids, not 'over 70%' as the claim states. While close, the claim overstates the percentage when a precise figure is available. The directional characterization is correct but the specific threshold is inaccurate."
-  },
+    "ground_truth_rationale": "The claim asserts 'over 70%,' which creates a hard floor that 68.4% cannot satisfy. The directional characterization (synthetic opioids drive most overdose deaths) is supported, but 'over 70%' is a threshold claim, and the source's 68.4% falls 1.6 points below it. Separately, the source attributes the 68.4% to synthetic opioids as a class, within which illicitly manufactured fentanyl is 'primary'; the claim's attribution of the full figure to fentanyl specifically is also slightly narrower than the source supports"},
   {
     "claim_id": "GT-077",
     "claim_text": "Expanding broadband access to rural and underserved U.S. communities is projected to generate significant economic returns, with studies estimating $1,200 to $2,000 in annual household income gains.",
-    "claim_type": "statistical",
-    "derivation": "paraphrase",
+    "claim_type": "predictive",
+    "derivation": "agent_inference",
     "sources": [
       {
         "source_id": "S-077",
@@ -468,8 +465,7 @@
     ],
     "reasoning": "The claim paraphrases the estimated household income gains from broadband expansion.",
     "ground_truth_verdict": "valid",
-    "ground_truth_rationale": "The $1,200 to $2,000 range is directly from the source. The claim appropriately uses 'projected' and 'studies estimating' to reflect the conditional nature of the estimates."
-  },
+    "ground_truth_rationale": "The $1,200–$2,000 range matches the source, but the claim's predictive framing does not. The source reports an observed association in 'communities where adoption increases' — a retrospective correlational estimate, not a forward projection. The claim converts this into 'projected to generate… from expanding broadband access,' introducing three shifts the source does not license: correlational to causal ('associated with' → 'generate'), retrospective to prospective ('estimated' → 'projected'), and adoption to access (measured outcomes followed uptake, not infrastructure rollout). The numeric accuracy does not rescue a predictive claim whose predictive structure the source does not support."},
   {
     "claim_id": "GT-078",
     "claim_text": "Ethiopia's second-largest hydroelectric dam, the Grand Ethiopian Renaissance Dam, will generate approximately 6,000 megawatts of electricity at full capacity.",
@@ -507,9 +503,8 @@
       }
     ],
     "reasoning": "The synthesis combines geographic access gaps with rising maternal mortality rates to infer unaddressed policy gaps.",
-    "ground_truth_verdict": "valid",
-    "ground_truth_rationale": "Both premises are well-supported: the geographic extent of maternity care deserts (Source A) and rising maternal mortality concentrated in rural areas (Source B). The inference that federal programs have not yet closed this gap is supported by the trend of widening rural-urban disparities. The claim uses appropriately cautious language ('suggest')."
-  },
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "Two premises are supported: maternity care deserts concentrated in rural counties (Source A) and rising rural maternal mortality with a widening rural-urban gap (Source B). However, the claim introduces two elements the sources do not license. First, 'obstetric deserts are producing measurable health disparities' upgrades correlation to causation, which neither source establishes. Second, 'federal maternal health programs have not yet addressed' introduces an institutional actor that neither source mentions; the widening gap is consistent with but does not establish program inadequacy. 'Suggest' is a single hedge that cannot simultaneously carry a correlation-to-causation upgrade and an unsupported policy attribution." },
   {
     "claim_id": "GT-080",
     "claim_text": "Germany's Energiewende has achieved a 65% share of renewable electricity generation as of 2023.",
