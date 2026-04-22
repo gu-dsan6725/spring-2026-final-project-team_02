@@ -34,7 +34,7 @@ to check after the accuracy comparison is done.
 ## Implementation
 
 All three systems use the **TypeScript implementation** in `src/herald/` — the same codebase
-the benchmark runs against. Model for Tier 2 and Tier 3: `gpt-4o-mini` via `OPENAI_API_KEY`.
+the benchmark runs against. Model for Tier 2 and Tier 3: `gpt-4o` via `OPENAI_API_KEY`.
 Token usage is captured from `response.usage` at each tier and propagated through
 `TierOutput.usage` into the per-claim result record.
 
@@ -51,8 +51,8 @@ The full pipeline as implemented in `src/herald/router.ts`.
   - Causal: start Tier 1, NLI threshold 0.85
   - Predictive/Normative/Synthesis: skip Tier 1, start Tier 2
 - Tier 1: DeBERTa-v3-large-mnli via local Python NLI backend (`http://localhost:8000`)
-- Tier 2: `gpt-4o-mini` (`src/herald/tier2-llm-judge.ts`) — 1 API call
-- Tier 3: 3× `gpt-4o-mini` personas + 1 judge synthesis (`src/herald/tier3-debate.ts`) — 4 API calls
+- Tier 2: `gpt-4o` (`src/herald/tier2-llm-judge.ts`) — 1 API call
+- Tier 3: 3× `gpt-4o` personas + 1 judge synthesis (`src/herald/tier3-debate.ts`) — 4 API calls
 - Early exit whenever confidence threshold is met
 - **Expected cost range**: 0–5 API calls per claim depending on tier reached
 
@@ -62,7 +62,7 @@ Tier 2 only, applied to **all** claims regardless of type. No NLI pre-screening,
 multi-agent debate. Calls `evaluateWithLLMJudge()` in `src/herald/tier2-llm-judge.ts`
 directly, bypassing the router.
 
-- Same model (`gpt-4o-mini`), same prompt template, same output schema as System A's Tier 2
+- Same model (`gpt-4o`), same prompt template, same output schema as System A's Tier 2
 - No early exit logic — exactly 1 API call per claim
 - **Expected cost**: 1 API call per claim (constant, predictable)
 
@@ -135,7 +135,7 @@ Report all accuracy metrics **overall** and **per claim type**.
 | Input tokens per claim     | tokens | `response.usage.prompt_tokens` at each tier               |
 | Output tokens per claim    | tokens | `response.usage.completion_tokens` at each tier           |
 | API calls per claim        | count  | 1 per Tier 2 call; 4 per Tier 3 call (3 personas + judge) |
-| Estimated cost per claim   | USD    | `(input/1M × $0.15) + (output/1M × $0.60)`                |
+| Estimated cost per claim   | USD    | `(input/1M × $2.50) + (output/1M × $10.00)`               |
 | Daily cost at 1,000 claims | USD    | mean cost per claim × 1,000                               |
 
 Token counts come from `TierOutput.usage`, which is populated by `evaluateWithLLMJudge`
@@ -181,8 +181,8 @@ npx tsx --env-file=.env scripts/run-experiment.ts \
   --output results/experiment-$(date +%Y-%m-%d).json
 ```
 
-Run with `--concurrency 3` to stay under OpenAI rate limits. For System A with Tier 3,
-each claim makes up to 4 parallel LLM calls, so effective QPS at concurrency 3 is ~12 at peak.
+Run with `--concurrency 1` to stay under OpenAI rate limits for `gpt-4o`. For System A with Tier 3,
+each claim makes up to 4 sequential LLM calls, so effective QPS at concurrency 1 is ~4 at peak.
 
 ### Step 3 — Analyze Results
 
@@ -255,8 +255,8 @@ The analysis script produces:
   "systems_run": ["A", "B", "C"],
   "dry_run": false,
   "total_claims": 104,
-  "model": "gpt-4o-mini",
-  "pricing": { "input_per_million": 0.15, "output_per_million": 0.60 },
+  "model": "gpt-4o",
+  "pricing": { "input_per_million": 2.50, "output_per_million": 10.00 },
   "per_claim_results": [...]
 }
 ```
@@ -313,7 +313,7 @@ belong in each system.
 | -------------------------- | ----------------------------------------------------------------------------------------------------- |
 | Model temperature variance | `temperature=0.2` for Tier 2, `temperature=0.3` for Tier 3 (existing defaults). Record in results.    |
 | Prompt version drift       | Pin `src/herald/prompts/` files to git commit hash at experiment start. Hash recorded in output JSON. |
-| OpenAI model version       | `gpt-4o-mini` is a stable alias. Record exact model string in output JSON.                            |
+| OpenAI model version       | `gpt-4o` is a stable alias. Record exact model string in output JSON.                                 |
 | Eval set label quality     | Flag any claim where all 3 systems disagree with ground truth — could indicate a mislabel.            |
 | Ordering effects           | Randomize claim order before running. All systems process the same shuffled order.                    |
 | Rate limiting / retries    | Use the same `withRetry` logic as the benchmark. Retry count logged per claim.                        |
@@ -356,7 +356,7 @@ Use experiment results to answer:
   boundaries may have contested labels. Flag any claim where all 3 systems disagree.
 - **Single policy domain**: If the eval set is concentrated in one domain, results may
   not generalize to other domains.
-- **Model non-determinism**: `gpt-4o-mini` is not strictly deterministic even at low
+- **Model non-determinism**: `gpt-4o` is not strictly deterministic even at low
   temperature. For key findings, run 3 independent trials and report mean ± std.
 - **NLI backend dependency**: System A's Tier 1 requires the Python backend running
   separately. If unavailable, System A silently degrades to System C behavior for
