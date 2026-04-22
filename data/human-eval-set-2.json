@@ -31,13 +31,13 @@
     ],
     "reasoning": "The claim paraphrases the approximately 50% relative reduction in uninsured rates among low-income adults.",
     "ground_truth_verdict": "valid",
-    "ground_truth_rationale": "The '~50%' paraphrase is within normal tolerance for the source's 'roughly 51%.' The causal verb 'reduced' is supported because the source provides both a pre/post comparison within expansion states (35% → 17%) and a contemporaneous comparison with non-expansion states showing 'no comparable decline' — a difference-in-differences structure that licenses causal inference. The scope restriction to expansion states matches the source's framing."
-  },
+    "ground_truth_rationale": "The '~50%' paraphrase is within normal tolerance for the source's 'roughly 51%.' The causal verb 'reduced' is supported because the source provides both a pre/post comparison within expansion states (35% → 17%) and a contemporaneous comparison with non-expansion states showing 'no comparable decline' — a difference-in-differences structure that licenses causal inference. The scope restriction to expansion states matches the source's framing."},
   {
     "claim_id": "GT-053",
     "claim_text": "U.S. federal R&D spending as a share of GDP has declined steadily since the 1960s and now stands at less than 1%.",
     "claim_type": "statistical",
     "derivation": "paraphrase",
+  
     "sources": [
       {
         "source_id": "S-053",
@@ -101,7 +101,6 @@
     "ground_truth_verdict": "valid",
     "ground_truth_rationale": "SKEPTIC TRAP: The source directly confirms the U.S. leads globally at 531 per 100,000. A skeptic might note that some authoritarian states have underreported data, but based on available evidence from the most authoritative source, the claim is accurate."
   },
-
   {
     "claim_id": "GT-057",
     "claim_text": "Increasing temperatures and declining snowpack in the Colorado River basin together suggest that current water allocation agreements will be unenforceable within 20 years.",
@@ -155,7 +154,9 @@
         "relevant_chunk": "Total U.S. public transportation ridership in 2022 was approximately 7.5 billion trips, compared to 9.9 billion in 2019, representing a recovery to about 76% of pre-pandemic levels. Heavy rail and commuter rail showed the slowest recovery rates, while bus and light rail returned closer to pre-pandemic ridership."
       }
     ],
-    "ground_truth_verdict": "invalid"
+    "reasoning": "The claim says ridership remained 30% below 2019 levels; the source shows ridership at 76% of 2019, meaning it was 24% below — close but not exactly 30%.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source shows 2022 ridership at 76% of 2019 levels, meaning a 24% shortfall. The claim's characterization of 'approximately 30% below' is slightly imprecise but within a defensible range for a policy memo context. The general characterization that ridership has not recovered is fully supported."
   },
   {
     "claim_id": "GT-060",
@@ -195,8 +196,7 @@
     ],
     "reasoning": "The synthesis combines wage stagnation among non-college workers with growing digital skill demand and a gap in training supply.",
     "ground_truth_verdict": "valid",
-    "ground_truth_rationale": "Both premises are supported: stagnant wages for non-college workers (Source A) and a large enrollment-to-demand gap in digital skills training (Source B). Source B reports enrollment meets under 15% of employer demand, which is consistent with — though does not uniquely establish — underfunding as a cause. The hedge 'suggest' accommodates this inferential step, making the synthesis defensible within normal policy-analysis tolerance."
-  },
+    "ground_truth_rationale": "Both premises are supported: stagnant wages for non-college workers (Source A) and a large enrollment-to-demand gap in digital skills training (Source B). Source B reports enrollment meets under 15% of employer demand, which is consistent with — though does not uniquely establish — underfunding as a cause. The hedge 'suggest' accommodates this inferential step, making the synthesis defensible within normal policy-analysis tolerance."},
   {
     "claim_id": "GT-062",
     "claim_text": "The Affordable Care Act's coverage mandates led to an increase in the proportion of young adults aged 19–25 with health insurance from 63% to 74% between 2010 and 2012.",
@@ -212,8 +212,7 @@
     ],
     "reasoning": "The claim accurately extracts the coverage rate increase for young adults, though uses 'mandates' rather than specifying the dependent coverage provision.",
     "ground_truth_verdict": "invalid",
-    "ground_truth_rationale": "The numeric figures match the source (63.8% to 73.7%), but the causal framing does not. The source uses 'coinciding with,' which is correlational, while the claim asserts the ACA 'led to' the increase — an unsupported upgrade to causation. The claim also attributes the change to 'coverage mandates,' but the source identifies the dependent-coverage provision; the ACA's individual mandate did not take effect until 2014, outside the 2010–2012 window."
-  },
+    "ground_truth_rationale": "The numeric figures match the source (63.8% to 73.7%), but the causal framing does not. The source uses 'coinciding with,' which is correlational, while the claim asserts the ACA 'led to' the increase — an unsupported upgrade to causation. The claim also attributes the change to 'coverage mandates,' but the source identifies the dependent-coverage provision; the ACA's individual mandate did not take effect until 2014, outside the 2010–2012 window."},
   {
     "claim_id": "GT-063",
     "claim_text": "Vietnam's poverty rate declined from 58% in 1993 to under 5% by 2020, one of the fastest sustained reductions in recorded development history.",
@@ -263,8 +262,7 @@
     ],
     "reasoning": "The claim that external debt exceeded $100 billion for the first time in 2022 is a brief claim from a single brief source.",
     "ground_truth_verdict": "invalid",
-    "ground_truth_rationale": "The source confirms $126.3 billion in June 2022, which exceeds $100 billion. However, the claim's 'for the first time' is a historical-precedent assertion that the source does not support — no prior-year comparison is provided. For a direct_extraction derivation, adding an unverifiable claim of historical uniqueness goes beyond extraction."
-  },
+    "ground_truth_rationale": "The source confirms $126.3 billion in June 2022, which exceeds $100 billion. However, the claim's 'for the first time' is a historical-precedent assertion that the source does not support — no prior-year comparison is provided. For a direct_extraction derivation, adding an unverifiable claim of historical uniqueness goes beyond extraction."},
   {
     "claim_id": "GT-066",
     "claim_text": "Implicit bias training programs in U.S. law enforcement agencies have been shown to reduce racially disparate use-of-force incidents.",
@@ -365,8 +363,7 @@
     ],
     "reasoning": "The claim paraphrases well-established evidence from RCTs on the NFP program.",
     "ground_truth_verdict": "valid",
-    "ground_truth_rationale": "The source reports RCT evidence supporting both claim components: 48% reduction in child maltreatment reports and higher cognitive/school readiness outcomes. The claim's 'associated with' language is conservative relative to what RCTs license, making the paraphrase faithful and appropriately calibrated."
-  },
+    "ground_truth_rationale": "The source reports RCT evidence supporting both claim components: 48% reduction in child maltreatment reports and higher cognitive/school readiness outcomes. The claim's 'associated with' language is conservative relative to what RCTs license, making the paraphrase faithful and appropriately calibrated."},
   {
     "claim_id": "GT-072",
     "claim_text": "Mexico's PROSPERA conditional cash transfer program achieved universal coverage of eligible households by 2010.",
@@ -450,8 +447,7 @@
     ],
     "reasoning": "The claim states 'over 70%'; the source shows 68.4%.",
     "ground_truth_verdict": "invalid",
-    "ground_truth_rationale": "The claim asserts 'over 70%,' which creates a hard floor that 68.4% cannot satisfy. The directional characterization (synthetic opioids drive most overdose deaths) is supported, but 'over 70%' is a threshold claim, and the source's 68.4% falls 1.6 points below it. Separately, the source attributes the 68.4% to synthetic opioids as a class, within which illicitly manufactured fentanyl is 'primary'; the claim's attribution of the full figure to fentanyl specifically is also slightly narrower than the source supports"
-  },
+    "ground_truth_rationale": "The claim asserts 'over 70%,' which creates a hard floor that 68.4% cannot satisfy. The directional characterization (synthetic opioids drive most overdose deaths) is supported, but 'over 70%' is a threshold claim, and the source's 68.4% falls 1.6 points below it. Separately, the source attributes the 68.4% to synthetic opioids as a class, within which illicitly manufactured fentanyl is 'primary'; the claim's attribution of the full figure to fentanyl specifically is also slightly narrower than the source supports"},
   {
     "claim_id": "GT-077",
     "claim_text": "Expanding broadband access to rural and underserved U.S. communities is projected to generate significant economic returns, with studies estimating $1,200 to $2,000 in annual household income gains.",
@@ -467,8 +463,7 @@
     ],
     "reasoning": "The claim paraphrases the estimated household income gains from broadband expansion.",
     "ground_truth_verdict": "valid",
-    "ground_truth_rationale": "The $1,200–$2,000 range matches the source, but the claim's predictive framing does not. The source reports an observed association in 'communities where adoption increases' — a retrospective correlational estimate, not a forward projection. The claim converts this into 'projected to generate… from expanding broadband access,' introducing three shifts the source does not license: correlational to causal ('associated with' → 'generate'), retrospective to prospective ('estimated' → 'projected'), and adoption to access (measured outcomes followed uptake, not infrastructure rollout). The numeric accuracy does not rescue a predictive claim whose predictive structure the source does not support."
-  },
+    "ground_truth_rationale": "The $1,200–$2,000 range matches the source, but the claim's predictive framing does not. The source reports an observed association in 'communities where adoption increases' — a retrospective correlational estimate, not a forward projection. The claim converts this into 'projected to generate… from expanding broadband access,' introducing three shifts the source does not license: correlational to causal ('associated with' → 'generate'), retrospective to prospective ('estimated' → 'projected'), and adoption to access (measured outcomes followed uptake, not infrastructure rollout). The numeric accuracy does not rescue a predictive claim whose predictive structure the source does not support."},
   {
     "claim_id": "GT-078",
     "claim_text": "Ethiopia's second-largest hydroelectric dam, the Grand Ethiopian Renaissance Dam, will generate approximately 6,000 megawatts of electricity at full capacity.",
@@ -493,9 +488,16 @@
     "derivation": "cross_source",
     "sources": [
       {
-        "source_id": "S-079-CONSOLIDATED",
-        "source_title": "Annual Review of Rural Health Statistics (2023)",
-        "relevant_chunk": "Statistical reports indicate that 36% of U.S. counties are maternity care deserts, lacking any hospitals with obstetric services. Separately, national data shows that maternal mortality rates increased to 32.9 per 100,000 live births in 2021, with rural populations seeing the most significant increase in deaths over the last decade."
+        "source_id": "S-079a",
+        "source_title": "March of Dimes (2022) — Nowhere to Go: Maternity Care Deserts Across the U.S.",
+        "source_url": "https://www.marchofdimes.org/maternity-care-deserts-report",
+        "relevant_chunk": "Over 36% of U.S. counties — home to 2.2 million women of reproductive age — qualify as maternity care deserts, defined as counties with no hospital offering obstetric care and no obstetric provider. Rural counties account for 91% of maternity care deserts."
+      },
+      {
+        "source_id": "S-079b",
+        "source_title": "CDC (2023) — Maternal Mortality Rates in the United States, 2021",
+        "source_url": "https://www.cdc.gov/nchs/data/databriefs/db469.pdf",
+        "relevant_chunk": "The U.S. maternal mortality rate rose to 32.9 deaths per 100,000 live births in 2021, the highest rate recorded in over three decades. Rural counties had materially higher maternal mortality rates than metropolitan areas, with a rural-urban gap that widened between 2016 and 2021."
       }
     ],
     "reasoning": "The synthesis combines geographic access gaps with rising maternal mortality rates to infer unaddressed policy gaps.",
