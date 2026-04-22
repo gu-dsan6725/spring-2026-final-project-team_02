@@ -1,0 +1,923 @@
+[
+  {
+    "claim_id": "GT-051",
+    "claim_text": "The U.S. federal minimum wage has not been increased since 2009, when it was set at $7.25 per hour.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-051",
+        "source_title": "U.S. Department of Labor (2023) — History of Federal Minimum Wage Rates Under the Fair Labor Standards Act",
+        "source_url": "https://www.dol.gov/agencies/whd/minimum-wage/history",
+        "relevant_chunk": "The federal minimum wage was last increased on July 24, 2009, when it rose to $7.25 per hour. No subsequent legislation has amended the federal minimum wage rate."
+      }
+    ],
+    "reasoning": "The claim directly extracts the year and rate of the last federal minimum wage increase.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "SKEPTIC TRAP: Both the year (2009) and the rate ($7.25) are directly confirmed by the source. A skeptic might note that many states and localities have enacted higher minimums, but the claim specifically refers to the federal rate, which is accurate."
+  },
+  {
+    "claim_id": "GT-052",
+    "claim_text": "Medicaid expansion under the Affordable Care Act reduced the uninsured rate among low-income adults by approximately 50% in expansion states.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-052",
+        "source_title": "Sommers, B.D. et al. (2020) — Medicaid Expansion and the Uninsured, New England Journal of Medicine",
+        "source_url": "https://doi.org/10.1056/NEJMsa1900490",
+        "relevant_chunk": "In states that expanded Medicaid, the uninsured rate among adults with incomes below 138% of the federal poverty level fell from approximately 35% before expansion to 17% by 2019, a relative reduction of roughly 51%. Non-expansion states saw no comparable decline over the same period."
+      }
+    ],
+    "reasoning": "The claim paraphrases the approximately 50% relative reduction in uninsured rates among low-income adults.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The '~50%' paraphrase is within normal tolerance for the source's 'roughly 51%.' The causal verb 'reduced' is supported because the source provides both a pre/post comparison within expansion states (35% → 17%) and a contemporaneous comparison with non-expansion states showing 'no comparable decline' — a difference-in-differences structure that licenses causal inference. The scope restriction to expansion states matches the source's framing."
+  },
+  {
+    "claim_id": "GT-053",
+    "claim_text": "U.S. federal R&D spending as a share of GDP has declined steadily since the 1960s and now stands at less than 1%.",
+    "claim_type": "statistical",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-053",
+        "source_title": "American Association for the Advancement of Science (2023) — Historical Trends in Federal R&D",
+        "source_url": "https://www.aaas.org/programs/r-d-budget-and-policy/historical-trends-federal-rd",
+        "relevant_chunk": "Federal R&D investment peaked at approximately 2% of GDP in the mid-1960s during the Space Race. By 2022, federal R&D had declined to roughly 0.7% of GDP. Total R&D spending (public and private combined) stands at about 3.5% of GDP, driven largely by private sector investment."
+      }
+    ],
+    "reasoning": "The claim accurately describes the long-run decline and the current level below 1% of GDP.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source confirms a peak of ~2% in the 1960s, declining to ~0.7% by 2022, which is indeed less than 1%. The claim's characterization of a 'steady decline' is a reasonable description of the long-run trend."
+  },
+  {
+    "claim_id": "GT-054",
+    "claim_text": "The U.S. child poverty rate was cut in half between 2018 and 2021, largely due to the expanded Child Tax Credit.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-054",
+        "source_title": "Columbia Center on Poverty and Social Policy (2022) — Monthly Poverty Dashboard",
+        "source_url": "https://www.povertycenter.columbia.edu/news-internal/2022/monthlypovertyjanuary2022",
+        "relevant_chunk": "The Supplemental Poverty Measure child poverty rate fell from 15.8% in 2019 to a historic low of 5.2% in 2021. The expanded Child Tax Credit under the American Rescue Plan is estimated to have accounted for approximately 40% of the 2021 reduction. Other pandemic-era supports, including stimulus payments and SNAP expansions, also contributed substantially."
+      }
+    ],
+    "reasoning": "The claim asserts the rate was 'cut in half' between 2018 and 2021, but the source shows a larger drop (15.8% to 5.2%) from 2019. The causal attribution to the expanded CTC is also overstated.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "Two issues: first, the reduction from 15.8% to 5.2% is a two-thirds decline, not 'cut in half,' and the baseline year differs. Second, the source attributes only about 40% of the 2021 reduction to the expanded CTC, with other programs contributing substantially — the claim overstates the CTC's singular role."
+  },
+  {
+    "claim_id": "GT-055",
+    "claim_text": "Brazil's conditional cash transfer program Bolsa Família increased school enrollment among beneficiary children by an average of 5 percentage points.",
+    "claim_type": "causal",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-055",
+        "source_title": "Glewwe, P. & Kassouf, A.L. (2012) — The Impact of Bolsa Escola/Família on the Daily Attendance and Dropout Rates in Brazil, Journal of Development Economics",
+        "source_url": "https://doi.org/10.1016/j.jdeveco.2011.01.011",
+        "relevant_chunk": "Our fixed-effects estimation finds that Bolsa Escola/Família increased school attendance rates by approximately 5 percentage points among beneficiary children aged 6–15, compared to non-beneficiary households with similar observable characteristics."
+      }
+    ],
+    "reasoning": "The claim directly extracts the 5 percentage point attendance effect from the study.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The 5 percentage point figure is directly from the source. The claim uses 'enrollment' rather than 'attendance' — a minor conflation, but both refer to school participation metrics and the difference does not substantially misrepresent the finding."
+  },
+  {
+    "claim_id": "GT-056",
+    "claim_text": "The United States incarcerates more people per capita than any other country in the world.",
+    "claim_type": "comparative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-056",
+        "source_title": "World Prison Brief / Institute for Crime and Justice Policy Research (2023) — World Prison Population List",
+        "source_url": "https://www.prisonstudies.org/highest-to-lowest/prison_population_rate",
+        "relevant_chunk": "The United States has the highest prison population rate in the world at 531 per 100,000 of national population as of 2022. El Salvador ranked second at 487 per 100,000, followed by Rwanda at 434 per 100,000."
+      }
+    ],
+    "reasoning": "The claim directly extracts the comparative ranking from the World Prison Brief data.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "SKEPTIC TRAP: The source directly confirms the U.S. leads globally at 531 per 100,000. A skeptic might note that some authoritarian states have underreported data, but based on available evidence from the most authoritative source, the claim is accurate."
+  },
+
+  {
+    "claim_id": "GT-057",
+    "claim_text": "Increasing temperatures and declining snowpack in the Colorado River basin together suggest that current water allocation agreements will be unenforceable within 20 years.",
+    "claim_type": "synthesis",
+    "derivation": "cross_source",
+    "sources": [
+      {
+        "source_id": "S-057a",
+        "source_title": "U.S. Bureau of Reclamation (2023) — Colorado River Basin — Future Supply and Demand Study",
+        "source_url": "https://www.usbr.gov/lc/region/programs/crbstudy.html",
+        "relevant_chunk": "Under median climate projections, average annual natural flows in the Colorado River are projected to decline by 10–30% by mid-century due to warming-driven increases in evapotranspiration. Current Compact allocations total 16.5 million acre-feet annually, already exceeding average naturalized flows in recent decades."
+      },
+      {
+        "source_id": "S-057b",
+        "source_title": "Milly, P.C.D. & Dunne, K.A. (2020) — Colorado River Flow Dwindles as Warming-Driven Loss of Reflective Snow Energizes Evaporation, Science",
+        "source_url": "https://doi.org/10.1126/science.aay9187",
+        "relevant_chunk": "Snowpack-derived runoff has declined by approximately 9.5% per degree Celsius of regional warming. The loss of reflective snow cover creates a positive feedback that amplifies streamflow reductions beyond what precipitation trends alone would predict."
+      }
+    ],
+    "reasoning": "The synthesis combines projected flow declines with overallocation to infer future enforceability problems.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "Two key elements are ungrounded. 'Unenforceable' is a legal property neither source addresses; the sources describe hydrological shortfall, not failure of legal mechanisms like priority calls or curtailment. The '20-year' horizon also appears in neither source: S-057a specifies 'mid-century,' and S-057b gives a per-degree sensitivity with no timeframe. The hedge 'suggest' cannot substitute for missing grounding on elements the sources never address."
+  },
+  {
+    "claim_id": "GT-058",
+    "claim_text": "India's Mahatma Gandhi National Rural Employment Guarantee Act (MGNREGA) provides a legal guarantee of 150 days of wage employment per year to rural households.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-058",
+        "source_title": "Ministry of Rural Development, Government of India (2023) — MGNREGA Overview",
+        "source_url": "https://nrega.nic.in/netnrega/home.aspx",
+        "relevant_chunk": "MGNREGA guarantees at least 100 days of wage employment per financial year to every rural household whose adult members are willing to do unskilled manual work."
+      }
+    ],
+    "reasoning": "The claim states 150 days but the statute guarantees 100 days.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source clearly states the guarantee is 100 days, not 150 as the claim asserts. This is a factual error about the statute's core provision."
+  },
+  {
+    "claim_id": "GT-059",
+    "claim_text": "U.S. public transit ridership has not recovered to pre-pandemic levels, with 2022 ridership remaining approximately 30% below 2019 levels nationally.",
+    "claim_type": "statistical",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-059",
+        "source_title": "American Public Transportation Association (2023) — Public Transportation Ridership Report Q4 2022",
+        "source_url": "https://www.apta.com/research-technical-resources/transit-statistics/ridership-report/",
+        "relevant_chunk": "Total U.S. public transportation ridership in 2022 was approximately 7.5 billion trips, compared to 9.9 billion in 2019, representing a recovery to about 76% of pre-pandemic levels. Heavy rail and commuter rail showed the slowest recovery rates, while bus and light rail returned closer to pre-pandemic ridership."
+      }
+    ],
+    "ground_truth_verdict": "invalid"
+  },
+  {
+    "claim_id": "GT-060",
+    "claim_text": "Indonesia has the largest Muslim-majority population of any country in the world, with approximately 230 million Muslim citizens.",
+    "claim_type": "comparative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-060",
+        "source_title": "Pew Research Center (2023) — The Global Religious Landscape",
+        "source_url": "https://www.pewresearch.org/religion/2023/03/28/religious-composition-by-country/",
+        "relevant_chunk": "Indonesia has the world's largest Muslim population, with an estimated 236 million Muslims, representing about 87% of the country's population."
+      }
+    ],
+    "reasoning": "The claim states approximately 230 million; the source gives 236 million, which rounds to approximately 240 million.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The comparative ranking (largest Muslim-majority population) is directly confirmed. The figure of 'approximately 230 million' is a slightly low but reasonable approximation of 236 million for a policy memo context. The directional claim is accurate."
+  },
+  {
+    "claim_id": "GT-061",
+    "claim_text": "Stagnating wages for non-college workers in the United States and rising employer demand for digital skills suggest that workforce retraining programs at community colleges are underfunded relative to need.",
+    "claim_type": "synthesis",
+    "derivation": "cross_source",
+    "sources": [
+      {
+        "source_id": "S-061a",
+        "source_title": "Economic Policy Institute (2023) — The State of Working America Wages 2022",
+        "source_url": "https://www.epi.org/publication/state-of-working-america-wages-2022/",
+        "relevant_chunk": "Inflation-adjusted median wages for workers without a college degree were essentially flat between 2010 and 2021, rising less than 2% cumulatively. Workers in the bottom wage quintile saw real wage declines of 0.5% over the same period."
+      },
+      {
+        "source_id": "S-061b",
+        "source_title": "Burning Glass Technologies / Harvard Business School (2022) — The Emerging Degree Reset",
+        "source_url": "https://www.hbs.edu/managing-the-future-of-work/Documents/The_Emerging_Degree_Reset.pdf",
+        "relevant_chunk": "Employer job postings increasingly cite digital skill requirements even for middle-skill roles that historically required only a high school diploma. Positions in logistics, manufacturing, and healthcare support now list digital literacy requirements in over 45% of postings, up from under 25% in 2015. Community college enrollment in digital skills programs meets less than 15% of estimated employer demand."
+      }
+    ],
+    "reasoning": "The synthesis combines wage stagnation among non-college workers with growing digital skill demand and a gap in training supply.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "Both premises are supported: stagnant wages for non-college workers (Source A) and a large enrollment-to-demand gap in digital skills training (Source B). Source B reports enrollment meets under 15% of employer demand, which is consistent with — though does not uniquely establish — underfunding as a cause. The hedge 'suggest' accommodates this inferential step, making the synthesis defensible within normal policy-analysis tolerance."
+  },
+  {
+    "claim_id": "GT-062",
+    "claim_text": "The Affordable Care Act's coverage mandates led to an increase in the proportion of young adults aged 19–25 with health insurance from 63% to 74% between 2010 and 2012.",
+    "claim_type": "causal",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-062",
+        "source_title": "CDC National Health Interview Survey (2013) — Health Insurance Coverage: Early Release of Estimates",
+        "source_url": "https://www.cdc.gov/nchs/data/nhis/earlyrelease/insur201306.pdf",
+        "relevant_chunk": "Among adults aged 19–25, the percentage with health insurance coverage increased from 63.8% in 2010 to 73.7% in 2012, coinciding with the ACA provision allowing young adults to remain on parental insurance until age 26."
+      }
+    ],
+    "reasoning": "The claim accurately extracts the coverage rate increase for young adults, though uses 'mandates' rather than specifying the dependent coverage provision.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The numeric figures match the source (63.8% to 73.7%), but the causal framing does not. The source uses 'coinciding with,' which is correlational, while the claim asserts the ACA 'led to' the increase — an unsupported upgrade to causation. The claim also attributes the change to 'coverage mandates,' but the source identifies the dependent-coverage provision; the ACA's individual mandate did not take effect until 2014, outside the 2010–2012 window."
+  },
+  {
+    "claim_id": "GT-063",
+    "claim_text": "Vietnam's poverty rate declined from 58% in 1993 to under 5% by 2020, one of the fastest sustained reductions in recorded development history.",
+    "claim_type": "statistical",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-063",
+        "source_title": "World Bank (2022) — Vietnam Poverty Assessment",
+        "source_url": "https://openknowledge.worldbank.org/handle/10986/37709",
+        "relevant_chunk": "Vietnam's national poverty rate (based on the General Statistics Office definition) fell from 58% in 1993 to 4.8% in 2020. The World Bank describes Vietnam's poverty reduction as among the most dramatic in modern development history, driven by sustained growth, agricultural reform, and expanded social programs."
+      }
+    ],
+    "reasoning": "The claim accurately paraphrases the poverty reduction trajectory and contextualizes it historically.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "Both the 1993 (58%) and 2020 (4.8%, rounding to under 5%) figures are confirmed. The characterization as one of the fastest sustained reductions is directly supported by the source's own language."
+  },
+  {
+    "claim_id": "GT-064",
+    "claim_text": "U.S. infrastructure investment as a share of GDP has fallen behind peer nations, with the United States now ranking 16th among OECD countries on infrastructure quality.",
+    "claim_type": "comparative",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-064",
+        "source_title": "World Economic Forum (2023) — Global Competitiveness Report: Infrastructure Pillar",
+        "source_url": "https://www.weforum.org/reports/global-competitiveness-report-2023",
+        "relevant_chunk": "The United States ranked 13th globally on the infrastructure quality pillar in the 2023 Global Competitiveness Report, trailing Singapore, the Netherlands, Switzerland, Japan, and several other advanced economies. The U.S. score has declined from a peak ranking of 5th in 2007."
+      }
+    ],
+    "reasoning": "The claim states the U.S. ranks 16th among OECD countries, but the source gives a global ranking of 13th.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source gives a global ranking of 13th, not 16th among OECD countries. These are different metrics — a global rank includes non-OECD countries, and the specific number differs. The claim misreports both the ranking scope and the position."
+  },
+  {
+    "claim_id": "GT-065",
+    "claim_text": "Pakistan's total external debt exceeded $100 billion for the first time in 2022.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-065",
+        "source_title": "State Bank of Pakistan (2023) — Annual Report on External Debt",
+        "source_url": "https://www.sbp.org.pk/ecodata/extdebt.asp",
+        "relevant_chunk": "Pakistan's total external debt and liabilities stood at $126.3 billion as of June 2022."
+      }
+    ],
+    "reasoning": "The claim that external debt exceeded $100 billion for the first time in 2022 is a brief claim from a single brief source.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source confirms $126.3 billion in June 2022, which exceeds $100 billion. However, the claim's 'for the first time' is a historical-precedent assertion that the source does not support — no prior-year comparison is provided. For a direct_extraction derivation, adding an unverifiable claim of historical uniqueness goes beyond extraction."
+  },
+  {
+    "claim_id": "GT-066",
+    "claim_text": "Implicit bias training programs in U.S. law enforcement agencies have been shown to reduce racially disparate use-of-force incidents.",
+    "claim_type": "causal",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-066",
+        "source_title": "National Academies of Sciences, Engineering, and Medicine (2022) — Proactive Policing: Effects on Crime and Communities",
+        "source_url": "https://doi.org/10.17226/24928",
+        "relevant_chunk": "Despite widespread adoption, the evidence that implicit bias training reduces discriminatory policing behavior or use-of-force disparities is weak and inconsistent. Laboratory studies show short-term shifts in awareness, but field evaluations have not demonstrated sustained reductions in racially disparate outcomes. The National Academies conclude that implicit bias training alone is insufficient to address structural drivers of racial disparities in policing."
+      }
+    ],
+    "reasoning": "The claim asserts demonstrated effectiveness, but the source directly states the evidence is weak and inconsistent.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source explicitly states that evidence for effectiveness of implicit bias training on reducing racial disparities in use-of-force is 'weak and inconsistent' and that field evaluations have not demonstrated sustained reductions. The claim directly contradicts the source's conclusions."
+  },
+  {
+    "claim_id": "GT-067",
+    "claim_text": "The Philippines' remittance inflows equivalent to about 9% of GDP make them among the top remittance-dependent economies in Southeast Asia.",
+    "claim_type": "comparative",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-067",
+        "source_title": "World Bank (2023) — Migration and Development Brief 38",
+        "source_url": "https://www.knomad.org/publication/migration-and-development-brief-38",
+        "relevant_chunk": "Personal remittances received by the Philippines totaled $36.1 billion in 2022, equivalent to approximately 9.4% of GDP, making it among the largest remittance-receiving economies relative to GDP in Southeast Asia."
+      }
+    ],
+    "reasoning": "The claim accurately paraphrases the remittance-to-GDP figure and comparative characterization.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The 9% figure (source gives 9.4%), the dollar amount, and the comparative characterization are all supported. The rounding to 9% is appropriate for a policy memo."
+  },
+  {
+    "claim_id": "GT-068",
+    "claim_text": "Carbon pricing mechanisms covering at least 25% of global emissions are now in place in over 70 jurisdictions worldwide.",
+    "claim_type": "statistical",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-068",
+        "source_title": "World Bank (2023) — State and Trends of Carbon Pricing 2023",
+        "source_url": "https://openknowledge.worldbank.org/handle/10986/39796",
+        "relevant_chunk": "As of April 2023, 73 carbon pricing instruments were operational worldwide, covering 23% of global greenhouse gas emissions. These instruments include 36 emissions trading schemes and 37 carbon taxes implemented at the national and subnational level."
+      }
+    ],
+    "reasoning": "The claim says coverage exceeds 25% but the source reports 23%.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source reports 73 jurisdictions (consistent with 'over 70') but specifies coverage of 23% of global emissions, not 25% as the claim states. The jurisdiction count is accurate but the emissions coverage figure is overstated."
+  },
+  {
+    "claim_id": "GT-069",
+    "claim_text": "Tobacco taxation is widely considered the most cost-effective single intervention for reducing smoking prevalence in low- and middle-income countries.",
+    "claim_type": "normative",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-069",
+        "source_title": "WHO (2023) — MPOWER: A Policy Package to Reverse the Tobacco Epidemic",
+        "source_url": "https://www.who.int/publications/i/item/mpower",
+        "relevant_chunk": "Among tobacco control interventions, raising taxes and prices on tobacco products is consistently identified by WHO and health economists as the single most effective and cost-efficient measure to reduce tobacco use, particularly among youth and low-income populations in LMICs."
+      }
+    ],
+    "reasoning": "The claim paraphrases WHO's characterization of tobacco taxation as the most cost-effective single intervention.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly supports the claim, stating tobacco taxation is 'consistently identified' as the most effective and cost-efficient single measure. The claim is a faithful paraphrase of the normative content."
+  },
+  {
+    "claim_id": "GT-070",
+    "claim_text": "The United States spends more per pupil on K-12 education than any other OECD country.",
+    "claim_type": "comparative",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-070",
+        "source_title": "OECD (2023) — Education at a Glance 2023",
+        "source_url": "https://doi.org/10.1787/e13bef63-en",
+        "relevant_chunk": "Annual expenditure per student at primary and secondary level in the United States was $16,268 in 2020 (USD equivalent, PPP-adjusted), ranking 4th among OECD countries. Luxembourg ranked first at $22,036, followed by Norway and Austria."
+      }
+    ],
+    "reasoning": "The claim says the U.S. ranks first but the source shows it ranks 4th among OECD members.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source clearly places the U.S. 4th among OECD countries in per-pupil spending, behind Luxembourg, Norway, and Austria. The claim that the U.S. spends more than any other OECD country is directly contradicted."
+  },
+  {
+    "claim_id": "GT-071",
+    "claim_text": "Home visiting programs for at-risk families, such as the Nurse-Family Partnership, are associated with significant reductions in child maltreatment and improved child development outcomes.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-071",
+        "source_title": "Olds, D. et al. (2019) — Nurse-Family Partnership: 40 Years of Research, Pediatrics",
+        "source_url": "https://doi.org/10.1542/peds.2019-1107",
+        "relevant_chunk": "Randomized controlled trials across multiple sites show that Nurse-Family Partnership participants had 48% fewer child abuse and neglect reports through age 15 compared to control groups, and NFP children showed significantly higher cognitive test scores and school readiness at age 6. Effects were largest for children of low-income, unmarried mothers."
+      }
+    ],
+    "reasoning": "The claim paraphrases well-established evidence from RCTs on the NFP program.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source reports RCT evidence supporting both claim components: 48% reduction in child maltreatment reports and higher cognitive/school readiness outcomes. The claim's 'associated with' language is conservative relative to what RCTs license, making the paraphrase faithful and appropriately calibrated."
+  },
+  {
+    "claim_id": "GT-072",
+    "claim_text": "Mexico's PROSPERA conditional cash transfer program achieved universal coverage of eligible households by 2010.",
+    "claim_type": "statistical",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-072",
+        "source_title": "SEDESOL (2016) — PROSPERA Social Inclusion Program: Evaluation Report",
+        "source_url": "https://www.gob.mx/sedesol",
+        "relevant_chunk": "By 2016, PROSPERA reached approximately 6.1 million beneficiary families, representing an estimated 85–90% of households in the target eligible population. Coverage expanded rapidly through the 2000s but geographic and administrative gaps persisted, particularly in remote indigenous communities."
+      }
+    ],
+    "reasoning": "The claim asserts universal coverage by 2010, but the source shows only 85-90% coverage even by 2016.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source reports 85-90% coverage as of 2016 — six years after the claimed year — and explicitly notes persistent gaps. Universal coverage was never achieved. The claim both overstates the coverage level and misattributes the timing."
+  },
+  {
+    "claim_id": "GT-073",
+    "claim_text": "State renewable portfolio standards in the U.S. have been a primary driver of wind and solar energy deployment over the past two decades.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-073",
+        "source_title": "Lawrence Berkeley National Laboratory (2022) — Renewables Portfolio Standards 2022 Annual Status Report",
+        "source_url": "https://emp.lbl.gov/publications/renewables-portfolio-standards-2022",
+        "relevant_chunk": "State RPS policies have been a principal driver of renewable electricity deployment in the United States. An estimated 60% of all wind and solar capacity added between 2000 and 2020 was driven by RPS compliance obligations, making them one of the most impactful state-level clean energy policies enacted."
+      }
+    ],
+    "reasoning": "The claim paraphrases the LBNL finding about RPS policies as a primary driver of renewables deployment.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly describes RPS policies as 'a principal driver' of renewable deployment and quantifies the contribution at 60% of added capacity. The claim's characterization of RPS as 'a primary driver' is an accurate paraphrase."
+  },
+  {
+    "claim_id": "GT-074",
+    "claim_text": "Universal pre-K programs in the United States have produced consistent, lasting cognitive gains for participating children across all socioeconomic groups.",
+    "claim_type": "causal",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-074",
+        "source_title": "Bailey, D. et al. (2020) — Persistence and Fadeout of Educational Intervention Effects: Implications for Research and Practice, Journal of Research on Educational Effectiveness",
+        "source_url": "https://doi.org/10.1080/19345747.2019.1670162",
+        "relevant_chunk": "A review of pre-K program evaluations finds that measured cognitive gains at kindergarten entry frequently fade out by second or third grade. Effects are more persistent for disadvantaged children and those who transition to lower-quality elementary schools. Programs serving more advantaged populations show smaller and less durable cognitive effects."
+      }
+    ],
+    "reasoning": "The claim asserts consistent, lasting gains across all socioeconomic groups, but the source documents fade-out and differential effects.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source directly contradicts key elements of the claim. Cognitive gains frequently 'fade out' and are not consistent across groups — effects are more durable for disadvantaged children and smaller for more advantaged populations. The claim's characterization of 'consistent, lasting gains across all socioeconomic groups' overstates and misrepresents the evidence."
+  },
+  {
+    "claim_id": "GT-075",
+    "claim_text": "Bangladesh has achieved near-gender parity in primary and secondary school enrollment, with girls' enrollment now slightly exceeding boys' at both levels.",
+    "claim_type": "comparative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-075",
+        "source_title": "UNESCO UIS (2023) — Education Data: Bangladesh",
+        "source_url": "https://uis.unesco.org/en/country/bd",
+        "relevant_chunk": "Bangladesh's gender parity index for primary enrollment stood at 1.01 in 2022, and at 1.08 for secondary enrollment, meaning girls slightly outnumber boys at both levels. This represents a dramatic reversal from 1990, when boys significantly outnumbered girls at both levels."
+      }
+    ],
+    "reasoning": "The claim directly extracts the gender parity finding, accurately representing girls' enrollment exceeding boys at both levels.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly confirms a GPI of 1.01 at primary and 1.08 at secondary — both indicate girls' enrollment slightly exceeds boys. The claim accurately represents this as near-parity (primary) and slight female advantage (secondary)."
+  },
+  {
+    "claim_id": "GT-076",
+    "claim_text": "The U.S. opioid epidemic is primarily driven by illicitly manufactured fentanyl, which accounted for over 70% of all overdose deaths in 2022.",
+    "claim_type": "statistical",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-076",
+        "source_title": "CDC National Center for Health Statistics (2023) — Drug Overdose Deaths in the United States, 2001–2022",
+        "source_url": "https://www.cdc.gov/nchs/data/databriefs/db491.pdf",
+        "relevant_chunk": "Synthetic opioids, primarily illicitly manufactured fentanyl, were involved in 73,838 of 107,941 total drug overdose deaths in 2022, representing 68.4% of all overdose deaths. This proportion has increased from under 15% in 2016."
+      }
+    ],
+    "reasoning": "The claim states 'over 70%'; the source shows 68.4%.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The claim asserts 'over 70%,' which creates a hard floor that 68.4% cannot satisfy. The directional characterization (synthetic opioids drive most overdose deaths) is supported, but 'over 70%' is a threshold claim, and the source's 68.4% falls 1.6 points below it. Separately, the source attributes the 68.4% to synthetic opioids as a class, within which illicitly manufactured fentanyl is 'primary'; the claim's attribution of the full figure to fentanyl specifically is also slightly narrower than the source supports"
+  },
+  {
+    "claim_id": "GT-077",
+    "claim_text": "Expanding broadband access to rural and underserved U.S. communities is projected to generate significant economic returns, with studies estimating $1,200 to $2,000 in annual household income gains.",
+    "claim_type": "predictive",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-077",
+        "source_title": "Brookings Institution (2021) — Broadband Access Is a Social Determinant of Health",
+        "source_url": "https://www.brookings.edu/articles/broadband-access-is-a-social-determinant-of-health/",
+        "relevant_chunk": "Researchers have estimated that broadband access is associated with annual household income gains ranging from $1,200 to $2,000 in communities where adoption increases, largely through access to remote work, online markets, and digital financial services."
+      }
+    ],
+    "reasoning": "The claim paraphrases the estimated household income gains from broadband expansion.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The $1,200–$2,000 range matches the source, but the claim's predictive framing does not. The source reports an observed association in 'communities where adoption increases' — a retrospective correlational estimate, not a forward projection. The claim converts this into 'projected to generate… from expanding broadband access,' introducing three shifts the source does not license: correlational to causal ('associated with' → 'generate'), retrospective to prospective ('estimated' → 'projected'), and adoption to access (measured outcomes followed uptake, not infrastructure rollout). The numeric accuracy does not rescue a predictive claim whose predictive structure the source does not support."
+  },
+  {
+    "claim_id": "GT-078",
+    "claim_text": "Ethiopia's second-largest hydroelectric dam, the Grand Ethiopian Renaissance Dam, will generate approximately 6,000 megawatts of electricity at full capacity.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-078",
+        "source_title": "Ethiopian Electric Power (2023) — Grand Ethiopian Renaissance Dam Project Overview",
+        "source_url": "https://www.eep.com.et/gerd",
+        "relevant_chunk": "The Grand Ethiopian Renaissance Dam, currently under construction on the Blue Nile, is designed to produce 5,150 megawatts of installed hydroelectric capacity, making it the largest hydroelectric project in Africa."
+      }
+    ],
+    "reasoning": "The claim misstates the GERD's capacity (6,000 MW vs. 5,150 MW) and incorrectly describes it as Ethiopia's second-largest dam when the source calls it Africa's largest.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "Two errors: the installed capacity is 5,150 MW, not 6,000 MW, and the source describes it as Africa's largest hydroelectric project — making it Ethiopia's largest, not second-largest as the claim states."
+  },
+  {
+    "claim_id": "GT-079",
+    "claim_text": "Rising maternal mortality and inadequate access to prenatal care in rural U.S. counties together suggest that obstetric deserts are producing measurable health disparities that federal maternal health programs have not yet addressed.",
+    "claim_type": "synthesis",
+    "derivation": "cross_source",
+    "sources": [
+      {
+        "source_id": "S-079-CONSOLIDATED",
+        "source_title": "Annual Review of Rural Health Statistics (2023)",
+        "relevant_chunk": "Statistical reports indicate that 36% of U.S. counties are maternity care deserts, lacking any hospitals with obstetric services. Separately, national data shows that maternal mortality rates increased to 32.9 per 100,000 live births in 2021, with rural populations seeing the most significant increase in deaths over the last decade."
+      }
+    ],
+    "reasoning": "The synthesis combines geographic access gaps with rising maternal mortality rates to infer unaddressed policy gaps.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "Two premises are supported: maternity care deserts concentrated in rural counties (Source A) and rising rural maternal mortality with a widening rural-urban gap (Source B). However, the claim introduces two elements the sources do not license. First, 'obstetric deserts are producing measurable health disparities' upgrades correlation to causation, which neither source establishes. Second, 'federal maternal health programs have not yet addressed' introduces an institutional actor that neither source mentions; the widening gap is consistent with but does not establish program inadequacy. 'Suggest' is a single hedge that cannot simultaneously carry a correlation-to-causation upgrade and an unsupported policy attribution."
+  },
+  {
+    "claim_id": "GT-080",
+    "claim_text": "Germany's Energiewende has achieved a 65% share of renewable electricity generation as of 2023.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-080",
+        "source_title": "Fraunhofer ISE (2023) — Energy Charts: Annual Power Generation in Germany",
+        "source_url": "https://www.energy-charts.info/charts/energy/chart.htm",
+        "relevant_chunk": "Renewable energy sources accounted for 59.7% of Germany's net electricity generation in the first half of 2023, driven by record wind and solar output. Full-year 2022 renewables share was 46%."
+      }
+    ],
+    "reasoning": "The claim states 65% but the source shows 46% for full-year 2022 and 59.7% for H1 2023.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source does not support a 65% renewable share. Full-year 2022 was 46%, and even the H1 2023 figure of 59.7% — which represents a strong period — does not reach 65%. The claim overstates the achieved renewable share."
+  },
+  {
+    "claim_id": "GT-081",
+    "claim_text": "Providing conditional cash transfers to adolescent girls in Tanzania was associated with significantly lower rates of early marriage and HIV infection.",
+    "claim_type": "statistical",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-081",
+        "source_title": "Baird, S. et al. (2016) — Cash or Condition? Evidence from a Cash Transfer Experiment, Quarterly Journal of Economics",
+        "source_url": "https://doi.org/10.1093/qje/qjw001",
+        "relevant_chunk": "Our randomized evaluation of the Tanzania Social Action Fund's cash transfer program for adolescent girls found that conditional transfers reduced early marriage by 44% and HIV prevalence by 62% compared to a control group at the two-year follow-up. Unconditional transfers also reduced marriage rates but showed smaller, non-significant effects on HIV prevalence."
+      }
+    ],
+    "reasoning": "The claim accurately paraphrases the findings from the Tanzania RCT on conditional cash transfers.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly supports both outcomes: reduced early marriage (44%) and reduced HIV (62%) for conditional cash transfers in Tanzania. The claim uses 'associated with' appropriately and does not overstate the magnitude of effects."
+  },
+  {
+    "claim_id": "GT-082",
+    "claim_text": "The U.S. scored lower than the OECD average on all three domains of the 2022 PISA assessment: reading, mathematics, and science.",
+    "claim_type": "comparative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-082",
+        "source_title": "OECD (2023) — PISA 2022 Results: Learning During — and From — Disruption",
+        "source_url": "https://www.oecd.org/pisa/publications/pisa-2022-results.htm",
+        "relevant_chunk": "In PISA 2022, the United States scored above the OECD average in reading (504 vs. OECD average 476) and science (499 vs. 485), but below the OECD average in mathematics (465 vs. 472)."
+      }
+    ],
+    "reasoning": "The claim states the U.S. scored below the OECD average in all three domains, but the source shows it scored above average in reading and science.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source directly contradicts the claim: the U.S. scored above the OECD average in reading and science, and only below average in mathematics. The claim incorrectly states below-average performance in all three domains."
+  },
+  {
+    "claim_id": "GT-083",
+    "claim_text": "Pay transparency laws at the state level in the U.S. are associated with reductions in gender wage gaps in the sectors where they have been implemented.",
+    "claim_type": "statistical",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-083",
+        "source_title": "Cullen, Z. & Pakzad-Hurson, B. (2023) — Equilibrium Effects of Pay Transparency, Econometrica",
+        "source_url": "https://doi.org/10.3982/ECTA19529",
+        "relevant_chunk": "Using quasi-experimental variation from state pay transparency mandates, we find that pay transparency is associated with a 2–3 percentage point reduction in within-firm gender wage gaps, primarily by compressing the distribution of wages paid to male workers. Effects were strongest in industries with high wage variance and large pre-existing gender gaps."
+      }
+    ],
+    "reasoning": "The claim paraphrases the finding that pay transparency laws reduce gender wage gaps.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly supports the claim using quasi-experimental evidence. The 2-3 percentage point reduction in gender wage gaps is statistically significant, and the claim's conditional framing ('associated with') is appropriate. The geographic scope (state level) matches."
+  },
+  {
+    "claim_id": "GT-084",
+    "claim_text": "South Korea's total fertility rate fell below 1.0 in 2023, the lowest ever recorded for any country.",
+    "claim_type": "comparative",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-084",
+        "source_title": "Statistics Korea (2024) — Birth and Death Statistics: 2023 Preliminary Results",
+        "source_url": "https://kostat.go.kr/board.es?mid=a20301010000&bid=204",
+        "relevant_chunk": "South Korea's total fertility rate fell to 0.72 in 2023, down from 0.78 in 2022 and the lowest figure recorded in the country's history. This is also the lowest total fertility rate recorded in any country in the world with available data."
+      }
+    ],
+    "reasoning": "The claim accurately reflects the record-low TFR and comparative global ranking.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "SKEPTIC TRAP: The source confirms a TFR of 0.72 in 2023, below 1.0, and explicitly states it is the lowest recorded for any country. The claim accurately reports both the threshold crossed and the comparative context."
+  },
+  {
+    "claim_id": "GT-085",
+    "claim_text": "Declining rates of civic participation and rising political polarization in the United States suggest that democratic institutions are at measurably greater risk than in previous decades.",
+    "claim_type": "synthesis",
+    "derivation": "cross_source",
+    "sources": [
+      {
+        "source_id": "S-085-COMBINED",
+        "source_title": "Integrated Analysis of U.S. Democratic Trends (2022-2024)",
+        "relevant_chunk": "Recent longitudinal data indicates that public trust in U.S. democratic institutions has plummeted, with 65% of citizens reporting the system works poorly—a significant increase from 38% in 2018. Simultaneously, comparative studies on 12 advanced democracies show the U.S. has experienced the sharpest rise in affective polarization since 1978, characterized by a widening partisan animosity gap. These combined trends of institutional distrust and social fragmentation mark a departure from the relative stability of previous decades."
+      }
+    ],
+    "reasoning": "The synthesis combines institutional trust decline and polarization data to infer heightened institutional risk.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The two trends are well-documented: declining civic trust and participation (Source A) and the largest increase in affective polarization among peer democracies (Source B). The inference that these trends place democratic institutions at greater risk than in previous decades is reasonable and well-supported. The claim uses 'suggest' appropriately."
+  },
+  {
+    "claim_id": "GT-086",
+    "claim_text": "Colombia's total homicide rate declined by more than 90% between its peak in the early 1990s and 2022.",
+    "claim_type": "statistical",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-086",
+        "source_title": "InSight Crime (2023) — Colombia Homicide Rate 2022 Annual Report",
+        "source_url": "https://insightcrime.org/colombia-organized-crime-news/colombia-homicide-rate-2022/",
+        "relevant_chunk": "Colombia's homicide rate in 2022 stood at approximately 24 per 100,000 population, compared to a peak of 80 per 100,000 in 1991. This represents a 70% reduction from peak levels, though violence has increased slightly since 2017."
+      }
+    ],
+    "reasoning": "The claim asserts a 90%+ reduction, but the source documents a 70% reduction from peak.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source clearly states a 70% reduction from the 1991 peak (80 to approximately 24 per 100,000), not 'more than 90%' as the claim asserts. The claim significantly overstates the decline."
+  },
+  {
+    "claim_id": "GT-087",
+    "claim_text": "The U.S. unhoused population increased by approximately 12% between 2020 and 2023, driven largely by rising rents and the expiration of pandemic-era eviction protections.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-087",
+        "source_title": "U.S. Department of Housing and Urban Development (2023) — Annual Homeless Assessment Report to Congress",
+        "source_url": "https://www.huduser.gov/portal/datasets/ahar.html",
+        "relevant_chunk": "The 2023 Point-in-Time count found 653,100 people experiencing homelessness on a single night, up 12% from the 2020 count of 580,529. HUD identified rising housing costs and the end of pandemic-era emergency rental assistance as primary drivers of the increase."
+      }
+    ],
+    "reasoning": "The claim accurately paraphrases both the magnitude of the increase and HUD's stated drivers.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The 12% increase (580,529 to 653,100) is directly confirmed. HUD identifies rising housing costs and expiration of rental assistance as primary drivers — consistent with the claim's reference to 'rising rents and expiration of pandemic-era eviction protections.' The paraphrase is accurate."
+  },
+  {
+    "claim_id": "GT-088",
+    "claim_text": "National community health worker programs in low-income countries should be financed primarily through domestic budgets rather than donor funding to ensure sustainability.",
+    "claim_type": "normative",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-088",
+        "source_title": "WHO (2022) — WHO Guideline on Health Policy and System Support to Optimize Community Health Worker Programmes",
+        "source_url": "https://www.who.int/publications/i/item/9789240033863",
+        "relevant_chunk": "WHO strongly recommends that community health worker programs be formally integrated into national health systems with sustainable domestic financing. The guideline notes that programs relying predominantly on external donor funding are more vulnerable to sudden scale-down or termination. Integration into national budgets does not preclude supplementary donor support during scale-up phases."
+      }
+    ],
+    "reasoning": "The claim paraphrases the WHO recommendation for domestic financing of CHW programs.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly recommends domestic financing integration and explicitly links donor-dependent programs to sustainability risks — supporting the claim's normative stance. The claim does not overstate by using 'primarily' while the source allows for supplementary donor support."
+  },
+  {
+    "claim_id": "GT-089",
+    "claim_text": "School-based mental health programs in the United States reduce student absenteeism and improve academic performance when implemented with fidelity.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-089",
+        "source_title": "Duong, M.T. et al. (2021) — Systematic Review of School-Based Mental Health Interventions and Their Effects on Academic Outcomes, School Mental Health",
+        "source_url": "https://doi.org/10.1007/s12310-021-09473-1",
+        "relevant_chunk": "Our systematic review of 37 randomized and quasi-experimental studies found that school-based mental health interventions resulted in reductions in absenteeism (weighted mean effect d=0.22) and improvements in GPA and standardized test scores (d=0.18). Effect sizes were larger in studies with documented fidelity monitoring."
+      }
+    ],
+    "reasoning": "The claim paraphrases the review's findings on absenteeism and academic performance with the fidelity qualifier.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source supports both outcomes (reduced absenteeism and improved academic performance) with effect size estimates, and the finding that effects are larger with fidelity monitoring supports the claim's 'when implemented with fidelity' qualifier."
+  },
+  {
+    "claim_id": "GT-090",
+    "claim_text": "Japan's national debt-to-GDP ratio is the highest among all G7 countries, exceeding 260% in 2022.",
+    "claim_type": "comparative",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-090",
+        "source_title": "IMF (2023) — World Economic Outlook Database, April 2023",
+        "source_url": "https://www.imf.org/en/Publications/WEO/weo-database/2023/April",
+        "relevant_chunk": "Japan's gross general government debt was 261.3% of GDP in 2022, the highest ratio among G7 economies and among the highest globally. Italy ranked second in the G7 at 144.4%."
+      }
+    ],
+    "reasoning": "The claim accurately extracts Japan's debt-to-GDP ratio and comparative G7 ranking.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "SKEPTIC TRAP: Both the ratio (261.3%, rounded to 'exceeding 260%') and the G7 comparative ranking are directly confirmed. A skeptic might note that net debt, which accounts for Japan's large government assets, is significantly lower, but the claim specifies gross debt consistent with the IMF measure."
+  },
+  {
+    "claim_id": "GT-091",
+    "claim_text": "Increased agricultural extension support and improved market access in rural Bangladesh, combined with declining child stunting rates, suggest that integrated rural development programs are yielding measurable nutrition gains.",
+    "claim_type": "synthesis",
+    "derivation": "cross_source",
+    "sources": [
+      {
+        "source_id": "S-091-COMBINED",
+        "source_title": "Comprehensive Rural Development Review: Bangladesh (2022)",
+        "relevant_chunk": "Longitudinal analysis of rural Bangladesh shows that agricultural extension reach expanded from 28% to 47% of smallholders between 2015 and 2021, significantly improving input and market access. Simultaneously, national health data confirms child stunting prevalence dropped from 36.1% to 24.1% over a similar period. While these trends occurred in tandem, the DHS report indicates the most rapid nutritional improvements were localized in rural districts where agricultural and nutrition-focused government programs were implemented concurrently."
+      }
+    ],
+    "reasoning": "The synthesis connects agricultural service expansion data with public health stunting statistics found within the text to infer a causal link between integrated development and nutrition gains.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "Both premises are well-supported: agricultural extension reach expanded significantly (28% to 47% of smallholders) and child stunting fell substantially (36.1% to 24.1%). The source itself notes the most rapid nutritional improvements were localized in districts with concurrent agricultural and nutrition programs, supporting the inference of integrated program impact. The claim uses 'suggest' appropriately to hedge the causal inference."
+  },
+  {
+    "claim_id": "GT-092",
+    "claim_text": "Climate change is projected to improve global agricultural output by 2–6% per decade for the remainder of the century.",
+    "claim_type": "predictive",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-092",
+        "source_title": "Ciais, P. et al. in IPCC (2022) — Climate Change and Land: Chapter 5 Food Security",
+        "source_url": "https://www.ipcc.ch/srccl/chapter/chapter-5/",
+        "relevant_chunk": "Climate change is projected to negatively affect crop yields globally, with projected declines of 2–6% per decade from 2030 onwards under mid-range warming scenarios (RCP 4.5). Impacts will be regionally differentiated, with tropical regions facing disproportionate losses and some high-latitude regions potentially seeing initial gains."
+      }
+    ],
+    "reasoning": "The claim accurately paraphrases the IPCC projection on agricultural output declines per decade.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The claim states climate change will 'improve' global agricultural output, but the source states the opposite: projected declines of 2–6% per decade. The 2–6% figure is correct but the direction is completely reversed — the claim converts a decline projection into an improvement projection."
+  },
+  {
+    "claim_id": "GT-093",
+    "claim_text": "Expanding earned income tax credit generosity in the U.S. has no effect on labor force participation among single mothers.",
+    "claim_type": "causal",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-093",
+        "source_title": "Eissa, N. & Liebman, J. (1996) — Labor Supply Response to the Earned Income Tax Credit, Quarterly Journal of Economics",
+        "source_url": "https://doi.org/10.2307/2946689",
+        "relevant_chunk": "We find that the EITC expansions of 1986 and 1990 were associated with a 2.8 percentage point increase in labor force participation rates among single mothers, one of the largest measured labor supply responses to a tax policy change in the empirical literature."
+      }
+    ],
+    "reasoning": "The claim asserts no effect, directly contradicting the well-established empirical finding.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source directly contradicts the claim, finding a 2.8 percentage point increase in labor force participation for single mothers — described as one of the largest measured labor supply responses to a tax policy change in the literature. The claim's assertion of 'no effect' is the opposite of what the evidence shows."
+  },
+  {
+    "claim_id": "GT-094",
+    "claim_text": "Peru's chronic child malnutrition rate fell by more than half between 2007 and 2016, from 28.5% to 13.1%.",
+    "claim_type": "statistical",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-094",
+        "source_title": "INEI Peru (2017) — National Demographic and Family Health Survey 2016",
+        "source_url": "https://www.inei.gob.pe/media/MenuRecursivo/publicaciones_digitales/Est/Lib1433/",
+        "relevant_chunk": "Chronic malnutrition (stunting) among children under 5 in Peru declined from 28.5% in 2007 to 13.1% in 2016, representing a 54% relative reduction driven by the Juntos conditional cash transfer program and expanded health and nutrition services."
+      }
+    ],
+    "reasoning": "The claim directly extracts the chronic malnutrition figures showing a more than 50% reduction.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "Both figures (28.5% in 2007, 13.1% in 2016) are directly from the source. The reduction of 15.4 percentage points is indeed 'more than half' in relative terms (54%). The claim accurately represents this well-documented development success."
+  },
+  {
+    "claim_id": "GT-095",
+    "claim_text": "Stagnating labor productivity growth in U.S. service sectors and accelerating automation investment suggest that technology adoption is primarily displacing workers rather than augmenting their productivity.",
+    "claim_type": "synthesis",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-095a",
+        "source_title": "Bureau of Labor Statistics (2023) — Productivity and Costs: Annual Measures",
+        "source_url": "https://www.bls.gov/productivity/",
+        "relevant_chunk": "Labor productivity growth in the U.S. service sector averaged 0.8% annually from 2010 to 2022, compared to 1.8% annually in the 1990s and 1.4% in the 2000s."
+      },
+      {
+        "source_id": "S-095b",
+        "source_title": "McKinsey Global Institute (2022) — The Future of Work After COVID-19",
+        "source_url": "https://www.mckinsey.com/featured-insights/future-of-work/the-future-of-work-after-covid-19",
+        "relevant_chunk": "Automation investment in U.S. service industries accelerated markedly during 2020–2022, with robotics and AI deployment in food service, logistics, and retail increasing by 50% in two years. Productivity impacts of recent automation investments may not yet be captured in aggregate statistics given typical adoption lags."
+      }
+    ],
+    "reasoning": "The agent infers that automation is displacing rather than augmenting workers, but the sources do not support this conclusion — and Source B explicitly notes the lag between investment and measured productivity.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The inference that automation is 'primarily displacing rather than augmenting' workers is unsupported. Source B explicitly cautions that productivity impacts may not yet be captured due to adoption lags — suggesting the productivity slowdown and automation acceleration are not necessarily contradictory. The two trends do not logically imply displacement over augmentation, and the claim should use much more cautious language."
+  },
+  {
+    "claim_id": "GT-096",
+    "claim_text": "China surpassed the United States in total renewable energy capacity in 2013.",
+    "claim_type": "comparative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-096",
+        "source_title": "IRENA (2023) — Renewable Capacity Statistics 2023",
+        "source_url": "https://www.irena.org/publications/2023/Mar/Renewable-capacity-statistics-2023",
+        "relevant_chunk": "China has been the world's leading country in total installed renewable energy capacity since 2013, when it overtook the United States. By end-2022, China's total renewable capacity reached 1,161 GW, compared to 352 GW for the United States."
+      }
+    ],
+    "reasoning": "The claim directly extracts the year China surpassed the U.S. in renewable capacity.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly confirms 2013 as the year China surpassed the U.S. in total renewable energy capacity. The claim is a direct and accurate extraction."
+  },
+  {
+    "claim_id": "GT-097",
+    "claim_text": "Evidence from low- and middle-income countries shows that community-based health insurance schemes reduce catastrophic health expenditure among enrolled households by roughly 40–50%.",
+    "claim_type": "causal",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-097",
+        "source_title": "Spaan, E. et al. (2012) — The Impact of Health Insurance in Africa and Asia: A Systematic Review, Bulletin of the World Health Organization",
+        "source_url": "https://doi.org/10.2471/BLT.11.097873",
+        "relevant_chunk": "Our systematic review of 34 studies on community-based health insurance in LMICs found that enrolled households experienced 40–55% lower rates of catastrophic health expenditure compared to uninsured households. Effect sizes were larger in schemes with higher coverage of inpatient care."
+      }
+    ],
+    "reasoning": "The claim paraphrases the 40-55% reduction range found in the systematic review.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source reports a 40-55% reduction range; the claim's 40-50% range falls within this and is a defensible approximation for policy memo use. The paraphrase accurately characterizes the finding."
+  },
+  {
+    "claim_id": "GT-098",
+    "claim_text": "The U.S. gender wage gap has been fully closed among workers aged 25–34 with equivalent education levels.",
+    "claim_type": "statistical",
+    "derivation": "agent_inference",
+    "sources": [
+      {
+        "source_id": "S-098",
+        "source_title": "Bureau of Labor Statistics (2023) — Highlights of Women's Earnings in 2022",
+        "source_url": "https://www.bls.gov/opub/reports/womens-earnings/2022/home.htm",
+        "relevant_chunk": "Among full-time wage and salary workers aged 25–34, women earned 93 cents for every dollar earned by men in 2022. Among those with a bachelor's degree or higher, the ratio was 91 cents, reflecting that controlling for education does not eliminate the gender earnings gap."
+      }
+    ],
+    "reasoning": "The claim asserts the gap is 'fully closed' but the source shows women earn 91-93 cents per dollar even for equivalent age and education groups.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source directly contradicts the claim. Women aged 25-34 earned 93 cents per dollar overall, and 91 cents among college-educated workers — meaning a 7-9% gap persists even controlling for education. The claim's assertion that the gap has been 'fully closed' is not supported."
+  },
+  {
+    "claim_id": "GT-099",
+    "claim_text": "Rwanda is the only country in the world where women hold a majority of parliamentary seats.",
+    "claim_type": "comparative",
+    "derivation": "statistical",
+    "sources": [
+      {
+        "source_id": "S-099",
+        "source_title": "Inter-Parliamentary Union (2023) — Women in National Parliaments: World Classification",
+        "source_url": "https://data.ipu.org/women-ranking",
+        "relevant_chunk": "As of October 2023, Rwanda had the highest proportion of women in its lower or single house at 61.3%. Cuba (55.7%), Nicaragua (51.7%), Iceland (47.6%), and New Zealand (50.0%) also reported high shares. Multiple countries exceed 50% in at least one chamber."
+      }
+    ],
+    "reasoning": "The claim says Rwanda is the 'only' country with a female parliamentary majority, but the source shows several others exceed 50%.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source lists multiple countries (Cuba, Nicaragua, New Zealand, Iceland) with female representation at or above 50%, directly contradicting the claim that Rwanda is the only such country. While Rwanda does lead globally in its chamber, the claim's 'only' characterization is inaccurate."
+  },
+  {
+    "claim_id": "GT-100",
+    "claim_text": "Soda taxes implemented in U.S. cities have reduced sugary beverage consumption by approximately 25–30% in taxed jurisdictions.",
+    "claim_type": "statistical",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-100",
+        "source_title": "Grummon, A.H. et al. (2019) — Designing Better Sugary Drink Taxes, Science",
+        "source_url": "https://doi.org/10.1126/science.aav1095",
+        "relevant_chunk": "Studies of soda taxes in Philadelphia, Boulder, and Oakland found average reductions in taxed beverage sales of 30–35% in the year following implementation, with the largest effects in lower-income neighborhoods. Substitution to untaxed beverages partially offset health gains."
+      }
+    ],
+    "reasoning": "The claim states 25-30% reduction; the source reports 30-35%.",
+    "ground_truth_verdict": "invalid",
+    "ground_truth_rationale": "The source reports 30-35% reductions in taxed beverage sales, not 25-30% as the claim states. The claim's range is lower than and does not overlap with the source's range. While the difference is modest, the source's specific figures should be reported accurately in a policy memo context."
+  },
+  {
+    "claim_id": "GT-101",
+    "claim_text": "Universal basic income pilots in Finland showed that recipients experienced significantly improved mental health and wellbeing compared to a control group receiving standard unemployment benefits.",
+    "claim_type": "comparative",
+    "derivation": "paraphrase",
+    "sources": [
+      {
+        "source_id": "S-101",
+        "source_title": "Kangas, O. et al. (2020) — The Basic Income Experiment 2017–2018 in Finland: Preliminary Results, Government of Finland Ministry of Social Affairs and Health",
+        "source_url": "https://julkaisut.valtioneuvosto.fi/handle/10024/162219",
+        "relevant_chunk": "Participants in the UBI pilot reported significantly higher wellbeing and mental health scores than the control group. The wellbeing index score among recipients was 0.17 standard deviations higher than the control group, a statistically significant difference. Recipients also reported lower levels of stress, depression, and sadness."
+      }
+    ],
+    "reasoning": "The claim accurately paraphrases the mental health and wellbeing findings from the Finland UBI pilot.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source directly supports significantly improved mental health and wellbeing among UBI recipients compared to the control group (0.17 SD difference, statistically significant). The claim is a faithful paraphrase of the key finding."
+  },
+  {
+    "claim_id": "GT-102",
+    "claim_text": "Declining enrollment in U.S. teacher preparation programs and rising teacher turnover rates in high-poverty districts suggest that the country faces a structural teacher shortage that targeted loan forgiveness and compensation reforms alone cannot resolve.",
+    "claim_type": "synthesis",
+    "derivation": "cross_source",
+    "sources": [
+      {
+        "source_id": "S-102a",
+        "source_title": "Learning Policy Institute (2022) — The Teacher Shortage: What We Know and What We Can Do",
+        "source_url": "https://learningpolicyinstitute.org/product/teacher-shortage",
+        "relevant_chunk": "Enrollment in teacher preparation programs fell by 35% between 2009 and 2020. The shortage is most acute in high-need fields — special education, bilingual education, and STEM — and in schools serving high proportions of low-income students and students of color."
+      },
+      {
+        "source_id": "S-102b",
+        "source_title": "Ingersoll, R. et al. (2022) — The Magnitude, Destinations, and Determinants of Teacher Turnover, Teacher College Record",
+        "source_url": "https://doi.org/10.1177/01614681211052812",
+        "relevant_chunk": "Annual teacher turnover in high-poverty schools averages 20–25%, approximately twice the rate in low-poverty schools. Surveys of departing teachers consistently rank working conditions — administrative support, safety, and professional autonomy — above compensation as primary reasons for leaving."
+      }
+    ],
+    "reasoning": "The synthesis combines supply-side (enrollment decline) and demand-side (high turnover in high-poverty schools) trends to infer a structural shortage that compensation alone cannot fix.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The synthesis is well-supported: enrollment declines confirm supply shortfalls (Source A), and Source B's finding that working conditions rank above compensation as turnover drivers directly supports the inference that compensation reforms alone are insufficient. The claim uses appropriate hedging ('suggest') and does not overstate."
+  },
+  {
+    "claim_id": "GT-103",
+    "claim_text": "Niger has the highest total fertility rate in the world at approximately 7.0 births per woman.",
+    "claim_type": "comparative",
+    "derivation": "direct_extraction",
+    "sources": [
+      {
+        "source_id": "S-103",
+        "source_title": "World Bank (2023) — World Development Indicators: Fertility Rate, Total",
+        "source_url": "https://data.worldbank.org/indicator/SP.DYN.TFRT.IN",
+        "relevant_chunk": "Niger's total fertility rate was 6.8 births per woman in 2022, the highest of any country in the World Bank database."
+      }
+    ],
+    "reasoning": "The claim states approximately 7.0 when the source gives 6.8, and the comparative ranking is confirmed.",
+    "ground_truth_verdict": "valid",
+    "ground_truth_rationale": "The source confirms Niger has the highest TFR globally, and the figure of 6.8 is reasonably approximated as 'approximately 7.0' for a policy memo context. The comparative claim is directly supported."
+  }
+]
