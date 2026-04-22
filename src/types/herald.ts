@@ -15,6 +15,12 @@ export type MeaningDriftLabel =
 
 export type DebatePersona = 'domain_expert' | 'methodologist' | 'skeptic';
 
+export interface TokenUsage {
+  input_tokens: number;
+  output_tokens: number;
+  api_calls: number;
+}
+
 export interface TierOutput {
   tier_id: 1 | 2 | 3 | 4;
   verdict: Verdict;
@@ -22,6 +28,7 @@ export interface TierOutput {
   reasoning: string;
   suggested_revision?: string;
   meaning_drift_label?: MeaningDriftLabel | null;
+  usage?: TokenUsage;
 }
 
 export interface DebateOutput {

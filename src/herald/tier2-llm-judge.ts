@@ -330,6 +330,9 @@ export async function evaluateWithLLMJudge(
     const userMessage = buildUserMessage(claim, tier1Result, memoSummary);
 
     let parsed: unknown;
+    let totalInputTokens = 0;
+    let totalOutputTokens = 0;
+    let totalApiCalls = 0;
 
     // First attempt: structured tool calling
     let usedFallback = false;
@@ -345,6 +348,12 @@ export async function evaluateWithLLMJudge(
           { role: 'user', content: userMessage },
         ],
       });
+
+      totalApiCalls++;
+      if (response.usage != null) {
+        totalInputTokens += response.usage.prompt_tokens;
+        totalOutputTokens += response.usage.completion_tokens;
+      }
 
       const toolCall = response.choices[0]?.message?.tool_calls?.[0];
       const plainTextContent = response.choices[0]?.message?.content ?? '';
@@ -371,7 +380,7 @@ export async function evaluateWithLLMJudge(
     } catch (firstError) {
       if (!isToolUseFailedError(firstError)) throw firstError;
 
-      // Groq rejected the function-call format — retry without tools
+      // Provider rejected the function-call format — retry without tools
       usedFallback = true;
       const fallbackResponse = await getClient().chat.completions.create({
         model: JUDGE_MODEL,
@@ -382,6 +391,12 @@ export async function evaluateWithLLMJudge(
           { role: 'user', content: userMessage + JSON_FALLBACK_SUFFIX },
         ],
       });
+
+      totalApiCalls++;
+      if (fallbackResponse.usage != null) {
+        totalInputTokens += fallbackResponse.usage.prompt_tokens;
+        totalOutputTokens += fallbackResponse.usage.completion_tokens;
+      }
 
       const text = fallbackResponse.choices[0]?.message?.content ?? '';
       const jsonMatch = /\{[\s\S]*\}/.exec(text);
@@ -399,6 +414,11 @@ export async function evaluateWithLLMJudge(
     }
 
     const result = applyDecisionLogic(parsed);
+    result.usage = {
+      input_tokens: totalInputTokens,
+      output_tokens: totalOutputTokens,
+      api_calls: totalApiCalls,
+    };
 
     span.end({
       verdict: result.verdict,

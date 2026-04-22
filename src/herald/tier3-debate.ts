@@ -211,6 +211,22 @@ function buildClaimContext(claim: NotesLogEntry, tier2Output: TierOutput): strin
 }
 
 // ---------------------------------------------------------------------------
+// Internal result types that carry token usage alongside outputs
+// ---------------------------------------------------------------------------
+
+interface PersonaCallResult {
+  output: DebateOutput;
+  inputTokens: number;
+  outputTokens: number;
+}
+
+interface JudgeCallResult {
+  synthesis: SynthesisInput;
+  inputTokens: number;
+  outputTokens: number;
+}
+
+// ---------------------------------------------------------------------------
 // Single persona call
 // ---------------------------------------------------------------------------
 
@@ -218,7 +234,7 @@ async function callPersona(
   persona: DebatePersona,
   systemPrompt: string,
   claimContext: string,
-): Promise<DebateOutput> {
+): Promise<PersonaCallResult> {
   const response = await getClient().chat.completions.create({
     model: DEBATE_MODEL,
     max_tokens: DEBATE_MAX_TOKENS,
@@ -230,6 +246,9 @@ async function callPersona(
       { role: 'user', content: claimContext },
     ],
   });
+
+  const inputTokens = response.usage?.prompt_tokens ?? 0;
+  const outputTokens = response.usage?.completion_tokens ?? 0;
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
   const plainTextContent = response.choices[0]?.message?.content ?? '';
@@ -274,9 +293,13 @@ async function callPersona(
   }
 
   return {
-    persona,
-    verdict: parseVerdict(parsed.verdict),
-    reasoning: `${parsed.reasoning}\n\nKey concern: ${parsed.key_concern}`,
+    output: {
+      persona,
+      verdict: parseVerdict(parsed.verdict),
+      reasoning: `${parsed.reasoning}\n\nKey concern: ${parsed.key_concern}`,
+    },
+    inputTokens,
+    outputTokens,
   };
 }
 
@@ -331,7 +354,7 @@ async function callJudge(
   claim: NotesLogEntry,
   personaOutputs: DebateOutput[],
   claimContext: string,
-): Promise<SynthesisInput> {
+): Promise<JudgeCallResult> {
   const judgeContext = buildJudgeContext(claim, personaOutputs, claimContext);
 
   const response = await getClient().chat.completions.create({
@@ -345,6 +368,9 @@ async function callJudge(
       { role: 'user', content: judgeContext },
     ],
   });
+
+  const inputTokens = response.usage?.prompt_tokens ?? 0;
+  const outputTokens = response.usage?.completion_tokens ?? 0;
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
   const plainTextContent = response.choices[0]?.message?.content ?? '';
@@ -381,7 +407,7 @@ async function callJudge(
     throw new Error(`Judge output missing required fields: ${JSON.stringify(parsed)}`);
   }
 
-  return parsed;
+  return { synthesis: parsed, inputTokens, outputTokens };
 }
 
 // ---------------------------------------------------------------------------
@@ -418,10 +444,15 @@ export async function evaluateWithDebate(
       callPersona('skeptic', getSkepticPrompt(claim.claim_type), claimContext),
     ]);
 
-    const personaOutputs: DebateOutput[] = [expertResult, methodologistResult, skepticResult];
+    const personaOutputs: DebateOutput[] = [
+      expertResult.output,
+      methodologistResult.output,
+      skepticResult.output,
+    ];
 
     // Judge synthesis
-    const synthesis = await callJudge(claim, personaOutputs, claimContext);
+    const judgeResult = await callJudge(claim, personaOutputs, claimContext);
+    const synthesis = judgeResult.synthesis;
 
     const verdict = parseVerdict(synthesis.verdict);
     const confidence = Math.max(0, Math.min(1, synthesis.confidence));
@@ -431,6 +462,19 @@ export async function evaluateWithDebate(
       verdict: confidence > JUDGE_CONFIDENCE_THRESHOLD ? verdict : 'uncertain',
       confidence,
       reasoning: synthesis.reasoning,
+      usage: {
+        input_tokens:
+          expertResult.inputTokens +
+          methodologistResult.inputTokens +
+          skepticResult.inputTokens +
+          judgeResult.inputTokens,
+        output_tokens:
+          expertResult.outputTokens +
+          methodologistResult.outputTokens +
+          skepticResult.outputTokens +
+          judgeResult.outputTokens,
+        api_calls: 4,
+      },
     };
 
     if (
