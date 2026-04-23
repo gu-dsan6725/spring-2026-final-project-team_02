@@ -1,6 +1,6 @@
 # HERALD Experiment Analysis
 
-**Run timestamp:** 2026-04-23T16:11:54.287Z
+**Run timestamp:** 2026-04-23T16:18:31.102Z
 **Git commit:** `011305a`
 **Eval set:** `data/human-eval-set.json`
 **Systems run:** A, B, C
@@ -83,8 +83,8 @@
 | Tier | Claims | % |
 |------|-------:|--:|
 | Tier 1 | 24 | 46.2% |
-| Tier 2 | 27 | 51.9% |
-| Tier 3 | 1 | 1.9% |
+| Tier 2 | 25 | 48.1% |
+| Tier 3 | 3 | 5.8% |
 | Tier 4 | 0 | 0.0% |
 
 **System C** (52 claims)
@@ -100,9 +100,9 @@
 
 | System | Mean (ms) | Median (ms) | p95 (ms) |
 |--------|----------:|------------:|---------:|
-| System A (HERALD) | 1760 | 1682 | 3732 |
-| System B (Tier 2 only) | 2271 | 2240 | 2915 |
-| System C (No NLI) | 2580 | 2254 | 7097 |
+| System A (HERALD) | 1885 | 1798 | 6145 |
+| System B (Tier 2 only) | 2209 | 2179 | 3277 |
+| System C (No NLI) | 2397 | 2149 | 6573 |
 
 ## 5. Cost Analysis
 
@@ -113,20 +113,20 @@
 
 | System | Mean Input Tokens | Mean Output Tokens | Mean API Calls | Mean Cost/Claim |
 |--------|------------------:|-------------------:|---------------:|----------------:|
-| System A (HERALD) | 1894 | 145 | 1.0 | $0.0004 |
-| System B (Tier 2 only) | 1710 | 129 | 1.0 | $0.0003 |
-| System C (No NLI) | 1807 | 158 | 1.1 | $0.0005 |
+| System A (HERALD) | 2016 | 177 | 1.1 | $0.0007 |
+| System B (Tier 2 only) | 1710 | 128 | 1.0 | $0.0003 |
+| System C (No NLI) | 1807 | 150 | 1.1 | $0.0005 |
 
 ### 5.2 Cost per Claim by Type
 
 | Claim Type | System A Cost/Claim | System B Cost/Claim | System A API Calls | System B API Calls |
 |------------|:-------------------:|:-------------------:|:-----------------:|:-----------------:|
-| causal | $0.0004 | $0.0003 | 1.0 | 1.0 |
-| comparative | $0.0004 | $0.0003 | 1.0 | 1.0 |
+| causal | $0.0009 | $0.0003 | 1.1 | 1.0 |
+| comparative | $0.0003 | $0.0003 | 1.0 | 1.0 |
 | normative | $0.0003 | $0.0003 | 1.0 | 1.0 |
 | predictive | $0.0003 | $0.0003 | 1.0 | 1.0 |
 | statistical | $0.0007 | $0.0003 | 1.1 | 1.0 |
-| synthesis | $0.0004 | $0.0004 | 1.0 | 1.0 |
+| synthesis | $0.0008 | $0.0004 | 1.1 | 1.0 |
 
 ### 5.3 Accuracy per Dollar (F1 / mean cost per claim)
 
@@ -134,7 +134,7 @@
 
 | System | F1 | Mean Cost/Claim | F1 per Dollar |
 |--------|:--:|----------------:|--------------:|
-| System A (HERALD) | 81.8% | $0.0004 | 2045.5 |
+| System A (HERALD) | 81.8% | $0.0007 | 1168.9 |
 | System B (Tier 2 only) | 81.0% | $0.0003 | 2698.3 |
 | System C (No NLI) | 81.0% | $0.0005 | 1619.0 |
 
@@ -142,15 +142,15 @@
 
 | System | Daily Cost | Monthly Cost (30d) |
 |--------|:----------:|:-----------------:|
-| System A (HERALD) | $0.40 | $12.00 |
+| System A (HERALD) | $0.70 | $21.00 |
 | System B (Tier 2 only) | $0.30 | $9.00 |
 | System C (No NLI) | $0.50 | $15.00 |
 
 ### 5.5 Decision: Cost-Performance Verdict
 
 - **F1 delta (A − B):** 0.9%
-- **Cost delta (A − B):** $0.0001 per claim (HERALD costs more)
-- **F1/$ System A:** 2045.5 vs System B: 2698.3
+- **Cost delta (A − B):** $0.0004 per claim (HERALD costs more)
+- **F1/$ System A:** 1168.9 vs System B: 2698.3
 
 ❌ **LLM-as-Judge wins on cost-efficiency** — HERALD F1 gain (+0.9%) does not compensate for higher cost. Use Tier 2-only baseline.
 
@@ -166,10 +166,10 @@ Agreement rate: **92.3%** (48/52 claims)
 
 | Claim ID | Type | Ground Truth | System A | System B | Winner |
 |----------|------|:------------:|:--------:|:--------:|:------:|
-| GT-084 | comparative | valid | valid | invalid | A ✓ |
-| GT-100 | statistical | invalid | invalid | valid | A ✓ |
 | GT-053 | statistical | valid | invalid | valid | B ✓ |
+| GT-100 | statistical | invalid | invalid | valid | A ✓ |
 | GT-096 | comparative | valid | invalid | valid | B ✓ |
+| GT-067 | comparative | valid | valid | invalid | A ✓ |
 
 ## 7. Wrong Claims
 
@@ -177,37 +177,37 @@ Agreement rate: **92.3%** (48/52 claims)
 
 | Claim | Type | Derivation | GT | Predicted | Error Type |
 |-------|------|------------|:--:|:---------:|:----------:|
+| GT-053 | statistical | paraphrase | valid | invalid | False Invalid |
 | GT-079 | synthesis | cross_source | invalid | valid | False Valid |
+| GT-103 | comparative | direct_extraction | valid | invalid | False Invalid |
+| GT-096 | comparative | direct_extraction | valid | invalid | False Invalid |
+| GT-065 | statistical | direct_extraction | invalid | valid | False Valid |
+| GT-057 | synthesis | cross_source | invalid | valid | False Valid |
 | GT-059 | statistical | paraphrase | valid | invalid | False Invalid |
 | GT-062 | causal | direct_extraction | invalid | valid | False Valid |
-| GT-065 | statistical | direct_extraction | invalid | valid | False Valid |
-| GT-103 | comparative | direct_extraction | valid | invalid | False Invalid |
-| GT-053 | statistical | paraphrase | valid | invalid | False Invalid |
-| GT-096 | comparative | direct_extraction | valid | invalid | False Invalid |
-| GT-057 | synthesis | cross_source | invalid | valid | False Valid |
 
 ### System B — 8 wrong
 
 | Claim | Type | Derivation | GT | Predicted | Error Type |
 |-------|------|------------|:--:|:---------:|:----------:|
 | GT-079 | synthesis | cross_source | invalid | valid | False Valid |
-| GT-084 | comparative | paraphrase | valid | invalid | False Invalid |
-| GT-059 | statistical | paraphrase | valid | invalid | False Invalid |
-| GT-062 | causal | direct_extraction | invalid | valid | False Valid |
-| GT-065 | statistical | direct_extraction | invalid | valid | False Valid |
-| GT-103 | comparative | direct_extraction | valid | invalid | False Invalid |
 | GT-100 | statistical | paraphrase | invalid | valid | False Valid |
+| GT-103 | comparative | direct_extraction | valid | invalid | False Invalid |
+| GT-065 | statistical | direct_extraction | invalid | valid | False Valid |
 | GT-057 | synthesis | cross_source | invalid | valid | False Valid |
+| GT-059 | statistical | paraphrase | valid | invalid | False Invalid |
+| GT-067 | comparative | paraphrase | valid | invalid | False Invalid |
+| GT-062 | causal | direct_extraction | invalid | valid | False Valid |
 
 ### System C — 8 wrong
 
 | Claim | Type | Derivation | GT | Predicted | Error Type |
 |-------|------|------------|:--:|:---------:|:----------:|
 | GT-079 | synthesis | cross_source | invalid | valid | False Valid |
-| GT-084 | comparative | paraphrase | valid | invalid | False Invalid |
-| GT-059 | statistical | paraphrase | valid | invalid | False Invalid |
-| GT-062 | causal | direct_extraction | invalid | valid | False Valid |
-| GT-065 | statistical | direct_extraction | invalid | valid | False Valid |
-| GT-103 | comparative | direct_extraction | valid | invalid | False Invalid |
 | GT-100 | statistical | paraphrase | invalid | valid | False Valid |
+| GT-103 | comparative | direct_extraction | valid | invalid | False Invalid |
+| GT-065 | statistical | direct_extraction | invalid | valid | False Valid |
 | GT-057 | synthesis | cross_source | invalid | valid | False Valid |
+| GT-059 | statistical | paraphrase | valid | invalid | False Invalid |
+| GT-067 | comparative | paraphrase | valid | invalid | False Invalid |
+| GT-062 | causal | direct_extraction | invalid | valid | False Valid |
