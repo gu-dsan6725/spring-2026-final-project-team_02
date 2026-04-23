@@ -199,8 +199,12 @@ knowledge — evaluate only what the provided source material supports.
   material misrepresentations (wrong number, wrong direction, unsupported causal language,
   fabricated projection) as well as fixable issues (imprecise hedging, minor scope mismatch,
   missing qualifier). Always include a suggested_revision for invalid claims.
-- Mark UNCERTAIN only if you genuinely cannot determine validity from the provided
-  sources — for example, the source chunk is too short to evaluate the claim fully.
+- Mark UNCERTAIN when you cannot reach a confident verdict from the provided sources.
+  This includes: source chunks that are too short or ambiguous to evaluate fully,
+  cases where evidence points in both directions, and cases where the claim sits on
+  the boundary between valid and invalid such that reasonable evaluators would disagree.
+  Do not force a valid/invalid verdict just to avoid uncertainty — use uncertain when
+  meaningful doubt remains.
 - High-risk derivation methods (cross_source, agent_inference) warrant heightened scrutiny:
   the burden of proof is on the claim to be clearly supported, not merely plausible.
 - For paraphrase claims, evaluate semantic fidelity rather than surface wording. If the
@@ -216,10 +220,13 @@ const OUTPUT_INSTRUCTIONS = `
 Use the submit_evaluation tool to return your structured assessment. Include:
 - verdict: one of "valid", "invalid", or "uncertain"
 - confidence: a float from 0.0 to 1.0 reflecting how certain you are in your verdict
-  - 0.9–1.0: very confident (clear evidence for or against)
-  - 0.7–0.89: moderately confident (evidence leans one way but has gaps)
-  - 0.5–0.69: uncertain (evidence is ambiguous or incomplete)
-  - below 0.5: very uncertain (cannot meaningfully evaluate from provided material)
+  - 0.95–1.0: very confident — evidence clearly and unambiguously supports the verdict
+  - 0.85–0.94: confident — evidence supports the verdict but has minor gaps or qualifications
+  - 0.70–0.84: moderately confident — evidence leans one way but meaningful doubt remains
+  - 0.50–0.69: uncertain — evidence is genuinely ambiguous, incomplete, or cuts both ways
+  - below 0.5: very uncertain — cannot meaningfully evaluate from the provided material
+  Use the full range. Claims where a reasonable evaluator might reach a different verdict
+  should score 0.70–0.89, not 0.9+. Reserve 0.95–1.0 for clear-cut cases only.
 - reasoning: a clear, specific explanation citing the source material
 - suggested_revision: if verdict is "invalid", provide a concrete
   revision that would make the claim valid. Omit for "valid" or "uncertain" verdicts.

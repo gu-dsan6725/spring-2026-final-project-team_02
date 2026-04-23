@@ -7,10 +7,10 @@
  *   - Claims that Tier 1 (NLI) returned 'uncertain' on (statistical, comparative, causal)
  *   - Claims that skip NLI entirely (predictive, normative, synthesis)
  *
- * Decision thresholds (from CLAUDE.md, calibrated after benchmark01):
- *   confidence > 0.80   → exit with verdict (valid / invalid)
- *   confidence 0.6–0.80 → override to 'uncertain', escalate to Tier 3
- *   confidence < 0.6    → override to 'uncertain', escalate to Tier 3 (high-priority)
+ * Decision thresholds (calibrated for gpt-4o's discrete confidence outputs: 0.9, 0.95, 1.0):
+ *   confidence > 0.94   → exit with verdict (valid / invalid) — only 0.95 and 1.0 exit
+ *   confidence 0.89–0.94 → override to 'uncertain', escalate to Tier 3 normally  (0.9 band)
+ *   confidence < 0.89   → override to 'uncertain', escalate to Tier 3 high-priority
  */
 
 import OpenAI from 'openai';
@@ -29,10 +29,10 @@ const JUDGE_TEMPERATURE = 0.2;
 const JUDGE_MAX_TOKENS = 1024;
 
 /** Confidence at or above this value → exit with the model's verdict. */
-const CONFIDENCE_EXIT_THRESHOLD = 0.8;
+const CONFIDENCE_EXIT_THRESHOLD = 0.94;
 
 /** Confidence below this value → escalate to Tier 3 with high-priority flag. */
-const CONFIDENCE_HIGH_PRIORITY_THRESHOLD = 0.6;
+const CONFIDENCE_HIGH_PRIORITY_THRESHOLD = 0.89;
 
 // ---------------------------------------------------------------------------
 // Groq client via OpenAI-compatible SDK (lazy singleton)
