@@ -57,6 +57,12 @@ interface ExperimentOutput {
   systems_run: string[];
   dry_run: boolean;
   total_claims: number;
+  /** New schema: separate per-tier model and pricing fields. */
+  tier2_model?: string;
+  tier3_model?: string;
+  tier2_pricing?: { input_per_million: number; output_per_million: number };
+  tier3_pricing?: { input_per_million: number; output_per_million: number };
+  /** Legacy schema (pre-dual-model): kept for backward compatibility with old result files. */
   model?: string;
   pricing?: { input_per_million: number; output_per_million: number };
   per_claim_results: PerClaimResult[];
@@ -220,8 +226,14 @@ function buildReport(data: ExperimentOutput): string {
   const hasB = systems_run.includes('B');
   const hasC = systems_run.includes('C');
 
-  const pricing = data.pricing ?? { input_per_million: 2.5, output_per_million: 10.0 };
-  const model = data.model ?? 'gpt-4o';
+  // Support both new (tier2_pricing) and legacy (pricing) schema.
+  const tier2Pricing = data.tier2_pricing ?? data.pricing ?? { input_per_million: 0.15, output_per_million: 0.60 };
+  const tier3Pricing = data.tier3_pricing ?? null;
+  const tier2Model = data.tier2_model ?? data.model ?? 'gpt-4o-mini';
+  const tier3Model = data.tier3_model ?? null;
+  // Cost stats use tier2Pricing only — Tier 3 usage is not tracked in TierOutput.usage.
+  const pricing = tier2Pricing;
+  const model = tier2Model;
 
   lines.push(`# HERALD Experiment Analysis`);
   lines.push('');
@@ -231,8 +243,13 @@ function buildReport(data: ExperimentOutput): string {
   lines.push(`**Systems run:** ${systems_run.join(', ')}`);
   lines.push(`**Total claims:** ${data.total_claims}`);
   lines.push(
-    `**Model:** ${model} (input: $${pricing.input_per_million}/1M tokens, output: $${pricing.output_per_million}/1M tokens)`,
+    `**Tier 2 model:** ${tier2Model} (input: $${tier2Pricing.input_per_million}/1M, output: $${tier2Pricing.output_per_million}/1M)`,
   );
+  if (tier3Model !== null && tier3Pricing !== null) {
+    lines.push(
+      `**Tier 3 model:** ${tier3Model} (input: $${tier3Pricing.input_per_million}/1M, output: $${tier3Pricing.output_per_million}/1M) — usage not tracked`,
+    );
+  }
   if (data.dry_run) lines.push(`**⚠ DRY RUN — mock verdicts only, token counts are zero**`);
   lines.push('');
 
@@ -377,8 +394,13 @@ function buildReport(data: ExperimentOutput): string {
   lines.push('## 5. Cost Analysis');
   lines.push('');
   lines.push(
-    `*Model: ${model}. Pricing: $${pricing.input_per_million}/1M input tokens, $${pricing.output_per_million}/1M output tokens.*`,
+    `*Tier 2 model: ${model}. Pricing: $${pricing.input_per_million}/1M input, $${pricing.output_per_million}/1M output.*`,
   );
+  if (tier3Model !== null && tier3Pricing !== null) {
+    lines.push(
+      `*Tier 3 model: ${tier3Model} ($${tier3Pricing.input_per_million}/1M input, $${tier3Pricing.output_per_million}/1M output) — Tier 3 token usage is not tracked; cost stats reflect Tier 2 only.*`,
+    );
+  }
   lines.push('');
 
   const costA = hasA
@@ -664,8 +686,8 @@ function main(): void {
 
   console.log(`Analysis written to: ${outputPath}`);
 
-  // Quick summary to stdout
-  const pricing = data.pricing ?? { input_per_million: 2.5, output_per_million: 10.0 };
+  // Quick summary to stdout (Tier 2 pricing only — Tier 3 usage not tracked)
+  const pricing = data.tier2_pricing ?? data.pricing ?? { input_per_million: 0.15, output_per_million: 0.60 };
   const claims = data.per_claim_results;
   for (const [label, getter] of [
     ['System A (HERALD)', (c: PerClaimResult) => c.system_a],

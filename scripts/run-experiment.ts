@@ -5,8 +5,19 @@
  * including accuracy, latency, and actual token usage for cost analysis:
  *
  *   System A — Full HERALD pipeline (src/herald/router.ts)
+ *               Tier 1: DeBERTa NLI (local, free); thresholds: stat/comp=0.99, causal=0.94
+ *               Tier 2: gpt-4o-mini; exit threshold confidence > 0.80
+ *               Tier 3: claude-haiku-4-5 Senior Reviewer (1 call); only when T2 uncertain
+ *
  *   System B — Tier 2 only / LLM-as-Judge baseline (src/herald/tier2-llm-judge.ts)
+ *               gpt-4o-mini; 1 API call per claim; uncertain → mapped to invalid
+ *
  *   System C — HERALD without Tier 1 NLI (ablation)
+ *               Tier 2: gpt-4o-mini; Tier 3: claude-haiku-4-5 if uncertain; no NLI step
+ *
+ * Cost tracking: input_tokens/output_tokens reflect Tier 2 (gpt-4o-mini) only.
+ * Tier 3 (claude-haiku-4-5) usage is not tracked — tier3-debate.ts does not populate
+ * TierOutput.usage. Cost estimates are understated for claims reaching Tier 3.
  *
  * Usage:
  *   npx tsx --env-file=.env scripts/run-experiment.ts [options]
@@ -71,13 +82,21 @@ interface ExperimentOutput {
   systems_run: string[];
   dry_run: boolean;
   total_claims: number;
-  model: string;
-  pricing: { input_per_million: number; output_per_million: number };
+  /** Model used for Tier 2 (LLM Judge). Cost stats apply this model's pricing. */
+  tier2_model: string;
+  /** Model used for Tier 3 (Senior Reviewer). Usage not tracked — see limitations. */
+  tier3_model: string;
+  /** Pricing for Tier 2 tokens (the only tier with tracked usage). */
+  tier2_pricing: { input_per_million: number; output_per_million: number };
+  /** Pricing for Tier 3 tokens (reference only — usage not tracked in TierOutput). */
+  tier3_pricing: { input_per_million: number; output_per_million: number };
   per_claim_results: PerClaimResult[];
 }
 
 // ---------------------------------------------------------------------------
-// System C: HERALD without Tier 1 (mirrors router.ts but skips NLI)
+// System C: HERALD without Tier 1 (mirrors router.ts but skips NLI unconditionally)
+// Tier 2: gpt-4o-mini (confidence > 0.80 exits; ≤ 0.80 → uncertain)
+// Tier 3: claude-haiku-4-5 Senior Reviewer (1 call) — only when Tier 2 uncertain
 // ---------------------------------------------------------------------------
 
 async function evaluateClaimNoNLI(claim: NotesLogEntry): Promise<HeraldResult> {
@@ -146,6 +165,11 @@ async function evaluateWithTier2Only(claim: NotesLogEntry): Promise<HeraldResult
 // ---------------------------------------------------------------------------
 // Token usage aggregator
 // Sums usage across all tier outputs in a HeraldResult.
+//
+// NOTE: Only Tier 2 (gpt-4o-mini) populates TierOutput.usage. Tier 1 is a
+// local NLI call (no tokens). Tier 3 (claude-haiku-4-5) does not currently
+// set TierOutput.usage — its cost is not captured here. Cost statistics are
+// therefore understated for claims that reach Tier 3.
 // ---------------------------------------------------------------------------
 
 function aggregateUsage(result: HeraldResult): {
@@ -413,6 +437,8 @@ async function main(): Promise<void> {
   console.log(`Concurrency: ${concurrency}`);
   console.log(`Output:      ${outputPath}`);
   console.log(`Git commit:  ${gitCommit}`);
+  console.log(`Tier 2:      gpt-4o-mini ($0.15/$0.60 per 1M in/out)`);
+  console.log(`Tier 3:      claude-haiku-4-5 ($0.80/$4.00 per 1M in/out) [usage not tracked]`);
   console.log(`Dry run:     ${dryRun ? 'YES (mock verdicts)' : 'NO (real API calls)'}`);
   console.log('');
 
@@ -479,8 +505,11 @@ async function main(): Promise<void> {
     systems_run: systems,
     dry_run: dryRun,
     total_claims: entries.length,
-    model: 'gpt-4o',
-    pricing: { input_per_million: 2.5, output_per_million: 10.0 },
+    tier2_model: 'gpt-4o-mini',
+    tier3_model: 'claude-haiku-4-5',
+    // Cost stats use only tier2_pricing — Tier 3 usage is not tracked in TierOutput.usage.
+    tier2_pricing: { input_per_million: 0.15, output_per_million: 0.60 },
+    tier3_pricing: { input_per_million: 0.80, output_per_million: 4.00 },
     per_claim_results: perClaimResults,
   };
 

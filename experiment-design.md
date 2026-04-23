@@ -18,7 +18,7 @@ only for high-risk types)?
 HERALD is a 4-tier escalation pipeline:
 
 ```
-Tier 1 (NLI, free/local) → Tier 2 (LLM Judge) → Tier 3 (Multi-Agent Debate) → Tier 4 (Human)
+Tier 1 (NLI, free/local) → Tier 2 (LLM Judge) → Tier 3 (Senior Reviewer) → Tier 4 (Human)
 ```
 
 The hypothesis behind HERALD is that early, cheap tiers handle clear-cut cases and reserve
@@ -34,9 +34,16 @@ to check after the accuracy comparison is done.
 ## Implementation
 
 All three systems use the **TypeScript implementation** in `src/herald/` — the same codebase
-the benchmark runs against. Model for Tier 2 and Tier 3: `gpt-4o` via `OPENAI_API_KEY`.
-Token usage is captured from `response.usage` at each tier and propagated through
-`TierOutput.usage` into the per-claim result record.
+the benchmark runs against.
+
+**Models:**
+- Tier 2: `gpt-4o-mini` via `OPENAI_API_KEY`
+- Tier 3: `claude-haiku-4-5` via `ANTHROPIC_API_KEY`
+
+Token usage is captured from `response.usage` at Tier 2 and propagated through
+`TierOutput.usage` into the per-claim result record. **Tier 3 token usage is not currently
+tracked** — `tier3-debate.ts` does not populate `TierOutput.usage`. Cost statistics exclude
+Tier 3 tokens; see Limitations.
 
 ---
 
@@ -46,24 +53,42 @@ Token usage is captured from `response.usage` at each tier and propagated throug
 
 The full pipeline as implemented in `src/herald/router.ts`.
 
-- Routing: per `CLAIM_TYPE_CONFIG` in `src/types/claims.ts`
-  - Statistical/Comparative: start Tier 1, NLI threshold 0.9
-  - Causal: start Tier 1, NLI threshold 0.85
+- **Routing**: per `CLAIM_TYPE_CONFIG` in `src/types/claims.ts`
+  - Statistical/Comparative: start Tier 1, NLI threshold **0.99**
+  - Causal: start Tier 1, NLI threshold **0.94**
   - Predictive/Normative/Synthesis: skip Tier 1, start Tier 2
-- Tier 1: DeBERTa-v3-large-mnli via local Python NLI backend (`http://localhost:8000`)
-- Tier 2: `gpt-4o` (`src/herald/tier2-llm-judge.ts`) — 1 API call
-- Tier 3: 3× `gpt-4o` personas + 1 judge synthesis (`src/herald/tier3-debate.ts`) — 4 API calls
-- Early exit whenever confidence threshold is met
-- **Expected cost range**: 0–5 API calls per claim depending on tier reached
+- **Tier 1**: DeBERTa-v3-large-mnli via local Python NLI backend (`http://localhost:8000`)
+  - Uses sliding-window sentence decomposition per source chunk
+  - Paraphrase claims use a higher contradiction threshold (0.95 vs 0.85) and canonical
+    hypothesis normalization to reduce false contradictions from surface wording differences
+  - Causal claims with hedging mismatch (hedged source, strong causal claim) are escalated
+    regardless of entailment score
+  - At a 0.99 entailment threshold, Tier 1 primarily functions as a **contradiction filter**:
+    most claims escalate to Tier 2, but clear contradictions still exit early as "invalid"
+- **Tier 2**: `gpt-4o-mini` (`src/herald/tier2-llm-judge.ts`) — 1 API call
+  - Exit threshold: confidence **> 0.80** → confident verdict
+  - Escalation zone: confidence **0.6–0.80** → uncertain, escalate to Tier 3
+  - High-priority escalation: confidence **< 0.6** → uncertain, escalate to Tier 3 (flagged)
+  - NLI context reframed as "supplementary scores" so the judge evaluates independently
+- **Tier 3**: `claude-haiku-4-5` (`src/herald/tier3-debate.ts`) — **1 API call** (single Senior
+  Reviewer, not the former 3-persona debate)
+  - Runs only when Tier 2 returns 'uncertain' (confidence ≤ 0.80). The previous derivation
+    override that forced `agent_inference`/`cross_source` claims to Tier 3 was removed: data
+    showed Tier 3 was overriding correct Tier 2 verdicts more often than catching errors
+  - Explicit calibration bias toward VALID for close calls: uncertain → UNCERTAIN, not INVALID
+  - Exit: confidence **> 0.80** → final verdict; otherwise escalates to Tier 4
+- **Expected API calls per claim**: 0–2 (T2: 1 call; T3: 1 call if escalated; T1 is local)
 
 ### System B — LLM-as-Judge Baseline
 
 Tier 2 only, applied to **all** claims regardless of type. No NLI pre-screening, no
-multi-agent debate. Calls `evaluateWithLLMJudge()` in `src/herald/tier2-llm-judge.ts`
+Senior Reviewer escalation. Calls `evaluateWithLLMJudge()` in `src/herald/tier2-llm-judge.ts`
 directly, bypassing the router.
 
-- Same model (`gpt-4o`), same prompt template, same output schema as System A's Tier 2
-- No early exit logic — exactly 1 API call per claim
+- Same model (`gpt-4o-mini`), same prompt template, same output schema as System A's Tier 2
+- No early exit logic — exactly **1 API call per claim**
+- When Tier 2 returns 'uncertain' (confidence ≤ 0.80), verdict is mapped to **'invalid'**
+  (no Tier 3 to escalate to in this baseline)
 - **Expected cost**: 1 API call per claim (constant, predictable)
 
 ### System C — HERALD without Tier 1 (Ablation)
@@ -73,9 +98,9 @@ or just filters for cost savings. Calls `evaluateClaimNoNLI()` in
 `scripts/run-experiment.ts` — mirrors `evaluateClaim()` but skips `evaluateWithNLI()`
 unconditionally.
 
-- Tier 2 + Tier 3 escalation intact
+- Tier 2 (`gpt-4o-mini`) + Tier 3 (`claude-haiku-4-5`) escalation intact; same thresholds as System A
 - Removes the NLI step entirely
-- **Expected cost range**: variable, depending on how often Tier 3 is reached
+- **Expected API calls per claim**: 1–2 (always Tier 2; Tier 3 if uncertain)
 
 ---
 
@@ -130,17 +155,25 @@ Report all accuracy metrics **overall** and **per claim type**.
 
 ### Cost Metrics
 
-| Metric                     | Unit   | Captured From                                             |
-| -------------------------- | ------ | --------------------------------------------------------- |
-| Input tokens per claim     | tokens | `response.usage.prompt_tokens` at each tier               |
-| Output tokens per claim    | tokens | `response.usage.completion_tokens` at each tier           |
-| API calls per claim        | count  | 1 per Tier 2 call; 4 per Tier 3 call (3 personas + judge) |
-| Estimated cost per claim   | USD    | `(input/1M × $2.50) + (output/1M × $10.00)`               |
+| Metric                     | Unit   | Captured From                                              |
+| -------------------------- | ------ | ---------------------------------------------------------- |
+| Input tokens per claim     | tokens | `response.usage.prompt_tokens` at Tier 2                   |
+| Output tokens per claim    | tokens | `response.usage.completion_tokens` at Tier 2               |
+| API calls per claim        | count  | 1 per Tier 2 call; 1 per Tier 3 call (Senior Reviewer)    |
+| Estimated cost per claim   | USD    | Tier 2 tokens × gpt-4o-mini rates (see below)             |
 | Daily cost at 1,000 claims | USD    | mean cost per claim × 1,000                               |
 
+**Pricing (gpt-4o-mini, applied to tracked Tier 2 tokens):**
+- Input: `$0.15 / 1M tokens`
+- Output: `$0.60 / 1M tokens`
+
+**Pricing (claude-haiku-4-5, Tier 3 — not tracked; see Limitations):**
+- Input: `$0.80 / 1M tokens`
+- Output: `$4.00 / 1M tokens`
+
 Token counts come from `TierOutput.usage`, which is populated by `evaluateWithLLMJudge`
-and `evaluateWithDebate` from the OpenAI response's `usage` field and aggregated in
-`run-experiment.ts` via `aggregateUsage()`.
+(Tier 2) from the OpenAI response's `usage` field and aggregated in `run-experiment.ts`
+via `aggregateUsage()`. Tier 3 usage is not yet populated — cost statistics are Tier 2 only.
 
 ### Combined Metric
 
@@ -159,7 +192,8 @@ Report F1/$ overall and per claim type.
 
 ```bash
 # Required
-export OPENAI_API_KEY=sk-...
+export OPENAI_API_KEY=sk-...       # for Tier 2 (gpt-4o-mini)
+export ANTHROPIC_API_KEY=sk-ant-...  # for Tier 3 (claude-haiku-4-5)
 
 # Optional: start Python NLI backend for Tier 1 (System A only)
 # Without this, System A silently falls back to Tier 2 for all claims
@@ -181,8 +215,9 @@ npx tsx --env-file=.env scripts/run-experiment.ts \
   --output results/experiment-$(date +%Y-%m-%d).json
 ```
 
-Run with `--concurrency 1` to stay under OpenAI rate limits for `gpt-4o`. For System A with Tier 3,
-each claim makes up to 4 sequential LLM calls, so effective QPS at concurrency 1 is ~4 at peak.
+Run with `--concurrency 1` to stay under rate limits. For System A with Tier 3,
+each escalated claim makes 2 sequential LLM calls (mini + haiku), so effective QPS at
+concurrency 1 is ~2 at peak.
 
 ### Step 3 — Analyze Results
 
@@ -219,31 +254,34 @@ The analysis script produces:
     "verdict": "invalid",
     "tier_reached": 3,
     "confidence": 0.87,
-    "latency_ms": 8200,
-    "input_tokens": 4210,
-    "output_tokens": 380,
-    "api_calls": 5
+    "latency_ms": 4200,
+    "input_tokens": 1840,
+    "output_tokens": 210,
+    "api_calls": 2
   },
   "system_b": {
-    "verdict": "valid",
+    "verdict": "invalid",
     "tier_reached": 2,
     "confidence": 0.71,
-    "latency_ms": 2100,
+    "latency_ms": 1200,
     "input_tokens": 820,
-    "output_tokens": 210,
+    "output_tokens": 120,
     "api_calls": 1
   },
   "system_c": {
     "verdict": "invalid",
     "tier_reached": 3,
     "confidence": 0.82,
-    "latency_ms": 6100,
-    "input_tokens": 4100,
-    "output_tokens": 365,
-    "api_calls": 5
+    "latency_ms": 3800,
+    "input_tokens": 1840,
+    "output_tokens": 210,
+    "api_calls": 2
   }
 }
 ```
+
+*Note: `input_tokens`, `output_tokens`, and `api_calls` reflect Tier 2 usage only.
+Tier 3 (haiku) usage is not yet captured in `TierOutput.usage`.*
 
 ### Top-Level Experiment File
 
@@ -255,14 +293,13 @@ The analysis script produces:
   "systems_run": ["A", "B", "C"],
   "dry_run": false,
   "total_claims": 104,
-  "model": "gpt-4o",
-  "pricing": { "input_per_million": 2.50, "output_per_million": 10.00 },
+  "tier2_model": "gpt-4o-mini",
+  "tier3_model": "claude-haiku-4-5",
+  "tier2_pricing": { "input_per_million": 0.15, "output_per_million": 0.60 },
+  "tier3_pricing": { "input_per_million": 0.80, "output_per_million": 4.00 },
   "per_claim_results": [...]
 }
 ```
-
-The `model` and `pricing` fields are written by `run-experiment.ts` so the analyzer can
-compute costs without any hardcoded constants.
 
 ---
 
@@ -272,12 +309,20 @@ compute costs without any hardcoded constants.
 
 **Prediction**: HERALD achieves higher F1 than Tier 2 alone, especially on:
 
-- Causal claims (Tier 3 Skeptic catches correlation-as-causation gaps)
-- Synthesis claims (Tier 3 Methodologist catches logical leaps)
-- Statistical claims (Tier 1 NLI efficiently handles clear entailment)
+- Causal claims (NLI catches clear hedging mismatches at Tier 1; Tier 3 Senior Reviewer
+  can make definitive calls on ambiguous cases that Tier 2 flags as uncertain)
+- Synthesis claims (Tier 3 Senior Reviewer, with explicit valid-bias, may reduce the false
+  valid rate by requiring a concrete, quotable error before marking invalid)
+- Statistical claims (Tier 1 contradiction detection catches direct misquotes)
 
 **Null**: No meaningful difference in F1. If true, HERALD's added complexity is not
 justified for accuracy.
+
+**Note on Tier 3 design change**: The Senior Reviewer has explicit calibration bias toward
+VALID for close calls (when uncertain between INVALID and UNCERTAIN → choose UNCERTAIN;
+when uncertain between VALID and UNCERTAIN → choose VALID). This should reduce false invalid
+rates compared to the former multi-agent debate where the Skeptic persona biased toward
+invalid verdicts.
 
 ### H2 — Cost: varies by claim type and tier distribution
 
@@ -289,13 +334,22 @@ escalation behavior, which are empirical outcomes — not assumed in advance.
 **Key question from H2**: For each claim type, which system produces the better
 F1/$ ratio, and by how much? The F1/$ metric answers this directly.
 
+**Cost structure to expect**: Since T2 is now `gpt-4o-mini` (~10× cheaper than `gpt-4o`),
+the absolute cost differences between systems are much smaller than in prior runs. System A
+can be cheaper than B if NLI handles enough claims; System A can be more expensive if many
+claims reach Tier 3 (haiku adds ~$0.80–$4.00/1M). The Tier 3 usage gap (not tracked) means
+cost comparisons are conservative estimates.
+
 ### H3 — Tier Distribution
 
-**Prediction**:
+**Prediction** (updated for new NLI thresholds):
 
-- ~40% of statistical/comparative claims exit at Tier 1 (NLI confident)
-- ~30% of all claims escalate to Tier 3 (LLM judge uncertain)
-- <10% reach Tier 4 (human review)
+- Tier 1 at 0.99 entailment threshold will exit as "valid" for very few claims — the bar
+  is near-certain entailment. Expect **<10%** of statistical/comparative claims to exit at
+  Tier 1 as valid; contradiction exits remain possible at the 0.85/0.95 threshold
+- **~85-90%** of statistical/comparative/causal claims escalate from Tier 1 to Tier 2
+- **~20-35%** of all claims escalate to Tier 3 (T2 confidence ≤ 0.80)
+- **<5%** reach Tier 4 (human review)
 
 ### H4 — A Claim-Type Hybrid May Be Optimal
 
@@ -311,14 +365,14 @@ belong in each system.
 
 | Confound                   | Control                                                                                               |
 | -------------------------- | ----------------------------------------------------------------------------------------------------- |
-| Model temperature variance | `temperature=0.2` for Tier 2, `temperature=0.3` for Tier 3 (existing defaults). Record in results.    |
+| Model temperature variance | `temperature=0.2` for Tier 2 (gpt-4o-mini), `temperature=0.1` for Tier 3 (haiku). Record in results. |
 | Prompt version drift       | Pin `src/herald/prompts/` files to git commit hash at experiment start. Hash recorded in output JSON. |
-| OpenAI model version       | `gpt-4o` is a stable alias. Record exact model string in output JSON.                                 |
+| Model version              | `gpt-4o-mini` and `claude-haiku-4-5` are stable IDs. Record both in output JSON.                     |
 | Eval set label quality     | Flag any claim where all 3 systems disagree with ground truth — could indicate a mislabel.            |
 | Ordering effects           | Randomize claim order before running. All systems process the same shuffled order.                    |
 | Rate limiting / retries    | Use the same `withRetry` logic as the benchmark. Retry count logged per claim.                        |
 | NLI model warm-up          | Call `/api/health` before starting. Discard errors on first claim only.                               |
-| Token count accuracy       | Counts come from `response.usage` (billed tokens), not estimates. Cost calculations are exact.        |
+| Token count accuracy       | Tier 2 counts come from `response.usage` (billed tokens). Tier 3 counts not tracked (see Limitations). |
 
 ---
 
@@ -338,9 +392,10 @@ Use experiment results to answer:
    - This produces a recommended routing policy: "Use HERALD for [X, Y] types, Tier 2 for [Z, W] types."
 
 3. **Does Tier 1 NLI pull its weight?**
-   - Compare System A vs System C accuracy and cost. If F1(A) ≈ F1(C) and cost(A) < cost(C)
-     (due to NLI saving Tier 2 calls), NLI is valuable for cost but not accuracy.
-   - If F1(A) ≈ F1(C) and cost(A) ≥ cost(C), NLI adds infrastructure overhead with no benefit.
+   - Compare System A vs System C accuracy and cost. Given the 0.99 threshold, Tier 1
+     contributes primarily via contradiction detection. If F1(A) ≈ F1(C) and NLI isn't
+     filtering any T2 calls, NLI adds infrastructure cost with no benefit.
+   - If F1(A) > F1(C), the contradiction-detection path is catching errors Tier 2 misses.
 
 4. **What is the production cost envelope?**
    - At 1,000 claims/day, what is the daily API bill for each system?
@@ -356,12 +411,18 @@ Use experiment results to answer:
   boundaries may have contested labels. Flag any claim where all 3 systems disagree.
 - **Single policy domain**: If the eval set is concentrated in one domain, results may
   not generalize to other domains.
-- **Model non-determinism**: `gpt-4o` is not strictly deterministic even at low
-  temperature. For key findings, run 3 independent trials and report mean ± std.
+- **Model non-determinism**: Neither `gpt-4o-mini` nor `claude-haiku-4-5` is strictly
+  deterministic even at low temperature. For key findings, run 3 independent trials and
+  report mean ± std.
 - **NLI backend dependency**: System A's Tier 1 requires the Python backend running
   separately. If unavailable, System A silently degrades to System C behavior for
   statistical/comparative/causal claims. Always verify NLI is active before running.
-- **Token count completeness**: Token tracking depends on `response.usage` being populated
-  by the OpenAI API. If the API returns null usage (rarely happens), affected claims will
-  show zero tokens and be excluded from cost statistics. The analyzer logs `n` (number of
-  claims with token data) in each cost row.
+- **Tier 3 usage not tracked**: `tier3-debate.ts` does not populate `TierOutput.usage`
+  for the `claude-haiku-4-5` call. Tier 3 token costs are excluded from cost statistics
+  and the `mean_cost_usd` is understated for claims reaching Tier 3. At haiku pricing
+  ($0.80/1M input, $4.00/1M output), a typical Tier 3 call adds ~$0.0010–$0.0020 per claim.
+  This gap matters most if Tier 3 escalation rate is high (>30%).
+- **Dual-model cost calculation**: Token tracking (`input_tokens`, `output_tokens` in
+  SystemResult) reflects Tier 2 (gpt-4o-mini) only. The analyzer applies gpt-4o-mini
+  pricing to all tracked tokens. F1/$ comparisons between systems are directionally
+  correct but understated for claims reaching Tier 3.
