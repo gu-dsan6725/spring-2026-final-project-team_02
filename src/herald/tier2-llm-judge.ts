@@ -7,10 +7,15 @@
  *   - Claims that Tier 1 (NLI) returned 'uncertain' on (statistical, comparative, causal)
  *   - Claims that skip NLI entirely (predictive, normative, synthesis)
  *
- * Decision thresholds (from CLAUDE.md, calibrated after benchmark01):
- *   confidence > 0.80   → exit with verdict (valid / invalid)
+ * Decision thresholds (calibrated after t2-threshold-sweep, benchmark02):
+ *   confidence ≥ 0.80   → exit with verdict (valid / invalid)
  *   confidence 0.6–0.80 → override to 'uncertain', escalate to Tier 3
  *   confidence < 0.6    → override to 'uncertain', escalate to Tier 3 (high-priority)
+ *
+ * T1 context framing: previously said "NLI was inconclusive" which suppressed mini's
+ * confidence — sweep showed 86% of non-T1 claims return 0.90+ WITHOUT T1 context, but
+ * only 5% exited T2 WITH the old framing. Reframed as "supplementary scores" so mini
+ * evaluates the claim independently rather than deferring to NLI's uncertainty signal.
  */
 
 import OpenAI from 'openai';
@@ -24,7 +29,7 @@ import { getJudgePrompt } from './prompts/judge-system';
 // Constants
 // ---------------------------------------------------------------------------
 
-const JUDGE_MODEL = 'gpt-4o';
+const JUDGE_MODEL = 'gpt-4o-mini';
 const JUDGE_TEMPERATURE = 0.2;
 const JUDGE_MAX_TOKENS = 1024;
 
@@ -188,16 +193,14 @@ function buildUserMessage(
   lines.push('');
 
   if (tier1Result !== undefined) {
-    lines.push('## Prior Tier 1 NLI Result (Inconclusive)');
+    lines.push('## Tier 1 NLI Scores (Supplementary)');
     lines.push('');
     lines.push(
-      'The NLI model at Tier 1 could not reach a confident verdict. ' +
-        'Use this context to focus your evaluation on what NLI could not resolve — ' +
-        'do not simply repeat what NLI already determined.',
+      'The NLI model ran a surface-level entailment check. These scores are supplementary — ' +
+        'you are the primary judge. Evaluate the claim independently against the source material.',
     );
-    lines.push(`- NLI verdict: ${tier1Result.verdict}`);
-    lines.push(`- NLI confidence: ${(tier1Result.confidence * 100).toFixed(1)}%`);
-    lines.push(`- NLI reasoning: ${tier1Result.reasoning}`);
+    lines.push(`- NLI entailment signal: ${(tier1Result.confidence * 100).toFixed(1)}%`);
+    lines.push(`- NLI note: ${tier1Result.reasoning}`);
     lines.push('');
   }
 
