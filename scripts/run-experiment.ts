@@ -15,9 +15,9 @@
  *   System C — HERALD without Tier 1 NLI (ablation)
  *               Tier 2: gpt-4o-mini; Tier 3: claude-haiku-4-5 if uncertain; no NLI step
  *
- * Cost tracking: input_tokens/output_tokens reflect Tier 2 (gpt-4o-mini) only.
- * Tier 3 (claude-haiku-4-5) usage is not tracked — tier3-debate.ts does not populate
- * TierOutput.usage. Cost estimates are understated for claims reaching Tier 3.
+ * Cost tracking: t2_input_tokens/t2_output_tokens track Tier 2 (gpt-4o-mini) usage;
+ * t3_input_tokens/t3_output_tokens track Tier 3 (claude-haiku-4-5) usage. The analyzer
+ * applies per-tier pricing to compute accurate total costs.
  *
  * Usage:
  *   npx tsx --env-file=.env scripts/run-experiment.ts [options]
@@ -58,6 +58,15 @@ interface SystemResult {
   tier_reached: number;
   confidence: number;
   latency_ms: number;
+  /** Tier 2 (gpt-4o-mini) token usage. */
+  t2_input_tokens: number;
+  t2_output_tokens: number;
+  t2_api_calls: number;
+  /** Tier 3 (claude-haiku-4-5) token usage. Zero if claim did not reach Tier 3. */
+  t3_input_tokens: number;
+  t3_output_tokens: number;
+  t3_api_calls: number;
+  /** Combined totals (kept for backward-compatible analysis). */
   input_tokens: number;
   output_tokens: number;
   api_calls: number;
@@ -164,37 +173,43 @@ async function evaluateWithTier2Only(claim: NotesLogEntry): Promise<HeraldResult
 
 // ---------------------------------------------------------------------------
 // Token usage aggregator
-// Sums usage across all tier outputs in a HeraldResult.
-//
-// NOTE: Only Tier 2 (gpt-4o-mini) populates TierOutput.usage. Tier 1 is a
-// local NLI call (no tokens). Tier 3 (claude-haiku-4-5) does not currently
-// set TierOutput.usage — its cost is not captured here. Cost statistics are
-// therefore understated for claims that reach Tier 3.
+// Splits usage by tier: Tier 2 (gpt-4o-mini) and Tier 3 (claude-haiku-4-5).
+// Tier 1 is a local NLI call — no tokens. Tier 4 is human review — no tokens.
 // ---------------------------------------------------------------------------
 
 function aggregateUsage(result: HeraldResult): {
+  t2_input_tokens: number;
+  t2_output_tokens: number;
+  t2_api_calls: number;
+  t3_input_tokens: number;
+  t3_output_tokens: number;
+  t3_api_calls: number;
   input_tokens: number;
   output_tokens: number;
   api_calls: number;
 } {
-  let input = 0;
-  let output = 0;
-  let calls = 0;
+  const t2 = result.tier_details.tier_2;
+  const t3 = result.tier_details.tier_3;
 
-  for (const tier of [
-    result.tier_details.tier_1,
-    result.tier_details.tier_2,
-    result.tier_details.tier_3,
-    result.tier_details.tier_4,
-  ]) {
-    if (tier?.usage != null) {
-      input += tier.usage.input_tokens;
-      output += tier.usage.output_tokens;
-      calls += tier.usage.api_calls;
-    }
-  }
+  const t2in  = t2?.usage?.input_tokens  ?? 0;
+  const t2out = t2?.usage?.output_tokens ?? 0;
+  const t2calls = t2?.usage?.api_calls   ?? 0;
 
-  return { input_tokens: input, output_tokens: output, api_calls: calls };
+  const t3in  = t3?.usage?.input_tokens  ?? 0;
+  const t3out = t3?.usage?.output_tokens ?? 0;
+  const t3calls = t3?.usage?.api_calls   ?? 0;
+
+  return {
+    t2_input_tokens:  t2in,
+    t2_output_tokens: t2out,
+    t2_api_calls:     t2calls,
+    t3_input_tokens:  t3in,
+    t3_output_tokens: t3out,
+    t3_api_calls:     t3calls,
+    input_tokens:     t2in + t3in,
+    output_tokens:    t2out + t3out,
+    api_calls:        t2calls + t3calls,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -281,9 +296,9 @@ async function runSystem(system: string, entry: EvalEntry, dryRun: boolean): Pro
       tier_reached: mock.tier_reached,
       confidence: mock.confidence,
       latency_ms: 0,
-      input_tokens: 0,
-      output_tokens: 0,
-      api_calls: 0,
+      t2_input_tokens: 0, t2_output_tokens: 0, t2_api_calls: 0,
+      t3_input_tokens: 0, t3_output_tokens: 0, t3_api_calls: 0,
+      input_tokens: 0, output_tokens: 0, api_calls: 0,
     };
   }
 
@@ -303,9 +318,15 @@ async function runSystem(system: string, entry: EvalEntry, dryRun: boolean): Pro
       tier_reached: result.tier_reached,
       confidence: result.confidence,
       latency_ms: Date.now() - start,
-      input_tokens: usage.input_tokens,
-      output_tokens: usage.output_tokens,
-      api_calls: usage.api_calls,
+      t2_input_tokens:  usage.t2_input_tokens,
+      t2_output_tokens: usage.t2_output_tokens,
+      t2_api_calls:     usage.t2_api_calls,
+      t3_input_tokens:  usage.t3_input_tokens,
+      t3_output_tokens: usage.t3_output_tokens,
+      t3_api_calls:     usage.t3_api_calls,
+      input_tokens:     usage.input_tokens,
+      output_tokens:    usage.output_tokens,
+      api_calls:        usage.api_calls,
     };
   } catch (err) {
     return {
@@ -313,9 +334,9 @@ async function runSystem(system: string, entry: EvalEntry, dryRun: boolean): Pro
       tier_reached: 2,
       confidence: 0,
       latency_ms: Date.now() - start,
-      input_tokens: 0,
-      output_tokens: 0,
-      api_calls: 0,
+      t2_input_tokens: 0, t2_output_tokens: 0, t2_api_calls: 0,
+      t3_input_tokens: 0, t3_output_tokens: 0, t3_api_calls: 0,
+      input_tokens: 0, output_tokens: 0, api_calls: 0,
       error: err instanceof Error ? err.message : String(err),
     };
   }

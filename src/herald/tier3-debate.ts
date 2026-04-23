@@ -262,6 +262,14 @@ export async function evaluateWithDebate(
       output.suggested_revision = rawParsed['suggested_revision'] as string;
     }
 
+    if (response.usage != null) {
+      output.usage = {
+        input_tokens: response.usage.input_tokens,
+        output_tokens: response.usage.output_tokens,
+        api_calls: 1,
+      };
+    }
+
     span.end({ verdict: output.verdict, confidence });
 
     return output;

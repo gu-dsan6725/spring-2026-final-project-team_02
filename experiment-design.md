@@ -167,13 +167,14 @@ Report all accuracy metrics **overall** and **per claim type**.
 - Input: `$0.15 / 1M tokens`
 - Output: `$0.60 / 1M tokens`
 
-**Pricing (claude-haiku-4-5, Tier 3 — not tracked; see Limitations):**
+**Pricing (claude-haiku-4-5, Tier 3):**
 - Input: `$0.80 / 1M tokens`
 - Output: `$4.00 / 1M tokens`
 
-Token counts come from `TierOutput.usage`, which is populated by `evaluateWithLLMJudge`
-(Tier 2) from the OpenAI response's `usage` field and aggregated in `run-experiment.ts`
-via `aggregateUsage()`. Tier 3 usage is not yet populated — cost statistics are Tier 2 only.
+Token counts come from `TierOutput.usage`, populated by both `evaluateWithLLMJudge` (Tier 2,
+via OpenAI `response.usage`) and `evaluateWithDebate` (Tier 3, via Anthropic `response.usage`).
+Both are aggregated in `run-experiment.ts` via `aggregateUsage()`, with per-tier pricing applied
+separately in the analyzer.
 
 ### Combined Metric
 
@@ -417,12 +418,7 @@ Use experiment results to answer:
 - **NLI backend dependency**: System A's Tier 1 requires the Python backend running
   separately. If unavailable, System A silently degrades to System C behavior for
   statistical/comparative/causal claims. Always verify NLI is active before running.
-- **Tier 3 usage not tracked**: `tier3-debate.ts` does not populate `TierOutput.usage`
-  for the `claude-haiku-4-5` call. Tier 3 token costs are excluded from cost statistics
-  and the `mean_cost_usd` is understated for claims reaching Tier 3. At haiku pricing
-  ($0.80/1M input, $4.00/1M output), a typical Tier 3 call adds ~$0.0010–$0.0020 per claim.
-  This gap matters most if Tier 3 escalation rate is high (>30%).
-- **Dual-model cost calculation**: Token tracking (`input_tokens`, `output_tokens` in
-  SystemResult) reflects Tier 2 (gpt-4o-mini) only. The analyzer applies gpt-4o-mini
-  pricing to all tracked tokens. F1/$ comparisons between systems are directionally
-  correct but understated for claims reaching Tier 3.
+- **Dual-model cost calculation**: `SystemResult` tracks `t2_input_tokens`/`t2_output_tokens`
+  and `t3_input_tokens`/`t3_output_tokens` separately. The analyzer applies gpt-4o-mini pricing
+  to Tier 2 tokens and haiku pricing to Tier 3 tokens. For result files produced before this fix,
+  the analyzer falls back to applying Tier 2 pricing to all tokens (conservative underestimate).

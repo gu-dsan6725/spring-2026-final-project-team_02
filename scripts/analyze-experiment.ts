@@ -33,6 +33,12 @@ interface SystemResult {
   tier_reached: number;
   confidence: number;
   latency_ms: number;
+  t2_input_tokens?: number;
+  t2_output_tokens?: number;
+  t2_api_calls?: number;
+  t3_input_tokens?: number;
+  t3_output_tokens?: number;
+  t3_api_calls?: number;
   input_tokens: number;
   output_tokens: number;
   api_calls: number;
@@ -140,26 +146,37 @@ interface CostStats {
 function computeCostStats(
   results: Array<SystemResult | null>,
   pricing: { input_per_million: number; output_per_million: number },
+  tier3Pricing?: { input_per_million: number; output_per_million: number },
 ): CostStats {
   const valid = results.filter((r): r is SystemResult => r != null && r.api_calls > 0);
   if (valid.length === 0) {
-    return {
-      mean_input_tokens: 0,
-      mean_output_tokens: 0,
-      mean_api_calls: 0,
-      mean_cost_usd: 0,
-      total_cost_usd: 0,
-      n: 0,
-    };
+    return { mean_input_tokens: 0, mean_output_tokens: 0, mean_api_calls: 0, mean_cost_usd: 0, total_cost_usd: 0, n: 0 };
   }
-  const totalInput = valid.reduce((s, r) => s + r.input_tokens, 0);
+  const totalInput  = valid.reduce((s, r) => s + r.input_tokens,  0);
   const totalOutput = valid.reduce((s, r) => s + r.output_tokens, 0);
-  const totalCalls = valid.reduce((s, r) => s + r.api_calls, 0);
-  const totalCost =
-    (totalInput / 1_000_000) * pricing.input_per_million +
-    (totalOutput / 1_000_000) * pricing.output_per_million;
+  const totalCalls  = valid.reduce((s, r) => s + r.api_calls,     0);
+
+  let totalCost: number;
+  if (tier3Pricing != null && valid.some((r) => (r.t3_input_tokens ?? 0) > 0)) {
+    // Apply per-tier pricing when T3 usage is available
+    const t2In  = valid.reduce((s, r) => s + (r.t2_input_tokens  ?? r.input_tokens),  0);
+    const t2Out = valid.reduce((s, r) => s + (r.t2_output_tokens ?? r.output_tokens), 0);
+    const t3In  = valid.reduce((s, r) => s + (r.t3_input_tokens  ?? 0), 0);
+    const t3Out = valid.reduce((s, r) => s + (r.t3_output_tokens ?? 0), 0);
+    totalCost =
+      (t2In  / 1_000_000) * pricing.input_per_million +
+      (t2Out / 1_000_000) * pricing.output_per_million +
+      (t3In  / 1_000_000) * tier3Pricing.input_per_million +
+      (t3Out / 1_000_000) * tier3Pricing.output_per_million;
+  } else {
+    // Fallback: apply T2 pricing to all tracked tokens (old results without T3 usage)
+    totalCost =
+      (totalInput  / 1_000_000) * pricing.input_per_million +
+      (totalOutput / 1_000_000) * pricing.output_per_million;
+  }
+
   return {
-    mean_input_tokens: Math.round(totalInput / valid.length),
+    mean_input_tokens: Math.round(totalInput  / valid.length),
     mean_output_tokens: Math.round(totalOutput / valid.length),
     mean_api_calls: r(totalCalls / valid.length),
     mean_cost_usd: r(totalCost / valid.length),
@@ -247,7 +264,7 @@ function buildReport(data: ExperimentOutput): string {
   );
   if (tier3Model !== null && tier3Pricing !== null) {
     lines.push(
-      `**Tier 3 model:** ${tier3Model} (input: $${tier3Pricing.input_per_million}/1M, output: $${tier3Pricing.output_per_million}/1M) — usage not tracked`,
+      `**Tier 3 model:** ${tier3Model} (input: $${tier3Pricing.input_per_million}/1M, output: $${tier3Pricing.output_per_million}/1M)`,
     );
   }
   if (data.dry_run) lines.push(`**⚠ DRY RUN — mock verdicts only, token counts are zero**`);
@@ -398,28 +415,20 @@ function buildReport(data: ExperimentOutput): string {
   );
   if (tier3Model !== null && tier3Pricing !== null) {
     lines.push(
-      `*Tier 3 model: ${tier3Model} ($${tier3Pricing.input_per_million}/1M input, $${tier3Pricing.output_per_million}/1M output) — Tier 3 token usage is not tracked; cost stats reflect Tier 2 only.*`,
+      `*Tier 3 model: ${tier3Model} ($${tier3Pricing.input_per_million}/1M input, $${tier3Pricing.output_per_million}/1M output). Tier 3 costs are included when usage data is available.*`,
     );
   }
   lines.push('');
 
+  const t3p = tier3Pricing ?? undefined;
   const costA = hasA
-    ? computeCostStats(
-        claims.map((c) => c.system_a),
-        pricing,
-      )
+    ? computeCostStats(claims.map((c) => c.system_a), pricing, t3p)
     : null;
   const costB = hasB
-    ? computeCostStats(
-        claims.map((c) => c.system_b),
-        pricing,
-      )
+    ? computeCostStats(claims.map((c) => c.system_b), pricing, t3p)
     : null;
   const costC = hasC
-    ? computeCostStats(
-        claims.map((c) => c.system_c),
-        pricing,
-      )
+    ? computeCostStats(claims.map((c) => c.system_c), pricing, t3p)
     : null;
 
   lines.push('### 5.1 Token Usage per Claim (mean)');
@@ -456,16 +465,10 @@ function buildReport(data: ExperimentOutput): string {
   for (const ct of claimTypes) {
     const subset = claims.filter((c) => c.claim_type === ct);
     const ctCostA = hasA
-      ? computeCostStats(
-          subset.map((c) => c.system_a),
-          pricing,
-        )
+      ? computeCostStats(subset.map((c) => c.system_a), pricing, t3p)
       : null;
     const ctCostB = hasB
-      ? computeCostStats(
-          subset.map((c) => c.system_b),
-          pricing,
-        )
+      ? computeCostStats(subset.map((c) => c.system_b), pricing, t3p)
       : null;
     lines.push(
       `| ${ct} | ${ctCostA != null && ctCostA.n > 0 ? usd(ctCostA.mean_cost_usd) : '—'} | ${ctCostB != null && ctCostB.n > 0 ? usd(ctCostB.mean_cost_usd) : '—'} | ${ctCostA != null && ctCostA.n > 0 ? ctCostA.mean_api_calls.toFixed(1) : '—'} | ${ctCostB != null && ctCostB.n > 0 ? ctCostB.mean_api_calls.toFixed(1) : '—'} |`,
@@ -701,7 +704,7 @@ function main(): void {
     }
     if (m.total === 0) continue;
     const metrics = computeMetrics(m);
-    const cost = computeCostStats(claims.map(getter), pricing);
+    const cost = computeCostStats(claims.map(getter), pricing, data.tier3_pricing ?? undefined);
     const f1PerDollar =
       cost.mean_cost_usd > 0 ? (metrics.f1 / cost.mean_cost_usd).toFixed(1) : 'N/A (dry run)';
     console.log(
