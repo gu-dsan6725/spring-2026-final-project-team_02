@@ -8,7 +8,6 @@ on:
 
 env:
   NODE_VERSION: '20'
-  PYTHON_VERSION: '3.11'
 
 jobs:
   lint-and-typecheck:
@@ -23,7 +22,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Install Node dependencies
+      - name: Install dependencies
         run: npm ci
 
       - name: TypeScript typecheck
@@ -34,28 +33,6 @@ jobs:
 
       - name: Prettier check
         run: npm run format:check
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          version: 'latest'
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Python dependencies
-        run: cd backend && uv sync --group dev
-
-      - name: Ruff lint
-        run: cd backend && uv run ruff check .
-
-      - name: Ruff format check
-        run: cd backend && uv run ruff format . --check
-
-      - name: Mypy
-        run: cd backend && uv run mypy src/
 
   test-unit:
     name: Unit Tests
@@ -70,32 +47,16 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Install Node dependencies
+      - name: Install dependencies
         run: npm ci
 
-      - name: Run TypeScript tests
+      - name: Run tests
         run: npm run test -- --coverage
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          version: 'latest'
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Python dependencies
-        run: cd backend && uv sync --group dev
-
-      - name: Run Python tests (no integration)
-        run: cd backend && uv run pytest -m "not integration" --cov --cov-report=xml --timeout=30
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
         with:
-          files: ./coverage/lcov.info,./backend/coverage.xml
+          files: ./coverage/lcov.info
           fail_ci_if_error: false
 
   test-integration:
@@ -104,29 +65,6 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: integration-tests
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: policy_memo_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-      redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
@@ -136,29 +74,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Install Node dependencies
+      - name: Install dependencies
         run: npm ci
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          version: 'latest'
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Python dependencies
-        run: cd backend && uv sync --group dev
 
       - name: Run integration tests
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           BRAINTRUST_API_KEY: ${{ secrets.BRAINTRUST_API_KEY }}
-          DATABASE_URL: postgresql://test:test@localhost:5432/policy_memo_test
-          REDIS_URL: redis://localhost:6379
-        run: |
-          cd backend && uv run alembic upgrade head
-          cd backend && uv run pytest -m integration --cov --cov-fail-under=80 --timeout=60
-          npm run test:integration
+        run: npm run test:integration
