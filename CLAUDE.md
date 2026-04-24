@@ -152,17 +152,17 @@ The notes log is the structured provenance record. It is built DURING research, 
 ### Tier 1 — NLI Model (Local, Free)
 
 - **Model**: DeBERTa-v3-large fine-tuned on MultiNLI (or similar)
-- **Input**: Source chunk(s) as premise, claim text as hypothesis
+- **Input**: Source chunk(s) as premise (max 1500 chars, sliding 3-sentence window), claim text as hypothesis
 - **Output**: entailment / neutral / contradiction with confidence scores
 - **Decision logic**:
-  - Entailment confidence > threshold → VALID, exit
-  - Contradiction detected → INVALID, exit with feedback
-  - Neutral or below threshold → escalate to Tier 2
+  - Entailment confidence > NLI escalation threshold (see routing table) AND beats contradiction/neutral by margin of 0.15 (0.20 for causal+paraphrase) → VALID, exit
+  - Contradiction confidence > 0.85 (or > 0.95 for paraphrase derivation) → INVALID, exit with feedback
+  - Otherwise → escalate to Tier 2
 - **Implementation**: Run via ONNX Runtime or Hugging Face Transformers locally
 
 ### Tier 2 — LLM-as-Judge
 
-- **Model**: Claude Sonnet (via Anthropic API)
+- **Model**: GPT-4o (via OpenAI API); temperature 0.2, max tokens 1024
 - **System prompt**: Domain-specific policy evaluation prompt that instructs the LLM to assess:
   - Accuracy: Does the claim faithfully represent the source?
   - Relevance: Is this claim relevant to the policy argument?
@@ -173,22 +173,22 @@ The notes log is the structured provenance record. It is built DURING research, 
   - Consensus check (for normative claims): Does this reflect genuine consensus or one viewpoint?
 - **Output**: Structured verdict with reasoning, confidence score, and suggested revision if invalid
 - **Decision logic**:
-  - Confidence > 0.85 → exit with verdict
-  - Confidence 0.6-0.85 → escalate to Tier 3
-  - Confidence < 0.6 → escalate to Tier 3
+  - Confidence > 0.80 → exit with verdict
+  - Confidence 0.6–0.80 → escalate to Tier 3
+  - Confidence < 0.6 → escalate to Tier 3 as high-priority
 
 ### Tier 3 — Multi-Agent Debate
 
+- **Model**: GPT-4o-mini for all 3 personas and the judge; temperature 0.3, max tokens 1024 per call
 - **3 Personas**:
   - **Domain Expert**: Deep knowledge of the policy area, evaluates substantive accuracy
   - **Methodologist**: Evaluates the quality of evidence, study design, and inferential logic
   - **Skeptic**: Actively challenges the claim, searches for counter-evidence and alternative explanations
-- **Process**: Each persona independently evaluates the claim, then a Judge agent synthesizes the three perspectives into a final verdict
+- **Process**: All 3 personas run in parallel, then a Judge agent receives all three outputs and synthesizes them into a single structured verdict with a confidence score
 - **Output**: Structured verdict with each persona's argument, the judge's synthesis, and suggested revision if invalid
 - **Decision logic**:
-  - Unanimous agreement → exit with verdict
-  - 2-1 split with high judge confidence → exit with verdict
-  - No consensus or low confidence → escalate to Tier 4
+  - Judge confidence > 0.8 → exit with verdict
+  - Judge confidence ≤ 0.8 → verdict overridden to `'uncertain'`, escalate to Tier 4
 
 ### Tier 4 — Human Review
 
@@ -249,8 +249,8 @@ Every HERALD evaluation produces this structure, which is passed back to the age
 ### HERALD Pipeline
 
 - **Tier 1 (NLI)**: Hugging Face Transformers / ONNX Runtime, DeBERTa-v3-large-mnli
-- **Tier 2 (LLM Judge)**: Claude Sonnet via Anthropic API
-- **Tier 3 (Multi-Agent Debate)**: 3x Claude Sonnet calls + 1 Judge call
+- **Tier 2 (LLM Judge)**: GPT-4o via OpenAI API
+- **Tier 3 (Multi-Agent Debate)**: 3x GPT-4o-mini persona calls + 1 GPT-4o-mini judge call
 - **Tier 4 (Human)**: Web UI with evidence display
 
 ### Observability
@@ -272,7 +272,6 @@ policy-memo-agent/
 │   ├── agent/
 │   │   ├── prompt-assembler.ts        # Transforms user input → system prompt
 │   │   ├── research-agent.ts          # Core agent loop with tool use
-│   │   ├── memo-writer.ts             # Memo generation from notes log
 │   │   ├── claim-extractor.ts         # Claim classification and notes log builder
 │   │   └── loop-controller.ts         # Budget management, retry logic
 │   ├── herald/
@@ -398,10 +397,6 @@ backend/
 │   │   └── test_herald.py
 │   └── test_models/
 │       └── test_claims.py
-└── alembic/
-    ├── alembic.ini
-    ├── env.py
-    └── versions/
 ```
 
 ---
@@ -434,7 +429,6 @@ dependencies = [
     "pydantic-settings>=2.6.0",
     "sqlalchemy>=2.0.36",
     "asyncpg>=0.30.0",
-    "alembic>=1.14.0",
     "redis>=5.2.0",
     "httpx>=0.28.0",
     "anthropic>=0.40.0",
@@ -585,9 +579,6 @@ uv run mypy src/                     # Type check
 # Full validation (run before push)
 uv run ruff check . && uv run ruff format . --check && uv run mypy src/ && uv run pytest
 
-# Database migrations
-uv run alembic upgrade head          # Apply all migrations
-uv run alembic revision --autogenerate -m "description"  # Create migration
 ```
 
 ### Python Pre-commit Hooks
@@ -623,7 +614,7 @@ Workflow file: `.github/workflows/ci.yml`
 ### Research Budget
 
 - Max tool calls per memo: 25 (configurable)
-- Max tokens spent on research: 50,000 (configurable)
+- Max tokens spent on research: 100,000 (configurable)
 - Agent creates a research plan BEFORE executing queries
 - Plan includes: what to search for, expected claim types, target source count
 
@@ -670,7 +661,7 @@ NLI_ONNX_MODEL_PATH=./models/deberta-v3-large-mnli.onnx
 # Optional
 LOG_LEVEL=info
 MAX_TOOL_CALLS=25
-MAX_RESEARCH_TOKENS=50000
+MAX_RESEARCH_TOKENS=100000
 MAX_REVISION_ATTEMPTS=2
 ```
 
@@ -805,7 +796,7 @@ worked, and what didn't. A teammate is continuing this work and needs the full h
 3. Reference the claim taxonomy when building anything that touches claims. There are exactly 6 types, each with specific HERALD routing. Do not invent new types or change the routing without updating this document.
 4. Run the relevant test suite after any change. Use `npm run test:agent` or `npm run test:herald` for targeted runs.
 5. When adding a new tool/MCP server, register it in `src/mcp/tool-registry.ts` with timeout, retry count, and health check URL.
-6. When modifying HERALD evaluation logic, verify the routing table is still correct: statistical/comparative start Tier 1 (threshold 0.9), causal starts Tier 1 (threshold 0.85), predictive/normative/synthesis skip to Tier 2.
+6. When modifying HERALD evaluation logic, verify the routing table is still correct: statistical/comparative start Tier 1 (NLI threshold 0.9), causal starts Tier 1 (NLI threshold 0.85), predictive/normative/synthesis skip to Tier 2. Tier 2 exits on confidence > 0.80; Tier 3 exits on judge confidence > 0.8.
 
 ### When Working on This Project, Never:
 

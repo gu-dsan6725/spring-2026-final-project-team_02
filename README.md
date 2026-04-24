@@ -1,167 +1,169 @@
 # Policy Memo Writing Agent
 
-This repository is being built around the architecture defined in `CLAUDE.md` and the checkpoint-by-checkpoint implementation plan in `claude_prompts.md`.
+An AI-powered research and writing system that produces structured policy memos with full claim-to-source provenance, then validates every factual claim through **HERALD** — a four-tier escalation pipeline for automated claim evaluation.
 
-The target system is an AI-powered policy memo writer with a structured provenance trail and a multi-tier claim evaluation framework called HERALD: Hierarchical Evidence Review and Automated Legitimacy Detection.
+## What It Does
 
-## What This Project Is
+1. **Research** — given a policy topic and optional framing context, a tool-augmented agent queries arXiv, World Bank, FRED, GovInfo, Semantic Scholar, and the web to gather evidence
+2. **Write** — the agent synthesizes its research into a professional policy memo, embedding inline citation markers (`[C-001]`, `[C-002]`, …) linked to a structured notes log
+3. **Review** — the memo is rendered in a React UI with color-coded claim markers; clicking any marker shows the full provenance trail (source, excerpt, derivation method)
+4. **Evaluate** — selected claims are routed through HERALD, which escalates from a local NLI model → LLM-as-judge → multi-agent debate → human review until a confident verdict is reached
+5. **Revise** — invalid or weak claims are passed back to the agent with structured feedback for up to two revision attempts
 
-The product goal is a research and writing system that:
+## HERALD Evaluation Pipeline
 
-- accepts a policy topic, framing context, and optional source material
-- uses tools and external data sources to research the topic
-- produces a policy memo plus a structured notes log
-- links every memo claim back to source evidence
-- lets users selectively evaluate claims through a tiered validation pipeline
-- supports revision when claims are weak, unsupported, or overstated
+HERALD (Hierarchical Evidence Review and Automated Legitimacy Detection) routes each claim based on its type:
 
-This README describes the intended build and operating model. `CLAUDE.md` remains the architecture source of truth.
+| Claim Type                       | Starting Tier            | Rationale                                                     |
+| -------------------------------- | ------------------------ | ------------------------------------------------------------- |
+| Statistical, Comparative         | Tier 1 (NLI)             | Entailment models handle these well                           |
+| Causal                           | Tier 1 (lower threshold) | NLI catches misquotes; escalates for correlation-as-causation |
+| Predictive, Normative, Synthesis | Tier 2 (LLM judge)       | NLI adds no value for forward-looking or prescriptive claims  |
 
-## Core System Flow
+**Tier 1** — DeBERTa-v3-large-mnli NLI model (local, free). Outputs entailment / neutral / contradiction with confidence scores.
 
-The proposed system has four major phases:
+**Tier 2** — Claude Sonnet or GPT-4o as judge. Evaluates accuracy, completeness, causal validity, and comparison fairness.
 
-1. User input and prompt assembly
-2. Research and memo generation
-3. User review of memo and provenance
-4. HERALD claim evaluation and revision
+**Tier 3** — Multi-agent debate: Domain Expert, Methodologist, and Skeptic personas each evaluate independently; a Judge agent synthesizes the three verdicts.
 
-In practice, that means:
+**Tier 4** — Human review queue. Presents the claim, all source chunks, and prior tier outputs for a manual final call.
 
-- the user submits a topic, context, and optional sources
-- the agent assembles a structured research-and-writing prompt
-- the agent researches with tools, logs evidence, and builds a notes log before drafting
-- the memo is rendered with claim markers and provenance
-- selected claims are routed into HERALD for evaluation
-- invalid or weak claims are revised and re-checked
+## Tech Stack
 
-## HERALD at a Glance
+| Layer              | Technology                                     |
+| ------------------ | ---------------------------------------------- |
+| Frontend           | Next.js 16, React 19, TypeScript, Tailwind CSS |
+| Research agent     | Groq (Llama 3.3 70B) with OpenAI fallback      |
+| HERALD Tier 2/3    | OpenAI GPT-4o / Claude Sonnet                  |
+| Python backend     | FastAPI, SQLAlchemy, asyncpg                   |
+| Tier 1 NLI         | HuggingFace Transformers / ONNX Runtime        |
+| Observability      | Braintrust, OpenTelemetry                      |
+| Package management | npm (frontend), uv (Python backend)            |
 
-HERALD is a four-tier escalation framework for evaluating claims in the memo:
+## Prerequisites
 
-1. Tier 1: local NLI checks for claims that are well suited to entailment testing
-2. Tier 2: LLM-as-judge evaluation for source faithfulness and reasoning quality
-3. Tier 3: multi-agent debate across domain expert, methodologist, and skeptic personas
-4. Tier 4: human review when automated tiers cannot confidently resolve the claim
+- Node.js 20+
+- Python 3.11+
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) (`curl -LsSf https://astral.sh/uv/install.sh | sh`)
+- PostgreSQL 15+ and Redis 7+ (optional — only needed for the Python backend / Tier 1 NLI)
 
-Claims are classified into six types, and that type determines how evaluation starts:
+## Setup
 
-- statistical or numeric
-- causal
-- comparative
-- predictive or projective
-- normative or prescriptive
-- synthesis
-
-The architecture also tracks derivation risk:
-
-- `direct_extraction`
-- `paraphrase`
-- `cross_source`
-- `agent_inference`
-
-## Notes Log and Provenance
-
-A core design principle in this project is that the memo is not enough by itself. The system must also generate a notes log during research.
-
-Each claim should carry:
-
-- a stable claim ID
-- claim text
-- claim type
-- derivation method
-- one or more linked sources
-- relevant supporting excerpts
-- agent reasoning about how the claim was formed
-
-That notes log is what powers provenance inspection, claim selection, HERALD routing, and revision.
-
-## Architecture Blueprint
-
-The project is designed as a TypeScript frontend and orchestration layer plus a Python backend for services and evaluation infrastructure.
-
-Planned major areas include:
-
-- `src/agent/` for prompt assembly, research loops, claim extraction, and memo generation
-- `src/herald/` for routing, tier execution, and revision feedback
-- `src/mcp/` for external tools such as arXiv, World Bank, web search, and file readers
-- `src/observability/` for Braintrust and telemetry integration
-- `src/ui/` for the user-facing workflow across input, generation, review, and evaluation
-- `src/types/` for the core TypeScript schemas
-- `backend/src/policy_memo_agent/` for FastAPI routes, services, models, DB access, and Python HERALD logic
-- `backend/tests/` and `tests/` for Python and TypeScript test coverage
-
-Two architecture rules matter a lot:
-
-- TypeScript and Python models must stay in sync.
-- Every final memo claim should map back to structured provenance.
-
-## Build Plan
-
-The implementation flow is driven by `claude_prompts.md`, which is organized as a sequential set of prompts for Claude Code.
-
-The high-level checkpoint order is:
-
-1. repository initialization, Python setup, hooks, and CI
-2. TypeScript scaffold and shared types
-3. prompt assembler and research agent loop
-4. claim extraction and HERALD routing
-5. HERALD tiers 1 through 3
-6. frontend workflow for input, progress, memo review, and results
-7. real API integrations and Braintrust observability
-8. reliability features, memory, DB-backed state, and revision loops
-9. human review, integration polish, and end-to-end testing
-
-If you are building from the prompts, complete one checkpoint at a time and verify each before moving forward.
-
-## Developer Workflow
-
-This repo uses Husky hooks, `lint-staged`, TypeScript checks, and Python checks. The easiest way to avoid the usual commit and push surprises is to run the full local verification command before you commit or push:
+### 1. Clone and install
 
 ```bash
-npm run verify
+git clone https://github.com/gu-dsan6725/spring-2026-final-project-team_02.git
+cd spring-2026-final-project-team_02
+npm install
 ```
 
-Recommended flow:
+### 2. Configure environment variables
 
 ```bash
-npm run verify
-git add .
-git commit -m "feat: short description"
-git push
+cp .env.example .env.local
 ```
 
-Why this helps:
+Open `.env.local` and fill in at minimum:
 
-- `git commit` runs staged-file checks only
-- `git push` runs heavier checks through the pre-push hook
-- CI can still be stricter on protected branches
+```
+GROQ_API_KEY=        # required — research agent (free tier at console.groq.com)
+OPENAI_API_KEY=      # required — HERALD Tier 2/3 evaluation
+GEMINI_API_KEY=      # required — web search grounding (free at aistudio.google.com)
+```
 
-So `npm run verify` is the main local “am I safe to push?” command.
+Optional keys for additional data sources (FRED economic data, GovInfo congressional reports) and observability (Braintrust) are documented in `.env.example`.
 
-## Expected Tooling
+### 3. Run the frontend
 
-The architecture and prompts assume a setup centered on:
+```bash
+npm run dev
+```
 
-- Next.js with TypeScript on the application side
-- FastAPI and `uv` on the Python side
-- Ruff, mypy, and pytest for Python quality
-- ESLint, Prettier, Vitest, Husky, and lint-staged for TypeScript quality
-- Braintrust for observability and tracing
-- MCP-based tool access for research capabilities
+Open [http://localhost:3000](http://localhost:3000).
 
-## Working Agreement for Contributors
+### 4. (Optional) Run the Python backend for Tier 1 NLI
 
-When extending this project:
+The Python backend enables local NLI inference. Without it, HERALD silently skips Tier 1 and starts at Tier 2.
 
-- treat `CLAUDE.md` as the architecture contract
-- treat `claude_prompts.md` as the build sequence
-- keep claims, notes log entries, and evaluation outputs strongly typed
-- do not let memo generation drift away from provenance requirements
-- prefer small checkpoint-sized changes over broad speculative refactors
+```bash
+cd backend
+uv sync
+uv run uvicorn policy_memo_agent.api.app:create_app --factory --reload --port 8000
+```
 
-## Current Status
+The DeBERTa NLI model (~900 MB) downloads automatically on first run.
 
-This repository contains both planning artifacts and an in-progress implementation. Some parts reflect the target architecture before every module in that architecture is fully built.
+## Usage
 
-That is intentional: the docs describe the system we are building toward, and the prompt sequence in `claude_prompts.md` is the operating plan for getting there.
+1. Navigate to [http://localhost:3000](http://localhost:3000)
+2. Enter a policy topic, optional background context, and any known source URLs
+3. Click **Generate Memo** — the agent runs its research loop (up to 25 tool calls) and writes the memo
+4. Review the rendered memo; click any `[C-XXX]` marker to inspect the provenance
+5. Select claims for HERALD evaluation (high-risk claims are pre-selected)
+6. Click **Evaluate** — HERALD runs and shows tier-by-tier results with verdicts and suggested revisions
+
+### Running the pipeline from the command line
+
+```bash
+# Full pipeline (research → memo → HERALD evaluation)
+npm run pipeline
+
+# Dry run (research and memo only, skips HERALD)
+npm run pipeline:dry
+```
+
+## Development
+
+```bash
+# Run all checks (TypeScript + Python)
+npm run verify
+
+# Frontend only
+npm run typecheck
+npm run lint
+npm run test
+
+# Python backend only
+cd backend
+uv run ruff check .
+uv run mypy src/
+uv run pytest -m "not integration"
+
+# HERALD tests
+npm run test:herald
+
+# Agent tests
+npm run test:agent
+```
+
+Pre-commit hooks (Husky + lint-staged) run TypeScript and Python checks automatically on staged files. HERALD tests run whenever `src/herald/` files are modified.
+
+## Project Structure
+
+```
+.
+├── src/
+│   ├── agent/          # Research loop, prompt assembly, claim extraction, budget control
+│   ├── herald/         # HERALD router, Tier 1–4 evaluation, revision feedback loop
+│   ├── mcp/            # Tool servers: arXiv, World Bank, FRED, GovInfo, Semantic Scholar, web
+│   ├── observability/  # Braintrust and OpenTelemetry integration
+│   ├── types/          # Shared TypeScript types (claims, herald, memo, agent)
+│   └── ui/             # Next.js app, React components, hooks
+├── backend/
+│   └── src/policy_memo_agent/
+│       ├── api/        # FastAPI routes (memos, herald, health, WebSocket)
+│       ├── herald/     # Python HERALD implementation (Tier 1 NLI, prompts)
+│       ├── models/     # Pydantic models mirroring TypeScript types
+│       └── db/         # SQLAlchemy models and repositories
+├── tests/              # TypeScript tests (agent, herald, mcp, integration)
+├── backend/tests/      # Python tests
+└── scripts/            # Pipeline runner, benchmarking, seed data
+```
+
+## Architecture
+
+See [CLAUDE.md](CLAUDE.md) for the full architecture specification, including the claim taxonomy (6 types), HERALD routing table, notes log schema, and all design decisions.
+
+## License
+
+ISC
