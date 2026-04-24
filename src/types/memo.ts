@@ -12,6 +12,7 @@ export interface MemoInput {
   template?: string;
   uploaded_files?: File[];
   uploaded_file_paths?: string[];
+  source_document_texts?: Array<{ name: string; content: string }>;
   max_tool_calls?: number;
   max_research_tokens?: number;
 }

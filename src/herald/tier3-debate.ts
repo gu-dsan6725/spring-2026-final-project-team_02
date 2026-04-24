@@ -1,101 +1,144 @@
 /**
- * HERALD Tier 3 — Senior Reviewer (single focused haiku call).
+ * HERALD Tier 3 — Multi-Agent Debate.
  *
- * Previously implemented as a 3-persona multi-agent debate, which caused:
- *   1. Adversarial convergence: the Skeptic persona biased verdicts toward "invalid"
- *   2. High crash rate: judge tool calls frequently omitted the "reasoning" field,
- *      causing isSynthesisInput() to throw and mark claims as wrong
- *   3. Cost: 4 haiku calls per claim (3 personas + judge) made HERALD more expensive
- *      than a single haiku call despite having cheaper NLI and mini-T2 stages
+ * Three personas (Domain Expert, Methodologist, Skeptic) independently evaluate
+ * the claim in parallel, then a Judge synthesises their perspectives into a final
+ * verdict.
  *
- * New design: one haiku call that receives the full claim context + T2 reasoning
- * and makes a final definitive assessment. The model acts as a "senior reviewer"
- * with explicit calibration bias toward VALID for close calls.
- *
- * Decision logic unchanged:
- *   - Confidence > 0.80 → exit with verdict
- *   - Confidence ≤ 0.80 → escalate to Tier 4 (human review)
+ * Decision logic:
+ *   - Judge confidence > 0.80 → exit with judge's verdict
+ *   - Judge confidence ≤ 0.80 → override to 'uncertain', escalate to Tier 4
  */
 
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
 import type { NotesLogEntry } from '../types/claims';
 import type { TierOutput, Verdict } from '../types/herald';
 import { logError, startSpan } from '../observability/braintrust';
+import { getDomainExpertPrompt } from './prompts/domain-expert';
+import { getMethodologistPrompt } from './prompts/methodologist';
+import { getSkepticPrompt } from './prompts/skeptic';
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-const REVIEWER_MODEL = 'claude-haiku-4-5';
-const REVIEWER_TEMPERATURE = 0.1;
-const REVIEWER_MAX_TOKENS = 1024;
+const DEBATE_MODEL = 'gpt-4o-mini';
+const DEBATE_TEMPERATURE = 0.3;
+const DEBATE_MAX_TOKENS = 1024;
 const JUDGE_CONFIDENCE_THRESHOLD = 0.8;
 
 // ---------------------------------------------------------------------------
-// Anthropic client (lazy singleton)
+// OpenAI client (lazy singleton)
 // ---------------------------------------------------------------------------
 
-let _client: Anthropic | null = null;
+let _client: OpenAI | null = null;
 
-function getClient(): Anthropic {
+function getClient(): OpenAI {
   if (_client === null) {
-    _client = new Anthropic({
-      apiKey: process.env['ANTHROPIC_API_KEY'],
+    _client = new OpenAI({
+      apiKey: process.env['OPENAI_API_KEY'],
     });
   }
   return _client;
 }
 
 // ---------------------------------------------------------------------------
-// Tool definition
+// Tool definitions
 // ---------------------------------------------------------------------------
 
-const REVIEW_TOOL: Anthropic.Tool = {
-  name: 'submit_review',
-  description:
-    'Submit your final verdict on the claim. Always call this — do not respond with plain text.',
-  input_schema: {
-    type: 'object',
-    properties: {
-      verdict: {
-        type: 'string',
-        enum: ['valid', 'invalid', 'uncertain'],
-        description: 'Your final verdict.',
+const SUBMIT_DEBATE_TURN: OpenAI.Chat.ChatCompletionTool = {
+  type: 'function',
+  function: {
+    name: 'submit_debate_turn',
+    description:
+      'Submit your evaluation of the claim. Always call this function — do not respond with plain text.',
+    parameters: {
+      type: 'object',
+      properties: {
+        verdict: {
+          type: 'string',
+          enum: ['valid', 'invalid', 'uncertain'],
+          description: 'Your verdict on the claim.',
+        },
+        reasoning: {
+          type: 'string',
+          description: 'Your reasoning, citing specific source text.',
+        },
+        key_concern: {
+          type: 'string',
+          description: 'The primary concern or key point from your perspective.',
+        },
       },
-      confidence: {
-        type: 'number',
-        description: 'Confidence in your verdict (0.0–1.0). Be calibrated — use 0.85+ only when the answer is clear.',
-      },
-      reasoning: {
-        type: 'string',
-        description:
-          'Your reasoning citing specific source text. For invalid verdicts, identify the exact error.',
-      },
-      suggested_revision: {
-        type: 'string',
-        description: 'Required for invalid verdicts only. A concrete revised claim text.',
-      },
+      required: ['verdict', 'reasoning', 'key_concern'],
     },
-    required: ['verdict', 'confidence', 'reasoning'],
+  },
+};
+
+const SUBMIT_SYNTHESIS: OpenAI.Chat.ChatCompletionTool = {
+  type: 'function',
+  function: {
+    name: 'submit_synthesis',
+    description:
+      'Submit your synthesis of the debate and final verdict. Always call this — do not respond with plain text.',
+    parameters: {
+      type: 'object',
+      properties: {
+        verdict: {
+          type: 'string',
+          enum: ['valid', 'invalid', 'uncertain'],
+          description: 'The final verdict after synthesising all perspectives.',
+        },
+        confidence: {
+          type: 'number',
+          description: 'Confidence in the final verdict (0.0–1.0).',
+        },
+        reasoning: {
+          type: 'string',
+          description: 'Synthesis of the debate and rationale for the verdict.',
+        },
+        suggested_revision: {
+          type: 'string',
+          description: 'For invalid verdicts, a concrete revised claim text.',
+        },
+        dominant_persona: {
+          type: 'string',
+          enum: ['domain_expert', 'methodologist', 'skeptic'],
+          description: 'Which persona most influenced the final verdict.',
+        },
+      },
+      required: ['verdict', 'confidence', 'reasoning'],
+    },
   },
 };
 
 // ---------------------------------------------------------------------------
-// Type guard — lenient: only verdict and confidence are truly required
+// Type guards
 // ---------------------------------------------------------------------------
 
-interface ReviewInput {
+interface DebateTurnInput {
+  verdict: string;
+  reasoning: string;
+  key_concern?: string;
+}
+
+interface SynthesisInput {
   verdict: string;
   confidence: number;
   reasoning: string;
   suggested_revision?: string | null;
+  dominant_persona?: string;
 }
 
-function isReviewInput(obj: unknown): obj is ReviewInput {
+function isDebateTurnInput(obj: unknown): obj is DebateTurnInput {
   if (typeof obj !== 'object' || obj === null) return false;
   const o = obj as Record<string, unknown>;
-  // reasoning is expected but tolerated as missing — fall back to a placeholder
+  return typeof o['verdict'] === 'string' && typeof o['reasoning'] === 'string';
+}
+
+function isSynthesisInput(obj: unknown): obj is SynthesisInput {
+  if (typeof obj !== 'object' || obj === null) return false;
+  const o = obj as Record<string, unknown>;
   return typeof o['verdict'] === 'string' && typeof o['confidence'] === 'number';
 }
 
@@ -106,31 +149,10 @@ function parseVerdict(raw: string): Verdict {
 }
 
 // ---------------------------------------------------------------------------
-// Prompt
+// Message builder
 // ---------------------------------------------------------------------------
 
-function buildSystemPrompt(): string {
-  return `You are a senior policy research analyst making a final definitive assessment of a claim's validity.
-
-The claim has already been reviewed by a Tier 2 LLM judge that was unable to reach a confident verdict. Your job is to make the final call.
-
-**Your evaluation standard:**
-- VALID: The claim is faithfully supported by the cited source material. It may be a paraphrase, aggregation, or cross-source synthesis — that is fine as long as the conclusion follows from the evidence.
-- INVALID: There is a specific, concrete, quotable error — wrong number, wrong direction, fabricated projection, unsupported causal claim, or material misrepresentation. You must be able to point to the exact phrase in the source that contradicts the claim.
-- UNCERTAIN: You have doubts but cannot identify a specific concrete error. The evidence is genuinely ambiguous or the source excerpt is too short to evaluate.
-
-**Critical calibration rules:**
-1. When in doubt between INVALID and UNCERTAIN, choose UNCERTAIN.
-2. When in doubt between VALID and UNCERTAIN, choose VALID.
-3. A paraphrase that preserves the proposition, scope, timeframe, and attribution is VALID even when the wording differs.
-4. A synthesis claim is VALID if the conclusion follows logically from the combined sources — it does not need to appear verbatim in any single source.
-5. Do NOT penalize a claim for omitting caveats the source mentions unless the omission materially changes the meaning.
-6. Theoretical alternative explanations are NOT grounds for INVALID. You must identify a specific inferential error or misrepresentation.
-
-Always call the submit_review tool with your assessment.`.trim();
-}
-
-function buildClaimContext(claim: NotesLogEntry, tier2Output: TierOutput): string {
+function buildClaimUserMessage(claim: NotesLogEntry, tier2Output: TierOutput): string {
   const lines: string[] = [
     '## Claim Under Review',
     '',
@@ -144,7 +166,8 @@ function buildClaimContext(claim: NotesLogEntry, tier2Output: TierOutput): strin
   ];
 
   for (const [i, src] of claim.sources.entries()) {
-    lines.push(`### Source ${String(i + 1)}: ${src.source_title}`);
+    lines.push(`### Source ${String(i + 1)}: ${src.source_title} (${src.source_id})`);
+    lines.push(`URL: ${src.source_url}`);
     lines.push('Relevant excerpt:');
     lines.push('```');
     lines.push(src.relevant_chunk);
@@ -159,16 +182,121 @@ function buildClaimContext(claim: NotesLogEntry, tier2Output: TierOutput): strin
   lines.push('## Tier 2 Review (Inconclusive)');
   lines.push('');
   lines.push(
-    `The Tier 2 reviewer returned: **${tier2Output.verdict}** at ${Math.round(tier2Output.confidence * 100).toString()}% confidence.`,
+    `Tier 2 verdict: **${tier2Output.verdict}** at ${Math.round(tier2Output.confidence * 100).toString()}% confidence.`,
   );
   lines.push(`Tier 2 reasoning: ${tier2Output.reasoning}`);
   lines.push('');
   lines.push(
-    'This is a close call. Make the definitive assessment. Do not simply echo the Tier 2 result — ' +
-      'use the source material directly. Call submit_review with your verdict.',
+    'Evaluate the claim against the source material and call `submit_debate_turn` with your verdict.',
   );
 
   return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Persona call
+// ---------------------------------------------------------------------------
+
+async function runPersona(systemPrompt: string, userMessage: string): Promise<DebateTurnInput> {
+  const response = await getClient().chat.completions.create({
+    model: DEBATE_MODEL,
+    temperature: DEBATE_TEMPERATURE,
+    max_tokens: DEBATE_MAX_TOKENS,
+    tools: [SUBMIT_DEBATE_TURN],
+    tool_choice: { type: 'function', function: { name: 'submit_debate_turn' } },
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userMessage },
+    ],
+  });
+
+  const toolCall = response.choices[0]?.message?.tool_calls?.[0];
+  if (
+    toolCall == null ||
+    toolCall.type !== 'function' ||
+    toolCall.function.name !== 'submit_debate_turn'
+  ) {
+    throw new Error(
+      `Persona did not call submit_debate_turn. ` +
+        `finish_reason=${response.choices[0]?.finish_reason ?? 'unknown'}`,
+    );
+  }
+
+  const parsed: unknown = JSON.parse(toolCall.function.arguments) as unknown;
+  if (!isDebateTurnInput(parsed)) {
+    throw new Error(
+      `Persona submit_debate_turn missing required fields: ${JSON.stringify(parsed)}`,
+    );
+  }
+  return parsed;
+}
+
+// ---------------------------------------------------------------------------
+// Judge call
+// ---------------------------------------------------------------------------
+
+async function runJudge(
+  claim: NotesLogEntry,
+  tier2Output: TierOutput,
+  personaResults: DebateTurnInput[],
+): Promise<SynthesisInput> {
+  const [domainExpert, methodologist, skeptic] = personaResults;
+
+  const judgeLines: string[] = [
+    '## Claim Under Review',
+    '',
+    `**Claim text**: "${claim.claim_text}"`,
+    '',
+    '## Three-Perspective Debate Summary',
+    '',
+    `**Domain Expert**: ${domainExpert.verdict} — ${domainExpert.reasoning}`,
+    '',
+    `**Methodologist**: ${methodologist.verdict} — ${methodologist.reasoning}`,
+    '',
+    `**Skeptic**: ${skeptic.verdict} — ${skeptic.reasoning}`,
+    '',
+    '## Tier 2 Context',
+    '',
+    `Tier 2 returned **${tier2Output.verdict}** at ${Math.round(tier2Output.confidence * 100).toString()}% confidence: ${tier2Output.reasoning}`,
+    '',
+    'Synthesise the three perspectives into a final verdict. Call `submit_synthesis` with your assessment.',
+  ];
+
+  const response = await getClient().chat.completions.create({
+    model: DEBATE_MODEL,
+    temperature: DEBATE_TEMPERATURE,
+    max_tokens: DEBATE_MAX_TOKENS,
+    tools: [SUBMIT_SYNTHESIS],
+    tool_choice: { type: 'function', function: { name: 'submit_synthesis' } },
+    messages: [
+      {
+        role: 'system',
+        content:
+          "You are a senior policy analyst synthesising a multi-perspective debate on a claim's validity. " +
+          'Review all three persona evaluations and make a definitive final verdict. ' +
+          'If perspectives diverge significantly or confidence is low, prefer UNCERTAIN over a contested verdict.',
+      },
+      { role: 'user', content: judgeLines.join('\n') },
+    ],
+  });
+
+  const toolCall = response.choices[0]?.message?.tool_calls?.[0];
+  if (
+    toolCall == null ||
+    toolCall.type !== 'function' ||
+    toolCall.function.name !== 'submit_synthesis'
+  ) {
+    throw new Error(
+      `Judge did not call submit_synthesis. ` +
+        `finish_reason=${response.choices[0]?.finish_reason ?? 'unknown'}`,
+    );
+  }
+
+  const parsed: unknown = JSON.parse(toolCall.function.arguments) as unknown;
+  if (!isSynthesisInput(parsed)) {
+    throw new Error(`Judge submit_synthesis missing required fields: ${JSON.stringify(parsed)}`);
+  }
+  return parsed;
 }
 
 // ---------------------------------------------------------------------------
@@ -176,17 +304,17 @@ function buildClaimContext(claim: NotesLogEntry, tier2Output: TierOutput): strin
 // ---------------------------------------------------------------------------
 
 /**
- * Run the HERALD Tier 3 Senior Reviewer (single haiku call).
+ * Run the HERALD Tier 3 Multi-Agent Debate.
  *
  * @param claim       - The claim and its source provenance.
- * @param tier2Output - The inconclusive Tier 2 result (context for the reviewer).
+ * @param tier2Output - The inconclusive Tier 2 result (context for the debate).
  * @returns TierOutput with final verdict, confidence, and reasoning.
  */
 export async function evaluateWithDebate(
   claim: NotesLogEntry,
   tier2Output: TierOutput,
 ): Promise<TierOutput> {
-  const span = startSpan('herald.tier3.reviewer', {
+  const span = startSpan('herald.tier3.debate', {
     claim_id: claim.claim_id,
     claim_type: claim.claim_type,
     tier2_verdict: tier2Output.verdict,
@@ -194,78 +322,47 @@ export async function evaluateWithDebate(
   });
 
   try {
-    const claimContext = buildClaimContext(claim, tier2Output);
+    const userMessage = buildClaimUserMessage(claim, tier2Output);
 
-    const response = await getClient().messages.create({
-      model: REVIEWER_MODEL,
-      max_tokens: REVIEWER_MAX_TOKENS,
-      temperature: REVIEWER_TEMPERATURE,
-      system: buildSystemPrompt(),
-      tools: [REVIEW_TOOL],
-      tool_choice: { type: 'tool', name: 'submit_review' },
-      messages: [{ role: 'user', content: claimContext }],
-    });
+    // Run 3 personas in parallel
+    const [domainExpert, methodologist, skeptic] = await Promise.all([
+      runPersona(getDomainExpertPrompt(claim.claim_type), userMessage),
+      runPersona(getMethodologistPrompt(claim.claim_type), userMessage),
+      runPersona(getSkepticPrompt(claim.claim_type), userMessage),
+    ]);
 
-    const toolUse = response.content.find(
-      (b): b is Anthropic.ToolUseBlock => b.type === 'tool_use',
-    );
+    // Judge synthesises all three perspectives
+    const judgeResult = await runJudge(claim, tier2Output, [domainExpert, methodologist, skeptic]);
 
-    let parsed: unknown;
+    const verdict = parseVerdict(judgeResult.verdict);
+    const confidence = Math.max(0, Math.min(1, judgeResult.confidence));
+    const finalVerdict = confidence > JUDGE_CONFIDENCE_THRESHOLD ? verdict : 'uncertain';
 
-    if (toolUse != null) {
-      parsed = toolUse.input;
-    } else {
-      // Fallback: extract JSON from text block
-      const textBlock = response.content.find((b): b is Anthropic.TextBlock => b.type === 'text');
-      const text = textBlock?.text ?? '';
-      const jsonMatch = /\{[\s\S]*\}/.exec(text);
-      if (jsonMatch === null) {
-        throw new Error(
-          `Senior reviewer did not call submit_review and response contains no JSON. ` +
-            `stop_reason=${response.stop_reason ?? 'null'}`,
-        );
-      }
-      try {
-        parsed = JSON.parse(jsonMatch[0]) as unknown;
-      } catch {
-        throw new Error(`Senior reviewer plain-text JSON parse failed: ${text.slice(0, 200)}`);
-      }
-    }
-
-    if (!isReviewInput(parsed)) {
-      throw new Error(
-        `Senior reviewer output missing required fields (verdict, confidence): ${JSON.stringify(parsed)}`,
-      );
-    }
-
-    const rawParsed = parsed as unknown as Record<string, unknown>;
     const reasoning =
-      typeof rawParsed['reasoning'] === 'string'
-        ? rawParsed['reasoning']
-        : `Verdict: ${parsed.verdict} (reasoning not provided by model)`;
-
-    const verdict = parseVerdict(parsed.verdict);
-    const confidence = Math.max(0, Math.min(1, parsed.confidence));
+      typeof judgeResult.reasoning === 'string' && judgeResult.reasoning.length > 0
+        ? judgeResult.reasoning
+        : `Verdict: ${verdict} (no reasoning provided)`;
 
     const output: TierOutput = {
       tier_id: 3,
-      verdict: confidence > JUDGE_CONFIDENCE_THRESHOLD ? verdict : 'uncertain',
+      verdict: finalVerdict,
       confidence,
       reasoning,
     };
 
+    const rawJudge = judgeResult as unknown as Record<string, unknown>;
     if (
-      typeof rawParsed['suggested_revision'] === 'string' &&
-      (rawParsed['suggested_revision'] as string).length > 0
+      typeof rawJudge['suggested_revision'] === 'string' &&
+      rawJudge['suggested_revision'].length > 0
     ) {
-      output.suggested_revision = rawParsed['suggested_revision'] as string;
+      output.suggested_revision = rawJudge['suggested_revision'];
     }
 
-    span.end({ verdict: output.verdict, confidence });
+    span.end({ verdict: finalVerdict, confidence });
 
     return output;
   } catch (error) {
-    logError('herald.tier3.reviewer', error, {
+    logError('herald.tier3.debate', error, {
       claim_id: claim.claim_id,
       claim_type: claim.claim_type,
     });

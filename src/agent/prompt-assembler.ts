@@ -140,8 +140,8 @@ After completing research and writing the memo, output a single JSON object:
 \`\`\`
 
 Every [C-XXX] marker in the memo prose MUST correspond to an entry in notes_log.
-Every entry in notes_log MUST be referenced at least once in the memo prose.
 Do NOT include claims in the memo that are not in the notes_log.
+Do NOT repeat a [C-XXX] marker — each claim_id must appear exactly once in the memo prose.
 `;
 
 // ---------------------------------------------------------------------------
@@ -386,13 +386,19 @@ Rules:
   - End with a specific, bounded call to action: name the precise action, the relevant parties, and any deadline or consequence of delay.
 
 Writing standards:
-- Policy-analyst level: concise (600+ words), evidence-grounded, action-oriented.
+- Policy-analyst level: detailed and comprehensive (1200+ words), evidence-grounded, action-oriented.
 - Active voice throughout. Strong verbs and specific numbers over strong adjectives.
 - Do not introduce any claim that does not have a notes-log entry.
 - Do not use unsupported generalizations.
 - Clearly distinguish: fact (cited) | inference (synthesis) | prediction (conditional).
 - Synthesis claims must be framed as analytical inference, not established fact.
 - Predictive claims must include source and conditionality.
+
+Citation style:
+- Place the [C-XXX] marker directly after the fact or sentence it supports, before the period where possible. Example: "Maternal mortality stands at 1,140 per 100,000 live births [C-001]."
+- When the source name strengthens credibility, name it in prose before the marker. Example: "The World Bank projects urban water demand will exceed supply by 2032 [C-004]."
+- Do NOT cluster all markers at the end of a paragraph — distribute them so each claim is individually traceable.
+- Do NOT add any formatted bibliography or reference list to the memo — that will be generated automatically from the notes log.
 `;
 
 // ---------------------------------------------------------------------------
@@ -411,10 +417,8 @@ export function assembleSystemPrompt(input: MemoInput): string {
     `- Maximum research tokens: ${String(input.max_research_tokens ?? 100000)}`,
   ].join('\n');
 
-  const hasKnownSources =
-    input.known_sources !== undefined && input.known_sources.length > 0;
-  const hasTemplate =
-    input.template !== undefined && input.template.trim().length > 0;
+  const hasKnownSources = input.known_sources !== undefined && input.known_sources.length > 0;
+  const hasTemplate = input.template !== undefined && input.template.trim().length > 0;
 
   // Known sources: mandate fetch_url as the first tool calls
   const knownSourcesSection = hasKnownSources
@@ -455,11 +459,15 @@ export function assembleSystemPrompt(input: MemoInput): string {
       `Rules:\n` +
       `- Reference every factual claim with its [C-XXX] marker inline in the prose.\n` +
       `- Each section must have substantive content — at least 2–3 cited claims per section.\n` +
-      `- Minimum 600 words total across all sections.\n` +
+      `- Minimum 1200 words total across all sections.\n` +
       `- Active voice. Specific numbers from sources, not vague generalizations.\n` +
       `- Do not introduce any claim that does not have a notes-log entry.\n` +
       `- Synthesis claims must be framed as analytical inference, not established fact.\n` +
-      `- Predictive claims must include the source and conditionality.\n`
+      `- Predictive claims must include the source and conditionality.\n` +
+      `- Place the [C-XXX] marker directly after the fact it supports, before the period where possible.\n` +
+      `- When the source name strengthens credibility, name it in prose before the marker.\n` +
+      `- Do NOT cluster all markers at the end of a paragraph — distribute them per individual claim.\n` +
+      `- Do NOT add a bibliography or reference list — that is generated automatically.\n`
     : MEMO_WRITING_INSTRUCTIONS_DEFAULT;
 
   return `You are an expert policy researcher and writer. Your task is to research the topic below
@@ -495,7 +503,7 @@ ${OUTPUT_SCHEMA}
 1. Atomic claims only — one factual assertion per notes-log entry.
    Split multi-claim sentences into separate entries.
 2. Every [C-XXX] marker in the memo must have a notes-log entry.
-3. Every notes-log entry must be referenced in the memo.
+3. Each [C-XXX] marker must appear exactly once in the memo — never repeat a claim_id.
 4. Never exceed the tool-call or token budget.
 5. Never fabricate a source. If a source is unavailable, record it as such.
 6. Never use console.log or print statements — all output must be structured JSON.

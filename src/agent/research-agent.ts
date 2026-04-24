@@ -215,8 +215,7 @@ function compressToolResults(messages: LlmMessage[]): LlmMessage[] {
     const isError = typeof parsed['error'] === 'string';
     const isEmptyResults =
       Array.isArray(parsed['results']) && (parsed['results'] as unknown[]).length === 0;
-    const isEmptyData =
-      Array.isArray(parsed['data']) && (parsed['data'] as unknown[]).length === 0;
+    const isEmptyData = Array.isArray(parsed['data']) && (parsed['data'] as unknown[]).length === 0;
 
     if ((isError || isEmptyResults || isEmptyData) && id.length > 0) {
       failedIds.set(id, idToName.get(id) ?? 'unknown_tool');
@@ -320,7 +319,12 @@ function parseAgentOutput(rawText: string): { memoMarkdown: string; notesLog: No
 
   // Parse notes log and normalise any hallucinated claim types
   const VALID_CLAIM_TYPES = new Set([
-    'statistical', 'causal', 'comparative', 'predictive', 'normative', 'synthesis',
+    'statistical',
+    'causal',
+    'comparative',
+    'predictive',
+    'normative',
+    'synthesis',
   ]);
   const CLAIM_TYPE_ALIASES: Record<string, string> = {
     conditional: 'predictive',
@@ -350,7 +354,16 @@ function parseAgentOutput(rawText: string): { memoMarkdown: string; notesLog: No
       })
     : [];
 
-  return { memoMarkdown: memoMarkdown.trim(), notesLog };
+  // Strip duplicate [C-XXX] markers — keep only the first occurrence of each claim_id.
+  // The agent sometimes repeats markers across sentences; only the first use is meaningful.
+  const seenClaimIds = new Set<string>();
+  const dedupedMarkdown = memoMarkdown.trim().replace(/\[C-\d{3,}\]/g, (marker) => {
+    if (seenClaimIds.has(marker)) return '';
+    seenClaimIds.add(marker);
+    return marker;
+  });
+
+  return { memoMarkdown: dedupedMarkdown, notesLog };
 }
 
 // ---------------------------------------------------------------------------
@@ -420,9 +433,8 @@ async function createCompletion(
   options: CompletionOptions = {},
 ): Promise<LlmChatCompletion> {
   const { toolsEnabled = true } = options;
-  // OpenAI needs more output tokens to avoid truncating the final JSON memo.
-  // Groq is generous with output speed so 4096 is fine there.
-  const maxTokens = provider.provider === 'openai' ? 8192 : 4096;
+  // Use large output token limits to avoid truncating the final JSON memo.
+  const maxTokens = provider.provider === 'openai' ? 16384 : 8192;
 
   const request: Record<string, unknown> = {
     model: provider.model,
@@ -517,8 +529,19 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
   const calledTools = new Set<string>();
 
   // US-domestic priority tools that should fire before the agent wraps up
-  const PRIORITY_TOOLS_US = ['govinfo_search', 'fred_data', 'govreport_search', 'arxiv_search', 'semantic_scholar_search'];
-  const PRIORITY_TOOLS_INTL = ['worldbank_data', 'arxiv_search', 'semantic_scholar_search', 'govreport_search'];
+  const PRIORITY_TOOLS_US = [
+    'govinfo_search',
+    'fred_data',
+    'govreport_search',
+    'arxiv_search',
+    'semantic_scholar_search',
+  ];
+  const PRIORITY_TOOLS_INTL = [
+    'worldbank_data',
+    'arxiv_search',
+    'semantic_scholar_search',
+    'govreport_search',
+  ];
 
   try {
     for (let iteration = 0; iteration < maxIterations; iteration++) {
@@ -573,13 +596,15 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
         // Quality gate: if the agent stops early without having used key research tools,
         // push it to continue — but only once per session.
         if (!controller.isBudgetExceeded() && !controller.hasUsedExtraRound) {
-          const topicLower = input.topic.toLowerCase() + ' ' + (input.background ?? '').toLowerCase();
-          const isUsDomestic = /section 8|housing voucher|federal|hud|gao|crs|fred|us |u\.s\./i.test(topicLower);
+          const topicLower =
+            input.topic.toLowerCase() + ' ' + (input.background ?? '').toLowerCase();
+          const isUsDomestic =
+            /section 8|housing voucher|federal|hud|gao|crs|fred|us |u\.s\./i.test(topicLower);
           const priorityTools = isUsDomestic ? PRIORITY_TOOLS_US : PRIORITY_TOOLS_INTL;
           const unusedPriorityTools = priorityTools.filter((t) => !calledTools.has(t));
           const toolCallsLeft = config.max_tool_calls - controller.getState().toolCallsUsed;
 
-          if (unusedPriorityTools.length > 0 && toolCallsLeft >= 3) {
+          if (unusedPriorityTools.length > 0 && toolCallsLeft >= 5 && calledTools.size > 0) {
             logWarn('quality_gate:early_stop_with_unused_tools', {
               called_tools: [...calledTools],
               unused_priority_tools: unusedPriorityTools,
@@ -673,7 +698,13 @@ export async function runResearchAgent(input: MemoInput, config: AgentConfig): P
       {
         role: 'user',
         content:
-          'Research is complete. Do not call any tools. Return only the final JSON object with keys "memo" and "notes_log". Ensure the JSON is complete and valid.',
+          'Research is complete. Do not call any tools. ' +
+          'Now write the full policy memo. Each section must be substantive and detailed — ' +
+          'the memo prose (excluding the notes_log) must be at least 1200 words total. ' +
+          'Every section (Executive Summary, Problem and Context, Options and Analysis, Recommendation, Conclusion) ' +
+          'must contain multiple paragraphs with inline [C-XXX] citation markers. ' +
+          'Do not summarize or abbreviate — write the complete, professional-quality memo. ' +
+          'Then return a single JSON object with keys "memo" and "notes_log". Ensure the JSON is complete and valid.',
       },
     ];
     const finalResponse = await callLlmWithRetryAndFallback(finalMessages, tools, {

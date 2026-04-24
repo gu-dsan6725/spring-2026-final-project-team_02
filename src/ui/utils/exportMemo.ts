@@ -19,6 +19,58 @@ import type { HeraldResult } from '@/types/herald';
 import type { MemoOutput } from '@/types/memo';
 
 // ---------------------------------------------------------------------------
+// Footnote builder — export-only, keeps memo_markdown clean for the UI
+// ---------------------------------------------------------------------------
+
+/**
+ * Replaces inline [C-XXX] claim markers with numbered footnote references
+ * ([^1], [^2], …) and appends a Markdown References section.
+ *
+ * Called only at export time so memo_markdown stays unmodified for the
+ * MemoViewer's colored-underline claim highlighting.
+ */
+function addFootnotes(memoMarkdown: string, notesLog: NotesLogEntry[]): string {
+  const claimSources = new Map<string, NotesLogEntry['sources']>();
+  for (const entry of notesLog) {
+    claimSources.set(entry.claim_id, entry.sources);
+  }
+
+  const urlToNumber = new Map<string, number>();
+  const orderedSources: Array<{ number: number; title: string; url: string }> = [];
+  let nextNumber = 1;
+
+  const withRefs = memoMarkdown.replace(/\[C-\d{3,}\]/g, (marker) => {
+    const claimId = marker.slice(1, -1);
+    const sources = claimSources.get(claimId) ?? [];
+    if (sources.length === 0) return marker;
+
+    const refs: string[] = [];
+    for (const source of sources) {
+      const url = source.source_url;
+      if (!urlToNumber.has(url)) {
+        urlToNumber.set(url, nextNumber);
+        orderedSources.push({ number: nextNumber, title: source.source_title, url });
+        nextNumber++;
+      }
+      refs.push(`[^${String(urlToNumber.get(url) ?? nextNumber - 1)}]`);
+    }
+    return [...new Set(refs)].join('');
+  });
+
+  if (orderedSources.length === 0) return memoMarkdown;
+
+  const footnoteDefinitions = orderedSources
+    .map(({ number, title, url }) => `[^${String(number)}]: ${title} — ${url}`)
+    .join('\n');
+
+  const referencesList = orderedSources
+    .map(({ number, title, url }) => `${String(number)}. ${title}  \n   ${url}`)
+    .join('\n\n');
+
+  return `${withRefs}\n\n---\n\n## References\n\n${referencesList}\n\n${footnoteDefinitions}`;
+}
+
+// ---------------------------------------------------------------------------
 // Shared download helper
 // ---------------------------------------------------------------------------
 
@@ -50,7 +102,8 @@ function safeFilename(base: string): string {
  * Download the memo as a Markdown file.
  */
 export function exportAsMarkdown(memo: MemoOutput, filename = 'policy-memo.md'): void {
-  const blob = new Blob([memo.memo_markdown], { type: 'text/markdown;charset=utf-8' });
+  const markdown = addFootnotes(memo.memo_markdown, memo.notes_log);
+  const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
   triggerDownload(blob, safeFilename(filename));
 }
 
@@ -58,7 +111,17 @@ export function exportAsMarkdown(memo: MemoOutput, filename = 'policy-memo.md'):
 // Docx export
 // ---------------------------------------------------------------------------
 
-/** Convert a single markdown line to a docx Paragraph. */
+/**
+ * Convert a single markdown line to a docx Paragraph.
+ *
+ * Handles:
+ *  - Headings (# / ## / ###)
+ *  - Horizontal rules (---) → empty paragraph
+ *  - Footnote definitions ([^N]: ...) → italic reference paragraph
+ *  - Inline footnote refs ([^N]) → superscript numbers
+ *  - Inline bold (**text**)
+ *  - Legacy raw [C-xxx] markers (stripped for safety)
+ */
 function markdownLineToParagraph(line: string): Paragraph {
   // Detect heading levels
   const h1 = /^# (.+)$/.exec(line);
@@ -83,23 +146,55 @@ function markdownLineToParagraph(line: string): Paragraph {
     });
   }
 
-  // Strip [C-xxx] citation markers
-  const cleaned = line.replace(/\[C-\d{3,}\]/g, '').trim();
-
-  if (cleaned.length === 0) {
+  // Horizontal rule
+  if (/^---+$/.test(line.trim())) {
     return new Paragraph({ children: [] });
   }
 
-  // Inline bold (**text**)
-  const runs: TextRun[] = [];
-  const segments = cleaned.split(/(\*\*[^*]+\*\*)/g);
-  for (const seg of segments) {
-    if (seg.startsWith('**') && seg.endsWith('**')) {
-      runs.push(new TextRun({ text: seg.slice(2, -2), bold: true }));
-    } else if (seg.length > 0) {
-      runs.push(new TextRun(seg));
-    }
+  // Footnote definition line: [^N]: Title — URL
+  const fnDef = /^\[\^(\d+)\]:\s*(.+)$/.exec(line);
+  if (fnDef !== null) {
+    return new Paragraph({
+      children: [
+        new TextRun({ text: `[${fnDef[1]}] `, superScript: true }),
+        new TextRun({ text: fnDef[2], italics: true, size: 18 }),
+      ],
+    });
   }
+
+  // Strip legacy [C-xxx] markers (shouldn't appear after footnote conversion, but just in case)
+  const withoutLegacy = line.replace(/\[C-\d{3,}\]/g, '');
+
+  if (withoutLegacy.trim().length === 0) {
+    return new Paragraph({ children: [] });
+  }
+
+  // Tokenise: split on [^N] refs and **bold** spans
+  const runs: TextRun[] = [];
+  const tokenRegex = /(\[\^(\d+)\]|\*\*[^*]+\*\*)/g;
+  let lastIndex = 0;
+
+  for (const match of withoutLegacy.matchAll(tokenRegex)) {
+    // Plain text before this token
+    const before = withoutLegacy.slice(lastIndex, match.index);
+    if (before.length > 0) runs.push(new TextRun(before));
+
+    if (match[0].startsWith('[^')) {
+      // Footnote ref → superscript number
+      runs.push(new TextRun({ text: match[2], superScript: true }));
+    } else {
+      // Bold span
+      runs.push(new TextRun({ text: match[0].slice(2, -2), bold: true }));
+    }
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Remaining plain text
+  const tail = withoutLegacy.slice(lastIndex);
+  if (tail.length > 0) runs.push(new TextRun(tail));
+
+  if (runs.length === 0) return new Paragraph({ children: [] });
 
   const opts: IParagraphOptions = { children: runs };
   return new Paragraph(opts);
@@ -109,7 +204,7 @@ function markdownLineToParagraph(line: string): Paragraph {
  * Download the memo as a .docx file.
  */
 export async function exportAsDocx(memo: MemoOutput, filename = 'policy-memo.docx'): Promise<void> {
-  const lines = memo.memo_markdown.split('\n');
+  const lines = addFootnotes(memo.memo_markdown, memo.notes_log).split('\n');
   const paragraphs = lines.map(markdownLineToParagraph);
 
   const doc = new Document({
@@ -200,8 +295,11 @@ export async function exportAsZip({
 }: ZipExportOptions): Promise<void> {
   const zip = new JSZip();
 
+  // Convert [C-XXX] markers to numbered footnotes for all exported formats
+  const markdownWithFootnotes = addFootnotes(memo.memo_markdown, memo.notes_log);
+
   // Memo markdown
-  zip.file('memo.md', memo.memo_markdown);
+  zip.file('memo.md', markdownWithFootnotes);
 
   // Notes log
   zip.file('notes-log.json', JSON.stringify(memo.notes_log, null, 2));
@@ -213,7 +311,7 @@ export async function exportAsZip({
   }
 
   // Docx version of the memo
-  const docxLines = memo.memo_markdown.split('\n').map(markdownLineToParagraph);
+  const docxLines = markdownWithFootnotes.split('\n').map(markdownLineToParagraph);
   const doc = new Document({ sections: [{ children: docxLines }] });
   const docxBlob = await Packer.toBlob(doc);
   const docxBuffer = await docxBlob.arrayBuffer();

@@ -29,7 +29,7 @@ import { getJudgePrompt } from './prompts/judge-system';
 // Constants
 // ---------------------------------------------------------------------------
 
-const JUDGE_MODEL = 'gpt-4o-mini';
+const JUDGE_MODEL = 'gpt-4o';
 const JUDGE_TEMPERATURE = 0.2;
 const JUDGE_MAX_TOKENS = 1024;
 
@@ -193,12 +193,13 @@ function buildUserMessage(
   lines.push('');
 
   if (tier1Result !== undefined) {
-    lines.push('## Tier 1 NLI Scores (Supplementary)');
+    lines.push('## Tier 1 NLI Result');
     lines.push('');
     lines.push(
       'The NLI model ran a surface-level entailment check. These scores are supplementary — ' +
         'you are the primary judge. Evaluate the claim independently against the source material.',
     );
+    lines.push(`- NLI verdict: ${tier1Result.verdict}`);
     lines.push(`- NLI entailment signal: ${(tier1Result.confidence * 100).toFixed(1)}%`);
     lines.push(`- NLI note: ${tier1Result.reasoning}`);
     lines.push('');

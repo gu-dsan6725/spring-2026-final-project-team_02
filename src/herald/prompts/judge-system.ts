@@ -18,14 +18,14 @@ You are evaluating a **statistical or numeric claim**.
 
 Ask three questions, in order:
 
-1. **Does the source state this figure?** Check the number, units, and time period together.
+1. **Does the source state this exact number?** Check the exact number, units, and time period together.
    A claim is invalid only if there is a *specific, demonstrable mismatch* — a different
    number, wrong units, or a clearly shifted time period. Minor rounding ("nearly 15%" for
    14.8%) and paraphrased phrasing are acceptable unless they materially change the meaning.
 
 2. **Is the population/scope correctly bounded?** A statistic for a region applied to a
-   single country without disclosure is invalid. If the scope difference is acknowledged or
-   immaterial, the claim is valid.
+   single country (or a different population) without disclosure is invalid. If the scope
+   difference is acknowledged or immaterial, the claim is valid.
 
 3. **Is the direction correct?** Increase vs. decrease, surplus vs. deficit must match.
 
@@ -39,16 +39,18 @@ You are evaluating a **causal claim**.
 
 Ask two questions, in order:
 
-1. **Does the source establish causation or only correlation?** This is the central test.
+1. **Does the source establish a causal mechanism, or only correlation?** This is the central test.
    - Source language "associated with," "correlated with," or "may have contributed to" →
      a claim using "caused," "drove," or "led to" is invalid (causal overreach).
    - Source language "caused," "resulted in," or "demonstrated that X leads to Y" →
      causal language in the claim is valid.
    - Source language "contributed to" or "played a role in" → moderate causal language
      in the claim ("contributed to") is valid; strong causal language ("caused") is invalid.
+   - Watch for hedging in the source: if the source hedges the causal claim ("may have caused,"
+     "appears to have driven"), the claim must preserve that hedging or be marked INVALID.
 
-2. **Is the direction and magnitude correct?** X causes Y (not Y causes X). The magnitude
-   must not be materially exaggerated or minimized.
+2. **Is the direction of causality and magnitude correct?** X causes Y (not Y causes X).
+   The magnitude must not be materially exaggerated or minimized.
 
 If both are satisfied, the claim is VALID. Do not penalize a claim for omitting caveats
 the source mentions unless the omission materially changes the meaning. If the causal
@@ -65,8 +67,9 @@ Ask three questions, in order:
    the claim is valid. If the comparison is agent-constructed across sources, apply
    heightened scrutiny to whether the compared items are genuinely comparable.
 
-2. **Are the compared items measured consistently?** Same time period, same methodology,
-   same units. If a material discrepancy exists, the claim is invalid. If the difference
+2. **Are the compared items measured consistently?** Same timeframe, same population,
+   same methodology, same units. If a material discrepancy exists (e.g., different countries,
+   different methodologies, incompatible time periods), the claim is invalid. If the difference
    is minor or the claim acknowledges it, the claim is valid.
 
 3. **Is the direction correct?** Which item is greater, faster, or more effective must match
@@ -83,12 +86,14 @@ You are evaluating a **predictive or projective claim**.
 Ask three questions, in order:
 
 1. **Is the projection attributed?** It must be linked to a specific institution, model,
-   or study. An unattributed projection presented as fact is invalid.
+   or study, and the underlying assumptions should be acknowledged. An unattributed
+   projection presented as fact is invalid.
 
 2. **Is appropriate hedging preserved?** The claim should use language like "is projected
    to," "is expected to," or "according to [model]" rather than stating a future fact
-   ("will," "is going to"). If the source presents a projection conditionally, the claim
-   must preserve that conditionality.
+   ("will," "is going to"). If the source presents a projection conditionally (e.g., under
+   a specific scenario or assumption), the claim must preserve that conditionality.
+   Evaluate whether uncertainty ranges from the source are materially omitted.
 
 3. **Is the figure and time horizon correct?** The projected value and target date must
    match the source.
@@ -111,11 +116,13 @@ a view to a broader consensus than the source establishes.
 
 Ask two questions, in order:
 
-1. **Does the claim accurately represent the source's authority?** A claim asserting broad
-   expert consensus must reflect that consensus. If the sole source is a single NGO or
-   think tank, the claim is only valid if it explicitly attributes the view to that body
-   ("According to [org]...") rather than implying universal consensus ("Best practice
-   is..." or "Experts recommend...").
+1. **Does the claim accurately represent the source's authority and consensus?** A claim
+   asserting that something "is best practice" or is broadly recommended must reflect
+   genuine expert consensus, not a single viewpoint. Consider whether dissenting views
+   or minority positions exist that would undermine the claim of consensus.
+   If the sole source is a single NGO or think tank, the claim is only valid if it
+   explicitly attributes the view to that body ("According to [org]...") rather than
+   implying universal consensus.
 
 2. **Is the scope and conditionality preserved?** A recommendation scoped to one context
    (e.g., high-income countries) applied globally without disclosure is invalid. Key

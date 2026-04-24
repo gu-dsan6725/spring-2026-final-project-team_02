@@ -66,7 +66,7 @@ const CONTRADICTION_THRESHOLD = 0.85;
 // need a higher bar before NLI can exit as "invalid" — the contradiction must be
 // near-certain, not just likely.
 const CONTRADICTION_THRESHOLD_PARAPHRASE = 0.95;
-const DEFAULT_ENTAILMENT_MARGIN = 0.08;
+const DEFAULT_ENTAILMENT_MARGIN = 0.15;
 const CAUSAL_PARAPHRASE_ENTAILMENT_MARGIN = 0.2;
 
 // Sliding-window parameters
@@ -182,7 +182,8 @@ function collapseWindowsToSource(
     // from whichever window had the highest entailment, so the signal margin is
     // computed within a single window's probability distribution rather than mixing
     // the best entailment from one window with the worst neutral from another.
-    let bestEntailmentWindow = slice[0]!;
+    if (slice.length === 0) continue;
+    let bestEntailmentWindow: NLIResponseItem = slice[0];
     let maxContradiction = 0;
 
     for (const item of slice) {
@@ -206,7 +207,11 @@ function collapseWindowsToSource(
 
     collapsed.push({
       label,
-      scores: { entailment: maxEntailment, contradiction: maxContradiction, neutral: linkedNeutral },
+      scores: {
+        entailment: maxEntailment,
+        contradiction: maxContradiction,
+        neutral: linkedNeutral,
+      },
     });
   }
 
