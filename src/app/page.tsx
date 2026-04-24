@@ -238,9 +238,33 @@ export default function HomePage(): React.ReactElement {
       await herald.evaluate(selectedIds, agent.memo.notes_log, agent.memo.memo_markdown);
       setAppPhase('results');
       setActiveTab('herald');
-      addToast({ variant: 'info', message: 'HERALD evaluation complete.' });
+
+      // Apply any auto-revisions back into the memo viewer and notes log
+      if (herald.updatedMemoMarkdown !== null && herald.updatedNotesLog !== null) {
+        agent.updateMemo(herald.updatedMemoMarkdown, herald.updatedNotesLog);
+      }
+
+      const revisedCount = herald.revisionStates.filter((s) => s.status === 'revised').length;
+      const flaggedCount = herald.revisionStates.filter(
+        (s) => s.status === 'failed_max_attempts',
+      ).length;
+
+      if (revisedCount > 0 || flaggedCount > 0) {
+        addToast({
+          variant: revisedCount > 0 ? 'success' : 'info',
+          message: [
+            'HERALD evaluation complete.',
+            revisedCount > 0 ? `${revisedCount.toString()} claim(s) auto-revised.` : '',
+            flaggedCount > 0 ? `${flaggedCount.toString()} claim(s) flagged for human review.` : '',
+          ]
+            .filter(Boolean)
+            .join(' '),
+        });
+      } else {
+        addToast({ variant: 'info', message: 'HERALD evaluation complete.' });
+      }
     },
-    [agent.memo, herald, addToast],
+    [agent, herald, addToast],
   );
 
   // ── Set of already-evaluated claim IDs ───────────────────────────────────
@@ -525,7 +549,11 @@ export default function HomePage(): React.ReactElement {
               {activeTab === 'herald' && appPhase === 'results' && (
                 <ErrorBoundary label="HERALD Results">
                   {herald.results.length > 0 ? (
-                    <HeraldResults results={herald.results} notesLog={agent.memo.notes_log} />
+                    <HeraldResults
+                      results={herald.results}
+                      notesLog={agent.memo.notes_log}
+                      revisionStates={herald.revisionStates}
+                    />
                   ) : (
                     <div
                       className="text-center py-12 text-sm opacity-50"

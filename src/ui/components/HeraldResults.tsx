@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ClaimType, CLAIM_TYPE_CONFIG, DerivationMethod, DERIVATION_CONFIG } from '@/types/claims';
 import type { NotesLogEntry } from '@/types/claims';
 import type { HeraldResult, Verdict } from '@/types/herald';
+import type { ClaimRevisionState } from '@/herald/feedback-loop';
 import TierProgress from './TierProgress';
 
 // ---------------------------------------------------------------------------
@@ -13,6 +14,7 @@ import TierProgress from './TierProgress';
 interface HeraldResultsProps {
   results: HeraldResult[];
   notesLog: NotesLogEntry[];
+  revisionStates?: ClaimRevisionState[];
 }
 
 // ---------------------------------------------------------------------------
@@ -81,6 +83,194 @@ function SummaryBar({ results }: { results: HeraldResult[] }) {
             </span>
           );
         })}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Revision summary panel
+// ---------------------------------------------------------------------------
+
+function RevisionSummary({ states }: { states: ClaimRevisionState[] }): React.ReactElement | null {
+  const [expanded, setExpanded] = useState(false);
+
+  const revised = states.filter((s) => s.status === 'revised');
+  const flagged = states.filter((s) => s.status === 'failed_max_attempts');
+
+  if (revised.length === 0 && flagged.length === 0) return null;
+
+  return (
+    <div
+      className="rounded-lg border overflow-hidden"
+      style={{ borderColor: '#fed7aa', backgroundColor: '#fff7ed' }}
+    >
+      <button
+        type="button"
+        onClick={() => {
+          setExpanded((e) => !e);
+        }}
+        className="w-full text-left px-5 py-4 flex items-center gap-3 hover:bg-orange-50 transition-colors"
+        aria-expanded={expanded}
+      >
+        <span className="text-base">↺</span>
+        <div className="flex-1">
+          <span
+            className="font-semibold text-sm"
+            style={{ color: '#9a3412', fontFamily: 'var(--font-sans)' }}
+          >
+            Automatic Revision Results
+          </span>
+          <span
+            className="ml-3 text-xs"
+            style={{ color: '#c2410c', fontFamily: 'var(--font-sans)' }}
+          >
+            {revised.length > 0 && `${revised.length.toString()} revised`}
+            {revised.length > 0 && flagged.length > 0 && ' · '}
+            {flagged.length > 0 && `${flagged.length.toString()} flagged for human review`}
+          </span>
+        </div>
+        <span
+          className="text-xs transition-transform"
+          style={{
+            color: '#c2410c',
+            transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+          }}
+          aria-hidden="true"
+        >
+          ▼
+        </span>
+      </button>
+
+      {expanded && (
+        <div className="px-5 pb-5 space-y-4 border-t" style={{ borderColor: '#fed7aa' }}>
+          {revised.length > 0 && (
+            <div className="pt-4">
+              <p
+                className="text-xs font-semibold tracking-widest uppercase mb-3"
+                style={{ color: '#9a3412', fontFamily: 'var(--font-sans)' }}
+              >
+                Successfully Revised ({revised.length.toString()})
+              </p>
+              <div className="space-y-3">
+                {revised.map((state) => (
+                  <div
+                    key={state.claim_id}
+                    className="rounded p-3 border"
+                    style={{ backgroundColor: 'white', borderColor: '#fed7aa' }}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span
+                        className="text-xs font-bold"
+                        style={{ color: '#9a3412', fontFamily: 'var(--font-sans)' }}
+                      >
+                        {state.claim_id}
+                      </span>
+                      <span
+                        className="text-xs px-1.5 py-0.5 rounded-full"
+                        style={{ backgroundColor: '#dcfce7', color: '#15803d' }}
+                      >
+                        revised in {state.revision_count.toString()} attempt
+                        {state.revision_count !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                    <p
+                      className="text-xs mb-1"
+                      style={{ color: '#6b7280', fontFamily: 'var(--font-sans)' }}
+                    >
+                      Original:
+                    </p>
+                    <p
+                      className="text-sm italic mb-2 line-through"
+                      style={{ color: '#9ca3af', fontFamily: 'var(--font-body)' }}
+                    >
+                      &ldquo;{state.original_claim_text}&rdquo;
+                    </p>
+                    <p
+                      className="text-xs mb-1"
+                      style={{ color: '#6b7280', fontFamily: 'var(--font-sans)' }}
+                    >
+                      Revised:
+                    </p>
+                    <p
+                      className="text-sm"
+                      style={{ color: '#111827', fontFamily: 'var(--font-body)' }}
+                    >
+                      &ldquo;{state.final_claim_text}&rdquo;
+                    </p>
+                    {state.attempts.length > 0 &&
+                      (() => {
+                        // safe: length guard above ensures element exists
+
+                        const lastAttempt = state.attempts[state.attempts.length - 1];
+                        return (
+                          <p
+                            className="text-xs mt-2"
+                            style={{ color: '#6b7280', fontFamily: 'var(--font-sans)' }}
+                          >
+                            Final HERALD verdict:{' '}
+                            <strong>{lastAttempt.herald_result.verdict}</strong> (
+                            {Math.round(lastAttempt.herald_result.confidence * 100).toString()}%
+                            confidence)
+                          </p>
+                        );
+                      })()}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {flagged.length > 0 && (
+            <div className={revised.length > 0 ? 'pt-2' : 'pt-4'}>
+              <p
+                className="text-xs font-semibold tracking-widest uppercase mb-3"
+                style={{ color: '#9a3412', fontFamily: 'var(--font-sans)' }}
+              >
+                Flagged for Human Review ({flagged.length.toString()})
+              </p>
+              <div className="space-y-2">
+                {flagged.map((state) => (
+                  <div
+                    key={state.claim_id}
+                    className="rounded p-3 border"
+                    style={{ backgroundColor: '#fff1f2', borderColor: '#fecaca' }}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span
+                        className="text-xs font-bold"
+                        style={{ color: '#9a3412', fontFamily: 'var(--font-sans)' }}
+                      >
+                        {state.claim_id}
+                      </span>
+                      <span
+                        className="text-xs px-1.5 py-0.5 rounded-full"
+                        style={{ backgroundColor: '#fee2e2', color: '#dc2626' }}
+                      >
+                        failed after {state.revision_count.toString()} attempt
+                        {state.revision_count !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                    <p
+                      className="text-sm"
+                      style={{ color: '#374151', fontFamily: 'var(--font-body)' }}
+                    >
+                      &ldquo;{state.original_claim_text}&rdquo;
+                    </p>
+                    {state.final_herald_result !== null && (
+                      <p
+                        className="text-xs mt-2"
+                        style={{ color: '#6b7280', fontFamily: 'var(--font-sans)' }}
+                      >
+                        Last feedback: {state.final_herald_result.feedback}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -276,7 +466,11 @@ function ResultCard({ result, entry }: { result: HeraldResult; entry: NotesLogEn
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function HeraldResults({ results, notesLog }: HeraldResultsProps) {
+export default function HeraldResults({
+  results,
+  notesLog,
+  revisionStates = [],
+}: HeraldResultsProps) {
   const entryIndex = new Map(notesLog.map((e) => [e.claim_id, e]));
 
   if (results.length === 0) {
@@ -298,6 +492,7 @@ export default function HeraldResults({ results, notesLog }: HeraldResultsProps)
   return (
     <div className="space-y-4">
       <SummaryBar results={results} />
+      {revisionStates.length > 0 && <RevisionSummary states={revisionStates} />}
       {results.map((result) => (
         <ResultCard key={result.claim_id} result={result} entry={entryIndex.get(result.claim_id)} />
       ))}

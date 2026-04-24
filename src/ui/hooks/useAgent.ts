@@ -36,6 +36,7 @@ export interface UseAgentReturn {
   tokensUsed: number;
   error: string | null;
   run: (input: MemoInput) => Promise<void>;
+  updateMemo: (memoMarkdown: string, notesLog: MemoOutput['notes_log']) => void;
   reset: () => void;
 }
 
@@ -189,6 +190,15 @@ export function useAgent(): UseAgentReturn {
     [setStepStatus],
   );
 
+  const updateMemo = useCallback(
+    (memoMarkdown: string, notesLog: MemoOutput['notes_log']): void => {
+      setMemo((prev) =>
+        prev !== null ? { ...prev, memo_markdown: memoMarkdown, notes_log: notesLog } : prev,
+      );
+    },
+    [],
+  );
+
   const reset = useCallback((): void => {
     setPhase('idle');
     setSteps(INITIAL_STEPS);
@@ -198,5 +208,5 @@ export function useAgent(): UseAgentReturn {
     setTokensUsed(0);
   }, []);
 
-  return { phase, steps, memo, toolCallsUsed, tokensUsed, error, run, reset };
+  return { phase, steps, memo, toolCallsUsed, tokensUsed, error, run, updateMemo, reset };
 }

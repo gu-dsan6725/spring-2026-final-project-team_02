@@ -12,6 +12,7 @@ import { useState, useCallback } from 'react';
 import type { NotesLogEntry } from '@/types/claims';
 import type { HeraldResult } from '@/types/herald';
 import type { HumanReviewEntry } from '@/herald/tier4-human';
+import type { ClaimRevisionState } from '@/herald/feedback-loop';
 
 // ---------------------------------------------------------------------------
 // State types
@@ -27,6 +28,9 @@ export interface HeraldProgress {
 export interface UseHeraldReturn {
   phase: HeraldPhase;
   results: HeraldResult[];
+  revisionStates: ClaimRevisionState[];
+  updatedMemoMarkdown: string | null;
+  updatedNotesLog: NotesLogEntry[] | null;
   progress: HeraldProgress;
   humanQueue: HumanReviewEntry[];
   error: string | null;
@@ -52,8 +56,11 @@ interface EvaluateRequest {
 
 interface EvaluateResponse {
   results: HeraldResult[];
+  revision_states: ClaimRevisionState[];
   requires_human_intervention: string[];
   human_queue: HumanReviewEntry[];
+  updated_memo_markdown: string;
+  updated_notes_log: NotesLogEntry[];
 }
 
 async function callEvaluateApi(req: EvaluateRequest): Promise<EvaluateResponse> {
@@ -101,6 +108,9 @@ async function callVerdictApi(req: VerdictRequest): Promise<{ updated_queue: Hum
 export function useHerald(): UseHeraldReturn {
   const [phase, setPhase] = useState<HeraldPhase>('idle');
   const [results, setResults] = useState<HeraldResult[]>([]);
+  const [revisionStates, setRevisionStates] = useState<ClaimRevisionState[]>([]);
+  const [updatedMemoMarkdown, setUpdatedMemoMarkdown] = useState<string | null>(null);
+  const [updatedNotesLog, setUpdatedNotesLog] = useState<NotesLogEntry[] | null>(null);
   const [progress, setProgress] = useState<HeraldProgress>({ completed: 0, total: 0 });
   const [humanQueue, setHumanQueue] = useState<HumanReviewEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -124,6 +134,15 @@ export function useHerald(): UseHeraldReturn {
           const kept = prev.filter((r) => !newIds.has(r.claim_id));
           return [...kept, ...response.results];
         });
+        // Accumulate revision states the same way
+        setRevisionStates((prev) => {
+          const newIds = new Set(response.revision_states.map((s) => s.claim_id));
+          const kept = prev.filter((s) => !newIds.has(s.claim_id));
+          return [...kept, ...response.revision_states];
+        });
+        // Store the revised memo content so callers can propagate it
+        setUpdatedMemoMarkdown(response.updated_memo_markdown);
+        setUpdatedNotesLog(response.updated_notes_log);
         // Accumulate human queue entries the same way
         setHumanQueue((prev) => {
           const newIds = new Set(response.human_queue.map((e) => e.claim.claim_id));
@@ -168,10 +187,25 @@ export function useHerald(): UseHeraldReturn {
   const reset = useCallback((): void => {
     setPhase('idle');
     setResults([]);
+    setRevisionStates([]);
+    setUpdatedMemoMarkdown(null);
+    setUpdatedNotesLog(null);
     setProgress({ completed: 0, total: 0 });
     setHumanQueue([]);
     setError(null);
   }, []);
 
-  return { phase, results, progress, humanQueue, error, evaluate, submitVerdict, reset };
+  return {
+    phase,
+    results,
+    revisionStates,
+    updatedMemoMarkdown,
+    updatedNotesLog,
+    progress,
+    humanQueue,
+    error,
+    evaluate,
+    submitVerdict,
+    reset,
+  };
 }
