@@ -14,109 +14,122 @@ import { ClaimType } from '../../types/claims';
 // ---------------------------------------------------------------------------
 
 const CRITERIA_STATISTICAL = `
-You are evaluating a **statistical or numeric claim**. Apply these criteria in order:
+You are evaluating a **statistical or numeric claim**.
 
-1. **Exact number match**: Does the source state this specific number, percentage, rate, or
-   quantity? A claim of "5.2%" is invalid if the source says "approximately 5%" or "5.1%".
-2. **Unit correctness**: Are the units in the claim identical to those in the source?
-   (e.g., per 100,000 live births vs. per 10,000; annual rate vs. cumulative rate)
-3. **Time period**: Does the claim correctly state the year, range, or reference period that
-   the source uses? Omitting or shifting the time period invalidates a numeric claim.
-4. **Population and scope**: Is the geographic, demographic, or institutional scope correctly
-   bounded? A statistic for a region cannot be applied to a single country without disclosure.
-5. **Direction and sign**: Is the direction correct (increase vs. decrease, surplus vs. deficit)?
-6. **Rounding and precision**: Minor rounding (e.g., 14.8% stated as "nearly 15%") is
-   acceptable only if it does not materially change the meaning. Flag aggressive rounding.
+Ask three questions, in order:
+
+1. **Does the source state this exact number?** Check the exact number, units, and time period together.
+   A claim is invalid only if there is a *specific, demonstrable mismatch* — a different
+   number, wrong units, or a clearly shifted time period. Minor rounding ("nearly 15%" for
+   14.8%) and paraphrased phrasing are acceptable unless they materially change the meaning.
+
+2. **Is the population/scope correctly bounded?** A statistic for a region applied to a
+   single country (or a different population) without disclosure is invalid. If the scope
+   difference is acknowledged or immaterial, the claim is valid.
+
+3. **Is the direction correct?** Increase vs. decrease, surplus vs. deficit must match.
+
+If all three are satisfied, the claim is VALID. Only call INVALID when you can quote a
+specific sentence in the source that directly contradicts what the claim says. If you are
+unsure whether a discrepancy is material, prefer UNCERTAIN over INVALID.
 `.trim();
 
 const CRITERIA_CAUSAL = `
-You are evaluating a **causal claim**. Apply these criteria in order:
+You are evaluating a **causal claim**.
 
-1. **Causal mechanism vs. correlation**: Does the source explicitly establish a causal
-   mechanism, or does it only report an association or correlation? If the source says
-   "associated with" or "correlated with," a claim using "caused," "led to," or "drove"
-   is an overstatement and likely invalid.
-2. **Language hedging**: Compare the causal language in the claim against the source.
-   - Source language: "contributed to," "was associated with," "may have led to" →
-     strong causal language in the claim (e.g., "caused") is invalid.
-   - Source language: "caused," "resulted in" → causal language in the claim is valid.
-3. **Direction of causality**: Is the direction correct? (X causes Y, not Y causes X)
-4. **Confounding and controls**: Does the source acknowledge confounders? Does the claim
-   ignore important caveats or conditions stated in the source?
-5. **Effect size and magnitude**: Is the magnitude of the causal effect correctly stated
-   (not exaggerated or minimized)?
-6. **Population scope**: Is the causal claim scoped to the same population the source
-   studied? Generalizing beyond the study population is invalid.
+Ask two questions, in order:
+
+1. **Does the source establish a causal mechanism, or only correlation?** This is the central test.
+   - Source language "associated with," "correlated with," or "may have contributed to" →
+     a claim using "caused," "drove," or "led to" is invalid (causal overreach).
+   - Source language "caused," "resulted in," or "demonstrated that X leads to Y" →
+     causal language in the claim is valid.
+   - Source language "contributed to" or "played a role in" → moderate causal language
+     in the claim ("contributed to") is valid; strong causal language ("caused") is invalid.
+   - Watch for hedging in the source: if the source hedges the causal claim ("may have caused,"
+     "appears to have driven"), the claim must preserve that hedging or be marked INVALID.
+
+2. **Is the direction of causality and magnitude correct?** X causes Y (not Y causes X).
+   The magnitude must not be materially exaggerated or minimized.
+
+If both are satisfied, the claim is VALID. Do not penalize a claim for omitting caveats
+the source mentions unless the omission materially changes the meaning. If the causal
+language is borderline, prefer UNCERTAIN over INVALID.
 `.trim();
 
 const CRITERIA_COMPARATIVE = `
-You are evaluating a **comparative claim**. Apply these criteria in order:
+You are evaluating a **comparative claim**.
 
-1. **Same timeframe**: Are the compared items measured over the same time period? Comparing
-   data from different years without disclosure is invalid.
-2. **Comparable populations**: Are the populations (countries, demographic groups, programs)
-   actually comparable? Structural differences must be disclosed if they affect the comparison.
-3. **Comparable methodologies**: Were the compared items measured using the same methods,
-   definitions, and instruments? Methodological heterogeneity invalidates direct comparisons.
-4. **Directionality**: Does the claim correctly state which item is greater, lesser, faster,
-   or more effective? Verify the direction of the comparison.
-5. **Fairness of representation**: Does the comparison fairly represent both sides, or does
-   it cherry-pick the more favorable framing? Selective comparison is invalid.
-6. **Source support**: Does the source actually make this comparison, or is it a comparison
-   the agent constructed by combining two separately reported figures?
+Ask three questions, in order:
+
+1. **Does the source actually make this comparison?** Or did the agent construct it by
+   combining two separately reported figures? If the source directly states the comparison,
+   the claim is valid. If the comparison is agent-constructed across sources, apply
+   heightened scrutiny to whether the compared items are genuinely comparable.
+
+2. **Are the compared items measured consistently?** Same timeframe, same population,
+   same methodology, same units. If a material discrepancy exists (e.g., different countries,
+   different methodologies, incompatible time periods), the claim is invalid. If the difference
+   is minor or the claim acknowledges it, the claim is valid.
+
+3. **Is the direction correct?** Which item is greater, faster, or more effective must match
+   what the source says.
+
+Only call INVALID when there is a concrete, sourceable error — wrong direction, or a
+comparison constructed from data that clearly cannot be compared. Prefer UNCERTAIN for
+methodological concerns that are not clearly stated in the source.
 `.trim();
 
 const CRITERIA_PREDICTIVE = `
-You are evaluating a **predictive or projective claim**. Apply these criteria in order:
+You are evaluating a **predictive or projective claim**.
 
-1. **Attribution of projection**: Who made this projection? Is it attributed to a specific
-   institution, model, or study? An unattributed projection is invalid.
-2. **Model and assumptions**: What model, scenario, or assumptions underlie the projection?
-   Claims that state projections as facts (omitting "under [scenario] assumptions" or
-   "according to [model]") are incomplete.
-3. **Uncertainty ranges**: Does the source provide confidence intervals or scenario ranges?
-   If so, does the claim correctly represent the range rather than a single point estimate
-   presented as certain?
-4. **Conditionality**: Is the projection conditional on policy choices, behavior changes,
-   or external factors? The claim must reflect these conditions if the source states them.
-5. **Appropriate hedging**: Does the claim use hedged language appropriate to a projection
-   ("is projected to," "is expected to," "modeling suggests") rather than presenting it
-   as a certainty ("will," "is going to")?
-6. **Temporal scope**: Is the target date or time horizon correctly stated?
+Ask three questions, in order:
+
+1. **Is the projection attributed?** It must be linked to a specific institution, model,
+   or study, and the underlying assumptions should be acknowledged. An unattributed
+   projection presented as fact is invalid.
+
+2. **Is appropriate hedging preserved?** The claim should use language like "is projected
+   to," "is expected to," or "according to [model]" rather than stating a future fact
+   ("will," "is going to"). If the source presents a projection conditionally (e.g., under
+   a specific scenario or assumption), the claim must preserve that conditionality.
+   Evaluate whether uncertainty ranges from the source are materially omitted.
+
+3. **Is the figure and time horizon correct?** The projected value and target date must
+   match the source.
+
+A faithful paraphrase that preserves attribution and hedging is VALID even if worded
+differently from the source. Only call INVALID for concrete errors: missing attribution,
+wrong number, wrong date, or stripping conditionality entirely.
 `.trim();
 
 const CRITERIA_NORMATIVE = `
-You are evaluating a **normative or prescriptive claim**. Apply these criteria in order:
+You are evaluating a **normative or prescriptive claim**.
 
 **IMPORTANT — Paraphrase carve-out**: If the derivation method is "paraphrase", a normative
 claim that faithfully restates a valid recommendation from its source is VALID even if worded
-differently. Do not mark a paraphrased normative claim invalid simply because it is not a
-verbatim quote. The test is semantic fidelity: does the paraphrase preserve the substance,
+differently. The test is semantic fidelity: does the paraphrase preserve the substance,
 scope, conditionality, and attribution of the original recommendation? Only mark invalid if
 the paraphrase materially distorts the original — e.g., overstates consensus ("universally
 agreed" when source says "recommended by"), drops important conditionality, or attributes
 a view to a broader consensus than the source establishes.
 
-1. **Genuine consensus vs. one viewpoint**: Does the claim represent genuine expert or
-   institutional consensus, or is it the position of one institution, researcher, or school
-   of thought? Claims of "best practice" must reflect broad consensus. **If the sole source
-   is a single NGO, think tank, or non-intergovernmental body, the consensus criterion is
-   not satisfied and the claim is invalid — unless the claim itself explicitly attributes
-   the view to that specific body (e.g., "According to [org]..." rather than "Best
-   practice is..." or "Experts recommend...").**
-2. **Credible dissenting views**: Are there credible dissenting perspectives in the field
-   that the claim ignores? If dissent is substantial, the claim must acknowledge it.
-3. **Scope of recommendation**: Is the recommendation scoped to the same context the source
-   addresses? Generalizing a recommendation from one context (e.g., high-income countries)
-   to another (e.g., low-income settings) without disclosure is invalid.
-4. **Normative language**: Does the claim use appropriately hedged prescriptive language
-   ("is recommended," "is considered best practice") or does it overstate consensus
-   ("is the only effective approach," "is universally endorsed")?
-5. **Institutional authority**: What is the source of the normative claim — a peer-reviewed
-   study, an intergovernmental body, a single NGO? The authority of the source affects
-   the strength of the claim.
-6. **Conditionality and context**: Does the recommendation depend on conditions or contexts
-   that the claim omits?
+Ask two questions, in order:
+
+1. **Does the claim accurately represent the source's authority and consensus?** A claim
+   asserting that something "is best practice" or is broadly recommended must reflect
+   genuine expert consensus, not a single viewpoint. Consider whether dissenting views
+   or minority positions exist that would undermine the claim of consensus.
+   If the sole source is a single NGO or think tank, the claim is only valid if it
+   explicitly attributes the view to that body ("According to [org]...") rather than
+   implying universal consensus.
+
+2. **Is the scope and conditionality preserved?** A recommendation scoped to one context
+   (e.g., high-income countries) applied globally without disclosure is invalid. Key
+   conditions the source attaches to the recommendation must be preserved.
+
+If both are satisfied, the claim is VALID. Differences in phrasing alone are not grounds
+for INVALID.
 `.trim();
 
 const CRITERIA_SYNTHESIS = `
@@ -140,28 +153,21 @@ The agent's "reasoning" field explains how the agent constructed the synthesis. 
 this reasoning as support for the claim. It is the inference under evaluation, not evidence
 for it. Evaluate the claim solely against the cited source chunks.
 
-Apply these criteria in order:
+Ask two questions, in order:
 
-1. **Logical validity**: Does the conclusion follow logically from the stated premises?
-   Identify any logical gaps, missing steps, or invalid inferences. A sound logical chain
-   from the combined sources to the conclusion means the claim is VALID.
-2. **Role of each source**: Does each cited source actually support the role assigned to
-   it in the synthesis? Verify that each source contributes the specific piece of evidence
-   the synthesis claims it does.
-3. **Population overlap**: Does the synthesis assume the same populations appear in
-   multiple sources when they may differ? (e.g., combining enrollment data from one
-   country with child labor data from another and treating them as one group). If the
-   populations differ AND this mismatch materially undermines the conclusion, the claim
-   is invalid. If populations are similar enough that the synthesis holds, it is valid.
-4. **Temporal consistency**: Are the sources from comparable time periods? A synthesis
-   combining data points from different eras without disclosure is invalid only if the
-   temporal gap materially affects the conclusion.
-5. **Strength of conclusion**: Is the strength of the conclusion proportional to the
-   strength of the evidence? A synthesis concluding causality from correlational sources
-   is invalid; a synthesis concluding association or pattern is likely valid.
-6. **Agent inference scrutiny**: If the derivation method is "agent_inference", verify
-   that the logical chain from sources to conclusion is explicit and the inferential leap
-   is no more than one step. Multi-step leaps without intermediate evidence need revision.
+1. **Does the conclusion follow logically from the combined sources?** Identify any broken
+   inferential links, misrepresented sources, or conclusions that go materially beyond what
+   the sources support. A sound logical chain — even a multi-source one — means the claim
+   is VALID. Do not demand that the conclusion appear verbatim in any single source.
+
+2. **Are the sources combined legitimately?** Check for population mismatches (combining
+   data from different countries and treating them as one group) or temporal gaps that
+   materially undermine the inference. If the mismatch is minor or the inference still
+   holds despite it, the claim is VALID.
+
+If the derivation is "agent_inference", apply additional scrutiny: the inferential leap
+must be no more than one logical step. Multi-step leaps without intermediate evidence
+warrant UNCERTAIN or INVALID depending on how far the conclusion departs from the sources.
 `.trim();
 
 const CLAIM_CRITERIA: Record<ClaimType, string> = {
@@ -195,21 +201,28 @@ knowledge — evaluate only what the provided source material supports.
 **General principles that apply to all claim types:**
 - A claim is VALID if the source material faithfully supports it with appropriate precision
   and scope.
-- A claim is INVALID if it does not faithfully represent the source — this includes
-  material misrepresentations (wrong number, wrong direction, unsupported causal language,
-  fabricated projection) as well as fixable issues (imprecise hedging, minor scope mismatch,
-  missing qualifier). Always include a suggested_revision for invalid claims.
-- Mark UNCERTAIN only if you genuinely cannot determine validity from the provided
-  sources — for example, the source chunk is too short to evaluate the claim fully.
+- A claim is INVALID only when there is a concrete, demonstrable error: a wrong number,
+  wrong direction, fabricated projection, unsupported causal language, or material
+  misrepresentation. To call a claim invalid you must be able to quote a specific phrase
+  from the source that directly contradicts or is absent from what the claim asserts.
+- A claim that is directionally accurate but imprecisely worded, or that omits minor
+  caveats, should be marked UNCERTAIN (escalate to debate) rather than INVALID.
+- Mark UNCERTAIN when the evidence is genuinely ambiguous, the source excerpt is too short
+  to evaluate fully, or you cannot identify a specific concrete error but something feels off.
+  UNCERTAIN is the correct hedge — it escalates to Tier 3 rather than locking in a verdict.
 - High-risk derivation methods (cross_source, agent_inference) warrant heightened scrutiny:
-  the burden of proof is on the claim to be clearly supported, not merely plausible.
+  verify that each source actually supports the role assigned to it.
 - For paraphrase claims, evaluate semantic fidelity rather than surface wording. If the
   proposition, scope, timeframe, attribution, and modality are preserved, the paraphrase
-  should usually be marked VALID even when the wording is more polished than the source.
-- Do not penalize faithful paraphrases for stylistic differences alone. Only mark
-  NEEDS_REVISION or INVALID when wording changes the underlying meaning, such as stronger
-  causal force, stronger normative force, altered attribution, altered quantities, or
-  broader scope than the source supports.
+  should be marked VALID even when the wording is more polished than the source.
+- Do not penalize faithful paraphrases for stylistic differences alone. Only mark INVALID
+  when wording changes the underlying meaning: stronger causal force, stronger normative
+  force, altered attribution, altered quantities, or broader scope than the source supports.
+
+**Calibration rule**: When in doubt between INVALID and UNCERTAIN, choose UNCERTAIN.
+When in doubt between VALID and UNCERTAIN, choose VALID. Reserve INVALID for cases where
+you can point to a specific, concrete error — not for cases where the claim could have
+been worded more carefully.
 `.trim();
 
 const OUTPUT_INSTRUCTIONS = `

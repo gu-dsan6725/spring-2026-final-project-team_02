@@ -1,40 +1,35 @@
 /**
- * HERALD Tier 3 — Multi-Agent Debate evaluation.
+ * HERALD Tier 3 — Multi-Agent Debate.
  *
- * Three Groq Llama 3.3 70B calls run in parallel as distinct personas:
- *   1. Domain Expert   — substantive accuracy and field knowledge
- *   2. Methodologist   — evidence quality and inferential validity
- *   3. Skeptic         — adversarial challenge, alternative explanations
- *
- * A fourth Judge call synthesizes the three perspectives into a final verdict.
+ * Three personas (Domain Expert, Methodologist, Skeptic) independently evaluate
+ * the claim in parallel, then a Judge synthesises their perspectives into a final
+ * verdict.
  *
  * Decision logic:
- *   - Unanimous or 2-1 with high judge confidence (> 0.80) → exit with verdict
- *   - All uncertain or low judge confidence (≤ 0.80) → escalate to Tier 4 (human)
+ *   - Judge confidence > 0.80 → exit with judge's verdict
+ *   - Judge confidence ≤ 0.80 → override to 'uncertain', escalate to Tier 4
  */
 
 import OpenAI from 'openai';
 
 import type { NotesLogEntry } from '../types/claims';
-import type { TierOutput, Verdict, DebatePersona, DebateOutput } from '../types/herald';
+import type { TierOutput, Verdict } from '../types/herald';
 import { logError, startSpan } from '../observability/braintrust';
 import { getDomainExpertPrompt } from './prompts/domain-expert';
 import { getMethodologistPrompt } from './prompts/methodologist';
 import { getSkepticPrompt } from './prompts/skeptic';
-import { getJudgeSynthesisPrompt } from './prompts/judge-synthesis';
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-const DEBATE_MODEL = 'gpt-4o';
+const DEBATE_MODEL = 'gpt-4o-mini';
 const DEBATE_TEMPERATURE = 0.3;
-const DEBATE_MAX_TOKENS = 768;
-const JUDGE_MAX_TOKENS = 1024;
+const DEBATE_MAX_TOKENS = 1024;
 const JUDGE_CONFIDENCE_THRESHOLD = 0.8;
 
 // ---------------------------------------------------------------------------
-// Groq client via OpenAI-compatible SDK (lazy singleton)
+// OpenAI client (lazy singleton)
 // ---------------------------------------------------------------------------
 
 let _client: OpenAI | null = null;
@@ -52,12 +47,12 @@ function getClient(): OpenAI {
 // Tool definitions
 // ---------------------------------------------------------------------------
 
-const DEBATE_TURN_TOOL: OpenAI.Chat.ChatCompletionTool = {
+const SUBMIT_DEBATE_TURN: OpenAI.Chat.ChatCompletionTool = {
   type: 'function',
   function: {
     name: 'submit_debate_turn',
     description:
-      'Submit your structured evaluation of the claim. Always call this — do not respond with plain text.',
+      'Submit your evaluation of the claim. Always call this function — do not respond with plain text.',
     parameters: {
       type: 'object',
       properties: {
@@ -68,13 +63,11 @@ const DEBATE_TURN_TOOL: OpenAI.Chat.ChatCompletionTool = {
         },
         reasoning: {
           type: 'string',
-          description:
-            'Specific reasoning citing source text. For invalid verdicts, identify the exact problem.',
+          description: 'Your reasoning, citing specific source text.',
         },
         key_concern: {
           type: 'string',
-          description:
-            'The single most important concern from your perspective (1–2 sentences). This is what the Judge will weigh.',
+          description: 'The primary concern or key point from your perspective.',
         },
       },
       required: ['verdict', 'reasoning', 'key_concern'],
@@ -82,40 +75,39 @@ const DEBATE_TURN_TOOL: OpenAI.Chat.ChatCompletionTool = {
   },
 };
 
-const SYNTHESIS_TOOL: OpenAI.Chat.ChatCompletionTool = {
+const SUBMIT_SYNTHESIS: OpenAI.Chat.ChatCompletionTool = {
   type: 'function',
   function: {
     name: 'submit_synthesis',
     description:
-      'Submit the final synthesized verdict. Always call this — do not respond with plain text.',
+      'Submit your synthesis of the debate and final verdict. Always call this — do not respond with plain text.',
     parameters: {
       type: 'object',
       properties: {
         verdict: {
           type: 'string',
           enum: ['valid', 'invalid', 'uncertain'],
-          description: 'The synthesized verdict.',
+          description: 'The final verdict after synthesising all perspectives.',
         },
         confidence: {
           type: 'number',
-          description: 'Confidence in the synthesized verdict (0.0–1.0).',
+          description: 'Confidence in the final verdict (0.0–1.0).',
         },
         reasoning: {
           type: 'string',
-          description:
-            "Which reviewer's argument was most persuasive and why. Address major dissenting points.",
+          description: 'Synthesis of the debate and rationale for the verdict.',
         },
         suggested_revision: {
-          type: ['string', 'null'],
-          description: 'Required for invalid verdicts. A concrete revised claim text.',
+          type: 'string',
+          description: 'For invalid verdicts, a concrete revised claim text.',
         },
         dominant_persona: {
           type: 'string',
-          description:
-            "Which reviewer's argument drove the decision (domain_expert, methodologist, skeptic, or unanimous).",
+          enum: ['domain_expert', 'methodologist', 'skeptic'],
+          description: 'Which persona most influenced the final verdict.',
         },
       },
-      required: ['verdict', 'confidence', 'reasoning', 'dominant_persona'],
+      required: ['verdict', 'confidence', 'reasoning'],
     },
   },
 };
@@ -127,17 +119,7 @@ const SYNTHESIS_TOOL: OpenAI.Chat.ChatCompletionTool = {
 interface DebateTurnInput {
   verdict: string;
   reasoning: string;
-  key_concern: string;
-}
-
-function isDebateTurnInput(obj: unknown): obj is DebateTurnInput {
-  if (typeof obj !== 'object' || obj === null) return false;
-  const o = obj as Record<string, unknown>;
-  return (
-    typeof o['verdict'] === 'string' &&
-    typeof o['reasoning'] === 'string' &&
-    typeof o['key_concern'] === 'string'
-  );
+  key_concern?: string;
 }
 
 interface SynthesisInput {
@@ -145,36 +127,34 @@ interface SynthesisInput {
   confidence: number;
   reasoning: string;
   suggested_revision?: string | null;
-  dominant_persona: string;
+  dominant_persona?: string;
+}
+
+function isDebateTurnInput(obj: unknown): obj is DebateTurnInput {
+  if (typeof obj !== 'object' || obj === null) return false;
+  const o = obj as Record<string, unknown>;
+  return typeof o['verdict'] === 'string' && typeof o['reasoning'] === 'string';
 }
 
 function isSynthesisInput(obj: unknown): obj is SynthesisInput {
   if (typeof obj !== 'object' || obj === null) return false;
   const o = obj as Record<string, unknown>;
-  return (
-    typeof o['verdict'] === 'string' &&
-    typeof o['confidence'] === 'number' &&
-    typeof o['reasoning'] === 'string' &&
-    typeof o['dominant_persona'] === 'string'
-  );
+  return typeof o['verdict'] === 'string' && typeof o['confidence'] === 'number';
 }
 
 function parseVerdict(raw: string): Verdict {
-  if (raw === 'valid' || raw === 'invalid' || raw === 'uncertain') {
-    return raw;
-  }
-  // Legacy 'needs_revision' from models that haven't seen the updated enum
+  if (raw === 'valid' || raw === 'invalid' || raw === 'uncertain') return raw;
   if (raw === 'needs_revision') return 'invalid';
   return 'uncertain';
 }
 
 // ---------------------------------------------------------------------------
-// Claim context builder (shared across all persona calls)
+// Message builder
 // ---------------------------------------------------------------------------
 
-function buildClaimContext(claim: NotesLogEntry, tier2Output: TierOutput): string {
+function buildClaimUserMessage(claim: NotesLogEntry, tier2Output: TierOutput): string {
   const lines: string[] = [
-    '## Claim Under Evaluation',
+    '## Claim Under Review',
     '',
     `**Claim ID**: ${claim.claim_id}`,
     `**Claim type**: ${claim.claim_type}`,
@@ -186,8 +166,9 @@ function buildClaimContext(claim: NotesLogEntry, tier2Output: TierOutput): strin
   ];
 
   for (const [i, src] of claim.sources.entries()) {
-    lines.push(`### Source ${String(i + 1)}: ${src.source_title}`);
-    lines.push(`Relevant excerpt:`);
+    lines.push(`### Source ${String(i + 1)}: ${src.source_title} (${src.source_id})`);
+    lines.push(`URL: ${src.source_url}`);
+    lines.push('Relevant excerpt:');
     lines.push('```');
     lines.push(src.relevant_chunk);
     lines.push('```');
@@ -198,189 +179,123 @@ function buildClaimContext(claim: NotesLogEntry, tier2Output: TierOutput): strin
   lines.push('');
   lines.push(claim.reasoning);
   lines.push('');
-  lines.push('## Tier 2 LLM Judge Result (Inconclusive)');
+  lines.push('## Tier 2 Review (Inconclusive)');
   lines.push('');
   lines.push(
-    `The LLM Judge at Tier 2 returned: **${tier2Output.verdict}** at ${Math.round(tier2Output.confidence * 100).toString()}% confidence.`,
+    `Tier 2 verdict: **${tier2Output.verdict}** at ${Math.round(tier2Output.confidence * 100).toString()}% confidence.`,
   );
   lines.push(`Tier 2 reasoning: ${tier2Output.reasoning}`);
   lines.push('');
-  lines.push('Provide your independent assessment. Do not simply echo the Tier 2 result.');
+  lines.push(
+    'Evaluate the claim against the source material and call `submit_debate_turn` with your verdict.',
+  );
 
   return lines.join('\n');
 }
 
 // ---------------------------------------------------------------------------
-// Single persona call
+// Persona call
 // ---------------------------------------------------------------------------
 
-async function callPersona(
-  persona: DebatePersona,
-  systemPrompt: string,
-  claimContext: string,
-): Promise<DebateOutput> {
+async function runPersona(systemPrompt: string, userMessage: string): Promise<DebateTurnInput> {
   const response = await getClient().chat.completions.create({
     model: DEBATE_MODEL,
-    max_tokens: DEBATE_MAX_TOKENS,
     temperature: DEBATE_TEMPERATURE,
-    tools: [DEBATE_TURN_TOOL],
+    max_tokens: DEBATE_MAX_TOKENS,
+    tools: [SUBMIT_DEBATE_TURN],
     tool_choice: { type: 'function', function: { name: 'submit_debate_turn' } },
     messages: [
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: claimContext },
+      { role: 'user', content: userMessage },
     ],
   });
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
-  const plainTextContent = response.choices[0]?.message?.content ?? '';
-  let parsed: unknown;
-
-  if (toolCall !== undefined && toolCall.type === 'function') {
-    try {
-      parsed = JSON.parse(toolCall.function.arguments) as unknown;
-    } catch {
-      throw new Error(
-        `Persona '${persona}' JSON parse failed: ${toolCall.function.arguments.slice(0, 200)}`,
-      );
-    }
-  } else if (toolCall !== undefined) {
-    throw new Error(`Persona '${persona}' received unexpected tool_call type: ${toolCall.type}`);
-  } else if (plainTextContent.length > 0) {
-    const jsonMatch = /\{[\s\S]*\}/.exec(plainTextContent);
-    if (jsonMatch === null) {
-      throw new Error(
-        `Persona '${persona}' did not call submit_debate_turn and response contains no JSON. ` +
-          `finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
-      );
-    }
-    try {
-      parsed = JSON.parse(jsonMatch[0]) as unknown;
-    } catch {
-      throw new Error(
-        `Persona '${persona}' plain-text JSON parse failed: ${plainTextContent.slice(0, 200)}`,
-      );
-    }
-  } else {
+  if (
+    toolCall == null ||
+    toolCall.type !== 'function' ||
+    toolCall.function.name !== 'submit_debate_turn'
+  ) {
     throw new Error(
-      `Persona '${persona}' did not call submit_debate_turn. ` +
-        `finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
+      `Persona did not call submit_debate_turn. ` +
+        `finish_reason=${response.choices[0]?.finish_reason ?? 'unknown'}`,
     );
   }
 
+  const parsed: unknown = JSON.parse(toolCall.function.arguments) as unknown;
   if (!isDebateTurnInput(parsed)) {
     throw new Error(
-      `Persona '${persona}' output missing required fields: ${JSON.stringify(parsed)}`,
+      `Persona submit_debate_turn missing required fields: ${JSON.stringify(parsed)}`,
     );
   }
-
-  return {
-    persona,
-    verdict: parseVerdict(parsed.verdict),
-    reasoning: `${parsed.reasoning}\n\nKey concern: ${parsed.key_concern}`,
-  };
+  return parsed;
 }
 
 // ---------------------------------------------------------------------------
-// Judge synthesis call
+// Judge call
 // ---------------------------------------------------------------------------
 
-function buildJudgeContext(
+async function runJudge(
   claim: NotesLogEntry,
-  personaOutputs: DebateOutput[],
-  claimContext: string,
-): string {
-  const lines: string[] = [claimContext, '', '## Expert Reviewer Verdicts', ''];
-
-  for (const output of personaOutputs) {
-    const label =
-      output.persona === 'domain_expert'
-        ? 'Domain Expert'
-        : output.persona === 'methodologist'
-          ? 'Research Methodologist'
-          : 'Critical Skeptic';
-
-    lines.push(`### ${label}`);
-    lines.push(`**Verdict**: ${output.verdict}`);
-    lines.push(`**Reasoning**: ${output.reasoning}`);
-    lines.push('');
-  }
-
-  const verdicts = personaOutputs.map((o) => o.verdict);
-  const uniqueVerdicts = new Set(verdicts);
-  if (uniqueVerdicts.size === 1) {
-    lines.push(`*All three reviewers agree: **${verdicts[0] ?? 'uncertain'}**.*`);
-  } else {
-    const counts = verdicts.reduce<Record<string, number>>((acc, v) => {
-      acc[v] = (acc[v] ?? 0) + 1;
-      return acc;
-    }, {});
-    lines.push(
-      `*Split verdict: ${Object.entries(counts)
-        .map(([v, n]) => `${String(n)}x ${v}`)
-        .join(', ')}.*`,
-    );
-  }
-
-  lines.push('');
-  lines.push(`Synthesize these perspectives into a final verdict for claim ${claim.claim_id}.`);
-
-  return lines.join('\n');
-}
-
-async function callJudge(
-  claim: NotesLogEntry,
-  personaOutputs: DebateOutput[],
-  claimContext: string,
+  tier2Output: TierOutput,
+  personaResults: DebateTurnInput[],
 ): Promise<SynthesisInput> {
-  const judgeContext = buildJudgeContext(claim, personaOutputs, claimContext);
+  const [domainExpert, methodologist, skeptic] = personaResults;
+
+  const judgeLines: string[] = [
+    '## Claim Under Review',
+    '',
+    `**Claim text**: "${claim.claim_text}"`,
+    '',
+    '## Three-Perspective Debate Summary',
+    '',
+    `**Domain Expert**: ${domainExpert.verdict} — ${domainExpert.reasoning}`,
+    '',
+    `**Methodologist**: ${methodologist.verdict} — ${methodologist.reasoning}`,
+    '',
+    `**Skeptic**: ${skeptic.verdict} — ${skeptic.reasoning}`,
+    '',
+    '## Tier 2 Context',
+    '',
+    `Tier 2 returned **${tier2Output.verdict}** at ${Math.round(tier2Output.confidence * 100).toString()}% confidence: ${tier2Output.reasoning}`,
+    '',
+    'Synthesise the three perspectives into a final verdict. Call `submit_synthesis` with your assessment.',
+  ];
 
   const response = await getClient().chat.completions.create({
     model: DEBATE_MODEL,
-    max_tokens: JUDGE_MAX_TOKENS,
-    temperature: 0.1, // More deterministic for the final verdict
-    tools: [SYNTHESIS_TOOL],
+    temperature: DEBATE_TEMPERATURE,
+    max_tokens: DEBATE_MAX_TOKENS,
+    tools: [SUBMIT_SYNTHESIS],
     tool_choice: { type: 'function', function: { name: 'submit_synthesis' } },
     messages: [
-      { role: 'system', content: getJudgeSynthesisPrompt() },
-      { role: 'user', content: judgeContext },
+      {
+        role: 'system',
+        content:
+          "You are a senior policy analyst synthesising a multi-perspective debate on a claim's validity. " +
+          'Review all three persona evaluations and make a definitive final verdict. ' +
+          'If perspectives diverge significantly or confidence is low, prefer UNCERTAIN over a contested verdict.',
+      },
+      { role: 'user', content: judgeLines.join('\n') },
     ],
   });
 
   const toolCall = response.choices[0]?.message?.tool_calls?.[0];
-  const plainTextContent = response.choices[0]?.message?.content ?? '';
-  let parsed: unknown;
-
-  if (toolCall !== undefined && toolCall.type === 'function') {
-    try {
-      parsed = JSON.parse(toolCall.function.arguments) as unknown;
-    } catch {
-      throw new Error(`Judge JSON parse failed: ${toolCall.function.arguments.slice(0, 200)}`);
-    }
-  } else if (toolCall !== undefined) {
-    throw new Error(`Judge received unexpected tool_call type: ${toolCall.type}`);
-  } else if (plainTextContent.length > 0) {
-    const jsonMatch = /\{[\s\S]*\}/.exec(plainTextContent);
-    if (jsonMatch === null) {
-      throw new Error(
-        `Judge did not call submit_synthesis and response contains no JSON. ` +
-          `finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
-      );
-    }
-    try {
-      parsed = JSON.parse(jsonMatch[0]) as unknown;
-    } catch {
-      throw new Error(`Judge plain-text JSON parse failed: ${plainTextContent.slice(0, 200)}`);
-    }
-  } else {
+  if (
+    toolCall == null ||
+    toolCall.type !== 'function' ||
+    toolCall.function.name !== 'submit_synthesis'
+  ) {
     throw new Error(
-      `Judge did not call submit_synthesis. finish_reason=${response.choices[0]?.finish_reason ?? 'null'}`,
+      `Judge did not call submit_synthesis. ` +
+        `finish_reason=${response.choices[0]?.finish_reason ?? 'unknown'}`,
     );
   }
 
+  const parsed: unknown = JSON.parse(toolCall.function.arguments) as unknown;
   if (!isSynthesisInput(parsed)) {
-    throw new Error(`Judge output missing required fields: ${JSON.stringify(parsed)}`);
+    throw new Error(`Judge submit_synthesis missing required fields: ${JSON.stringify(parsed)}`);
   }
-
   return parsed;
 }
 
@@ -391,11 +306,9 @@ async function callJudge(
 /**
  * Run the HERALD Tier 3 Multi-Agent Debate.
  *
- * Runs 3 persona calls in parallel, then a Judge synthesis call.
- *
  * @param claim       - The claim and its source provenance.
- * @param tier2Output - The inconclusive Tier 2 result (context for personas).
- * @returns TierOutput with final verdict, confidence, and debate reasoning.
+ * @param tier2Output - The inconclusive Tier 2 result (context for the debate).
+ * @returns TierOutput with final verdict, confidence, and reasoning.
  */
 export async function evaluateWithDebate(
   claim: NotesLogEntry,
@@ -409,43 +322,43 @@ export async function evaluateWithDebate(
   });
 
   try {
-    const claimContext = buildClaimContext(claim, tier2Output);
+    const userMessage = buildClaimUserMessage(claim, tier2Output);
 
-    // Run all three persona calls in parallel
-    const [expertResult, methodologistResult, skepticResult] = await Promise.all([
-      callPersona('domain_expert', getDomainExpertPrompt(claim.claim_type), claimContext),
-      callPersona('methodologist', getMethodologistPrompt(claim.claim_type), claimContext),
-      callPersona('skeptic', getSkepticPrompt(claim.claim_type), claimContext),
+    // Run 3 personas in parallel
+    const [domainExpert, methodologist, skeptic] = await Promise.all([
+      runPersona(getDomainExpertPrompt(claim.claim_type), userMessage),
+      runPersona(getMethodologistPrompt(claim.claim_type), userMessage),
+      runPersona(getSkepticPrompt(claim.claim_type), userMessage),
     ]);
 
-    const personaOutputs: DebateOutput[] = [expertResult, methodologistResult, skepticResult];
+    // Judge synthesises all three perspectives
+    const judgeResult = await runJudge(claim, tier2Output, [domainExpert, methodologist, skeptic]);
 
-    // Judge synthesis
-    const synthesis = await callJudge(claim, personaOutputs, claimContext);
+    const verdict = parseVerdict(judgeResult.verdict);
+    const confidence = Math.max(0, Math.min(1, judgeResult.confidence));
+    const finalVerdict = confidence > JUDGE_CONFIDENCE_THRESHOLD ? verdict : 'uncertain';
 
-    const verdict = parseVerdict(synthesis.verdict);
-    const confidence = Math.max(0, Math.min(1, synthesis.confidence));
+    const reasoning =
+      typeof judgeResult.reasoning === 'string' && judgeResult.reasoning.length > 0
+        ? judgeResult.reasoning
+        : `Verdict: ${verdict} (no reasoning provided)`;
 
     const output: TierOutput = {
       tier_id: 3,
-      verdict: confidence > JUDGE_CONFIDENCE_THRESHOLD ? verdict : 'uncertain',
+      verdict: finalVerdict,
       confidence,
-      reasoning: synthesis.reasoning,
+      reasoning,
     };
 
+    const rawJudge = judgeResult as unknown as Record<string, unknown>;
     if (
-      typeof synthesis.suggested_revision === 'string' &&
-      synthesis.suggested_revision.length > 0
+      typeof rawJudge['suggested_revision'] === 'string' &&
+      rawJudge['suggested_revision'].length > 0
     ) {
-      output.suggested_revision = synthesis.suggested_revision;
+      output.suggested_revision = rawJudge['suggested_revision'];
     }
 
-    span.end({
-      verdict: output.verdict,
-      confidence,
-      persona_verdicts: personaOutputs.map((p) => `${p.persona}:${p.verdict}`).join(','),
-      dominant_persona: synthesis.dominant_persona,
-    });
+    span.end({ verdict: finalVerdict, confidence });
 
     return output;
   } catch (error) {

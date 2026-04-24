@@ -60,8 +60,13 @@ interface AggregatedResult {
   neutralSources: number;
 }
 
-const CONTRADICTION_THRESHOLD = 0.7;
-const DEFAULT_ENTAILMENT_MARGIN = 0.12;
+const CONTRADICTION_THRESHOLD = 0.85;
+// DeBERTa frequently mistakes near-paraphrases for contradictions because they use
+// different surface wording while preserving the same proposition. Paraphrase claims
+// need a higher bar before NLI can exit as "invalid" — the contradiction must be
+// near-certain, not just likely.
+const CONTRADICTION_THRESHOLD_PARAPHRASE = 0.95;
+const DEFAULT_ENTAILMENT_MARGIN = 0.15;
 const CAUSAL_PARAPHRASE_ENTAILMENT_MARGIN = 0.2;
 
 // Sliding-window parameters
@@ -172,27 +177,41 @@ function collapseWindowsToSource(
     const slice = results.slice(idx, idx + count);
     idx += count;
 
-    let maxEntailment = 0;
+    // Track max contradiction independently — a contradiction anywhere is a signal.
+    // For entailment and neutral, link them to the SAME window: use the neutral score
+    // from whichever window had the highest entailment, so the signal margin is
+    // computed within a single window's probability distribution rather than mixing
+    // the best entailment from one window with the worst neutral from another.
+    if (slice.length === 0) continue;
+    let bestEntailmentWindow: NLIResponseItem = slice[0];
     let maxContradiction = 0;
-    let maxNeutral = 0;
 
     for (const item of slice) {
-      if (item.scores.entailment > maxEntailment) maxEntailment = item.scores.entailment;
-      if (item.scores.contradiction > maxContradiction)
+      if (item.scores.entailment > bestEntailmentWindow.scores.entailment) {
+        bestEntailmentWindow = item;
+      }
+      if (item.scores.contradiction > maxContradiction) {
         maxContradiction = item.scores.contradiction;
-      if (item.scores.neutral > maxNeutral) maxNeutral = item.scores.neutral;
+      }
     }
 
+    const maxEntailment = bestEntailmentWindow.scores.entailment;
+    const linkedNeutral = bestEntailmentWindow.scores.neutral;
+
     const label =
-      maxEntailment >= maxContradiction && maxEntailment >= maxNeutral
+      maxEntailment >= maxContradiction && maxEntailment >= linkedNeutral
         ? 'entailment'
-        : maxContradiction >= maxNeutral
+        : maxContradiction >= linkedNeutral
           ? 'contradiction'
           : 'neutral';
 
     collapsed.push({
       label,
-      scores: { entailment: maxEntailment, contradiction: maxContradiction, neutral: maxNeutral },
+      scores: {
+        entailment: maxEntailment,
+        contradiction: maxContradiction,
+        neutral: linkedNeutral,
+      },
     });
   }
 
@@ -327,13 +346,21 @@ export async function evaluateWithNLI(claim: NotesLogEntry): Promise<TierOutput>
   const bestSignalMargin = agg.bestEntailment - Math.max(agg.bestContradiction, agg.bestNeutral);
   const hedgingMismatch = hasCausalHedgingMismatch(claim);
 
+  // Paraphrase claims use a higher contradiction threshold: DeBERTa frequently mistakes
+  // near-paraphrases for contradictions because they use different surface wording while
+  // preserving the same proposition. Only exit as invalid if the contradiction is near-certain.
+  const effectiveContradictionThreshold =
+    claim.derivation === DerivationMethod.Paraphrase
+      ? CONTRADICTION_THRESHOLD_PARAPHRASE
+      : CONTRADICTION_THRESHOLD;
+
   // ---------------------------------------------------------------------------
   // Decision logic
   // ---------------------------------------------------------------------------
 
   if (
     agg.bestEntailment >= threshold &&
-    agg.bestContradiction < CONTRADICTION_THRESHOLD &&
+    agg.bestContradiction < effectiveContradictionThreshold &&
     bestSignalMargin >= entailmentMargin &&
     !hedgingMismatch
   ) {
@@ -346,11 +373,11 @@ export async function evaluateWithNLI(claim: NotesLogEntry): Promise<TierOutput>
         `source chunk(s); best entailment ${(agg.bestEntailment * 100).toFixed(1)}% ` +
         `with signal margin ${(bestSignalMargin * 100).toFixed(1)} points and no strong contradiction ` +
         `(max contradiction ${(agg.bestContradiction * 100).toFixed(1)}%, ` +
-        `threshold ${(threshold * 100).toFixed(0)}%).`,
+        `threshold ${(effectiveContradictionThreshold * 100).toFixed(0)}%).`,
     };
   }
 
-  if (agg.bestContradiction >= CONTRADICTION_THRESHOLD) {
+  if (agg.bestContradiction >= effectiveContradictionThreshold) {
     return {
       tier_id: 1,
       verdict: 'invalid',

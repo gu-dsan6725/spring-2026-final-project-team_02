@@ -79,6 +79,22 @@ function parseInlineContent(
 
       if (claimType !== undefined) {
         const cfg = CLAIM_TYPE_CONFIG[claimType];
+
+        // Only underline the last sentence of `part` — the actual claim text.
+        // Everything before the final sentence boundary is plain preceding text.
+        // Split at the last ". ", "! ", or "? " to find where the claim sentence starts.
+        const lastBoundary = Math.max(
+          part.lastIndexOf('. '),
+          part.lastIndexOf('! '),
+          part.lastIndexOf('? '),
+        );
+        const precedingText = lastBoundary >= 0 ? part.slice(0, lastBoundary + 2) : '';
+        const claimText = lastBoundary >= 0 ? part.slice(lastBoundary + 2) : part;
+
+        if (precedingText.length > 0) {
+          nodes.push(...renderBoldSegment(precedingText, `${keyPrefix}-pre-${i.toString()}`));
+        }
+
         nodes.push(
           <span
             key={`${keyPrefix}-claim-${i.toString()}`}
@@ -100,7 +116,7 @@ function parseInlineContent(
             title={`${cfg.label} — Click to view sources`}
             aria-label={`${claimId}: ${cfg.label}. Click to view in Notes Log.`}
           >
-            {renderBoldSegment(part, `${keyPrefix}-bold-${i.toString()}`)}
+            {renderBoldSegment(claimText, `${keyPrefix}-bold-${i.toString()}`)}
             <sup
               style={{
                 color: cfg.color,

@@ -10,7 +10,7 @@
  *   4. Herald   — evaluation + feedback loop + human review queue
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 import InputForm from '@/ui/components/InputForm';
 import AgentProgress from '@/ui/components/AgentProgress';
@@ -204,7 +204,9 @@ function PhaseIndicator({ current }: { current: AppPhase }): React.ReactElement 
 export default function HomePage(): React.ReactElement {
   const [appPhase, setAppPhase] = useState<AppPhase>('input');
   const [selectedClaimId, setSelectedClaimId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'memo' | 'notes' | 'herald' | 'queue'>('memo');
+  const [activeTab, setActiveTab] = useState<'memo' | 'notes' | 'herald' | 'evaluate' | 'queue'>(
+    'memo',
+  );
 
   const agent = useAgent();
   const herald = useHerald();
@@ -241,6 +243,12 @@ export default function HomePage(): React.ReactElement {
     [agent.memo, herald, addToast],
   );
 
+  // ── Set of already-evaluated claim IDs ───────────────────────────────────
+  const evaluatedClaimIds = useMemo(
+    () => new Set(herald.results.map((r) => r.claim_id)),
+    [herald.results],
+  );
+
   // ── Human verdict submission ─────────────────────────────────────────────
   const handleVerdictSubmit = useCallback(
     async (
@@ -265,7 +273,8 @@ export default function HomePage(): React.ReactElement {
   // ── Export handlers ──────────────────────────────────────────────────────
   const handleExportMd = useCallback((): void => {
     if (agent.memo === null) return;
-    exportAsMarkdown(agent.memo);
+    const ts = new Date().toISOString().slice(0, 16).replace('T', '_').replace(':', '-');
+    exportAsMarkdown(agent.memo, `policy-memo-${ts}.md`);
     addToast({ variant: 'success', message: 'Markdown exported.' });
   }, [agent.memo, addToast]);
 
@@ -411,6 +420,13 @@ export default function HomePage(): React.ReactElement {
                       ...(appPhase === 'results'
                         ? [
                             { id: 'herald', label: 'HERALD Results' },
+                            {
+                              id: 'evaluate',
+                              label:
+                                evaluatedClaimIds.size > 0
+                                  ? `Evaluate More (${(agent.memo.notes_log.length - evaluatedClaimIds.size).toString()} left)`
+                                  : 'Evaluate',
+                            },
                             ...(herald.humanQueue.length > 0
                               ? [
                                   {
@@ -473,13 +489,14 @@ export default function HomePage(): React.ReactElement {
                     </ErrorBoundary>
                   </div>
                   <div>
-                    {appPhase === 'review' ? (
+                    {appPhase === 'review' || appPhase === 'results' ? (
                       <ErrorBoundary label="Claim Selector">
                         <ClaimSelector
                           entries={agent.memo.notes_log}
                           onRunEvaluation={(ids) => {
                             void handleRunEvaluation(ids);
                           }}
+                          alreadyEvaluated={evaluatedClaimIds}
                         />
                       </ErrorBoundary>
                     ) : (
@@ -517,6 +534,20 @@ export default function HomePage(): React.ReactElement {
                       No HERALD results yet. Select claims and run evaluation.
                     </div>
                   )}
+                </ErrorBoundary>
+              )}
+
+              {activeTab === 'evaluate' && appPhase === 'results' && (
+                <ErrorBoundary label="Evaluate More">
+                  <div className="max-w-2xl mx-auto">
+                    <ClaimSelector
+                      entries={agent.memo.notes_log}
+                      onRunEvaluation={(ids) => {
+                        void handleRunEvaluation(ids);
+                      }}
+                      alreadyEvaluated={evaluatedClaimIds}
+                    />
+                  </div>
                 </ErrorBoundary>
               )}
 

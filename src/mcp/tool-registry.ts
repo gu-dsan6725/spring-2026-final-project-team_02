@@ -19,7 +19,6 @@ import { govinfoHandler } from './govinfo-server';
 import { fredHandler } from './fred-server';
 import { semanticScholarHandler } from './semantic-scholar-server';
 import { fileReaderHandler } from './file-reader-server';
-import { fetchUrlHandler } from './fetch-url-server';
 import { logMcpToolCall } from '../observability/span-helpers';
 import { logWarn } from '../observability/braintrust';
 
@@ -306,32 +305,6 @@ export const TOOL_REGISTRY: Partial<Record<string, ToolDefinition>> = {
     timeout_ms: 10_000,
     max_retries: 1,
     health_check_url: 'local',
-  },
-
-  fetch_url: {
-    name: 'fetch_url',
-    description:
-      'Fetch and read the text content of any URL (web page, government report, policy document). ' +
-      'Use this to read known_sources URLs provided by the user, and to retrieve full document ' +
-      'content when a web search returns a relevant link. Returns cleaned text with HTML stripped.',
-    parameters: {
-      type: 'object',
-      properties: {
-        url: {
-          type: 'string',
-          description: 'The full URL to fetch, including https://.',
-        },
-        max_chars: {
-          type: 'number',
-          description: 'Maximum characters to return (default 8000, max 12000).',
-        },
-      },
-      required: ['url'],
-    },
-    handler: fetchUrlHandler,
-    timeout_ms: 30_000,
-    max_retries: 2,
-    health_check_url: 'https://www.google.com',
   },
 };
 

@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HERALD: Hierarchical Evidence Review and Automated Legitimacy Detection</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #1a1a1a;
+      background: #f5f4f0;
+    }
+
+    .page {
+      max-width: 820px;
+      margin: 40px auto 80px;
+      background: #fff;
+      padding: 60px 72px;
+      box-shadow: 0 2px 24px rgba(0,0,0,0.10);
+      border-radius: 4px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 28px;
+      color: #111;
+      border-bottom: 2px solid #1a1a6e;
+      padding-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 1.18rem;
+      font-weight: 700;
+      margin-top: 44px;
+      margin-bottom: 14px;
+      color: #1a1a6e;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid #d0d0e8;
+      padding-bottom: 6px;
+    }
+
+    h3 {
+      font-size: 1.04rem;
+      font-weight: 700;
+      margin-top: 28px;
+      margin-bottom: 10px;
+      color: #222;
+    }
+
+    p {
+      margin-bottom: 14px;
+      text-align: justify;
+    }
+
+    .abstract-box {
+      background: #f8f8fc;
+      border-left: 4px solid #1a1a6e;
+      padding: 18px 24px;
+      margin: 24px 0 36px;
+      font-size: 0.95rem;
+    }
+
+    .abstract-box p { margin-bottom: 0; }
+
+    hr {
+      border: none;
+      border-top: 1px solid #e0e0e0;
+      margin: 36px 0;
+    }
+
+    strong { font-weight: 700; }
+    em { font-style: italic; }
+
+    ul, ol {
+      margin: 10px 0 14px 24px;
+    }
+
+    li { margin-bottom: 6px; }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 18px 0 24px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.88rem;
+      font-family: 'Arial', sans-serif;
+    }
+
+    th {
+      background: #1a1a6e;
+      color: #fff;
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 7px 12px;
+      border-bottom: 1px solid #e8e8f0;
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td { background: #f6f6fb; }
+    tr:hover td { background: #ededf8; }
+
+    .table-label {
+      font-weight: 700;
+      font-size: 0.92rem;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    /* Figures */
+    .figure {
+      margin: 28px 0;
+      padding: 20px;
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+    }
+
+    .figure-label {
+      font-weight: 700;
+      font-size: 0.92rem;
+      margin-bottom: 14px;
+      color: #1a1a6e;
+    }
+
+    .figure-caption {
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 12px;
+      font-style: italic;
+    }
+
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+    }
+
+    /* References */
+    .references p {
+      font-size: 0.88rem;
+      margin-bottom: 10px;
+      padding-left: 24px;
+      text-indent: -24px;
+      text-align: left;
+    }
+
+    /* Code */
+    code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+      background: #f0f0f5;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    /* Footnote-style asterisk note */
+    .note {
+      font-size: 0.84rem;
+      color: #555;
+      margin-top: -10px;
+      margin-bottom: 14px;
+      font-style: italic;
+    }
+
+    /* Section number styling */
+    .rq {
+      margin: 14px 0;
+      padding-left: 18px;
+      border-left: 3px solid #ccc;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <h1>HERALD: Hierarchical Evidence Review and Automated Legitimacy Detection for AI-Generated Policy Documents</h1>
+
+  <h2>Abstract</h2>
+  <div class="abstract-box">
+    <p>AI agents capable of conducting multi-step research and producing long-form analytical documents are increasingly deployed in knowledge-intensive domains, yet their susceptibility to hallucination and source misrepresentation poses serious risks in high-stakes contexts such as policy analysis. We present HERALD (Hierarchical Evidence Review and Automated Legitimacy Detection), a multi-tier claim verification pipeline designed specifically for AI-generated policy memos. HERALD routes claims through up to four evaluation tiers — a local NLI classifier, a gpt-4o-mini LLM judge with claim-type-specific prompts, a claude-haiku Senior Reviewer, and human review — exiting as soon as a confident verdict is reached. Central to the design is a six-type claim taxonomy (statistical, causal, comparative, predictive, normative, synthesis) that determines both the entry tier and the evaluation criteria applied to each claim, and a structured notes log that captures source provenance during research rather than recovering it post-hoc. We evaluate HERALD on four benchmark sets totaling 206 claims and compare it against single-call haiku and mini baselines. On the held-out benchmark, HERALD achieves 96% accuracy, matching the haiku baseline at 23% of its cost. Across all sets, HERALD resolves 90–96% of claims without human review. We analyze failure modes by claim type and derivation method, identify the primary cost driver (spurious T3 escalation caused by a prompt framing error), and demonstrate that a targeted fix reduces cost by 86% with no accuracy loss.</p>
+  </div>
+
+  <hr>
+
+  <h2>1. Introduction</h2>
+  <p>The emergence of LLM-based agents capable of conducting multi-step research and producing long-form analytical documents has created both opportunity and risk in knowledge-intensive domains. Survey data from over 1,300 professionals found that top agent use cases include research and summarization (58%) (LangChain State of AI Agents Report: 2024 Trends, n.d.), and public sector institutions increasingly deploy them to assist with complex policy documents (Musumeci et al., 2024). Yet this delegation is not neutral. LLM agents make discretionary micro-decisions about what information to include and how to present it (Schmitz &amp; Bryson, 2025), and their susceptibility to hallucination means those decisions may produce fabricated claims presented with unwarranted confidence. In economics and public policy, errors such as a misquoted elasticity estimate or a correlation asserted as causation can propagate through institutional decision-making chains with limited human interception. Manual expert review remains the standard safeguard but is expensive — typically requiring two to four hours per claim (Bodaghi et al., 2024) — and applied inconsistently.</p>
+  <p>Automated fact-checking research has matured considerably in parallel. FEVER (Thorne et al., 2018) established benchmarks for claim verification against Wikipedia; neural NLI emerged as a scalable proxy for entailment detection (Falke et al., 2019; Honovich et al., 2022); and advances in transformer architectures, including DeBERTa (He et al., 2021), have made cross-encoder NLI models viable as high-precision, low-cost verification filters. Yet these systems were designed for short, atomic claims against single-source evidence — fundamentally different from policy memos, which contain synthesized inferences spanning multiple heterogeneous sources embedded in interpretive prose.</p>
+  <p>This mismatch motivates HERALD (Hierarchical Evidence Review and Automated Legitimacy Detection). We identify three properties of policy document validation that existing systems do not jointly address: <em>claim heterogeneity</em> (statistical, causal, normative, and synthesis assertions each require different evaluation strategies); <em>provenance at generation time</em> (post-hoc extraction loses the structured link between a claim and the source chunks used to produce it); and <em>graduated confidence</em> (not all uncertain claims warrant human review — many can be resolved cheaply, reserving expensive LLM calls for genuinely ambiguous cases).</p>
+  <p>HERALD addresses these through three design choices. First, a six-type claim taxonomy (statistical, causal, comparative, predictive, normative, synthesis) drives routing through a four-tier escalation pipeline, with claim type determining both the entry tier and the evaluation criteria applied. Second, the writing agent constructs a structured notes log during research, before memo composition, attaching source evidence and a derivation method tag to each claim as it is produced, with a completeness check enforcing bidirectional consistency between inline markers and log entries. Third, the pipeline applies progressively more expensive validation methods, exiting as soon as a tier resolves with sufficient confidence. Statistical, comparative, and causal claims begin at a local DeBERTa NLI classifier, while predictive, normative, and synthesis claims enter LLM evaluation directly, with a focused Senior Reviewer and human review reserved for unresolved cases.</p>
+  <p>Our central research questions are:</p>
+  <div class="rq">(RQ1) Can a typed, multi-tier validation pipeline resolve a meaningful fraction of policy memo claims automatically, without human review?</div>
+  <div class="rq">(RQ2) Does claim type and derivation method predict validation difficulty systematically?</div>
+  <div class="rq">(RQ3) What are the failure modes of LLM judges for the claim types most relevant to policy analysis, and how do they compare to single-call baselines?</div>
+
+  <hr>
+
+  <h2>2. Related Works</h2>
+  <p><strong>Fact Verification and Claim Checking.</strong> The dominant paradigm in automated fact-checking treats verification as a retrieval-plus-NLI problem: retrieve relevant evidence, then classify the claim as supported, refuted, or inconclusive (Popat et al., 2018; Thorne et al., 2018). Systems such as KGAT (Z. Liu et al., 2020) and GEAR (Zhou et al., 2019) refined this pipeline with graph-based evidence aggregation. FActScore (Min et al., 2023) extended atomic claim verification to long-form generated biographies by decomposing outputs into fine-grained propositions verified against a knowledge base. These approaches assume claims are short, self-contained, and verifiable against a single source — assumptions that do not hold for policy synthesis claims combining evidence across multiple documents.</p>
+  <p><strong>Factual Consistency in Summarization.</strong> A closely related line of work evaluates whether abstractive summaries are faithful to their source documents. FactCC (Kryściński et al., 2019) uses a BERT-based classifier trained on synthetic inconsistencies. SummaC (Laban et al., 2021) applies NLI at the sentence level and aggregates across source-summary pairs. TRUE (Honovich et al., 2022) provides a unified benchmark across nine datasets. HERALD's Tier 1 draws on this tradition, applying a cross-encoder DeBERTa NLI model to (source chunk, claim) pairs, but only for claim types where single-source NLI is reliable (statistical, causal, comparative), routing others directly to LLM evaluation.</p>
+  <p><strong>LLM-as-Judge and Criteria-Driven Evaluation.</strong> Recent work has demonstrated that LLMs can serve as reliable evaluators when given structured scoring rubrics. G-Eval (Y. Liu et al., 2023) uses GPT-4 with chain-of-thought to evaluate text quality across dimensions. Prometheus (Kim et al., n.d.) fine-tunes an open-source judge on human-written criteria, while PandaLM (Wang et al., 2024) trains a judge for instruction-following evaluation. HERALD's Tier 2 extends this paradigm by writing distinct evaluation prompts for each of the six claim types, encoding domain-specific error patterns. For example, for causal claims: "does the source state a mechanism, or only correlation?"; for normative claims: "is consensus cited from multiple independent institutions or a single report?" To our knowledge, this is the first system to apply claim-type-specific LLM judge prompts within a validation pipeline for generated documents.</p>
+  <p><strong>Multi-Agent Debate and Deliberation.</strong> Du et al. (2023) showed that factual accuracy improves when multiple LLM instances debate answers across rounds before converging. ChatEval (Chan et al., 2023) demonstrated that role diversity among LLM personas correlates with better evaluation quality, and FORD (Xiong et al., 2023) further showed that inter-agent disagreement surfaces factual errors that single-model evaluation misses. HERALD's Tier 3 was originally implemented as a three-persona debate (Domain Expert, Methodologist, Skeptic) following this paradigm, but empirical evaluation showed this design degraded accuracy: the Skeptic persona introduced systematic bias toward invalid verdicts, and the four-call structure increased crash rates and cost without accuracy benefit over a single focused reviewer call. The current Tier 3 uses a single Senior Reviewer call with explicit calibration instructions, empirically outperforming the debate design by 4–6pp on all four benchmark sets. This finding adds a cautionary note to the multi-agent debate literature: role diversity may improve generation quality but introduce adversarial bias in evaluation tasks where one class (invalid) is structurally easier to argue for.</p>
+  <p><strong>Agent Output Validation and Hallucination Detection.</strong> RAGAS (Es et al., n.d.) provides automated metrics for retrieval-augmented generation faithfulness and answer relevance. Self-RAG (Asai et al., 2023) trains models to generate inline reflection tokens indicating whether retrieved passages support a claim. SAFE (Wei et al., 2024) decomposes long-form factual responses into atomic facts and searches for supporting evidence per fact. These systems address hallucination in QA and retrieval settings but none targets the structured, multi-source synthesis that characterizes policy writing, where agent-generated inferences are expected to go beyond individual sources.</p>
+  <p><strong>Provenance and Claim Attribution.</strong> Research in citation recommendation (Färber et al., 2018) and scientific claim extraction (Wadden et al., 2020) addresses attribution of claims to sources in academic writing, typically treating provenance as a post-hoc annotation task. HERALD takes a different approach: provenance is captured during the research process itself, recording not only which sources were used but how — whether a claim is drawn directly from a single source or synthesized across multiple. In our results, direct-extraction claims were valid in 76–100% of cases, while cross-source synthesis claims were correct approximately 66–80% of the time, illustrating why derivation method is a meaningful predictor of verification difficulty.</p>
+  <p><strong>Positioning.</strong> HERALD differs from prior work in three respects: (1) it applies type-differentiated evaluation criteria rather than uniform claim checking; (2) it captures provenance at generation time rather than recovering it post-hoc; and (3) it uses calibrated multi-tier escalation to match validation cost to claim complexity, empirically resolving 90–96% of claims without human review across four benchmark sets.</p>
+
+  <hr>
+
+  <h2>3. System Architecture</h2>
+  <p>This work presents two contributions. First, we propose HERALD, an efficient multi-tier framework for automated claim verification in knowledge-intensive documents. Second, to demonstrate HERALD's effectiveness in a realistic deployment context, we build a domain-specific policy memo writing agent that conducts autonomous web research and produces a structured memo. HERALD then evaluates the claims made in the memo for factual validity. Together, the two components form an end-to-end pipeline in which policy document generation and claim verification are tightly coupled through a shared provenance representation.</p>
+
+  <h3>3.1 The Policy Memo Writing Agent</h3>
+  <p>The agent accepts a user-supplied topic, optional background text, and source URLs or uploaded files, then autonomously produces a structured memo with inline claim citations across four phases: topic input, agentic research and memo generation, user claim selection, and HERALD evaluation with revision feedback (Figure 1).</p>
+
+  <div class="figure">
+    <div class="figure-label">Figure 1: HERALD System Architecture</div>
+    <div class="mermaid">
+flowchart LR
+    subgraph Input["Phase 1 — User Input"]
+        U["Policy Topic\nBackground Text\nSource URLs / Files"]
+    end
+
+    subgraph Agent["Phase 2 — Research & Generation"]
+        direction TB
+        R["Research Agent\nLlama-3.3-70B"]
+        NL[("Notes Log\nclaim · source chunk\nderivation method")]
+        MW["Memo Writer\nInline Claim Markers"]
+        R -->|"retrieves & annotates"| NL
+        NL -->|"provenance-anchored"| MW
+    end
+
+    subgraph Tools["MCP Tool Servers (8)"]
+        direction TB
+        T1["Brave Search"]
+        T2["arXiv · Semantic Scholar"]
+        T3["World Bank · FRED · GovInfo"]
+        T4["File Reader"]
+    end
+
+    subgraph Review["Phase 3 — User Review"]
+        V["Memo Viewer\nClaim Selector"]
+    end
+
+    subgraph HERALD["Phase 4 — HERALD Evaluation"]
+        H["4-Tier Pipeline\n(§3.3)"]
+    end
+
+    U --> R
+    R <-->|"≤ 25 tool calls"| Tools
+    MW --> V
+    V -->|"selected claims"| H
+    H -->|"invalid + feedback\n(max 2 revisions)"| R
+    H -->|"all valid"| Final(["✓ Verified Memo"])
+    </div>
+  </div>
+
+  <p>It draws on eight MCP-registered sources: Brave Search, arXiv, World Bank Indicators, GovInfo, FRED, Semantic Scholar, a government reports index, and a local file reader. It operates entirely on information retrieved at query time with no pre-built corpus, fine-tuned model, or RAG index. The agent runs under a hard budget of 25 tool calls and 50,000 tokens, with forced synthesis at 100% consumption and a deduplication cache preventing redundant calls. Failed retrievals are recorded in the notes log rather than silently dropped.</p>
+  <p>The core provenance mechanism is the notes log: each claim is recorded with its source excerpt and derivation method tag (direct extraction, paraphrase, cross-source synthesis, or agent inference) during research, before memo composition. A completeness check enforces bidirectional consistency between inline citation markers and log entries.</p>
+
+  <h3>3.2 Claim Taxonomy and Routing</h3>
+  <p>Every claim is classified into one of six types — statistical, causal, comparative, predictive, normative, synthesis — which determines its routing and evaluation criteria (Table 2). Each claim also carries a derivation method tag indicating whether it was directly extracted from a source, paraphrased, synthesized across multiple sources, or inferred by the agent beyond what any single source states.</p>
+
+  <div class="table-label">Table 2: Claim Type Routing Table</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Claim Type</th><th>Entry Tier</th><th>NLI Threshold</th><th>Rationale</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Statistical / Numeric</td><td>Tier 1</td><td>Entailment ≥ 0.99, Contradiction ≥ 0.85*</td><td>NLI handles numeric entailment reliably</td></tr>
+        <tr><td>Comparative</td><td>Tier 1</td><td>Entailment ≥ 0.99, Contradiction ≥ 0.85*</td><td>NLI handles relational entailment</td></tr>
+        <tr><td>Causal</td><td>Tier 1</td><td>Entailment ≥ 0.94, Contradiction ≥ 0.85*</td><td>Lower bar; NLI misses correlation-causation conflation</td></tr>
+        <tr><td>Predictive</td><td>Tier 2 (skip NLI)</td><td>N/A</td><td>NLI cannot evaluate projections</td></tr>
+        <tr><td>Normative</td><td>Tier 2 (skip NLI)</td><td>N/A</td><td>NLI cannot evaluate prescriptions</td></tr>
+        <tr><td>Synthesis</td><td>Tier 2 (skip NLI)</td><td>N/A</td><td>No single source entails a synthesis claim</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">* Contradiction threshold raised to 0.95 for paraphrase-derivation claims to prevent spurious flagging of faithful restatements.</p>
+
+  <h3>3.3 The HERALD Verification Pipeline</h3>
+  <p>Claims route through up to four tiers, exiting as soon as a verdict is reached with sufficient confidence. Invalid claims are returned to the agent with structured feedback for up to two revision attempts before Tier 4 escalation.</p>
+
+  <div class="figure">
+    <div class="figure-label">Figure 2: HERALD Claim Routing and Tier Escalation</div>
+    <div class="mermaid">
+flowchart TD
+    IN(["Claim + Source Excerpts\n+ Derivation Method"]) --> RT{"Claim Type?"}
+
+    RT -- "Statistical\nComparative\nCausal" --> T1["Tier 1 — DeBERTa NLI\ncross-encoder/nli-deberta-v3-large\nSliding window over source chunks\n(free, local)"]
+    RT -- "Predictive\nNormative\nSynthesis" --> T2
+
+    T1 --> D1{"T1 Decision"}
+    D1 -- "Entailment ≥ threshold\nno strong contradiction" --> VX(["✓ VALID — Exit"])
+    D1 -- "Contradiction ≥ threshold" --> IX(["✗ INVALID — Exit\n+ Revision Feedback"])
+    D1 -- "Uncertain" --> T2
+
+    T2["Tier 2 — gpt-4o-mini Judge\nType-specific evaluation prompt\nT1 NLI scores as supplementary context\nconfidence threshold: 0.80"] --> D2{"Confidence ≥ 0.80?"}
+    D2 -- "Yes" --> EX2(["Exit with verdict"])
+    D2 -- "No" --> T3
+
+    T3["Tier 3 — claude-haiku Senior Reviewer\nFull claim + sources + T2 assessment\nCalibration bias: UNCERTAIN before INVALID"] --> D3{"Confidence > 0.80?"}
+    D3 -- "Yes" --> EX3(["Exit with verdict"])
+    D3 -- "No" --> T4(["Tier 4 — Human Review\nFull tier history presented"])
+
+    EX2 -- "Invalid" --> FB["Structured Revision Feedback\nmax 2 attempts per claim"]
+    EX3 -- "Invalid" --> FB
+    T4 -- "Invalid" --> FB
+    FB --> IN
+    </div>
+  </div>
+
+  <p><strong>Tier 1 — NLI.</strong> Statistical, causal, and comparative claims are evaluated by <code>cross-encoder/nli-deberta-v3-large</code>. Each source chunk is expanded into overlapping sentence windows (up to 3 sentences, max 1,500 characters per window) to ensure the strongest entailing sub-passage is seen by the model; per-window results are collapsed back to one score per source by taking the maximum across windows. Decision logic: entailment ≥ threshold with signal margin ≥ 0.08 and no strong contradiction → VALID, exit; contradiction ≥ threshold → INVALID, exit; otherwise → escalate to Tier 2. Predictive, normative, and synthesis claims skip Tier 1 entirely.</p>
+  <p><strong>Tier 2 — LLM Judge.</strong> A gpt-4o-mini judge receives claim-type-specific prompts encoding named error patterns. For causal claims: "does the source state a mechanism, or only correlation?" For normative claims: "is consensus cited from multiple independent institutions or a single report?" The judge also receives Tier 1 NLI scores as supplementary context, explicitly framed as informational rather than authoritative to preserve the judge's independent assessment. Confidence ≥ 0.80 exits with the verdict; below escalates to Tier 3.</p>
+  <p><strong>Tier 3 — Senior Reviewer.</strong> A single claude-haiku-4-5 call acting as a senior policy analyst receives the full claim context, source excerpts, agent reasoning, and the Tier 2 judge's inconclusive assessment. It makes a definitive final verdict with an explicit calibration bias: "When in doubt between INVALID and UNCERTAIN, choose UNCERTAIN. When in doubt between VALID and UNCERTAIN, choose VALID. You must identify a specific, quotable error before returning INVALID." Confidence &gt; 0.80 exits; confidence ≤ 0.80 escalates to Tier 4.</p>
+  <p><strong>Tier 4 — Human Review.</strong> Reviewers receive the full tier history and submit a final verdict. No claims reached Tier 4 in any benchmark run, indicating that the three-tier automated pipeline fully resolves the claim distributions under current thresholds.</p>
+
+  <h3>3.4 Technology Stack</h3>
+  <p><strong>Frontend:</strong> Next.js 16, React 19, TypeScript, Tailwind CSS 4. <strong>Backend:</strong> FastAPI, SQLAlchemy 2.0 async, PostgreSQL, Redis (session state, deduplication cache, WebSocket event queue). <strong>Research agent:</strong> Groq (Llama-3.3-70B-Versatile) with GPT-4o fallback. <strong>Tier 1 NLI</strong> runs locally via HuggingFace Transformers or ONNX Runtime (3–4× faster on CPU). <strong>Tier 2</strong> uses gpt-4o-mini via the OpenAI API, selected for low cost ($0.15/M input, $0.60/M output) and reliable structured JSON output. <strong>Tier 3</strong> uses claude-haiku-4-5 via the Anthropic SDK, selected for stronger reasoning on ambiguous policy claims. All calls are traced through Braintrust with OpenTelemetry span instrumentation.</p>
+
+  <hr>
+
+  <h2>4. Data and Evaluation</h2>
+
+  <h3>4.1 Data Sources</h3>
+  <p>HERALD is designed to evaluate claims in policy memos generated by AI agents. We constructed two benchmark sets that differ in how ground-truth verdicts were established, together providing both scale and human-anchored reliability.</p>
+  <p><strong>The GenAI Benchmark</strong> consists of 153 claims across three sets (primary n=50, tuned n=53, holdout n=50) generated under a structured prompt specifying distribution requirements across the six claim types and four derivation methods. Ground-truth verdicts (valid/invalid), claim types, derivation methods, source excerpts, and rationale fields were produced as part of the generation pipeline and manually reviewed for label correctness. The primary and tuned sets were used for iterative pipeline development; the holdout set was reserved for final evaluation and not used to inform any threshold or prompt decisions.</p>
+  <p><strong>The Human-Authored Benchmark</strong> (n=53) consists of claims whose ground-truth verdicts and rationale were established through human analytical judgment rather than synthetic labeling. Its purpose is methodological: because both HERALD's evaluation stack and the GenAI benchmark's labels are produced by LLMs, there is a risk that alignment between them reflects shared model biases rather than genuine validation accuracy. The Human benchmark anchors HERALD's verdicts against human reasoning on the same validation task.</p>
+  <p>Both benchmarks carry source excerpts, claim types, derivation methods, and explicit rationales. Domain coverage spans health outcomes, education, agricultural productivity, climate, water and sanitation, gender equality, governance, and urban development. Both sets were validated against the <code>NotesLogEntry</code> schema: each entry requires a claim type, derivation method, at least one source with a non-empty excerpt, and a non-empty reasoning field.</p>
+
+  <h3>4.2 Preprocessing and Preparation</h3>
+  <p>Every claim was manually reviewed for label correctness and source plausibility. Claims were routed through the standard <code>evaluateClaim()</code> pipeline with no pre-filtering. Tier 1 NLI operates on raw source excerpts as retrieved, without preprocessing beyond tokenization handled internally by the cross-encoder. The GenAI benchmark provides approximately uniform coverage across claim types; the Human benchmark is weighted toward statistical (n=17) and causal/comparative (n=12 each) claims, reflecting the natural distribution of these types in policy writing.</p>
+
+  <h3>4.3 Evaluation Metrics</h3>
+  <p>HERALD's verdicts are evaluated against ground truth using: accuracy (correct verdicts over total claims); precision, recall, F1, and F2 computed over the binary flagging task with <em>invalid</em> as the positive class (F2 weights recall twice, reflecting the asymmetry that missing a bad claim is worse than over-flagging a valid one in policy contexts); false positive rate (valid claims incorrectly flagged); and false negative rate (invalid claims incorrectly passed — the principal downstream risk). Tier distribution and per-claim cost are reported as operational metrics.</p>
+  <p>Three systems are compared: <strong>Full HERALD</strong> (complete pipeline), <strong>Haiku Single-Call</strong> (claude-haiku-4-5 with the same claim-type-specific judge prompt as Tier 2, representing the strongest single-model baseline), and <strong>Mini Single-Call</strong> (gpt-4o-mini with the same prompt, representing the cost-efficient single-model baseline).</p>
+
+  <h3>4.4 Quantitative Results</h3>
+
+  <div class="table-label">Table 1: Full Results Across All Benchmark Sets</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Benchmark</th><th>Metric</th><th>HERALD</th><th>Haiku</th><th>Mini</th></tr>
+      </thead>
+      <tbody>
+        <tr><td rowspan="4">GenAI — Set 1 (n=50)</td><td>Accuracy</td><td>92.0%</td><td>92.0%</td><td>88.0%</td></tr>
+        <tr><td>F1</td><td>0.920</td><td>0.917</td><td>0.869</td></tr>
+        <tr><td>F2</td><td><strong>0.942</strong></td><td>0.917</td><td>0.847</td></tr>
+        <tr><td>Cost/claim</td><td><strong>$0.00095</strong></td><td>$0.00296</td><td>$0.00164</td></tr>
+        <tr><td rowspan="4">GenAI — Set 2 (n=53)</td><td>Accuracy</td><td>84.9%</td><td>86.8%</td><td>84.9%</td></tr>
+        <tr><td>F1</td><td>0.871</td><td><strong>0.877</strong></td><td>0.871</td></tr>
+        <tr><td>F2</td><td>0.871</td><td>0.833</td><td>0.871</td></tr>
+        <tr><td>Cost/claim</td><td><strong>$0.00057</strong></td><td>$0.00285</td><td>$0.00153</td></tr>
+        <tr><td rowspan="4">GenAI — Set 3 / Holdout (n=50)</td><td>Accuracy</td><td><strong>96.0%</strong></td><td>96.0%</td><td>94.0%</td></tr>
+        <tr><td>F1</td><td><strong>0.969</strong></td><td>0.968</td><td>0.951</td></tr>
+        <tr><td>F2</td><td><strong>0.969</strong></td><td>0.950</td><td>0.923</td></tr>
+        <tr><td>Cost/claim</td><td><strong>$0.00073</strong></td><td>$0.00278</td><td>$0.00150</td></tr>
+        <tr><td rowspan="4">Human-Authored (n=53)</td><td>Accuracy</td><td>84.9%</td><td><strong>92.5%</strong></td><td>86.8%</td></tr>
+        <tr><td>F1</td><td>0.867</td><td><strong>0.931</strong></td><td>0.885</td></tr>
+        <tr><td>F2</td><td>0.867</td><td><strong>0.912</strong></td><td>0.894</td></tr>
+        <tr><td>Cost/claim</td><td><strong>$0.00043</strong></td><td>$0.00284</td><td>$0.00153</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Holdout benchmark (primary evaluation set).</strong> Full HERALD achieves 96.0% accuracy and 0.969 F1, matching haiku exactly while costing 3.8× less and achieving a higher F2 (0.969 vs 0.950) — meaning HERALD catches more genuine invalids despite the same overall accuracy. Mini at 94.0% is the only system with a materially lower result on the holdout.</p>
+  <p><strong>Reliability against human judgment.</strong> On the Human benchmark, all three systems score between 84.9% and 92.5% accuracy. HERALD (84.9%) trails haiku (92.5%) by 7.6pp. This gap traces almost entirely to four irrecoverable NLI false negatives (GT-053, GT-059, GT-062, GT-096) where DeBERTa-v3 returns near-certain contradiction or entailment scores on claims that a human would correctly assess. Haiku, which does not use NLI, resolves these correctly via language understanding. The convergence of all three systems within ~8pp F1 on the Human benchmark confirms that the residual errors are driven by the intrinsic difficulty of specific claims rather than systematic design flaws.</p>
+  <p><strong>Cost efficiency.</strong> HERALD's cost advantage is substantial: 0.15–0.32× haiku cost and 0.28–0.58× mini cost across all sets. This is achieved through the Tier 1 NLI filter (which resolves 26–47% of claims at zero API cost) combined with an efficient T2 mini exit (which resolves a further 46–64% at ~$0.00028 per claim), reserving haiku calls for the 4–10% of claims where genuine uncertainty remains.</p>
+  <p><strong>Variance.</strong> Full HERALD shows 0pp variance across three repeated runs on the holdout set, reflecting the deterministic behavior of Tier 1 NLI and the low-temperature (0.1–0.2) settings at Tiers 2–3. Haiku shows ±0.5pp variance; mini shows ±1.0pp.</p>
+  <p><strong>Tier distribution.</strong> Across all four sets, HERALD resolves 26–47% of claims at Tier 1 (NLI), 46–64% at Tier 2 (mini), and only 4–10% at Tier 3 (haiku). No claims reached Tier 4 in any run.</p>
+
+  <hr>
+
+  <h2>5. Models and Technologies</h2>
+  <p><strong>Language Models.</strong> The system uses three LLMs selected for distinct performance profiles. The research agent runs on Llama-3.3-70B-Versatile via the Groq API; Groq's LPU hardware delivers low latency for the tool-calling loop of up to 25 sequential calls, with GPT-4o as automatic fallback on rate-limit exhaustion. HERALD's Tier 2 uses gpt-4o-mini via the OpenAI API: low cost, reliable structured JSON output, and sufficient accuracy for the majority of policy claims at the 0.80 confidence threshold. HERALD's Tier 3 uses claude-haiku-4-5 via the Anthropic SDK, selected for stronger reasoning on ambiguous cases and reliable adherence to complex tool-call schemas.</p>
+  <p><strong>NLI Model.</strong> Tier 1 uses <code>cross-encoder/nli-deberta-v3-large</code>, fine-tuned on MultiNLI and loaded locally via HuggingFace Transformers or ONNX Runtime (3–4× faster on CPU). DeBERTa-v3-large was chosen over lighter alternatives because false negatives — invalid claims incorrectly passed — are more costly than latency for the statistical and causal claims routed through Tier 1. NLI dependencies are packaged as an optional group (<code>[nli]</code>) for deployments where Tier 1 is disabled.</p>
+  <p><strong>Frameworks and Infrastructure.</strong> The research agent is implemented as a direct tool-calling loop against the Groq/OpenAI API — no LangChain, LlamaIndex, or managed agent SDK — with eight MCP tool servers as thin TypeScript modules. This gives explicit control over retry logic, 30-second per-tool timeouts, exponential backoff, and deterministic budget enforcement. The backend is fully asynchronous (FastAPI, asyncpg, SQLAlchemy 2.0). Redis handles session state, the tool-call deduplication cache, and the WebSocket event queue, decoupling pipeline execution from frontend delivery.</p>
+  <p><strong>Observability.</strong> All LLM calls, tool invocations, NLI inferences, and tier routing decisions are traced through Braintrust with OpenTelemetry span instrumentation. Per-claim tier distributions, confidence trajectories, and latency breakdowns are derived from span data and form the primary diagnostic layer for the analysis in Section 7.</p>
+
+  <hr>
+
+  <h2>6. Responsible AI Considerations</h2>
+  <p><strong>Hallucination and Factual Accuracy.</strong> Reducing hallucination is HERALD's central design motivation. The notes log anchors every claim to a retrieved source excerpt, consistent with evidence that retrieval-augmented generation mitigates hallucination by grounding outputs in verifiable external knowledge (Tonmoy et al., 2024). Post-hoc verification through NLI entailment checking, claim-type-specific LLM judging, and a calibrated Senior Reviewer adds further layers of protection.</p>
+  <p><strong>Bias and Fairness.</strong> The eight MCP registry sources are weighted toward English-language, Western institutional outputs, creating a risk of geographic skew in both retrieval and evaluation. LLMs trained to be explicitly unbiased continue to demonstrate implicit bias (Reuel, 2025), meaning a claim backed by a lower-income country source may face harsher scrutiny than an equivalent claim from a Western institution. The benchmark evaluation set partially addresses this by centering on Sub-Saharan African policy domains, but systematic auditing of HERALD's retrieval and evaluation layers for geographic bias remains a priority for future work.</p>
+  <p><strong>Human Oversight.</strong> Automated verdicts in high-stakes policy contexts are considered one of the most significant ethical risks of AI deployment (Green, 2022; Laux &amp; Ruschemeier, 2025). HERALD addresses this structurally: Tier 4 human review is an architectural endpoint, automated revision attempts are capped at two before mandatory human flagging, and the review interface presents full reasoning trails including the Tier 3 reviewer's analysis to keep reviewer judgment active rather than confirmatory.</p>
+  <p><strong>Privacy.</strong> The system queries publicly available sources and the evaluation set contains no PII. However, the file upload tool creates a potential PII surface in production that requires automated detection at the ingestion layer before deployment.</p>
+
+  <hr>
+
+  <h2>7. Findings and Discussion</h2>
+
+  <h3>7.1 Claim Type as a Predictor of Validation Difficulty</h3>
+  <p>The six-type taxonomy proves a reliable predictor of verification difficulty. Table 3 summarizes accuracy by claim type averaged across all four benchmark sets.</p>
+
+  <div class="table-label">Table 3: HERALD Accuracy by Claim Type (Run 12, averaged across 4 sets)</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Claim Type</th><th>Avg Accuracy</th><th>Primary Failure Mode</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Predictive</td><td><strong>100.0%</strong></td><td>None observed</td></tr>
+        <tr><td>Normative</td><td><strong>96.9%</strong></td><td>None consistent</td></tr>
+        <tr><td>Comparative</td><td>92.0%</td><td>False negatives on complex relational claims</td></tr>
+        <tr><td>Causal</td><td>91.8%</td><td>Correlation-causation conflation; NLI paraphrase FP</td></tr>
+        <tr><td>Statistical</td><td>89.2%</td><td>NLI paraphrase false negatives; T2 number-checking errors</td></tr>
+        <tr><td>Synthesis</td><td>79.5%</td><td>Logical-gap false positives; valid cross-source claims flagged</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Predictive and normative claims, which skip Tier 1 and go directly to the type-specific mini judge, perform best. The structured prompts for these types ("is the projection attributed to a named model under stated assumptions?"; "is consensus cited from multiple independent institutions?") give the LLM clear criteria that translate directly into high-confidence verdicts.</p>
+  <p>Statistical claims are the most variable, ranging from 81% to 100% across sets. The lower-end performance on sets 2 and Human traces to a recurring failure at Tier 1: DeBERTa-v3 returns near-certain contradiction scores (96–100%) on valid paraphrases that change surface wording while preserving the underlying proposition. These NLI false positives are structurally irrecoverable — the model is highly confident in its incorrect assessment.</p>
+  <p>Synthesis is the consistent weak point. The 71–75% accuracy on three of four sets reflects a genuine challenge: logical gaps between cross-source combination and stated conclusion are difficult for any single-call or escalation-based system to detect reliably. All synthesis errors are false positives (valid synthesis claims flagged as invalid), which is operationally preferable to false negatives (invalid claims passed) but still represents meaningful over-flagging.</p>
+
+  <h3>7.2 Derivation Method as a Risk Predictor</h3>
+
+  <div class="table-label">Table 4: HERALD Accuracy by Derivation Method (Run 12)</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Derivation</th><th>Set 1</th><th>Set 2</th><th>Set 3</th><th>Human</th><th>Avg</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>direct_extraction</code></td><td>100%</td><td>76.5%</td><td>100%</td><td>71.4%</td><td>87.0%</td></tr>
+        <tr><td><code>paraphrase</code></td><td>86.7%</td><td>90.9%</td><td>90.0%</td><td>91.7%</td><td>89.8%</td></tr>
+        <tr><td><code>cross_source</code></td><td>80.0%</td><td>66.7%</td><td>100%</td><td>66.7%</td><td>78.4%</td></tr>
+        <tr><td><code>agent_inference</code></td><td>100%</td><td>100%</td><td>100%</td><td>100%</td><td><strong>100%</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The most counterintuitive finding is that agent-inference claims — the derivation type flagged as highest-risk in prior design decisions — achieve perfect accuracy across all four sets under the current pipeline. The original design included a forced escalation to Tier 3 for all agent-inference and cross-source claims regardless of Tier 2 confidence. Ablation data showed this override was degrading accuracy by 2–3pp by routing correctly-assessed T2 verdicts into an adversarial Tier 3 that introduced bias. Removing the override restored accuracy. The finding suggests that derivation method predicts <em>annotation risk at generation time</em> (agent inference claims are harder to get right when writing) but not <em>evaluation difficulty at validation time</em> — a distinction worth preserving in future pipeline designs.</p>
+  <p>Cross-source synthesis has the weakest derivation-level accuracy (66–80%), consistent with the claim-type analysis: combining evidence across multiple sources is genuinely harder to verify, and the logical gap between sources and conclusion is where errors concentrate.</p>
+  <p>Direct extraction shows surprisingly high variance (71–100%), which appears to reflect the underlying difficulty of specific claims in sets 2 and Human rather than a systematic failure of the direct-extraction evaluation pathway.</p>
+
+  <h3>7.3 NLI Performance and Failure Modes</h3>
+
+  <div class="figure">
+    <div class="figure-label">Figure 3: Tier 1 NLI Resolution Rate by Claim Type (Run 12, averaged across sets)</div>
+    <div class="mermaid">
+%%{init: {'theme': 'base'}}%%
+xychart-beta
+    title "T1 NLI Exit Rate by Claim Type (%)"
+    x-axis ["Statistical", "Comparative", "Causal", "Predictive", "Normative", "Synthesis"]
+    y-axis "T1 Exit Rate (%)" 0 --> 100
+    bar [72, 68, 45, 0, 0, 0]
+    </div>
+    <div class="figure-caption">Predictive, normative, and synthesis claims skip Tier 1 by design (0%). Causal claims have a lower exit rate due to the tighter threshold (0.94 vs 0.99) to guard against correlation-causation conflation.</div>
+  </div>
+
+  <p>Tier 1 NLI resolves 26–47% of claims (type-dependent) across benchmark sets, consistently with high accuracy on resolved claims. Its failure modes fall into two categories:</p>
+  <p><strong>Paraphrase false negatives.</strong> DeBERTa-v3 returns high contradiction scores (96–100%) on valid paraphrases because surface wording differences activate its contradiction head even when the underlying proposition is identical. Four specific claims (GT-053, GT-059, GT-096, GT-135) exhibit this pattern and are irrecoverable at Tier 1 — raising the contradiction threshold further does not help because the model is near-certain. The mitigation applied in the current pipeline (raising the paraphrase contradiction threshold to 0.95) reduces but does not eliminate this failure class. A complete fix requires routing paraphrase-derivation claims past Tier 1 entirely.</p>
+  <p><strong>Entailment false positives.</strong> GT-062 (causal, direct extraction) passes Tier 1 with high entailment confidence despite being an invalid claim. The source excerpt uses language that structurally resembles causation, and DeBERTa's entailment head activates strongly. This is the harder failure mode to fix: no threshold change prevents a model from being confidently wrong in the wrong direction.</p>
+
+  <h3>7.4 The T2 Framing Bug and Its Cost Impact</h3>
+  <p>The most impactful finding of the evaluation campaign concerns a prompt framing error in Tier 2 that caused 46–66% of claims to escalate to the expensive Tier 3 haiku call unnecessarily.</p>
+  <p>In the original design, when a claim had already passed through Tier 1 NLI with an "uncertain" result, Tier 2 received a context block that read: <em>"The NLI model at Tier 1 could not reach a confident verdict. Use this context to focus your evaluation on what NLI could not resolve."</em> The intention was to help the judge focus. The effect was the opposite: the mini judge read "NLI couldn't decide" as a signal that the claim was inherently hard, and reduced its confidence accordingly — typically from 0.90+ (which would trigger an exit) to 0.70–0.85 (which triggers Tier 3 escalation).</p>
+  <p>A threshold sweep confirmed the diagnosis: when mini was called on the same claims <em>without</em> T1 context, 78–86% of non-T1 claims returned confidence ≥ 0.90. With T1 context, only 2–8% exited at Tier 2. The T1 framing was suppressing mini's independent assessment.</p>
+
+  <div class="figure">
+    <div class="figure-label">Figure 4: Tier Distribution Before and After the T2 Framing Fix (eval-set-3, n=50)</div>
+    <div class="mermaid">
+%%{init: {'theme': 'base'}}%%
+xychart-beta
+    title "Tier Distribution: Run 11 (Before) vs Run 12 (After)"
+    x-axis ["Tier 1 — NLI", "Tier 2 — mini", "Tier 3 — haiku"]
+    y-axis "Claims Resolved (%)" 0 --> 70
+    bar [46, 8, 46]
+    bar [46, 42, 12]
+    </div>
+    <div class="figure-caption">First bar series = Run 11 (before fix). Second bar series = Run 12 (after fix). T3 drops 46% → 12%; T2 rises 8% → 42%. Accuracy unchanged at 98%.</div>
+  </div>
+
+  <p>The fix: changing "could not reach a confident verdict" to "ran a surface-level entailment check — these scores are supplementary, you are the primary judge." This single sentence change, combined with lowering the exit threshold from 0.90 to 0.80, reduced Tier 3 call rates by 83–92% with zero accuracy change on the holdout set and a net cost reduction of 86% across all sets (from $0.0035–0.0066/claim to $0.0004–0.0009/claim).</p>
+  <p>This finding has a broader implication: in multi-tier LLM evaluation pipelines, upstream context framing should be carefully designed to avoid transmitting uncertainty signals that suppress downstream model confidence. A context block that correctly describes the upstream model's situation ("it was uncertain") can inadvertently instruct the downstream model to also be uncertain, creating a self-fulfilling escalation loop.</p>
+
+  <h3>7.5 Cost-Accuracy Trade-offs</h3>
+  <p>The three-system comparison provides a clean Pareto picture. Across the four benchmark sets:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>System</th><th>Avg Accuracy</th><th>Avg Cost/Claim</th><th>vs Haiku Cost</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>HERALD</td><td>89.5%</td><td>$0.00067</td><td>0.23×</td></tr>
+        <tr><td>Mini Single-Call</td><td>88.4%</td><td>$0.00155</td><td>0.54×</td></tr>
+        <tr><td>Haiku Single-Call</td><td>91.8%</td><td>$0.00286</td><td>1.0×</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="figure">
+    <div class="figure-label">Figure 5: Average Accuracy Across All Four Benchmark Sets</div>
+    <div class="mermaid">
+%%{init: {'theme': 'base'}}%%
+xychart-beta
+    title "Average Accuracy — All 4 Benchmark Sets"
+    x-axis ["HERALD", "Mini Single-Call", "Haiku Single-Call"]
+    y-axis "Average Accuracy (%)" 86 --> 94
+    bar [89.5, 88.4, 91.8]
+    </div>
+  </div>
+
+  <div class="figure">
+    <div class="figure-label">Figure 6: Average Cost per Claim (USD × 10⁻³)</div>
+    <div class="mermaid">
+%%{init: {'theme': 'base'}}%%
+xychart-beta
+    title "Average Cost per Claim (USD x 0.001)"
+    x-axis ["HERALD", "Mini Single-Call", "Haiku Single-Call"]
+    y-axis "Cost per claim (USD x 0.001)" 0 --> 3.2
+    bar [0.67, 1.55, 2.86]
+    </div>
+    <div class="figure-caption">HERALD achieves higher accuracy than mini at 43% of mini's cost, and trails haiku by 2.3pp at 23% of haiku's cost.</div>
+  </div>
+
+  <p>HERALD dominates mini on both accuracy (+1.1pp) and cost (0.43× mini cost) — the NLI pre-filter eliminates enough T2 calls to make the pipeline cheaper than a pure mini single-call despite running two additional tiers. HERALD trails haiku by 2.3pp on average at 23% of haiku's cost — a cost-efficiency ratio of approximately 10:1 per accuracy point recovered.</p>
+  <p>The practical recommendation: for policy document validation where cost is a primary constraint, HERALD provides a better accuracy-cost profile than either single-model baseline. For contexts where maximum accuracy on the Human benchmark is required and cost is secondary, haiku single-call is preferable by 7.6pp on that specific benchmark.</p>
+
+  <hr>
+
+  <h2>8. Conclusion and Future Work</h2>
+
+  <h3>8.1 Summary of Contributions</h3>
+  <p>We present HERALD, a hierarchical claim verification pipeline for AI-generated policy documents that achieves three design goals: claim-type-differentiated evaluation, generation-time provenance capture, and calibrated multi-tier escalation. On the held-out benchmark, HERALD achieves 96% accuracy matching the strongest single-model baseline (haiku) at 23% of its cost. Across all four benchmark sets, HERALD resolves 90–96% of claims without human review while maintaining a false negative rate (missed invalids) of 3.8–18.2% depending on set difficulty.</p>
+  <p>The evaluation also produces two broadly applicable findings. First, derivation method is a better predictor of annotation risk than evaluation difficulty: agent-inference claims, conventionally treated as the highest-risk category, achieve perfect validation accuracy once erroneous forced-escalation logic is removed. Second, upstream context framing in multi-tier LLM pipelines can inadvertently create uncertainty propagation: a context block that accurately describes a prior model's uncertainty may cause the downstream model to adopt the same uncertainty rather than making an independent assessment.</p>
+
+  <h3>8.2 Limitations</h3>
+  <p><strong>Irrecoverable NLI failures.</strong> Four claims exhibit DeBERTa contradiction scores of 96–100% on valid paraphrases. These cannot be resolved by threshold tuning and require routing paraphrase-derivation claims past Tier 1 entirely — an architectural change not yet implemented.</p>
+  <p><strong>Synthesis accuracy ceiling.</strong> Synthesis claims average 79.5% accuracy across sets. Logical-gap verification spanning multiple sources remains beyond reliable automated detection. The current pipeline is likely near its ceiling for this claim type without stronger models or explicit multi-hop reasoning chains.</p>
+  <p><strong>Benchmark scale.</strong> The largest benchmark set contains 53 claims. Observed accuracy differences of ±3–4pp should be interpreted as directional rather than statistically conclusive. The five-run variance protocol confirms stability within each run design but does not provide power for inferential comparisons between systems.</p>
+  <p><strong>Single-domain evaluation.</strong> All benchmark claims are drawn from Sub-Saharan African development policy contexts. Generalization to other policy domains (defense, healthcare, finance) is assumed but not empirically validated.</p>
+  <p><strong>Latency.</strong> At concurrency=3, HERALD's average latency (2,256–9,482ms per claim depending on tier distribution) exceeds the single-model baselines (~4,100ms). The increased T2 exit rate introduced in Run 12 counterintuitively raises wall-clock time on sets with many T2 exits because mini calls (~2–3s each) accumulate at the T2 tier rather than being offset by haiku's higher per-call latency.</p>
+
+  <h3>8.3 Future Work</h3>
+  <p><strong>Route paraphrase derivation past Tier 1.</strong> The four irrecoverable NLI paraphrase failures cost ~3pp on the Human benchmark. Routing all paraphrase-derivation claims directly to Tier 2 would eliminate this failure class entirely; the accuracy loss from removing NLI for these claims is expected to be negligible given mini's high accuracy on the remaining claim types.</p>
+  <p><strong>Synthesis-specific escalation.</strong> Given that synthesis claims have a 20.5% error rate on average, routing them to a stronger model (Sonnet rather than mini at Tier 2) or explicitly chaining multi-hop source reasoning may improve accuracy on this claim type.</p>
+  <p><strong>Larger benchmark sets.</strong> Expanding to 500+ claims per set would provide statistical power for inferential comparisons and reveal whether the observed derivation-method patterns replicate at scale.</p>
+  <p><strong>Cross-domain generalization.</strong> Evaluating HERALD on policy documents from healthcare, environmental regulation, and fiscal policy would determine whether the claim taxonomy and NLI thresholds generalize beyond the current development-policy domain.</p>
+  <p><strong>Cost-aware routing.</strong> The current routing table is fixed by claim type. An adaptive router that considers the current T1 NLI confidence distribution across a batch could dynamically adjust thresholds to hit a target cost budget, useful in production deployments with hard API cost constraints.</p>
+
+  <hr>
+
+  <h2>References</h2>
+  <div class="references">
+    <p>Asai, A., Wu, Z., Wang, Y., Sil, A., &amp; Hajishirzi, H. (2023). Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection (arXiv:2310.11511). arXiv.</p>
+    <p>Bodaghi, A., Schmitt, K. A., Watine, P., &amp; Fung, B. C. M. (2024). A Literature Review on Detecting, Verifying, and Mitigating Online Misinformation. <em>IEEE Transactions on Computational Social Systems</em>, 11(4), 5119–5145.</p>
+    <p>Chan, C.-M., Chen, W., Su, Y., Yu, J., Xue, W., Zhang, S., Fu, J., &amp; Liu, Z. (2023). ChatEval: Towards Better LLM-based Evaluators through Multi-Agent Debate.</p>
+    <p>Du, Y., Li, S., Torralba, A., Tenenbaum, J. B., &amp; Mordatch, I. (2023). Improving Factuality and Reasoning in Language Models through Multiagent Debate (arXiv:2305.14325). arXiv.</p>
+    <p>Es, S., James, J., Espinosa-Anke, L., &amp; Schockaert, S. (n.d.). RAGAS: Automated Evaluation of Retrieval Augmented Generation.</p>
+    <p>Falke, T., Ribeiro, L. F. R., Utama, P. A., Dagan, I., &amp; Gurevych, I. (2019). Ranking Generated Summaries by Correctness. <em>Proceedings of ACL 2019</em>, 2214–2220.</p>
+    <p>Färber, M., Thiemann, A., &amp; Jatowt, A. (2018). CITEWERTs: A System Combining Cite-Worthiness with Citation Recommendation. <em>Advances in Information Retrieval</em>, 10772, 815–819.</p>
+    <p>Green, B. (2022). The Flaws of Policies Requiring Human Oversight of Government Algorithms. <em>Computer Law &amp; Security Review</em>, 45, 105681.</p>
+    <p>He, P., Liu, X., Gao, J., &amp; Chen, W. (2021). DeBERTa: Decoding-enhanced BERT with Disentangled Attention (arXiv:2006.03654). arXiv.</p>
+    <p>Honovich, O., Aharoni, R., Herzig, J., et al. (2022). TRUE: Re-evaluating Factual Consistency Evaluation. <em>Proceedings of NAACL 2022</em>, 3905–3920.</p>
+    <p>Kim, S., Shin, J., Cho, Y., et al. (n.d.). PROMETHEUS: Inducing Fine-grained Evaluation Capability in Language Models.</p>
+    <p>Kryściński, W., McCann, B., Xiong, C., &amp; Socher, R. (2019). Evaluating the Factual Consistency of Abstractive Text Summarization (arXiv:1910.12840). arXiv.</p>
+    <p>Laban, P., Schnabel, T., Bennett, P. N., &amp; Hearst, M. A. (2021). SummaC: Re-Visiting NLI-based Models for Inconsistency Detection in Summarization (arXiv:2111.09525). arXiv.</p>
+    <p>LangChain State of AI Agents Report: 2024 Trends. (n.d.). Retrieved April 20, 2026.</p>
+    <p>Laux, J., &amp; Ruschemeier, H. (2025). Automation Bias in the AI Act. <em>European Journal of Risk Regulation</em>, 16(4), 1519–1534.</p>
+    <p>Liu, Y., Iter, D., Xu, Y., Wang, S., Xu, R., &amp; Zhu, C. (2023). G-Eval: NLG Evaluation using GPT-4 with Better Human Alignment (arXiv:2303.16634). arXiv.</p>
+    <p>Liu, Z., Xiong, C., Sun, M., &amp; Liu, Z. (2020). Fine-grained Fact Verification with Kernel Graph Attention Network. <em>Proceedings of ACL 2020</em>, 7342–7351.</p>
+    <p>Min, S., Krishna, K., Lyu, X., et al. (2023). FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation (arXiv:2305.14251). arXiv.</p>
+    <p>Musumeci, E., Brienza, M., Suriani, V., Nardi, D., &amp; Bloisi, D. D. (2024). LLM Based Multi-Agent Generation of Semi-structured Documents from Semantic Templates in the Public Administration Domain (arXiv:2402.14871). arXiv.</p>
+    <p>Popat, K., Mukherjee, S., Yates, A., &amp; Weikum, G. (2018). DeClarE: Debunking Fake News and False Claims using Evidence-Aware Deep Learning. <em>Proceedings of EMNLP 2018</em>, 22–32.</p>
+    <p>Reuel, A. (2025). Artificial intelligence index report 2025: Chapter 3: Responsible AI. Stanford HAI.</p>
+    <p>Schmitz, C., &amp; Bryson, J. (2025). A Moral Agency Framework for Legitimate Integration of AI in Bureaucracies (arXiv:2508.08231). arXiv.</p>
+    <p>Thorne, J., Vlachos, A., Christodoulopoulos, C., &amp; Mittal, A. (2018). FEVER: A large-scale dataset for Fact Extraction and VERification (arXiv:1803.05355). arXiv.</p>
+    <p>Tonmoy, S. M. T. I., Zaman, S. M. M., Jain, V., et al. (2024). A Comprehensive Survey of Hallucination Mitigation Techniques in Large Language Models (arXiv:2401.01313). arXiv.</p>
+    <p>Wadden, D., Lin, S., Lo, K., et al. (2020). Fact or Fiction: Verifying Scientific Claims (arXiv:2004.14974). arXiv.</p>
+    <p>Wang, Y., Yu, Z., Zeng, Z., et al. (2024). PandaLM: An Automatic Evaluation Benchmark for LLM Instruction Tuning Optimization (arXiv:2306.05087). arXiv.</p>
+    <p>Wei, J., Yang, C., Song, X., et al. (2024). Long-form factuality in large language models (arXiv:2403.18802). arXiv.</p>
+    <p>Xiong, K., Ding, X., Cao, Y., Liu, T., &amp; Qin, B. (2023). Examining Inter-Consistency of Large Language Models Collaboration: An In-depth Analysis via Debate. <em>Findings of EMNLP 2023</em>, 7572–7590.</p>
+    <p>Zhou, J., Han, X., Yang, C., et al. (2019). GEAR: Graph-based Evidence Aggregating and Reasoning for Fact Verification. <em>Proceedings of ACL 2019</em>, 892–901.</p>
+  </div>
+
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    flowchart: { curve: 'basis', useMaxWidth: true },
+    securityLevel: 'loose',
+  });
+</script>
+</body>
+</html>

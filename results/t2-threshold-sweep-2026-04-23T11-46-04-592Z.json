@@ -1,0 +1,1685 @@
+{
+  "run_timestamp": "2026-04-23T11:46:04.592Z",
+  "sets": {
+    "1": {
+      "label": "eval-set-1",
+      "n_total": 50,
+      "n_t1_exits": 13,
+      "n_non_t1": 37,
+      "raw_t2_results": [
+        {
+          "claim_id": "GT-001",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.95,
+          "t2_reasoning": "The claim states that maternal mortality in Chad is 1,140 per 100,000 live births, which is directly supported by the WHO source that provides the same figure for Chad in 2020. The source explicitly states this number and attributes it to the maternal mortality ratio in Chad, confirming the accuracy of the claim.",
+          "input_tokens": 1438,
+          "output_tokens": 87,
+          "cost_usd": 0.00026789999999999995
+        },
+        {
+          "claim_id": "GT-002",
+          "t2_verdict": "invalid",
+          "t2_confidence": 1,
+          "t2_reasoning": "The claim states that Kenya's national HIV prevalence rate among adults aged 15–49 was 4.2% in 2022. However, the cited source (UNAIDS) reports the prevalence rate as 3.9%, which is a specific, demonstrable mismatch in the figure.",
+          "input_tokens": 1441,
+          "output_tokens": 115,
+          "cost_usd": 0.00028514999999999997
+        },
+        {
+          "claim_id": "GT-003",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The source states that cash transfer programs in Sub-Saharan Africa were 'associated with' increased school enrollment, which indicates correlation rather than direct causation. The phrase 'the causal pathways remain debated' further emphasizes that causation is not established. Therefore, the claim's assertion that these programs 'cause' increased school enrollment is a causal overreach and is not supported by the source material.",
+          "input_tokens": 1508,
+          "output_tokens": 124,
+          "cost_usd": 0.00030059999999999993
+        },
+        {
+          "claim_id": "GT-004",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that solar energy costs in East Africa have fallen by more than 80%, while the source indicates a reduction of approximately 76% in Sub-Saharan Africa. This discrepancy constitutes a concrete error in the claim, as it misrepresents the percentage decrease in costs. The source does not support the assertion that costs have fallen by more than 80%.",
+          "input_tokens": 1505,
+          "output_tokens": 130,
+          "cost_usd": 0.00030375
+        },
+        {
+          "claim_id": "GT-007",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim inaccurately attributes the 20–30% decline in agricultural productivity to mid-range warming scenarios. According to the source, this range is specifically associated with RCP 8.5 (high-range) scenarios, while mid-range scenarios (RCP 4.5) project a decline of only 10–20%. This misattribution constitutes a concrete error in the claim.",
+          "input_tokens": 1485,
+          "output_tokens": 163,
+          "cost_usd": 0.00032054999999999996
+        },
+        {
+          "claim_id": "GT-008",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the source's assertion that multi-stakeholder platforms are critical for effective transboundary water governance, particularly in Africa. The source discusses the positive impact of such platforms on compliance with water-sharing agreements and reducing tensions, which aligns with the claim's characterization of them as 'best practice'. The attribution to international experience is preserved, and the scope is appropriately limited to the context of transboundary water resources in Africa.",
+          "input_tokens": 1539,
+          "output_tokens": 109,
+          "cost_usd": 0.00029624999999999996
+        },
+        {
+          "claim_id": "GT-009",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately paraphrases the IEA projection that Sub-Saharan Africa's unelectrified population will remain above 500 million through at least 2030. The source explicitly states that the population without electricity access is projected to remain above 500 million, which aligns with the claim's assertion that it will not fall below that number before 2030. The claim preserves the necessary elements of attribution, modality, and timeframe, making it a faithful representation of the source material.",
+          "input_tokens": 1456,
+          "output_tokens": 120,
+          "cost_usd": 0.00029039999999999996
+        },
+        {
+          "claim_id": "GT-010",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 indicates significant declines in groundwater levels in peri-urban areas of the Sahel, while Source 2 highlights rapid urbanization in these regions, suggesting that the increasing population will exacerbate water stress. The timeframe of 'within the next decade' aligns with the trends observed in both sources, particularly the projected urban population growth by 2035. Therefore, the synthesis of these two pieces of evidence supports the claim that peri-urban water stress will become a critical policy challenge in the near future.",
+          "input_tokens": 1808,
+          "output_tokens": 138,
+          "cost_usd": 0.000354
+        },
+        {
+          "claim_id": "GT-011",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that Rwanda's public financial management reforms have 'led to a 40% reduction in fiduciary risk since 2015.' However, the source indicates that while there have been improvements in PEFA scores and that these improvements correlate with the government's PFM reform program, it explicitly states that 'attributing specific reductions in fiduciary risk to particular reform measures remains methodologically challenging.' This indicates that the claim's assertion of a specific percentage reduction and a direct causal link is unsupported by the source material.",
+          "input_tokens": 1518,
+          "output_tokens": 155,
+          "cost_usd": 0.0003207
+        },
+        {
+          "claim_id": "GT-013",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.8,
+          "t2_reasoning": "The claim states that 'Climate-smart agriculture practices should be integrated into all national adaptation plans in Sub-Saharan Africa.' However, the source only recommends integrating CSA principles into agricultural development strategies, not specifically into all national adaptation plans. This represents a scope drift, as the claim generalizes the recommendation beyond the specific context provided by the FAO, which emphasizes tailoring practices to local conditions rather than a blanket integration into all adaptation plans.",
+          "input_tokens": 1490,
+          "output_tokens": 137,
+          "cost_usd": 0.0003057
+        },
+        {
+          "claim_id": "GT-014",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the data from the cited sources. Source 1 states that Tanzania's primary school completion rate was estimated at 80.2% in 2021, while Source 2 indicates that the Sub-Saharan African average was 64% in the same year. The comparison made in the claim is directly supported by these figures, and both sources report the data for the same year (2021) with consistent methodologies for measuring completion rates. Therefore, the claim is valid as it correctly states that Tanzania's rate surpasses the regional average.",
+          "input_tokens": 1501,
+          "output_tokens": 139,
+          "cost_usd": 0.00030855
+        },
+        {
+          "claim_id": "GT-015",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that Africa's renewable energy capacity 'will triple by 2030,' presenting it as a definitive prediction. However, the source explicitly states that this projection is under the 'Stated Policies Scenario (STEPS)' and uses the term 'projected,' indicating that it is conditional and not a guaranteed outcome. The claim fails to preserve this conditionality, which is a concrete error.",
+          "input_tokens": 1452,
+          "output_tokens": 141,
+          "cost_usd": 0.0003024
+        },
+        {
+          "claim_id": "GT-017",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The source clearly states that districts implementing the integrated community case management (iCCM) program through community health workers experienced a 22% greater decline in under-five mortality compared to control districts between 2015 and 2020. This supports the claim that the introduction of community health workers was associated with a 22% reduction in under-five mortality during that timeframe.",
+          "input_tokens": 1496,
+          "output_tokens": 101,
+          "cost_usd": 0.000285
+        },
+        {
+          "claim_id": "GT-018",
+          "t2_verdict": "uncertain",
+          "t2_confidence": 0.7,
+          "t2_reasoning": "The claim states that global food prices are expected to remain elevated through 2026, with cereals projected to trade 15–20% above their 2015–2019 averages. However, the source provides specific projections for different cereals (wheat, maize, and rice) with varying percentages (approximately 18% for wheat, 12% for maize, and 22% for rice) rather than a unified 15–20% range for all cereals. This discrepancy in the range and the lack of a clear attribution to a specific average for 'cereals' as a whole makes the claim imprecise. Therefore, while the general idea is directionally accurate, the specific figures and the aggregation of different crops into a single percentage range introduce uncertainty.",
+          "input_tokens": 1475,
+          "output_tokens": 185,
+          "cost_usd": 0.00033224999999999997
+        },
+        {
+          "claim_id": "GT-021",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.8,
+          "t2_reasoning": "The claim asserts that 'Gender-responsive budgeting should be mandated in all national fiscal frameworks,' which implies a universal requirement. However, the source from UN Women recommends that 'governments adopt GRB as part of broader public financial management reforms' without stating that it should be mandated universally. This indicates a recommendation rather than a directive for all countries, thus the claim overstates the source's position.",
+          "input_tokens": 1520,
+          "output_tokens": 129,
+          "cost_usd": 0.0003054
+        },
+        {
+          "claim_id": "GT-022",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the recommendation from UNDRR that national adaptation plans should incorporate disability-inclusive strategies. The source explicitly states that 'UNDRR recommends that national adaptation plans explicitly incorporate disability-inclusive strategies,' which aligns with the claim's assertion. The scope regarding the inclusion of vulnerable populations, specifically persons with disabilities, is preserved, and the causal relationship implied in the claim (to avoid leaving behind vulnerable populations) is consistent with the source's emphasis on the disproportionate risks faced by these individuals. Therefore, the paraphrase maintains semantic fidelity to the original recommendation.",
+          "input_tokens": 1547,
+          "output_tokens": 135,
+          "cost_usd": 0.00031305
+        },
+        {
+          "claim_id": "GT-023",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 indicates that household debt levels in rural South Asia have increased significantly, which suggests financial strain on households. Source 2 supports the claim by showing that agricultural wages have stagnated, with minimal growth compared to urban wages, which contributes to worsening rural poverty. The combination of rising debt and stagnant wages provides a clear indication that rural poverty is worsening despite national GDP growth. There are no major inferential leaps or misrepresentations in the synthesis.",
+          "input_tokens": 1768,
+          "output_tokens": 127,
+          "cost_usd": 0.0003414
+        },
+        {
+          "claim_id": "GT-025",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The source establishes a causal relationship by stating that children who received psychosocial stimulation, which included parenting education, maintained cognitive advantages over a control group at ages 7, 11, and 22. The claim accurately reflects this by stating that early childhood development programs with parenting education components show sustained cognitive gains in children through age 10, which aligns with the findings of sustained cognitive advantages noted in the source. The timeframe and scope are appropriately matched, and the causal language is consistent with the source's findings.",
+          "input_tokens": 1509,
+          "output_tokens": 125,
+          "cost_usd": 0.00030135
+        },
+        {
+          "claim_id": "GT-026",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 indicates stagnating fertilizer application rates in Sub-Saharan Africa, while Source 2 highlights significant declines in soil organic carbon levels. Together, these pieces of evidence suggest a concerning trend that could lead to a soil fertility crisis, impacting long-term food security. The sources are appropriately combined, as they both address the agricultural context of Sub-Saharan Africa and its implications for soil health and food security.",
+          "input_tokens": 1796,
+          "output_tokens": 118,
+          "cost_usd": 0.0003402
+        },
+        {
+          "claim_id": "GT-027",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the projection made in the source material, which states that under a business-as-usual scenario, the number of urban residents living in slum conditions in Sub-Saharan Africa could increase from approximately 230 million in 2020 to over 440 million by 2050. This indicates a doubling of the population living in slum conditions, which aligns with the claim that urban slum populations are projected to double by 2050 if current urbanization patterns continue. The claim preserves the attribution to the UN-Habitat report and maintains the appropriate hedging regarding the projection.",
+          "input_tokens": 1453,
+          "output_tokens": 143,
+          "cost_usd": 0.00030375
+        },
+        {
+          "claim_id": "GT-028",
+          "t2_verdict": "invalid",
+          "t2_confidence": 1,
+          "t2_reasoning": "The claim states that improved cookstove programs reduced household air pollution by 60%, while the source explicitly reports a reduction of only 32%. This is a specific, demonstrable mismatch in the reported figures, making the claim invalid.",
+          "input_tokens": 1462,
+          "output_tokens": 94,
+          "cost_usd": 0.0002757
+        },
+        {
+          "claim_id": "GT-029",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.8,
+          "t2_reasoning": "The claim asserts that low-income countries should prioritize domestic revenue mobilization over continued aid dependency. However, Source 2 (OECD) explicitly recommends a 'balanced approach' that increases domestic resource mobilization alongside sustained international support, indicating that the two should not be viewed as substitutes. This contradicts the claim's implication that domestic revenue mobilization should take precedence over aid.",
+          "input_tokens": 1626,
+          "output_tokens": 118,
+          "cost_usd": 0.00031469999999999995
+        },
+        {
+          "claim_id": "GT-031",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The source explicitly states that Côte d'Ivoire reported average yields of 550 kg/ha in 2022, while Ghana averaged 420 kg/ha. This directly supports the claim that Ghana's cocoa yield per hectare is lower than that of Côte d'Ivoire. The claim accurately reflects the comparison made in the source, and while the agent's inference about 'less efficient production practices' is not directly supported by the source, it does not invalidate the comparative claim itself.",
+          "input_tokens": 1414,
+          "output_tokens": 123,
+          "cost_usd": 0.00028589999999999996
+        },
+        {
+          "claim_id": "GT-032",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the projection made by the World Bank, which states that full implementation of the AfCFTA could increase intra-African trade by 52.3% by 2035. The claim preserves the attribution to the World Bank and the hedging language ('is projected to'). The slight difference in the figure (52% vs. 52.3%) is minor and does not materially affect the validity of the claim.",
+          "input_tokens": 1413,
+          "output_tokens": 111,
+          "cost_usd": 0.00027854999999999997
+        },
+        {
+          "claim_id": "GT-034",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim inaccurately attributes the recommendation to 'public expenditure reviews' rather than the specific source, which is the Education 2030 Framework for Action. The source does not support the claim that 'public expenditure reviews recommend' this allocation; it states that the Education 2030 Framework calls for it. This misattribution constitutes a material misrepresentation of the source's authority.",
+          "input_tokens": 1562,
+          "output_tokens": 134,
+          "cost_usd": 0.0003147
+        },
+        {
+          "claim_id": "GT-035",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.95,
+          "t2_reasoning": "The claim states that the construction of new urban rail transit systems will reduce traffic congestion by at least 30% within five years of operation. However, the cited source indicates that studies of light rail impacts in developing cities generally show modest congestion relief of only 5–15% along specific corridors, not citywide reductions. This directly contradicts the claim's assertion of a 30% reduction, making the claim invalid.",
+          "input_tokens": 1441,
+          "output_tokens": 150,
+          "cost_usd": 0.00030615
+        },
+        {
+          "claim_id": "GT-036",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically follows from the cited sources. Source 1 indicates a significant decline in agricultural extension worker density, which can negatively impact smallholder productivity. Source 2 highlights the emergence of pesticide-resistant crop pests, which also threatens productivity. Together, these factors suggest that productivity gains may plateau due to reduced support from extension services and increased pest resistance. The reasoning does not require any major inferential leaps and the sources are combined legitimately, focusing on the same geographical area and timeframe.",
+          "input_tokens": 1798,
+          "output_tokens": 123,
+          "cost_usd": 0.0003435
+        },
+        {
+          "claim_id": "GT-038",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the statistics provided in the cited sources. Source 1 (IFC) states that women-owned enterprises received approximately 10% of total commercial credit disbursed in 2021, which directly supports the first part of the claim. Source 2 (World Bank) indicates that women-owned or women-managed enterprises account for approximately 38–42% of registered micro, small, and medium enterprises in the same region, which aligns with the claim's assertion of women representing approximately 40% of all enterprises. Both figures are within acceptable ranges and the scope of the claim matches the data provided in the sources.",
+          "input_tokens": 1554,
+          "output_tokens": 154,
+          "cost_usd": 0.00032549999999999994
+        },
+        {
+          "claim_id": "GT-040",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects UNICEF's recommendation that Community-Led Total Sanitation (CLTS) is a primary approach for eliminating open defecation in rural communities across Sub-Saharan Africa. The source explicitly states that CLTS is recommended for this purpose, and the context is preserved. There is no misrepresentation of the source's authority or the scope of the recommendation.",
+          "input_tokens": 1523,
+          "output_tokens": 97,
+          "cost_usd": 0.00028664999999999995
+        },
+        {
+          "claim_id": "GT-041",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.95,
+          "t2_reasoning": "The source explicitly states that insured pastoralists in Marsabit and Turkana counties were 25% less likely to engage in distress livestock sales during the 2021 drought compared to uninsured pastoralists. This directly supports the claim that index-based livestock insurance in Kenya's arid regions has reduced distress sales of livestock by 25% among participating herders.",
+          "input_tokens": 1459,
+          "output_tokens": 98,
+          "cost_usd": 0.00027765
+        },
+        {
+          "claim_id": "GT-042",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 indicates that adolescent pregnancy rates are rising in northern Mozambique, while Source 2 shows that school completion rates are declining, particularly among girls, with adolescent pregnancy being a leading cause of dropout. The synthesis correctly infers that these trends suggest reproductive health programs are failing to address the needs of vulnerable populations, as the increase in adolescent pregnancies correlates with a decrease in educational attainment.",
+          "input_tokens": 1796,
+          "output_tokens": 114,
+          "cost_usd": 0.00033779999999999997
+        },
+        {
+          "claim_id": "GT-043",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that vaccine wastage rates in West Africa are projected to exceed 40% by 2028. However, the cited source does not provide a specific projection of 40% by that year. It mentions that wastage rates currently average 25-30% and indicates that without investment in cold chain modernization, wastage rates are likely to increase, but it does not quantify this increase or specify a figure of 40% by 2028. Therefore, the claim is invalid due to the lack of concrete support for the specific projection made.",
+          "input_tokens": 1434,
+          "output_tokens": 167,
+          "cost_usd": 0.00031529999999999997
+        },
+        {
+          "claim_id": "GT-044",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim asserts that 'all government ministries in developing countries' should establish dedicated research units with independent budgets, implying a universal recommendation. However, the source states that dedicated research units were found effective in some contexts but were 'not universally recommended' and that their success depends on 'institutional culture and political support.' This directly contradicts the claim's assertion of a universal requirement.",
+          "input_tokens": 1511,
+          "output_tokens": 130,
+          "cost_usd": 0.00030464999999999995
+        },
+        {
+          "claim_id": "GT-045",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that the introduction of mHealth platforms has improved maternal healthcare outcomes, implying a direct causal relationship between mHealth and better health outcomes. However, the cited source indicates that while there was an increase in antenatal care attendance due to mHealth interventions, the evidence for actual improvements in clinical outcomes such as maternal mortality and morbidity was inconclusive. The source specifically states, 'evidence for impact on clinical outcomes such as maternal mortality and morbidity was inconclusive due to small sample sizes, short follow-up periods, and limited rigorous evaluation.' This directly contradicts the claim's assertion of improved healthcare outcomes.",
+          "input_tokens": 1487,
+          "output_tokens": 170,
+          "cost_usd": 0.00032505
+        },
+        {
+          "claim_id": "GT-046",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 indicates a decline in bilateral ODA to the health sector in Sub-Saharan Africa, which suggests reduced foreign aid flows. Source 2 shows that government health expenditure per capita in low-income African countries has stagnated, indicating that domestic health budgets are not increasing. Together, these sources support the conclusion that low-income African countries will struggle to maintain current levels of primary healthcare coverage due to both declining foreign aid and stagnant domestic budgets.",
+          "input_tokens": 1797,
+          "output_tokens": 125,
+          "cost_usd": 0.00034454999999999995
+        },
+        {
+          "claim_id": "GT-047",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that the infrastructure investment gap exceeds $50 billion by 2040, which is not supported by the cited sources. Source 1 indicates projected economic losses of $7.5 billion annually by 2040 without adaptation, while Source 2 estimates a financing gap of $12–20 billion for coastal defenses. The maximum combined figure from these sources does not approach $50 billion, indicating a concrete misrepresentation of the data.",
+          "input_tokens": 1772,
+          "output_tokens": 149,
+          "cost_usd": 0.00035519999999999996
+        },
+        {
+          "claim_id": "GT-049",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically follows from the cited sources. Source 1 indicates rising antimicrobial resistance rates in the Sahel, specifically mentioning high resistance rates in E. coli and Salmonella. Source 2 highlights the declining capacity of veterinary services, noting a significant shortfall in veterinarian density and a decline in budget allocations for veterinary services. Together, these sources support the conclusion that there is a growing One Health crisis in the Sahel, which current programs are not adequately equipped to address, as they fail to meet the necessary veterinary service standards and are increasingly reliant on limited funding. The synthesis is coherent and does not involve major inferential leaps or misrepresentations.",
+          "input_tokens": 1815,
+          "output_tokens": 157,
+          "cost_usd": 0.00036644999999999994
+        }
+      ],
+      "threshold_sweep": [
+        {
+          "threshold": 0.5,
+          "t2_exit_count": 37,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 44,
+          "accuracy": 0.88,
+          "t2_correct": 31,
+          "t2_accuracy": 0.8378378378378378,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00023072699999999993,
+          "total_cost": 0.011536349999999997
+        },
+        {
+          "threshold": 0.55,
+          "t2_exit_count": 37,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 44,
+          "accuracy": 0.88,
+          "t2_correct": 31,
+          "t2_accuracy": 0.8378378378378378,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00023072699999999993,
+          "total_cost": 0.011536349999999997
+        },
+        {
+          "threshold": 0.6,
+          "t2_exit_count": 37,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 44,
+          "accuracy": 0.88,
+          "t2_correct": 31,
+          "t2_accuracy": 0.8378378378378378,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00023072699999999993,
+          "total_cost": 0.011536349999999997
+        },
+        {
+          "threshold": 0.65,
+          "t2_exit_count": 37,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 44,
+          "accuracy": 0.88,
+          "t2_correct": 31,
+          "t2_accuracy": 0.8378378378378378,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00023072699999999993,
+          "total_cost": 0.011536349999999997
+        },
+        {
+          "threshold": 0.7,
+          "t2_exit_count": 37,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 44,
+          "accuracy": 0.88,
+          "t2_correct": 31,
+          "t2_accuracy": 0.8378378378378378,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00023072699999999993,
+          "total_cost": 0.011536349999999997
+        },
+        {
+          "threshold": 0.75,
+          "t2_exit_count": 36,
+          "t2_exit_pct": 0.972972972972973,
+          "t3_fallback_count": 1,
+          "correct": 45,
+          "accuracy": 0.9,
+          "t2_correct": 31,
+          "t2_accuracy": 0.8611111111111112,
+          "t3_correct": 1,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.00033072699999999995,
+          "total_cost": 0.01653635
+        },
+        {
+          "threshold": 0.8,
+          "t2_exit_count": 36,
+          "t2_exit_pct": 0.972972972972973,
+          "t3_fallback_count": 1,
+          "correct": 45,
+          "accuracy": 0.9,
+          "t2_correct": 31,
+          "t2_accuracy": 0.8611111111111112,
+          "t3_correct": 1,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.00033072699999999995,
+          "total_cost": 0.01653635
+        },
+        {
+          "threshold": 0.85,
+          "t2_exit_count": 33,
+          "t2_exit_pct": 0.8918918918918919,
+          "t3_fallback_count": 4,
+          "correct": 45,
+          "accuracy": 0.9,
+          "t2_correct": 28,
+          "t2_accuracy": 0.8484848484848485,
+          "t3_correct": 4,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.000630727,
+          "total_cost": 0.03153635
+        },
+        {
+          "threshold": 0.9,
+          "t2_exit_count": 29,
+          "t2_exit_pct": 0.7837837837837838,
+          "t3_fallback_count": 8,
+          "correct": 43,
+          "accuracy": 0.86,
+          "t2_correct": 24,
+          "t2_accuracy": 0.8275862068965517,
+          "t3_correct": 6,
+          "t3_accuracy": 0.75,
+          "avg_cost_per_claim": 0.001030727,
+          "total_cost": 0.051536349999999995
+        },
+        {
+          "threshold": 0.95,
+          "t2_exit_count": 6,
+          "t2_exit_pct": 0.16216216216216217,
+          "t3_fallback_count": 31,
+          "correct": 45,
+          "accuracy": 0.9,
+          "t2_correct": 6,
+          "t2_accuracy": 1,
+          "t3_correct": 26,
+          "t3_accuracy": 0.8387096774193549,
+          "avg_cost_per_claim": 0.003330727000000001,
+          "total_cost": 0.16653635000000006
+        }
+      ]
+    },
+    "2": {
+      "label": "eval-set-2",
+      "n_total": 53,
+      "n_t1_exits": 25,
+      "n_non_t1": 28,
+      "raw_t2_results": [
+        {
+          "claim_id": "GT-052",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the source material, which states that in states that expanded Medicaid, the uninsured rate among low-income adults fell from approximately 35% to 17%, representing a relative reduction of roughly 51%. The claim's assertion of a 50% reduction is a faithful paraphrase of this information, preserving the proposition, scope, timeframe, attribution, and causal strength. Therefore, the claim is valid.",
+          "input_tokens": 1493,
+          "output_tokens": 107,
+          "cost_usd": 0.00028815
+        },
+        {
+          "claim_id": "GT-054",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.8,
+          "t2_reasoning": "The claim states that the U.S. child poverty rate was cut in half between 2018 and 2021, but the source indicates a drop from 15.8% in 2019 to 5.2% in 2021, which is a reduction of more than half. Additionally, the claim attributes the reduction largely to the expanded Child Tax Credit, while the source states it accounted for approximately 40% of the reduction, indicating that other factors also played a significant role. This misrepresents the magnitude of the change and the causal attribution.",
+          "input_tokens": 1546,
+          "output_tokens": 191,
+          "cost_usd": 0.0003465
+        },
+        {
+          "claim_id": "GT-055",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.95,
+          "t2_reasoning": "The source clearly states that Bolsa Escola/Família increased school attendance rates by approximately 5 percentage points among beneficiary children aged 6–15. The claim accurately reflects this finding, maintaining the same scope and magnitude as presented in the source.",
+          "input_tokens": 1446,
+          "output_tokens": 70,
+          "cost_usd": 0.0002589
+        },
+        {
+          "claim_id": "GT-057",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 indicates that average annual natural flows in the Colorado River are projected to decline by 10–30% due to warming, which supports the idea of increasing temperatures affecting water availability. Source 2 provides evidence of declining snowpack and its impact on runoff, stating that snowpack-derived runoff has declined by approximately 9.5% per degree Celsius of warming. Together, these sources suggest that the combination of increasing temperatures and declining snowpack will lead to a situation where current water allocation agreements, which already exceed average naturalized flows, will become unenforceable within 20 years. The reasoning is sound and the sources are combined legitimately, with no significant inferential leaps or mismatches.",
+          "input_tokens": 1775,
+          "output_tokens": 176,
+          "cost_usd": 0.0003718499999999999
+        },
+        {
+          "claim_id": "GT-058",
+          "t2_verdict": "invalid",
+          "t2_confidence": 1,
+          "t2_reasoning": "The claim states that MGNREGA provides a legal guarantee of 150 days of wage employment per year, while the cited source explicitly states that it guarantees at least 100 days of wage employment per financial year. This is a specific and demonstrable mismatch in the number of days guaranteed.",
+          "input_tokens": 1400,
+          "output_tokens": 117,
+          "cost_usd": 0.0002802
+        },
+        {
+          "claim_id": "GT-061",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 indicates that wages for non-college workers have stagnated, supporting the first part of the claim regarding wage stagnation. Source 2 provides evidence of rising employer demand for digital skills, noting that a significant percentage of job postings now require these skills and that community college enrollment in relevant programs is insufficient to meet this demand. The conclusion that workforce retraining programs at community colleges are underfunded relative to need is a reasonable synthesis of the evidence presented, as it highlights both the stagnation of wages and the gap in training supply.",
+          "input_tokens": 1795,
+          "output_tokens": 146,
+          "cost_usd": 0.0003568499999999999
+        },
+        {
+          "claim_id": "GT-064",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that the U.S. ranks 16th among OECD countries in infrastructure quality, while the source indicates that the U.S. ranked 13th globally. This is a concrete error in the ranking and direction of the comparison, as the claim misrepresents the U.S. position by stating it is lower than what the source reports. The source does not support the claim's assertion of a 16th ranking.",
+          "input_tokens": 1468,
+          "output_tokens": 146,
+          "cost_usd": 0.0003078
+        },
+        {
+          "claim_id": "GT-065",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The source states that Pakistan's total external debt and liabilities stood at $126.3 billion as of June 2022, which confirms that it exceeded $100 billion for the first time in that year. The claim accurately reflects the figure, the time period, and the context of external debt.",
+          "input_tokens": 1384,
+          "output_tokens": 87,
+          "cost_usd": 0.00025979999999999997
+        },
+        {
+          "claim_id": "GT-066",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.95,
+          "t2_reasoning": "The claim states that implicit bias training programs have been shown to reduce racially disparate use-of-force incidents. However, the cited source explicitly states that 'the evidence that implicit bias training reduces discriminatory policing behavior or use-of-force disparities is weak and inconsistent.' This directly contradicts the claim's assertion of demonstrated effectiveness.",
+          "input_tokens": 1453,
+          "output_tokens": 123,
+          "cost_usd": 0.00029174999999999996
+        },
+        {
+          "claim_id": "GT-068",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that carbon pricing mechanisms cover at least 25% of global emissions, while the source explicitly states that they cover 23% of global greenhouse gas emissions. This is a specific, demonstrable mismatch in the reported coverage percentage, making the claim invalid.",
+          "input_tokens": 1450,
+          "output_tokens": 103,
+          "cost_usd": 0.00027929999999999996
+        },
+        {
+          "claim_id": "GT-069",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately paraphrases the source material from WHO, which states that raising taxes on tobacco products is identified as the single most effective and cost-efficient measure to reduce tobacco use, particularly in low- and middle-income countries (LMICs). The claim maintains the same proposition, scope, and attribution as the original source, thus preserving the essential meaning without distortion.",
+          "input_tokens": 1525,
+          "output_tokens": 96,
+          "cost_usd": 0.00028635
+        },
+        {
+          "claim_id": "GT-071",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the findings from the source, which states that participants in the Nurse-Family Partnership (NFP) had 48% fewer reports of child abuse and neglect and showed significantly higher cognitive test scores and school readiness. The claim's language of 'associated with significant reductions in child maltreatment and improved child development outcomes' aligns well with the source's evidence of reduced child abuse and improved cognitive outcomes, preserving the causal relationship and scope of the original findings.",
+          "input_tokens": 1500,
+          "output_tokens": 117,
+          "cost_usd": 0.0002952
+        },
+        {
+          "claim_id": "GT-076",
+          "t2_verdict": "uncertain",
+          "t2_confidence": 0.7,
+          "t2_reasoning": "The claim states that illicitly manufactured fentanyl accounted for 'over 70%' of all overdose deaths in 2022, while the source specifies that it accounted for 68.4% of total drug overdose deaths. This is a minor discrepancy, as 'over 70%' implies a percentage greater than 70, which is not supported by the source. However, the claim is directionally accurate in attributing the majority of overdose deaths to fentanyl. The scope of the claim matches the source, and the timeframe is consistent (2022). Therefore, while the claim is not strictly accurate, it is directionally correct, leading to an uncertain verdict rather than invalid.",
+          "input_tokens": 1481,
+          "output_tokens": 198,
+          "cost_usd": 0.00034095
+        },
+        {
+          "claim_id": "GT-077",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the findings from the Brookings Institution source, which states that broadband access is associated with annual household income gains ranging from $1,200 to $2,000 in communities where adoption increases. The claim preserves the attribution to the researchers and the hedging language regarding the projected nature of the income gains. Therefore, it is a faithful paraphrase of the source material.",
+          "input_tokens": 1394,
+          "output_tokens": 101,
+          "cost_usd": 0.00026969999999999994
+        },
+        {
+          "claim_id": "GT-079",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 establishes that a significant portion of U.S. counties, particularly rural ones, are classified as maternity care deserts, which indicates a lack of access to obstetric care. Source 2 provides evidence of rising maternal mortality rates, particularly in rural areas, highlighting a disparity in health outcomes. Together, these sources support the conclusion that the lack of access to prenatal care in these obstetric deserts contributes to measurable health disparities, suggesting that federal maternal health programs have not adequately addressed these issues. There are no major inferential leaps or misrepresentations in combining these sources, and the synthesis is legitimate.",
+          "input_tokens": 1780,
+          "output_tokens": 157,
+          "cost_usd": 0.0003612
+        },
+        {
+          "claim_id": "GT-080",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that Germany's Energiewende has achieved a 65% share of renewable electricity generation as of 2023. However, the cited source indicates that renewable energy sources accounted for 59.7% of Germany's net electricity generation in the first half of 2023, which does not support the claim of 65%. Additionally, the source states that the full-year 2022 renewables share was 46%, further indicating that the claim is inaccurate for the specified time period.",
+          "input_tokens": 1422,
+          "output_tokens": 153,
+          "cost_usd": 0.0003051
+        },
+        {
+          "claim_id": "GT-083",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately paraphrases the source material, which states that pay transparency laws are associated with a 2–3 percentage point reduction in gender wage gaps. The source establishes a causal relationship by using the phrase 'associated with' in a context that implies a reduction in wage gaps due to the implementation of pay transparency laws. The claim maintains the same proposition, scope, and causal strength as the source, making it a valid paraphrase.",
+          "input_tokens": 1497,
+          "output_tokens": 111,
+          "cost_usd": 0.00029115
+        },
+        {
+          "claim_id": "GT-085",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 indicates a significant decline in trust in democratic institutions and low voter turnout, suggesting a decrease in civic participation. Source 2 highlights the increase in affective polarization in the U.S., which contributes to the argument that democratic institutions are under greater risk. Together, these sources support the conclusion that the current state of civic participation and polarization indicates a heightened risk to democratic institutions compared to previous decades.",
+          "input_tokens": 1761,
+          "output_tokens": 117,
+          "cost_usd": 0.00033434999999999997
+        },
+        {
+          "claim_id": "GT-088",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the WHO's strong recommendation for community health worker programs to be integrated into national health systems with sustainable domestic financing. It preserves the scope of the recommendation, which is specifically directed at low-income countries, and maintains the emphasis on sustainability through domestic budgets rather than relying predominantly on donor funding. The paraphrase captures the essence of the source material without distorting its meaning or context.",
+          "input_tokens": 1540,
+          "output_tokens": 102,
+          "cost_usd": 0.00029219999999999995
+        },
+        {
+          "claim_id": "GT-089",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the findings of the source, which states that school-based mental health interventions are associated with reductions in absenteeism and improvements in academic performance, particularly when implemented with fidelity. The source uses causal language ('associated with statistically significant reductions') that supports the claim's assertion of a causal relationship. The paraphrase maintains the original meaning and scope without introducing any inaccuracies or misrepresentations.",
+          "input_tokens": 1505,
+          "output_tokens": 102,
+          "cost_usd": 0.00028694999999999995
+        },
+        {
+          "claim_id": "GT-091",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 indicates an increase in agricultural extension support in rural Bangladesh, while Source 2 reports a significant decline in child stunting rates, particularly in rural areas with active government nutrition programs. The claim suggests that these two factors, when combined, indicate measurable nutrition gains from integrated rural development programs. The reasoning is sound, as the sources collectively support the conclusion without major inferential leaps or misrepresentations.",
+          "input_tokens": 1755,
+          "output_tokens": 118,
+          "cost_usd": 0.00033404999999999996
+        },
+        {
+          "claim_id": "GT-092",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately paraphrases the source material from the IPCC report, which states that climate change is projected to negatively affect crop yields globally with declines of 2–6% per decade from 2030 onwards. The claim maintains the same projection, scope, timeframe, and modality as the source, thus preserving the essential elements of the original statement.",
+          "input_tokens": 1449,
+          "output_tokens": 94,
+          "cost_usd": 0.00027375
+        },
+        {
+          "claim_id": "GT-095",
+          "t2_verdict": "uncertain",
+          "t2_confidence": 0.7,
+          "t2_reasoning": "The claim suggests that stagnating labor productivity growth and accelerating automation investment indicate that technology adoption is primarily displacing workers rather than augmenting their productivity. Source 1 provides evidence of stagnating labor productivity growth in the U.S. service sector, while Source 2 notes an acceleration in automation investment. However, Source 2 also mentions that the productivity impacts of these automation investments may not yet be captured in aggregate statistics due to typical adoption lags. This introduces ambiguity regarding the relationship between automation and productivity, making it unclear whether the claim's conclusion about displacement versus augmentation is justified. Therefore, while the sources provide relevant information, the inference drawn by the agent lacks definitive support, leading to an uncertain evaluation.",
+          "input_tokens": 1782,
+          "output_tokens": 169,
+          "cost_usd": 0.0003687
+        },
+        {
+          "claim_id": "GT-097",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately paraphrases the source material, which states that enrolled households in community-based health insurance schemes experience a reduction in catastrophic health expenditure by 40–55%. The claim's range of 40–50% is within the bounds of the source's reported range, and it maintains the focus on low- and middle-income countries (LMICs) as specified in the source. Therefore, the claim is valid as it preserves the essential elements of the original statement.",
+          "input_tokens": 1482,
+          "output_tokens": 118,
+          "cost_usd": 0.00029309999999999997
+        },
+        {
+          "claim_id": "GT-100",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that soda taxes in U.S. cities have reduced sugary beverage consumption by approximately 25–30%. The source cites studies from Philadelphia, Boulder, and Oakland that found average reductions of 30–35% in taxed beverage sales in the year following implementation. The claim's range of 25–30% is slightly lower than the source's reported range of 30–35%, but it is still within a reasonable approximation, and the overall context of the claim aligns with the source's findings. Therefore, the claim is valid as it accurately reflects the general trend and scope of the data provided in the source.",
+          "input_tokens": 1464,
+          "output_tokens": 149,
+          "cost_usd": 0.000309
+        },
+        {
+          "claim_id": "GT-101",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the findings from the cited source, which states that participants in the UBI pilot reported significantly higher wellbeing and mental health scores than the control group. The source provides specific evidence of improved mental health, including lower levels of stress, depression, and sadness, which supports the claim's assertion of significantly improved mental health and wellbeing for UBI recipients compared to those receiving standard unemployment benefits.",
+          "input_tokens": 1505,
+          "output_tokens": 103,
+          "cost_usd": 0.00028754999999999997
+        },
+        {
+          "claim_id": "GT-102",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 indicates a significant decline in enrollment in teacher preparation programs, which contributes to a reduced supply of teachers. Source 2 highlights high turnover rates in high-poverty districts, indicating a demand-side issue that exacerbates the shortage. Together, these sources support the conclusion that the U.S. faces a structural teacher shortage. The claim's assertion that targeted loan forgiveness and compensation reforms alone cannot resolve this issue is reasonable given that the sources point to deeper systemic problems such as working conditions and the need for a stable teacher supply, which are not addressed solely by financial incentives.",
+          "input_tokens": 1796,
+          "output_tokens": 152,
+          "cost_usd": 0.0003606
+        },
+        {
+          "claim_id": "GT-103",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that Niger has a total fertility rate of approximately 7.0 births per woman, while the source specifies it as 6.8 births per woman. This is a concrete discrepancy, as the claim overstates the fertility rate by 0.2 births per woman. Additionally, the source confirms that Niger has the highest fertility rate, but the specific figure must be accurate for the claim to be valid.",
+          "input_tokens": 1379,
+          "output_tokens": 130,
+          "cost_usd": 0.00028485
+        }
+      ],
+      "threshold_sweep": [
+        {
+          "threshold": 0.5,
+          "t2_exit_count": 28,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 41,
+          "accuracy": 0.7735849056603774,
+          "t2_correct": 20,
+          "t2_accuracy": 0.7142857142857143,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016256320754716978,
+          "total_cost": 0.008615849999999998
+        },
+        {
+          "threshold": 0.55,
+          "t2_exit_count": 28,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 41,
+          "accuracy": 0.7735849056603774,
+          "t2_correct": 20,
+          "t2_accuracy": 0.7142857142857143,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016256320754716978,
+          "total_cost": 0.008615849999999998
+        },
+        {
+          "threshold": 0.6,
+          "t2_exit_count": 28,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 41,
+          "accuracy": 0.7735849056603774,
+          "t2_correct": 20,
+          "t2_accuracy": 0.7142857142857143,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016256320754716978,
+          "total_cost": 0.008615849999999998
+        },
+        {
+          "threshold": 0.65,
+          "t2_exit_count": 28,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 41,
+          "accuracy": 0.7735849056603774,
+          "t2_correct": 20,
+          "t2_accuracy": 0.7142857142857143,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016256320754716978,
+          "total_cost": 0.008615849999999998
+        },
+        {
+          "threshold": 0.7,
+          "t2_exit_count": 28,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 41,
+          "accuracy": 0.7735849056603774,
+          "t2_correct": 20,
+          "t2_accuracy": 0.7142857142857143,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016256320754716978,
+          "total_cost": 0.008615849999999998
+        },
+        {
+          "threshold": 0.75,
+          "t2_exit_count": 26,
+          "t2_exit_pct": 0.9285714285714286,
+          "t3_fallback_count": 2,
+          "correct": 43,
+          "accuracy": 0.8113207547169812,
+          "t2_correct": 20,
+          "t2_accuracy": 0.7692307692307693,
+          "t3_correct": 2,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.0003512424528301886,
+          "total_cost": 0.018615849999999996
+        },
+        {
+          "threshold": 0.8,
+          "t2_exit_count": 26,
+          "t2_exit_pct": 0.9285714285714286,
+          "t3_fallback_count": 2,
+          "correct": 43,
+          "accuracy": 0.8113207547169812,
+          "t2_correct": 20,
+          "t2_accuracy": 0.7692307692307693,
+          "t3_correct": 2,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.0003512424528301886,
+          "total_cost": 0.018615849999999996
+        },
+        {
+          "threshold": 0.85,
+          "t2_exit_count": 25,
+          "t2_exit_pct": 0.8928571428571429,
+          "t3_fallback_count": 3,
+          "correct": 43,
+          "accuracy": 0.8113207547169812,
+          "t2_correct": 19,
+          "t2_accuracy": 0.76,
+          "t3_correct": 3,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.00044558207547169804,
+          "total_cost": 0.023615849999999997
+        },
+        {
+          "threshold": 0.9,
+          "t2_exit_count": 21,
+          "t2_exit_pct": 0.75,
+          "t3_fallback_count": 7,
+          "correct": 45,
+          "accuracy": 0.8490566037735849,
+          "t2_correct": 17,
+          "t2_accuracy": 0.8095238095238095,
+          "t3_correct": 7,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.0008229405660377358,
+          "total_cost": 0.04361585
+        },
+        {
+          "threshold": 0.95,
+          "t2_exit_count": 4,
+          "t2_exit_pct": 0.14285714285714285,
+          "t3_fallback_count": 24,
+          "correct": 47,
+          "accuracy": 0.8867924528301887,
+          "t2_correct": 4,
+          "t2_accuracy": 1,
+          "t3_correct": 22,
+          "t3_accuracy": 0.9166666666666666,
+          "avg_cost_per_claim": 0.0024267141509433966,
+          "total_cost": 0.12861585000000003
+        }
+      ]
+    },
+    "3": {
+      "label": "eval-set-3",
+      "n_total": 50,
+      "n_t1_exits": 23,
+      "n_non_t1": 27,
+      "raw_t2_results": [
+        {
+          "claim_id": "GT-106",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The source states that 'Only about 1 in 4 households eligible for federal rental assistance actually receives it,' which translates to fewer than 25%. The claim accurately reflects this statistic and the reason for the low reach is attributed to 'funding limitations,' which aligns with the claim's mention of 'chronic underfunding.' Therefore, the claim is supported by the source material with appropriate precision and scope.",
+          "input_tokens": 1482,
+          "output_tokens": 112,
+          "cost_usd": 0.0002895
+        },
+        {
+          "claim_id": "GT-107",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.95,
+          "t2_reasoning": "The source states that 'Black Americans are incarcerated in state prisons at a rate 5 times higher than white Americans,' which directly supports the claim. The claim accurately reflects the statistic provided in the source without any discrepancies in numbers, units, or time period. The population is correctly bounded to Black and white Americans, and the direction of the statistic is also correct, confirming that Black Americans are incarcerated at a higher rate.",
+          "input_tokens": 1412,
+          "output_tokens": 111,
+          "cost_usd": 0.00027839999999999994
+        },
+        {
+          "claim_id": "GT-108",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that Ethiopia's low tax-to-GDP ratio is around 6%, which is a paraphrase of the source's figure of approximately 5.4%. This minor rounding is acceptable as it does not materially change the meaning. The source also supports the assertion of structural weaknesses in revenue collection, which aligns with the claim's characterization of the government's limitations in financing public services. Therefore, the claim is valid as it accurately reflects the source material.",
+          "input_tokens": 1484,
+          "output_tokens": 121,
+          "cost_usd": 0.00029519999999999997
+        },
+        {
+          "claim_id": "GT-111",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the source material, which indicates that ADUs accounted for approximately 12% of new housing units permitted in California following the reforms. This aligns with the claim's characterization of the increase in housing supply as 'modest.' The source establishes a correlation between zoning reforms and the increase in ADU permits, which supports the claim's causal language of 'associated with.'",
+          "input_tokens": 1507,
+          "output_tokens": 101,
+          "cost_usd": 0.00028664999999999995
+        },
+        {
+          "claim_id": "GT-113",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that nurse staffing ratios mandated in California hospitals have been associated with lower patient mortality rates compared to states without such mandates. The cited source indicates that hospitals in California had significantly lower surgical patient mortality than those in New Jersey and Pennsylvania, and it estimates that the California mandate prevented approximately 4,600 deaths annually. This supports the claim's assertion of a causal relationship between the staffing mandate and lower mortality rates, thus validating the claim.",
+          "input_tokens": 1487,
+          "output_tokens": 112,
+          "cost_usd": 0.00029025
+        },
+        {
+          "claim_id": "GT-114",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that Ghana's cocoa sector contributes approximately 20% of the country's export earnings, while the source specifies that cocoa accounted for approximately 17% of Ghana's total merchandise export value in 2022. This is a specific, demonstrable mismatch in the export figure. The employment figure of 800,000 farming households is correctly stated in the claim, but the discrepancy in the export percentage invalidates the overall claim.",
+          "input_tokens": 1412,
+          "output_tokens": 137,
+          "cost_usd": 0.000294
+        },
+        {
+          "claim_id": "GT-115",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.95,
+          "t2_reasoning": "The claim states that ride-hailing platforms like Uber and Lyft have reduced drunk driving fatalities, implying a causal relationship. However, the cited source explicitly states, \"We found no statistically significant association between Uber's entry into 4 U.S. cities and subsequent changes in alcohol-related traffic fatalities,\" which directly contradicts the claim's assertion of a reduction in fatalities due to these platforms. Therefore, the claim is invalid due to causal overreach.",
+          "input_tokens": 1493,
+          "output_tokens": 145,
+          "cost_usd": 0.00031095
+        },
+        {
+          "claim_id": "GT-116",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically follows from the cited sources. Source 1 provides evidence of significant groundwater depletion in Punjab, indicating environmental limits to agricultural practices. Source 2 discusses the rising costs of inputs for smallholder farmers and stagnation of net farm income, suggesting economic pressures. Together, these sources support the conclusion that the Green Revolution's agricultural model may be reaching its limits due to both economic and environmental factors.",
+          "input_tokens": 1805,
+          "output_tokens": 108,
+          "cost_usd": 0.00033554999999999994
+        },
+        {
+          "claim_id": "GT-118",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The source establishes a clear causal relationship between lead exposure and reductions in IQ, stating that blood lead concentrations are inversely associated with IQ scores and that there is no identifiable threshold below which lead has no effect on intellectual function. This supports the claim that lead exposure in early childhood causes lasting reductions in cognitive development and IQ, as it reflects findings from longitudinal studies. The paraphrase accurately captures the essence of the source material without altering the meaning or scope.",
+          "input_tokens": 1508,
+          "output_tokens": 113,
+          "cost_usd": 0.000294
+        },
+        {
+          "claim_id": "GT-124",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that Cambodia's primary school enrollment rate exceeded 95% by 2020. However, the cited source indicates a net enrollment rate of 94.8%, which does not support the claim of exceeding 95%. The gross enrollment ratio (GER) of 116.3% includes over-age students and is not equivalent to the net enrollment rate, which is the relevant figure for this claim. Therefore, the claim is invalid due to the specific mismatch in the enrollment rate stated.",
+          "input_tokens": 1408,
+          "output_tokens": 159,
+          "cost_usd": 0.00030659999999999997
+        },
+        {
+          "claim_id": "GT-125",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The source explicitly states that rural hospital closure rates in Medicaid non-expansion states were approximately three times higher than in expansion states, which directly supports the claim that states that expanded Medicaid under the ACA have lower rates of rural hospital closures than non-expansion states. The timeframe (2014 to 2022) and the comparison between expansion and non-expansion states are clearly articulated in the source, aligning with the claim's assertions.",
+          "input_tokens": 1437,
+          "output_tokens": 115,
+          "cost_usd": 0.00028454999999999995
+        },
+        {
+          "claim_id": "GT-127",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the projections made in the source material. The source states that the Inflation Reduction Act is projected to reduce U.S. net greenhouse gas emissions to 32–42% below 2005 levels by 2030, with a central estimate of 37–41%. The claim of a 40% reduction is within this range and maintains the necessary attribution to the modeling by the Rhodium Group. Additionally, the claim preserves the timeframe of 2030 and the context of the Inflation Reduction Act, thus making it a faithful paraphrase.",
+          "input_tokens": 1456,
+          "output_tokens": 135,
+          "cost_usd": 0.00029939999999999996
+        },
+        {
+          "claim_id": "GT-130",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically synthesizes information from both sources. Source 1 outlines the existential threats faced by Pacific Island nations due to rising sea levels, intensifying cyclone activity, and the impact on fisheries. Source 2 highlights the inadequacy of current climate finance commitments, indicating that the adaptation finance provided is insufficient given the high vulnerability of these nations. Together, these sources support the conclusion that immediate adaptation investment is necessary and that current international commitments are lacking.",
+          "input_tokens": 1795,
+          "output_tokens": 117,
+          "cost_usd": 0.00033944999999999993
+        },
+        {
+          "claim_id": "GT-131",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The source establishes a causal relationship by stating that universal in-classroom breakfast provision 'increased math and reading test scores' and 'reduced absences,' particularly among food-insecure students who showed '2–3 times larger gains.' The claim accurately reflects these findings regarding improved attendance and academic concentration for food-insecure students, maintaining the essential elements of the source material without introducing inaccuracies.",
+          "input_tokens": 1502,
+          "output_tokens": 101,
+          "cost_usd": 0.00028589999999999996
+        },
+        {
+          "claim_id": "GT-132",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that antibiotic overuse in livestock production is a 'primary driver' of antimicrobial resistance (AMR) in human clinical settings. However, the cited source indicates that while high livestock antibiotic use is associated with increased resistance in animal populations, the transmission pathway to human clinical AMR is 'incompletely characterized and contested.' This suggests that the claim overreaches by asserting a direct causal relationship without sufficient evidence, as the source does not support the idea that livestock antibiotic use is a primary driver of AMR in humans.",
+          "input_tokens": 1485,
+          "output_tokens": 172,
+          "cost_usd": 0.00032595
+        },
+        {
+          "claim_id": "GT-136",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically synthesizes information from both sources. Source 1 provides data on declining enrollment and falling bar passage rates, indicating challenges in legal education. Source 2 discusses the rising student debt loads and its negative impact on career choices, particularly in public service roles. Together, these points suggest a systemic issue in legal education that could hinder access to justice for underserved communities. The conclusion drawn in the claim follows logically from the combined evidence without major inferential leaps or misrepresentations.",
+          "input_tokens": 1790,
+          "output_tokens": 124,
+          "cost_usd": 0.00034289999999999993
+        },
+        {
+          "claim_id": "GT-139",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the findings from the source, which states that longer maternity leave duration is significantly associated with higher rates of breastfeeding initiation and longer breastfeeding duration. The source provides specific statistical evidence (OR: 1.37 per 10-week increase) supporting this association, which aligns with the claim's assertion about paid family leave policies in OECD countries. The paraphrase maintains the essential elements of the original source without altering the meaning or causal strength.",
+          "input_tokens": 1497,
+          "output_tokens": 113,
+          "cost_usd": 0.00029235000000000003
+        },
+        {
+          "claim_id": "GT-140",
+          "t2_verdict": "invalid",
+          "t2_confidence": 1,
+          "t2_reasoning": "The claim states that public housing residents are required by federal law to participate in economic self-sufficiency programs, which directly contradicts the cited source. The source clearly states that participation in the Family Self-Sufficiency program is voluntary and that Public Housing Authorities (PHAs) cannot mandate enrollment. Therefore, the claim is invalid due to this concrete misrepresentation of the source material.",
+          "input_tokens": 1501,
+          "output_tokens": 142,
+          "cost_usd": 0.00031034999999999993
+        },
+        {
+          "claim_id": "GT-141",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 highlights the rapid urbanization in West Africa and the inadequacy of urban infrastructure investment relative to population growth. Source 2 discusses the fragmented governance and low revenue generation of municipal governments, which contributes to ineffective service delivery. Together, these points suggest that without governance reforms, the challenges posed by urbanization and infrastructure deterioration will lead to compounded service delivery failures. The inference made in the claim is sound and supported by the evidence provided.",
+          "input_tokens": 1771,
+          "output_tokens": 125,
+          "cost_usd": 0.00034064999999999996
+        },
+        {
+          "claim_id": "GT-142",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that high-speed rail investment in California is projected to carry 30 million annual passengers by 2030. However, the source explicitly states that full Phase 1 service commencement is projected for no earlier than 2033, which contradicts the claim's timeline. Therefore, the claim is invalid due to the incorrect projection date.",
+          "input_tokens": 1402,
+          "output_tokens": 126,
+          "cost_usd": 0.00028589999999999996
+        },
+        {
+          "claim_id": "GT-143",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the findings of the cited source, which critiques voluntary carbon offset markets by stating that a significant percentage of projects (74%) showed no measurable benefit and that many were located in areas with low deforestation risk, leading to overstated emissions reductions. The paraphrase maintains the essence of the critique regarding integrity failures in these markets, preserving the scope and conditionality of the original findings.",
+          "input_tokens": 1573,
+          "output_tokens": 103,
+          "cost_usd": 0.00029774999999999995
+        },
+        {
+          "claim_id": "GT-144",
+          "t2_verdict": "invalid",
+          "t2_confidence": 1,
+          "t2_reasoning": "The claim states that the United Kingdom's National Health Service spends a higher share of GDP on healthcare than any other universal health coverage system in Europe. However, the cited source explicitly states that Germany (12.7%), France (12.1%), and Austria (12.0%) all spend a higher percentage of GDP on healthcare than the UK (11.9%). This directly contradicts the claim, making it invalid.",
+          "input_tokens": 1414,
+          "output_tokens": 142,
+          "cost_usd": 0.00029729999999999996
+        },
+        {
+          "claim_id": "GT-145",
+          "t2_verdict": "uncertain",
+          "t2_confidence": 0.7,
+          "t2_reasoning": "The claim states that drug treatment courts reduce reoffending rates by 10-20%, while the cited source indicates a reduction of approximately 8-14%. This discrepancy suggests that the claim may be directionally accurate but imprecise in its quantification. The source does support the notion that drug courts reduce recidivism compared to traditional incarceration, but the specific percentage range cited in the claim exceeds the evidence provided. Therefore, while the claim captures the essence of the source, the specific figures do not align, leading to uncertainty about the claim's validity.",
+          "input_tokens": 1509,
+          "output_tokens": 177,
+          "cost_usd": 0.0003325499999999999
+        },
+        {
+          "claim_id": "GT-146",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that 'sustained investment in early literacy programs... could prevent up to two-thirds of students who currently read below grade level by third grade from chronic academic underperformance.' However, the cited source explicitly mentions that 'no large-scale study has quantified a specific fraction of chronic underperformance that could be prevented.' This indicates that the claim's specific estimate of 'up to two-thirds' is unsupported by the source material, which does not provide any quantifiable figure for prevention.",
+          "input_tokens": 1426,
+          "output_tokens": 169,
+          "cost_usd": 0.00031529999999999997
+        },
+        {
+          "claim_id": "GT-148",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.95,
+          "t2_reasoning": "The source explicitly states that the United States generates approximately 808 kg of municipal solid waste per person per year, and it is noted as the highest of any country with available data. This directly supports the claim that municipal solid waste generation per capita in the United States is the highest of any country in the world.",
+          "input_tokens": 1382,
+          "output_tokens": 90,
+          "cost_usd": 0.00026129999999999995
+        },
+        {
+          "claim_id": "GT-151",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that providing conditional cash transfers (CCTs) to pregnant women in rural areas of low-income countries is associated with improved birth weight outcomes. The source supports this by stating that programs conditioning transfers on prenatal care attendance led to significant improvements in birth weight, specifically noting average improvements of 50–100 grams. The source establishes a causal relationship between the CCTs and improved birth weight outcomes, as it indicates that the effect is mediated by increased prenatal care utilization. The claim accurately reflects the findings of the source, preserving the essential elements of proposition, scope, and causal strength.",
+          "input_tokens": 1478,
+          "output_tokens": 148,
+          "cost_usd": 0.00031049999999999996
+        },
+        {
+          "claim_id": "GT-152",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim asserts that 'Democratic governance and open civic space are necessary preconditions for effective development outcomes in low-income countries.' However, the cited source discusses the positive effects of democratization on GDP per capita and development outcomes but does not explicitly state that democracy is a necessary precondition for development. The source focuses on the correlation and causal relationship between democratization and growth without asserting that it is a prerequisite. Therefore, the claim overstates the conclusion of the source material.",
+          "input_tokens": 1497,
+          "output_tokens": 149,
+          "cost_usd": 0.00031395
+        }
+      ],
+      "threshold_sweep": [
+        {
+          "threshold": 0.5,
+          "t2_exit_count": 27,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 48,
+          "accuracy": 0.96,
+          "t2_correct": 26,
+          "t2_accuracy": 0.9629629629629629,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016434299999999998,
+          "total_cost": 0.00821715
+        },
+        {
+          "threshold": 0.55,
+          "t2_exit_count": 27,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 48,
+          "accuracy": 0.96,
+          "t2_correct": 26,
+          "t2_accuracy": 0.9629629629629629,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016434299999999998,
+          "total_cost": 0.00821715
+        },
+        {
+          "threshold": 0.6,
+          "t2_exit_count": 27,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 48,
+          "accuracy": 0.96,
+          "t2_correct": 26,
+          "t2_accuracy": 0.9629629629629629,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016434299999999998,
+          "total_cost": 0.00821715
+        },
+        {
+          "threshold": 0.65,
+          "t2_exit_count": 27,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 48,
+          "accuracy": 0.96,
+          "t2_correct": 26,
+          "t2_accuracy": 0.9629629629629629,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016434299999999998,
+          "total_cost": 0.00821715
+        },
+        {
+          "threshold": 0.7,
+          "t2_exit_count": 27,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 48,
+          "accuracy": 0.96,
+          "t2_correct": 26,
+          "t2_accuracy": 0.9629629629629629,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016434299999999998,
+          "total_cost": 0.00821715
+        },
+        {
+          "threshold": 0.75,
+          "t2_exit_count": 26,
+          "t2_exit_pct": 0.9629629629629629,
+          "t3_fallback_count": 1,
+          "correct": 49,
+          "accuracy": 0.98,
+          "t2_correct": 26,
+          "t2_accuracy": 1,
+          "t3_correct": 1,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.000264343,
+          "total_cost": 0.01321715
+        },
+        {
+          "threshold": 0.8,
+          "t2_exit_count": 26,
+          "t2_exit_pct": 0.9629629629629629,
+          "t3_fallback_count": 1,
+          "correct": 49,
+          "accuracy": 0.98,
+          "t2_correct": 26,
+          "t2_accuracy": 1,
+          "t3_correct": 1,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.000264343,
+          "total_cost": 0.01321715
+        },
+        {
+          "threshold": 0.85,
+          "t2_exit_count": 26,
+          "t2_exit_pct": 0.9629629629629629,
+          "t3_fallback_count": 1,
+          "correct": 49,
+          "accuracy": 0.98,
+          "t2_correct": 26,
+          "t2_accuracy": 1,
+          "t3_correct": 1,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.000264343,
+          "total_cost": 0.01321715
+        },
+        {
+          "threshold": 0.9,
+          "t2_exit_count": 21,
+          "t2_exit_pct": 0.7777777777777778,
+          "t3_fallback_count": 6,
+          "correct": 49,
+          "accuracy": 0.98,
+          "t2_correct": 21,
+          "t2_accuracy": 1,
+          "t3_correct": 6,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.0007643430000000001,
+          "total_cost": 0.038217150000000005
+        },
+        {
+          "threshold": 0.95,
+          "t2_exit_count": 5,
+          "t2_exit_pct": 0.18518518518518517,
+          "t3_fallback_count": 22,
+          "correct": 49,
+          "accuracy": 0.98,
+          "t2_correct": 5,
+          "t2_accuracy": 1,
+          "t3_correct": 22,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.0023643430000000005,
+          "total_cost": 0.11821715000000002
+        }
+      ]
+    },
+    "human": {
+      "label": "human-eval-2",
+      "n_total": 53,
+      "n_t1_exits": 25,
+      "n_non_t1": 28,
+      "raw_t2_results": [
+        {
+          "claim_id": "GT-052",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately paraphrases the source material, which states that the uninsured rate among low-income adults in expansion states fell from approximately 35% to 17%, representing a relative reduction of roughly 51%. The claim's assertion of a '50%' reduction is a close approximation of the source's figure and maintains the same scope, timeframe, and causal attribution. Therefore, the claim is valid as it faithfully reflects the evidence provided in the source.",
+          "input_tokens": 1493,
+          "output_tokens": 113,
+          "cost_usd": 0.00029175
+        },
+        {
+          "claim_id": "GT-054",
+          "t2_verdict": "uncertain",
+          "t2_confidence": 0.7,
+          "t2_reasoning": "The claim states that the U.S. child poverty rate was cut in half between 2018 and 2021, which is not directly supported by the source. The source provides data from 2019 to 2021, showing a decrease from 15.8% to 5.2%, which is a larger drop than half. Additionally, while the source attributes approximately 40% of the reduction to the expanded Child Tax Credit, it also notes that other pandemic-era supports contributed substantially, which the claim does not acknowledge. Therefore, the claim's causal attribution and timeframe are not fully aligned with the source material, leading to uncertainty about its validity.",
+          "input_tokens": 1546,
+          "output_tokens": 217,
+          "cost_usd": 0.00036209999999999997
+        },
+        {
+          "claim_id": "GT-055",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The source clearly states that Bolsa Escola/Família increased school attendance rates by approximately 5 percentage points among beneficiary children aged 6–15. The claim accurately reflects this finding, using the same metric (percentage points) and population (beneficiary children). Therefore, the claim is valid as it is directly supported by the cited source material.",
+          "input_tokens": 1446,
+          "output_tokens": 90,
+          "cost_usd": 0.00027089999999999997
+        },
+        {
+          "claim_id": "GT-057",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 indicates that average annual natural flows in the Colorado River are projected to decline by 10–30% due to warming, which supports the idea of increasing temperatures impacting water availability. Source 2 provides evidence of declining snowpack and its direct correlation with increased evaporation, further suggesting that water supply will diminish. Together, these sources imply that the current water allocation agreements, which already exceed naturalized flows, will become unenforceable within 20 years as conditions worsen. The synthesis does not misrepresent the sources and the inference is sound, making the claim valid.",
+          "input_tokens": 1775,
+          "output_tokens": 151,
+          "cost_usd": 0.0003568499999999999
+        },
+        {
+          "claim_id": "GT-058",
+          "t2_verdict": "invalid",
+          "t2_confidence": 1,
+          "t2_reasoning": "The claim states that MGNREGA provides a legal guarantee of 150 days of wage employment per year, while the cited source explicitly states that it guarantees at least 100 days of wage employment per financial year. This is a specific, demonstrable mismatch in the number of days guaranteed, making the claim invalid.",
+          "input_tokens": 1400,
+          "output_tokens": 124,
+          "cost_usd": 0.0002844
+        },
+        {
+          "claim_id": "GT-061",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 indicates that wages for non-college workers have stagnated, while Source 2 highlights the rising demand for digital skills among employers and the insufficient community college enrollment in digital skills programs relative to that demand. Together, these sources support the conclusion that workforce retraining programs at community colleges are underfunded relative to the need created by stagnant wages and rising skill requirements.",
+          "input_tokens": 1795,
+          "output_tokens": 112,
+          "cost_usd": 0.00033644999999999997
+        },
+        {
+          "claim_id": "GT-064",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that the U.S. ranks 16th among OECD countries on infrastructure quality, while the source indicates that the U.S. ranked 13th globally. This is a concrete error in the ranking and direction of the comparison, as the claim misrepresents the U.S. ranking as lower than stated in the source.",
+          "input_tokens": 1468,
+          "output_tokens": 127,
+          "cost_usd": 0.0002964
+        },
+        {
+          "claim_id": "GT-065",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The source states that Pakistan's total external debt and liabilities stood at $126.3 billion as of June 2022, which confirms that it exceeded $100 billion for the first time in that year. The figure, units, and time period are all consistent with the claim.",
+          "input_tokens": 1384,
+          "output_tokens": 84,
+          "cost_usd": 0.000258
+        },
+        {
+          "claim_id": "GT-066",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.95,
+          "t2_reasoning": "The claim states that implicit bias training programs have been shown to reduce racially disparate use-of-force incidents. However, the cited source explicitly states that 'the evidence that implicit bias training reduces discriminatory policing behavior or use-of-force disparities is weak and inconsistent.' This directly contradicts the claim's assertion of demonstrated effectiveness, indicating a concrete error in the claim.",
+          "input_tokens": 1453,
+          "output_tokens": 131,
+          "cost_usd": 0.00029654999999999997
+        },
+        {
+          "claim_id": "GT-068",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that carbon pricing mechanisms cover at least 25% of global emissions, while the source explicitly states that they cover 23% of global greenhouse gas emissions. This is a specific, demonstrable mismatch in the percentage reported, making the claim invalid.",
+          "input_tokens": 1450,
+          "output_tokens": 102,
+          "cost_usd": 0.0002787
+        },
+        {
+          "claim_id": "GT-069",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the source material from WHO, which states that raising taxes on tobacco products is identified as the single most effective and cost-efficient measure to reduce tobacco use, particularly in low- and middle-income countries (LMICs). The paraphrase maintains the key elements of the original statement, including the focus on cost-effectiveness and the specific context of LMICs. Therefore, the claim is valid as it faithfully represents the source's authority and preserves the scope and conditionality of the recommendation.",
+          "input_tokens": 1525,
+          "output_tokens": 124,
+          "cost_usd": 0.00030314999999999997
+        },
+        {
+          "claim_id": "GT-071",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the findings from the cited source, which states that participants in the Nurse-Family Partnership (NFP) had 48% fewer child abuse and neglect reports and showed significantly higher cognitive test scores and school readiness. The claim's language of 'associated with significant reductions in child maltreatment and improved child development outcomes' aligns well with the source's evidence of reduced reports of abuse and improved cognitive outcomes, preserving the causal relationship implied in the source material.",
+          "input_tokens": 1500,
+          "output_tokens": 117,
+          "cost_usd": 0.0002952
+        },
+        {
+          "claim_id": "GT-076",
+          "t2_verdict": "uncertain",
+          "t2_confidence": 0.7,
+          "t2_reasoning": "The claim states that illicitly manufactured fentanyl accounted for 'over 70%' of all overdose deaths in 2022, while the source states it was involved in 68.4% of total drug overdose deaths. Although the claim is directionally accurate, the specific percentage does not meet the threshold of 'over 70%'. Therefore, while the claim captures the essence of the source, the precise figure is not supported, leading to uncertainty about the validity of the claim.",
+          "input_tokens": 1481,
+          "output_tokens": 159,
+          "cost_usd": 0.00031755
+        },
+        {
+          "claim_id": "GT-077",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the findings from the Brookings Institution source, which states that broadband access is associated with annual household income gains ranging from $1,200 to $2,000 in communities where adoption increases. The claim preserves the attribution to the researchers and maintains the hedging language by using 'projected' rather than stating it as a definitive outcome. Therefore, the claim is valid as it is well-supported by the cited source.",
+          "input_tokens": 1394,
+          "output_tokens": 111,
+          "cost_usd": 0.0002756999999999999
+        },
+        {
+          "claim_id": "GT-079",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically follows from the combined sources. Source 1 indicates that a significant portion of U.S. counties are maternity care deserts, particularly in rural areas, which aligns with the assertion of inadequate access to prenatal care. Source 2 provides evidence of rising maternal mortality rates, particularly in rural counties, supporting the idea that these obstetric deserts contribute to health disparities. The claim accurately synthesizes these points to suggest that federal maternal health programs have not yet addressed these issues, which is a reasonable inference given the evidence presented.",
+          "input_tokens": 1780,
+          "output_tokens": 132,
+          "cost_usd": 0.00034619999999999996
+        },
+        {
+          "claim_id": "GT-080",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that Germany's Energiewende has achieved a 65% share of renewable electricity generation as of 2023. However, the cited source indicates that renewable energy sources accounted for 59.7% of Germany's net electricity generation in the first half of 2023, which does not support the claim of 65%. Additionally, the full-year 2022 renewables share was only 46%. Therefore, there is a specific, demonstrable mismatch between the claim and the source material regarding the percentage of renewable electricity generation.",
+          "input_tokens": 1422,
+          "output_tokens": 162,
+          "cost_usd": 0.00031049999999999996
+        },
+        {
+          "claim_id": "GT-083",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately paraphrases the findings from the source, which states that pay transparency laws are associated with a 2–3 percentage point reduction in within-firm gender wage gaps. The scope of the claim (state-level laws in the U.S.) aligns with the context of the source, which discusses state pay transparency mandates. The causal relationship is preserved, as the source indicates that these laws lead to reductions in gender wage gaps. Overall, the paraphrase maintains the original meaning and context.",
+          "input_tokens": 1483,
+          "output_tokens": 122,
+          "cost_usd": 0.00029564999999999995
+        },
+        {
+          "claim_id": "GT-085",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim logically follows from the cited source, which discusses the decline in public trust in democratic institutions and the rise in affective polarization. The source states that 65% of citizens believe the system works poorly, a significant increase from 2018, and notes that the U.S. has seen the sharpest rise in polarization since 1978. These trends indicate that democratic institutions are at greater risk compared to previous decades, aligning with the claim's assertion.",
+          "input_tokens": 1677,
+          "output_tokens": 120,
+          "cost_usd": 0.0003235499999999999
+        },
+        {
+          "claim_id": "GT-088",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the WHO's recommendation that community health worker programs should be integrated into national health systems with sustainable domestic financing. The source emphasizes the importance of domestic budgets for sustainability and notes the vulnerabilities of programs relying on donor funding, which aligns with the claim's assertion. The scope is preserved as it specifically mentions low-income countries, consistent with the WHO's focus on sustainability in such contexts. Therefore, the paraphrase maintains semantic fidelity to the original recommendation.",
+          "input_tokens": 1540,
+          "output_tokens": 115,
+          "cost_usd": 0.0003
+        },
+        {
+          "claim_id": "GT-089",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the findings of the source, which states that school-based mental health interventions lead to reductions in absenteeism and improvements in academic performance, particularly when implemented with fidelity. The source provides specific effect sizes for absenteeism and academic performance, supporting the causal relationship asserted in the claim.",
+          "input_tokens": 1502,
+          "output_tokens": 82,
+          "cost_usd": 0.00027449999999999995
+        },
+        {
+          "claim_id": "GT-091",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim logically follows from the cited source, which indicates that increased agricultural extension support (from 28% to 47% reach) and improved market access coincided with a decline in child stunting rates (from 36.1% to 24.1%). The source also notes that the most significant nutritional improvements were observed in rural districts where agricultural and nutrition programs were implemented together, supporting the inference that integrated rural development programs are yielding measurable nutrition gains.",
+          "input_tokens": 1689,
+          "output_tokens": 120,
+          "cost_usd": 0.00032534999999999997
+        },
+        {
+          "claim_id": "GT-092",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.95,
+          "t2_reasoning": "The claim states that \"Climate change is projected to improve global agricultural output by 2–6% per decade for the remainder of the century,\" which directly contradicts the cited source. The source indicates that climate change is projected to negatively affect crop yields globally, with declines of 2–6% per decade from 2030 onwards. This is a concrete error in the claim regarding the direction of the impact (improvement vs. decline).",
+          "input_tokens": 1449,
+          "output_tokens": 147,
+          "cost_usd": 0.00030555
+        },
+        {
+          "claim_id": "GT-095",
+          "t2_verdict": "uncertain",
+          "t2_confidence": 0.7,
+          "t2_reasoning": "The claim suggests that stagnating labor productivity growth and accelerating automation investment indicate that technology adoption is primarily displacing workers rather than augmenting their productivity. Source 1 provides evidence of stagnating labor productivity growth in the U.S. service sector, while Source 2 indicates a significant increase in automation investment in service industries. However, Source 2 also mentions that the productivity impacts of these automation investments may not yet be captured due to typical adoption lags. This creates ambiguity regarding the relationship between automation and productivity, making it unclear whether the claim's conclusion follows logically from the sources. Therefore, the claim cannot be definitively validated or invalidated based on the provided evidence, leading to an uncertain verdict.",
+          "input_tokens": 1782,
+          "output_tokens": 168,
+          "cost_usd": 0.0003681
+        },
+        {
+          "claim_id": "GT-097",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately paraphrases the findings from the source, which states that enrolled households in community-based health insurance schemes experience a 40–55% reduction in catastrophic health expenditure compared to uninsured households. The claim's range of 40–50% is within the bounds of the source's reported range of 40–55%, maintaining the essential meaning and causal relationship. Therefore, the claim is valid as it preserves the proposition, scope, timeframe, attribution, modality, and causal strength.",
+          "input_tokens": 1496,
+          "output_tokens": 121,
+          "cost_usd": 0.00029699999999999996
+        },
+        {
+          "claim_id": "GT-100",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that soda taxes have reduced sugary beverage consumption by approximately 25–30% in taxed jurisdictions. The cited source reports average reductions of 30–35% in taxed beverage sales in specific cities (Philadelphia, Boulder, and Oakland) in the year following implementation. The claim's range of 25–30% is slightly lower than the source's 30–35%, but it is still within a reasonable approximation, and the overall proposition regarding the effect of soda taxes on consumption is preserved. Therefore, the paraphrase is valid.",
+          "input_tokens": 1464,
+          "output_tokens": 133,
+          "cost_usd": 0.00029939999999999996
+        },
+        {
+          "claim_id": "GT-101",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim accurately reflects the findings from the cited source, which states that participants in the UBI pilot reported significantly higher wellbeing and mental health scores compared to the control group. The source provides specific evidence of improved wellbeing and lower levels of stress, depression, and sadness among UBI recipients, aligning with the claim's assertion of improved mental health and wellbeing compared to standard unemployment benefits.",
+          "input_tokens": 1473,
+          "output_tokens": 105,
+          "cost_usd": 0.00028395
+        },
+        {
+          "claim_id": "GT-102",
+          "t2_verdict": "valid",
+          "t2_confidence": 0.85,
+          "t2_reasoning": "The claim logically synthesizes evidence from both sources. Source 1 indicates a significant decline in enrollment in teacher preparation programs, which contributes to the supply side of the teacher shortage. Source 2 provides evidence of high turnover rates in high-poverty schools, indicating a demand-side issue. Together, these sources support the conclusion that the U.S. faces a structural teacher shortage. The claim's assertion that targeted loan forgiveness and compensation reforms alone cannot resolve this issue is reasonable, given that the sources highlight both enrollment and retention challenges, suggesting that broader systemic issues are at play.",
+          "input_tokens": 1796,
+          "output_tokens": 142,
+          "cost_usd": 0.00035459999999999995
+        },
+        {
+          "claim_id": "GT-103",
+          "t2_verdict": "invalid",
+          "t2_confidence": 0.9,
+          "t2_reasoning": "The claim states that Niger has the highest total fertility rate in the world at approximately 7.0 births per woman. However, the source states that Niger's total fertility rate was 6.8 births per woman, which is lower than 7.0. This discrepancy constitutes a concrete error in the claim regarding the specific figure of the fertility rate.",
+          "input_tokens": 1379,
+          "output_tokens": 117,
+          "cost_usd": 0.00027705
+        }
+      ],
+      "threshold_sweep": [
+        {
+          "threshold": 0.5,
+          "t2_exit_count": 28,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 41,
+          "accuracy": 0.7735849056603774,
+          "t2_correct": 20,
+          "t2_accuracy": 0.7142857142857143,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016198301886792449,
+          "total_cost": 0.008585099999999998
+        },
+        {
+          "threshold": 0.55,
+          "t2_exit_count": 28,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 41,
+          "accuracy": 0.7735849056603774,
+          "t2_correct": 20,
+          "t2_accuracy": 0.7142857142857143,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016198301886792449,
+          "total_cost": 0.008585099999999998
+        },
+        {
+          "threshold": 0.6,
+          "t2_exit_count": 28,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 41,
+          "accuracy": 0.7735849056603774,
+          "t2_correct": 20,
+          "t2_accuracy": 0.7142857142857143,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016198301886792449,
+          "total_cost": 0.008585099999999998
+        },
+        {
+          "threshold": 0.65,
+          "t2_exit_count": 28,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 41,
+          "accuracy": 0.7735849056603774,
+          "t2_correct": 20,
+          "t2_accuracy": 0.7142857142857143,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016198301886792449,
+          "total_cost": 0.008585099999999998
+        },
+        {
+          "threshold": 0.7,
+          "t2_exit_count": 28,
+          "t2_exit_pct": 1,
+          "t3_fallback_count": 0,
+          "correct": 41,
+          "accuracy": 0.7735849056603774,
+          "t2_correct": 20,
+          "t2_accuracy": 0.7142857142857143,
+          "t3_correct": 0,
+          "t3_accuracy": 0,
+          "avg_cost_per_claim": 0.00016198301886792449,
+          "total_cost": 0.008585099999999998
+        },
+        {
+          "threshold": 0.75,
+          "t2_exit_count": 25,
+          "t2_exit_pct": 0.8928571428571429,
+          "t3_fallback_count": 3,
+          "correct": 44,
+          "accuracy": 0.8301886792452831,
+          "t2_correct": 20,
+          "t2_accuracy": 0.8,
+          "t3_correct": 3,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.0004450018867924528,
+          "total_cost": 0.023585099999999998
+        },
+        {
+          "threshold": 0.8,
+          "t2_exit_count": 25,
+          "t2_exit_pct": 0.8928571428571429,
+          "t3_fallback_count": 3,
+          "correct": 44,
+          "accuracy": 0.8301886792452831,
+          "t2_correct": 20,
+          "t2_accuracy": 0.8,
+          "t3_correct": 3,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.0004450018867924528,
+          "total_cost": 0.023585099999999998
+        },
+        {
+          "threshold": 0.85,
+          "t2_exit_count": 25,
+          "t2_exit_pct": 0.8928571428571429,
+          "t3_fallback_count": 3,
+          "correct": 44,
+          "accuracy": 0.8301886792452831,
+          "t2_correct": 20,
+          "t2_accuracy": 0.8,
+          "t3_correct": 3,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.0004450018867924528,
+          "total_cost": 0.023585099999999998
+        },
+        {
+          "threshold": 0.9,
+          "t2_exit_count": 22,
+          "t2_exit_pct": 0.7857142857142857,
+          "t3_fallback_count": 6,
+          "correct": 46,
+          "accuracy": 0.8679245283018868,
+          "t2_correct": 19,
+          "t2_accuracy": 0.8636363636363636,
+          "t3_correct": 6,
+          "t3_accuracy": 1,
+          "avg_cost_per_claim": 0.0007280207547169811,
+          "total_cost": 0.0385851
+        },
+        {
+          "threshold": 0.95,
+          "t2_exit_count": 3,
+          "t2_exit_pct": 0.10714285714285714,
+          "t3_fallback_count": 25,
+          "correct": 47,
+          "accuracy": 0.8867924528301887,
+          "t2_correct": 3,
+          "t2_accuracy": 1,
+          "t3_correct": 23,
+          "t3_accuracy": 0.92,
+          "avg_cost_per_claim": 0.0025204735849056604,
+          "total_cost": 0.1335851
+        }
+      ]
+    }
+  }
+}

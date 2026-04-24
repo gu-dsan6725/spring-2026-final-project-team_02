@@ -11,6 +11,8 @@ import type { NotesLogEntry } from '@/types/claims';
 interface ClaimSelectorProps {
   entries: NotesLogEntry[];
   onRunEvaluation: (selectedIds: string[]) => void;
+  /** Claim IDs that have already been evaluated — shown with a badge, excluded from default selection */
+  alreadyEvaluated?: Set<string>;
 }
 
 // ---------------------------------------------------------------------------
@@ -54,10 +56,20 @@ const RISK_COLOR: Record<'low' | 'medium' | 'high', { bg: string; text: string }
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function ClaimSelector({ entries, onRunEvaluation }: ClaimSelectorProps) {
+export default function ClaimSelector({
+  entries,
+  onRunEvaluation,
+  alreadyEvaluated = new Set(),
+}: ClaimSelectorProps) {
   const defaultSelected = useMemo(
-    () => new Set(entries.filter(isHighRisk).map((e) => e.claim_id)),
-    [entries],
+    // Pre-select high-risk claims that haven't been evaluated yet
+    () =>
+      new Set(
+        entries
+          .filter((e) => isHighRisk(e) && !alreadyEvaluated.has(e.claim_id))
+          .map((e) => e.claim_id),
+      ),
+    [entries, alreadyEvaluated],
   );
 
   const [selected, setSelected] = useState<Set<string>>(defaultSelected);
@@ -74,8 +86,14 @@ export default function ClaimSelector({ entries, onRunEvaluation }: ClaimSelecto
     });
   };
 
+  const unevaluatedEntries = entries.filter((e) => !alreadyEvaluated.has(e.claim_id));
+
   const selectAll = (): void => {
     setSelected(new Set(entries.map((e) => e.claim_id)));
+  };
+
+  const selectUnevaluated = (): void => {
+    setSelected(new Set(unevaluatedEntries.map((e) => e.claim_id)));
   };
 
   const clearAll = (): void => {
@@ -131,6 +149,21 @@ export default function ClaimSelector({ entries, onRunEvaluation }: ClaimSelecto
         >
           Select All
         </button>
+        {alreadyEvaluated.size > 0 && unevaluatedEntries.length > 0 && (
+          <button
+            type="button"
+            onClick={selectUnevaluated}
+            className="text-sm px-3 py-1.5 rounded border transition-colors hover:opacity-80"
+            style={{
+              borderColor: 'var(--color-paper-dark)',
+              color: 'var(--color-navy)',
+              fontFamily: 'var(--font-sans)',
+              backgroundColor: 'white',
+            }}
+          >
+            Unevaluated Only
+          </button>
+        )}
         <button
           type="button"
           onClick={clearAll}
@@ -149,6 +182,11 @@ export default function ClaimSelector({ entries, onRunEvaluation }: ClaimSelecto
           style={{ color: 'var(--color-muted)', fontFamily: 'var(--font-sans)' }}
         >
           {selected.size.toString()} of {entries.length.toString()} selected
+          {alreadyEvaluated.size > 0 && (
+            <span className="ml-1 opacity-60">
+              ({alreadyEvaluated.size.toString()} already evaluated)
+            </span>
+          )}
         </span>
       </div>
 
@@ -175,6 +213,7 @@ export default function ClaimSelector({ entries, onRunEvaluation }: ClaimSelecto
           const isChecked = selected.has(entry.claim_id);
           const skipsNLI = typeCfg.skipNLI;
           const highRisk = isHighRisk(entry);
+          const evaluated = alreadyEvaluated.has(entry.claim_id);
 
           return (
             <label
@@ -240,7 +279,7 @@ export default function ClaimSelector({ entries, onRunEvaluation }: ClaimSelecto
                     </span>
                   )}
 
-                  {highRisk && (
+                  {highRisk && !evaluated && (
                     <span
                       className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
                       style={{
@@ -250,6 +289,19 @@ export default function ClaimSelector({ entries, onRunEvaluation }: ClaimSelecto
                       }}
                     >
                       Pre-selected (high risk)
+                    </span>
+                  )}
+
+                  {evaluated && (
+                    <span
+                      className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                      style={{
+                        backgroundColor: '#d1fae5',
+                        color: '#065f46',
+                        fontFamily: 'var(--font-sans)',
+                      }}
+                    >
+                      Already evaluated
                     </span>
                   )}
 
@@ -298,7 +350,7 @@ export default function ClaimSelector({ entries, onRunEvaluation }: ClaimSelecto
         >
           {selected.size === 0
             ? 'Select claims to evaluate'
-            : `Run HERALD Evaluation — ${selected.size.toString()} claim${selected.size !== 1 ? 's' : ''} (${formatSeconds(estTime)})`}
+            : `Run HERALD — ${selected.size.toString()} claim${selected.size !== 1 ? 's' : ''}${[...selected].some((id) => alreadyEvaluated.has(id)) ? ' (includes re-evaluation)' : ''} (${formatSeconds(estTime)})`}
         </button>
       </div>
     </div>

@@ -108,9 +108,7 @@ export function useHerald(): UseHeraldReturn {
   const evaluate = useCallback(
     async (claimIds: string[], notesLog: NotesLogEntry[], memoMarkdown: string): Promise<void> => {
       setPhase('evaluating');
-      setResults([]);
       setProgress({ completed: 0, total: claimIds.length });
-      setHumanQueue([]);
       setError(null);
 
       try {
@@ -120,8 +118,18 @@ export function useHerald(): UseHeraldReturn {
           memo_markdown: memoMarkdown,
         });
 
-        setResults(response.results);
-        setHumanQueue(response.human_queue);
+        // Accumulate results — merge new results with existing ones (new ones win on conflict)
+        setResults((prev) => {
+          const newIds = new Set(response.results.map((r) => r.claim_id));
+          const kept = prev.filter((r) => !newIds.has(r.claim_id));
+          return [...kept, ...response.results];
+        });
+        // Accumulate human queue entries the same way
+        setHumanQueue((prev) => {
+          const newIds = new Set(response.human_queue.map((e) => e.claim.claim_id));
+          const kept = prev.filter((e) => !newIds.has(e.claim.claim_id));
+          return [...kept, ...response.human_queue];
+        });
         setProgress({ completed: claimIds.length, total: claimIds.length });
         setPhase('complete');
       } catch (err: unknown) {

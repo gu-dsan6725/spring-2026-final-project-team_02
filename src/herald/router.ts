@@ -6,12 +6,16 @@
  *
  * Routing table (mirrors CLAUDE.md and CLAIM_TYPE_CONFIG):
  *
- *   statistical  → Tier 1, NLI threshold 0.90
- *   comparative  → Tier 1, NLI threshold 0.90
- *   causal       → Tier 1, NLI threshold 0.85 (lower bar)
+ *   statistical  → Tier 1, NLI threshold 0.99
+ *   comparative  → Tier 1, NLI threshold 0.99
+ *   causal       → Tier 1, NLI threshold 0.94 (lower bar)
  *   predictive   → skip to Tier 2  (NLI cannot evaluate projections)
  *   normative    → skip to Tier 2  (NLI cannot evaluate prescriptions)
  *   synthesis    → skip to Tier 2  (no single source entails synthesis)
+ *
+ * Tier 3 runs only when T2 is uncertain — the previous high-risk derivation override
+ * (agent_inference / cross_source always → T3) was removed after data showed it
+ * degraded accuracy by forcing correct T2 verdicts into an adversarial T3 stage.
  */
 
 import { CLAIM_TYPE_CONFIG, type ClaimType, type NotesLogEntry } from '../types/claims';
@@ -119,11 +123,15 @@ export async function evaluateClaim(
   tierDetails.tier_2 = tier2Output;
 
   if (tier2Output.verdict !== 'uncertain') {
-    // Confident verdict from Tier 2 — exit
+    // Confident verdict from Tier 2 — exit regardless of derivation.
+    // The previous "high-risk override" that forced agent_inference/cross_source
+    // to T3 was removed: data showed T3 was overriding correct T2 verdicts more
+    // often than it was catching genuine errors, degrading accuracy by 2-3pp.
     return _buildResult(claim, tier2Output.verdict, tier2Output, tierDetails);
   }
 
-  // -- Tier 3 — Multi-Agent Debate --
+  // -- Tier 3 — Senior Reviewer --
+  // Runs only when T2 is genuinely uncertain (confidence ≤ threshold).
   const tier3Output = await evaluateWithDebate(claim, tier2Output);
   tierDetails.tier_3 = tier3Output;
 
