@@ -169,7 +169,6 @@ Pre-commit hooks (Husky + lint-staged) run TypeScript and Python checks automati
 │       ├── models/     # Pydantic models mirroring TypeScript types
 │       └── db/         # SQLAlchemy models and repositories
 ├── tests/              # TypeScript tests (agent, herald, mcp, integration)
-├── backend/tests/      # Python tests
 └── scripts/            # Pipeline runner, benchmarking, seed data
 ```
 
