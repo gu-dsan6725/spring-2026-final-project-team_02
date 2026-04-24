@@ -1,6 +1,17 @@
-# Policy Memo Writing Agent
+# HERALD: Hierarchical Evidence Review and Automated Legitimacy Detection for AI-Generated Policy Documents
 
 An AI-powered research and writing system that produces structured policy memos with full claim-to-source provenance, then validates every factual claim through **HERALD** — a four-tier escalation pipeline for automated claim evaluation.
+
+**Authors:** Viviana Luccioli, Manav Arora, Ani Meliksetyan, Ruijie Xu
+**Course:** Applications of Generative AI for Developers — Spring 2026 Final Project
+
+## Abstract
+
+AI agents capable of conducting multi-step research and producing long-form analytical documents are increasingly deployed in knowledge-intensive domains. Yet, their susceptibility to hallucination and source misrepresentation poses serious risks in high-stakes contexts such as policy analysis. We present **HERALD** (Hierarchical Evidence Review and Automated Legitimacy Detection), a multi-tier claim verification pipeline designed specifically for AI-generated policy memos. HERALD routes claims through up to four evaluation tiers: 1) a local NLI classifier, 2) a GPT-4o-mini LLM judge with claim-type-specific prompts, 3) a Claude Haiku Senior Reviewer, and 4) human review, exiting as soon as a confident verdict is reached. Central to the design is a six-type claim taxonomy (statistical, causal, comparative, predictive, normative, synthesis) that determines both the entry tier and the evaluation criteria applied to each claim, and a structured notes log that captures source provenance during research rather than recovering it post-hoc. We evaluate HERALD on four benchmark sets totalling 206 claims and compare it against single-call Haiku and Mini baselines. On the held-out benchmark, HERALD achieves 96% accuracy, matching the Haiku baseline at 23% of its cost. Across all sets, HERALD resolves 90–96% of claims without human review. We analyse failure modes by claim type and derivation method, identify the primary cost driver (spurious T3 escalation caused by a prompt framing error), and demonstrate that a targeted fix reduces costs by 86% with no loss of accuracy.
+
+## System Architecture
+
+![System Architecture](docs/arch-diagrams/system-arch.png)
 
 ## What It Does
 
@@ -13,6 +24,8 @@ An AI-powered research and writing system that produces structured policy memos 
 ## HERALD Evaluation Pipeline
 
 HERALD (Hierarchical Evidence Review and Automated Legitimacy Detection) routes each claim based on its type:
+
+![HERALD Pipeline](docs/arch-diagrams/herald.png)
 
 | Claim Type                       | Starting Tier            | Rationale                                                     |
 | -------------------------------- | ------------------------ | ------------------------------------------------------------- |
